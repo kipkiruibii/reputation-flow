@@ -1,15 +1,48 @@
 <!DOCTYPE html>
 {% load static %}
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    {% block head %}
-    {% endblock head %}
-    <title>Document</title>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+      <!-- SEO Meta Tags -->
+      <meta name="description"
+            content="Centralize customer feedback, reviews, and FAQs from all your social channels. Showcase real customer stories to build trust and drive business growth." />
+      <meta name="author" content="Hezron Bii">
+      <meta name="keywords"
+            content="customer feedback, social proof, reviews aggregator, customer engagement, business reviews, social media reviews, FAQ management, reputation management, SaaS for businesses, reviews display" />
+      <!-- OG Meta Tags to improve the way the post looks when you share the page on Facebook, Twitter, LinkedIn -->
+      <meta property="og:site_name" content="" /> <!-- website name -->
+      <meta property="og:site" content="" /> <!-- website link -->
+      <meta property="og:title" content="Showcase Social Proof and Boost Your Business" />
+      <!-- title shown in the actual shared post -->
+      <meta property="og:description"
+            content="Easily collect and display reviews and FAQs from social media. Let your customers' voices amplify your business success." />
+
+      <!-- description shown in the actual shared post -->
+      <meta property="og:image" content="" />
+      <!-- image link, make sure it's jpg -->
+      <meta property="og:url" content="" /> <!-- where do you want your post to link to -->
+      <meta name="csrf-token" content="{{ csrf_token }}">
+      <!-- Webpage Title -->
+      <!-- <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
+    <link href="{% static 'css/fontawesome-all.min.css' %}" rel="stylesheet">
+    <link href="{% static 'css/swiper.css' %}" rel="stylesheet">
+    <link href="{% static 'css/styles.css' %}" rel="stylesheet"> -->
+
+      <!-- Favicon  -->
+      <link rel="icon" href="{% static 'images/favicon.ico' %}">
+      {% block head %}
+      {% endblock head %}
+      <title>Document</title>
 </head>
+
 <body>
-    {% block body %}
-    {% endblock body %}
+      {% block body %}
+      {% endblock body %}
 </body>
+
 </html>
