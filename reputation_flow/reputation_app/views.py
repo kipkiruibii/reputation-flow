@@ -36,7 +36,8 @@ def login(request):
     Login page
     """
     if request.user.is_authenticated:
-        return redirect('home')
+        # grab the member and their company
+        return redirect('dashboard')
     next_url = request.GET.get('next') or request.POST.get('next') or '/home'
     if next_url == '/':
         next_url = f'{next_url}#pricing'
@@ -86,25 +87,101 @@ def register(request):
     """
     Register page
     """
+    
+    
     return render(request,'register.html')
 
+@login_required
 def dashboard(request,company_id):
     """
     Dashboard displaying the referrals and FAQs
     """
-    if request.user.is_authenticated:
-        # user accessed their own page. redirect to their dashboard
-        # user accessed a different page. redirect to detail view
-        pass
+    usr=request.user
+    
     company_id=company_id
     print(company_id)
     if not company_id:
         return redirect('/')
     context={
-        'company_id':company_id
-    }
+        'company_name':None,
+        'company_profile':'https://marketplace.canva.com/EAF05vS8I5Y/2/0/1600w/canva-blue-and-yellow-modern-circle-with-chart-arrow-business-consulting-logo-design-jr327z1ASfA.jpg',
+        'company_about':'This is a dummy about',
+        'company_address':{
+            'address':None,
+            'zip':None,
+            'city':None,
+            'state':None,
+            'country':None
+            },
+        'company_socials':{
+            'instagram':None,
+            'facebook':'https://www.facebook.com',
+            'twitter':None,
+            'linkedin':None,
+            'reddit':None,
+            'email':None,
+            'website':None,
+            'whatsapp':None,
+            'phone_number':None
+        },
+        'company_id':company_id,
+        'user_permissions':{
+            'can_modify_ai_assistant':False,
+            'can_update_profile':False,
+            'can_link_unlink_account':True,
+            'can_reply_to_reviews':False,
+            'can_assign_member_review':False,
+            'can_post':False,
+            'can_see_analytics':False,
+            'can_create_team_add_member':False,
+            'can_report_issues_to_Rflow':False
+        },
+        'instagram':{
+            'profile':'https://marketplace.canva.com/EAF05vS8I5Y/2/0/1600w/canva-blue-and-yellow-modern-circle-with-chart-arrow-business-consulting-logo-design-jr327z1ASfA.jpg',
+            'username':'Deel Instagram',
+            'date_linked':'12-oct-2024',
+            'linked':True,
+            'active':True
+        },
+        'facebook':{
+            'profile':'',
+            'username':'',
+            'date_linked':'',
+            'linked':False,
+            'active':True
+        },
+        'twitter':{
+            'profile':'',
+            'username':'',
+            'date_linked':'',
+            'linked':False,
+            'active':True
+            },
+        'youtube':{
+            'profile':'',
+            'username':'',
+            'date_linked':'',
+            'linked':False,
+            'active':False
+        },
+        'google':{
+            'profile':'',
+            'username':'',
+            'date_linked':'',
+            'linked':False,
+            'active':False
+        },
+        'tiktok':{
+            'profile':'',
+            'username':'',
+            'date_linked':'',
+            'linked':False,
+            'active':False
+        },
+       }
     return render(request,'dashboard.html',context=context)
 
 def logout(request):
     logout(request.user)
     return redirect('landing')
+

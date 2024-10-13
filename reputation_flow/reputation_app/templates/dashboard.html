@@ -24,20 +24,28 @@
 
     <!-- Webpage Title -->
     <title>Turn Reviews Into Revenue</title>
-
-
     <!-- Styles -->
-    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,400;0,600;0,700;1,400&display=swap"
-        rel="stylesheet">
     <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
     <link href="{% static 'css/fontawesome-all.min.css' %}" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- bootstrap -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
+        integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js"
+        integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js"
+        integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+        crossorigin="anonymous"></script>
+
+
+
     <link href="{% static 'css/swiper.css' %}" rel="stylesheet">
     <link href="{% static 'css/styles.css' %}" rel="stylesheet">
 
     <!-- Favicon  -->
     <link rel="icon" href="{% static 'images/favicon.ico' %}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="{% static  'css/main.css' %}">
     <link rel="stylesheet" href="{% static  'css/upload.css' %}">
@@ -56,6 +64,9 @@
     <!--    GOOGLE ANALYTICS TRACKING-->
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-R3C8P55552"></script>
+
+
+
     <script>
         window.dataLayer = window.dataLayer || [];
         function gtag() { dataLayer.push(arguments); }
@@ -217,10 +228,558 @@
             margin-top: 20px;
             text-align: center;
         }
+
+        .inactive-socials {
+            color: rgb(198, 197, 197);
+            padding: 5px;
+        }
+
+        .platform {
+            cursor: pointer;
+        }
     </style>
+
 </head>
 
-<body class="{{theme}}">
+<body>
+    <!-- Modal -->
+    <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog"
+        aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLongTitle">Link account?</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div style="display: flex;gap: 20px;">
+                        <div style="width: 100px;height: 100px;border-radius: 100px;background-color: #3f1572;">
+
+                        </div>
+                        <div>
+                            <p>roniib_smm_tool</p>
+                            <p> 1400 followers</p>
+                            <p><span
+                                    style="background-color: rgb(216, 251, 239);color: rgb(8, 192, 131);padding: 5px;border-radius:5px ;font-size:10px;margin-left:5px;margin-right: 15px;">
+                                    <i class="fa fa-check"></i> Linked</span></p>
+
+                        </div>
+                        <div>
+                            <p>Permissions</p>
+                            <ul>
+                                <li>Post to account</li>
+                                <li>Get account info</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <!-- You have not linked an Instagram account -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    {% if user_permissions.can_link_unlink_account %}
+                    <button type="button" class="btn btn-primary">Change Account</button>
+                    {% else %}
+                    <button type="button" class="btn btn-primary" style="cursor: not-allowed;">Change Account</button>
+                    {% endif %}
+                    <!-- <button type="button" class="btn btn-danger">Temporary Disable</button> -->
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- instagram modal -->
+    <div class="modal fade" id="instagramModalCenter" tabindex="-1" role="dialog" aria-labelledby="instagramModalCenter"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    {% if instagram.linked %}
+                    <h5 class="modal-title" id="exampleModalLongTitle">Change Instagram account?</h5>
+                    {% else %}
+                    <h5 class="modal-title" id="exampleModalLongTitle">Link Instagram account?</h5>
+                    {% endif %}
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                {% if instagram.linked %}
+                <div class="modal-body">
+                    <div style="display: flex;gap: 20px;">
+                        <div
+                            style="width: 100px;height: 100px;border-radius: 100px;background-color: #3f1572;display: flex;justify-content: center;align-items: center;">
+                            <img src="{{ instagram.profile }}" alt="Instagram profile picture"
+                                style="max-width: 100%;height: 100%;padding: 10px;border-radius: 100px;">
+                        </div>
+                        <div>
+                            <p>Username: {{ instagram.username }}</p>
+                            <p> Linked on: {{ instagram.date_linked }}</p>
+                            <div style="display: flex;justify-content: space-between;">
+                                {% if instagram.active %}
+                                <p>
+                                    <span
+                                        style="background-color: rgb(216, 251, 239);color: rgb(8, 192, 131);padding: 5px;border-radius:5px ;font-size:10px;margin-left:5px;margin-right: 15px;">
+                                        <i class="fa fa-check"></i> Active
+                                    </span>
+                                </p>
+                                {% else %}
+                                <p>
+                                    <span
+                                        style="background-color: rgb(251, 216, 216);color: rgb(192, 8, 8);padding: 5px;border-radius:5px ;font-size:10px;margin-left:5px;margin-right: 15px;">
+                                        <i class="fa fa-cancel"></i> Inactive
+                                    </span>
+                                </p>
+                                {% endif %}
+                                <div class="form-check form-switch" style="margin-left: 20px;">
+                                    <input class="form-check-input" type="checkbox" role="switch"
+                                        id="flexSwitchCheckChecked" checked>
+                                    <label class="form-check-label" for="flexSwitchCheckChecked">Activate</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- You have not linked an Instagram account -->
+                </div>
+                {% else %}
+                <div class="modal-body">
+                    <p>No linked Instagram account. Clink Link Account below to connect to the business
+                        Instagram account </p>
+                    <!-- You have not linked an Instagram account -->
+                </div>
+                {% endif %}
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    {% if user_permissions.can_link_unlink_account %}
+                    {% if instagram.linked %}
+                    <button type="button" class="btn btn-primary">Change Account</button>
+                    {% else %}
+                    <button type="button" class="btn btn-primary">Link Account</button>
+                    {% endif %}
+
+                    {% else %}
+                    {% if instagram.linked %}
+                    <button type="button" class="btn btn-primary" style="cursor: not-allowed;">Change Account</button>
+                    {% else %}
+                    <button type="button" class="btn btn-primary" style="cursor: not-allowed;">Link Account</button>
+                    {% endif %}
+                    {% endif %}
+                    <!-- <button type="button" class="btn btn-danger">Temporary Disable</button> -->
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Facebook modal -->
+    <div class="modal fade" id="facebookModalCenter" tabindex="-1" role="dialog" aria-labelledby="facebookModalCenter"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    {% if facebook.linked %}
+                    <h5 class="modal-title" id="exampleModalLongTitle">Change Facebook account?</h5>
+                    {% else %}
+                    <h5 class="modal-title" id="exampleModalLongTitle">Link Facebook account?</h5>
+                    {% endif %}
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                {% if facebook.linked %}
+                <div class="modal-body">
+                    <div style="display: flex;gap: 20px;">
+                        <div
+                            style="width: 100px;height: 100px;border-radius: 100px;background-color: #3f1572;display: flex;justify-content: center;align-items: center;">
+                            <img src="{{ facebook.profile }}" alt="Facebook profile picture"
+                                style="max-width: 100%;height: 100%;padding: 10px;border-radius: 100px;">
+                        </div>
+                        <div>
+                            <p>Username: {{ facebook.username }}</p>
+                            <p> Linked on: {{ facebook.date_linked }}</p>
+                            <div style="display: flex;justify-content: space-between;">
+                                {% if facebook.active %}
+
+                                <p>
+                                    <span
+                                        style="background-color: rgb(216, 251, 239);color: rgb(8, 192, 131);padding: 5px;border-radius:5px ;font-size:10px;margin-left:5px;margin-right: 15px;">
+                                        <i class="fa fa-check"></i> Active
+                                    </span>
+                                </p>
+                                {% else %}
+                                <p>
+                                    <span
+                                        style="background-color: rgb(251, 216, 216);color: rgb(192, 8, 8);padding: 5px;border-radius:5px ;font-size:10px;margin-left:5px;margin-right: 15px;">
+                                        <i class="fa fa-cancel"></i> Inactive
+                                    </span>
+                                </p>
+                                {% endif %}
+                                <div class="form-check form-switch" style="margin-left: 20px;">
+                                    <input class="form-check-input" type="checkbox" role="switch"
+                                        id="flexSwitchCheckChecked" checked>
+                                    <label class="form-check-label" for="flexSwitchCheckChecked">Activate</label>
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+                    <!-- You have not linked an Instagram account -->
+                </div>
+                {% else %}
+                <div class="modal-body">
+                    <p>No linked Facebook account. Clink Link Account below to connect to the business
+                        Facebook account </p>
+                    <!-- You have not linked an Instagram account -->
+                </div>
+                {% endif %}
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    {% if user_permissions.can_link_unlink_account %}
+                    {% if facebook.linked %}
+                    <button type="button" class="btn btn-primary">Change Account</button>
+                    {% else %}
+                    <button type="button" class="btn btn-primary">Link Account</button>
+                    {% endif %}
+
+                    {% else %}
+                    {% if facebook.linked %}
+                    <button type="button" class="btn btn-primary" style="cursor: not-allowed;">Change Account</button>
+                    {% else %}
+                    <button type="button" class="btn btn-primary" style="cursor: not-allowed;">Link Account</button>
+                    {% endif %}
+                    {% endif %}
+                    <!-- <button type="button" class="btn btn-danger">Temporary Disable</button> -->
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Twitter modal -->
+    <div class="modal fade" id="twitterModalCenter" tabindex="-1" role="dialog" aria-labelledby="twitterModalCenter"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    {% if twitter.linked %}
+                    <h5 class="modal-title" id="exampleModalLongTitle">Change X (Twitter) account?</h5>
+                    {% else %}
+                    <h5 class="modal-title" id="exampleModalLongTitle">Link X (Twitter) account?</h5>
+                    {% endif %}
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                {% if twitter.linked %}
+                <div class="modal-body">
+                    <div style="display: flex;gap: 20px;">
+                        <div
+                            style="width: 100px;height: 100px;border-radius: 100px;background-color: #3f1572;display: flex;justify-content: center;align-items: center;">
+                            <img src="{{ twitter.profile }}" alt="Twitter profile picture"
+                                style="max-width: 100%;height: 100%;padding: 10px;border-radius: 100px;">
+                        </div>
+                        <div>
+                            <p>Username: {{ twitter.username }}</p>
+                            <p> Linked on: {{ twitter.date_linked }}</p>
+                            <div style="display: flex;justify-content: space-between;">
+                                {% if twitter.active %}
+                                <p>
+                                    <span
+                                        style="background-color: rgb(216, 251, 239);color: rgb(8, 192, 131);padding: 5px;border-radius:5px ;font-size:10px;margin-left:5px;margin-right: 15px;">
+                                        <i class="fa fa-check"></i> Active
+                                    </span>
+                                </p>
+                                {% else %}
+                                <p>
+                                    <span
+                                        style="background-color: rgb(251, 216, 216);color: rgb(192, 8, 8);padding: 5px;border-radius:5px ;font-size:10px;margin-left:5px;margin-right: 15px;">
+                                        <i class="fa fa-cancel"></i> Inactive
+                                    </span>
+                                </p>
+                                {% endif %}
+                                <div class="form-check form-switch" style="margin-left: 20px;">
+                                    <input class="form-check-input" type="checkbox" role="switch"
+                                        id="flexSwitchCheckChecked" checked>
+                                    <label class="form-check-label" for="flexSwitchCheckChecked">Activate</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- You have not linked an Instagram account -->
+                </div>
+                {% else %}
+                <div class="modal-body">
+                    <p>No linked X (Twitter) account. Clink Link Account below to connect to the business
+                        X (Twitter) account </p>
+                    <!-- You have not linked an Instagram account -->
+                </div>
+                {% endif %}
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    {% if user_permissions.can_link_unlink_account %}
+                    {% if twitter.linked %}
+                    <button type="button" class="btn btn-primary">Change Account</button>
+                    {% else %}
+                    <button type="button" class="btn btn-primary">Link Account</button>
+                    {% endif %}
+
+                    {% else %}
+                    {% if twitter.linked %}
+                    <button type="button" class="btn btn-primary" style="cursor: not-allowed;">Change Account</button>
+                    {% else %}
+                    <button type="button" class="btn btn-primary" style="cursor: not-allowed;">Link Account</button>
+                    {% endif %}
+                    {% endif %}
+                    <!-- <button type="button" class="btn btn-danger">Temporary Disable</button> -->
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Youtube modal -->
+    <div class="modal fade" id="youtubeModalCenter" tabindex="-1" role="dialog" aria-labelledby="youtubeModalCenter"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    {% if twitter.linked %}
+                    <h5 class="modal-title" id="exampleModalLongTitle">Change Youtube account?</h5>
+                    {% else %}
+                    <h5 class="modal-title" id="exampleModalLongTitle">Link Youtube account?</h5>
+                    {% endif %}
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                {% if youtube.linked %}
+                <div class="modal-body">
+                    <div style="display: flex;gap: 20px;">
+                        <div
+                            style="width: 100px;height: 100px;border-radius: 100px;background-color: #3f1572;display: flex;justify-content: center;align-items: center;">
+                            <img src="{{ youtube.profile }}" alt="Youtube profile picture"
+                                style="max-width: 100%;height: 100%;padding: 10px;border-radius: 100px;">
+                        </div>
+                        <div>
+                            <p>Username: {{ youtube.username }}</p>
+                            <p> Linked on: {{ youtube.date_linked }}</p>
+                            <div style="display: flex;justify-content: space-between;">
+                                {% if youtube.active %}
+                                <p>
+                                    <span
+                                        style="background-color: rgb(216, 251, 239);color: rgb(8, 192, 131);padding: 5px;border-radius:5px ;font-size:10px;margin-left:5px;margin-right: 15px;">
+                                        <i class="fa fa-check"></i> Active
+                                    </span>
+                                </p>
+                                {% else %}
+                                <p>
+                                    <span
+                                        style="background-color: rgb(251, 216, 216);color: rgb(192, 8, 8);padding: 5px;border-radius:5px ;font-size:10px;margin-left:5px;margin-right: 15px;">
+                                        <i class="fa fa-cancel"></i> Inactive
+                                    </span>
+                                </p>
+                                {% endif %}
+                                <div class="form-check form-switch" style="margin-left: 20px;">
+                                    <input class="form-check-input" type="checkbox" role="switch"
+                                        id="flexSwitchCheckChecked" checked>
+                                    <label class="form-check-label" for="flexSwitchCheckChecked">Activate</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- You have not linked an Instagram account -->
+                </div>
+                {% else %}
+                <div class="modal-body">
+                    <p>No linked Youtube account. Clink Link Account below to connect to the business
+                        Youtube account </p>
+                    <!-- You have not linked an Instagram account -->
+                </div>
+                {% endif %}
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    {% if user_permissions.can_link_unlink_account %}
+                    {% if youtube.linked %}
+                    <button type="button" class="btn btn-primary">Change Account</button>
+                    {% else %}
+                    <button type="button" class="btn btn-primary">Link Account</button>
+                    {% endif %}
+
+                    {% else %}
+                    {% if youtube.linked %}
+                    <button type="button" class="btn btn-primary" style="cursor: not-allowed;">Change Account</button>
+                    {% else %}
+                    <button type="button" class="btn btn-primary" style="cursor: not-allowed;">Link Account</button>
+                    {% endif %}
+                    {% endif %}
+                    <!-- <button type="button" class="btn btn-danger">Temporary Disable</button> -->
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- tiktok modal -->
+    <div class="modal fade" id="tiktokModalCenter" tabindex="-1" role="dialog" aria-labelledby="tiktokModalCenter"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    {% if tiktok.linked %}
+                    <h5 class="modal-title" id="exampleModalLongTitle">Change Tiktok account?</h5>
+                    {% else %}
+                    <h5 class="modal-title" id="exampleModalLongTitle">Link Tiktok account?</h5>
+                    {% endif %}
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                {% if tiktok.linked %}
+                <div class="modal-body">
+                    <div style="display: flex;gap: 20px;">
+                        <div
+                            style="width: 100px;height: 100px;border-radius: 100px;background-color: #3f1572;display: flex;justify-content: center;align-items: center;">
+                            <img src="{{ tiktok.profile }}" alt="tiktok profile picture"
+                                style="max-width: 100%;height: 100%;padding: 10px;border-radius: 100px;">
+                        </div>
+                        <div>
+                            <p>Username: {{ tiktok.username }}</p>
+                            <p> Linked on: {{ tiktok.date_linked }}</p>
+                            <div style="display: flex;justify-content: space-between;">
+                                {% if tiktok.active %}
+                                <p>
+                                    <span
+                                        style="background-color: rgb(216, 251, 239);color: rgb(8, 192, 131);padding: 5px;border-radius:5px ;font-size:10px;margin-left:5px;margin-right: 15px;">
+                                        <i class="fa fa-check"></i> Active
+                                    </span>
+                                </p>
+                                {% else %}
+                                <p>
+                                    <span
+                                        style="background-color: rgb(251, 216, 216);color: rgb(192, 8, 8);padding: 5px;border-radius:5px ;font-size:10px;margin-left:5px;margin-right: 15px;">
+                                        <i class="fa fa-cancel"></i> Inactive
+                                    </span>
+                                </p>
+                                {% endif %}
+                                <div class="form-check form-switch" style="margin-left: 20px;">
+                                    <input class="form-check-input" type="checkbox" role="switch"
+                                        id="flexSwitchCheckChecked" checked>
+                                    <label class="form-check-label" for="flexSwitchCheckChecked">Activate</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- You have not linked an Instagram account -->
+                </div>
+                {% else %}
+                <div class="modal-body">
+                    <p>No linked Tiktok account. Clink Link Account below to connect to the business
+                        Tiktok account </p>
+                    <!-- You have not linked an Instagram account -->
+                </div>
+                {% endif %}
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    {% if user_permissions.can_link_unlink_account %}
+                    {% if tiktok.linked %}
+                    <button type="button" class="btn btn-primary">Change Account</button>
+                    {% else %}
+                    <button type="button" class="btn btn-primary">Link Account</button>
+                    {% endif %}
+
+                    {% else %}
+                    {% if tiktok.linked %}
+                    <button type="button" class="btn btn-primary" style="cursor: not-allowed;">Change Account</button>
+                    {% else %}
+                    <button type="button" class="btn btn-primary" style="cursor: not-allowed;">Link Account</button>
+                    {% endif %}
+                    {% endif %}
+                    <!-- <button type="button" class="btn btn-danger">Temporary Disable</button> -->
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Google Business Profile modal -->
+    <div class="modal fade" id="googleModalCenter" tabindex="-1" role="dialog" aria-labelledby="googleModalCenter"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    {% if google.linked %}
+                    <h5 class="modal-title" id="exampleModalLongTitle">Change account?</h5>
+                    {% else %}
+                    <h5 class="modal-title" id="exampleModalLongTitle">Link account?</h5>
+                    {% endif %}
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                {% if google.linked %}
+                <div class="modal-body">
+                    <div style="display: flex;gap: 20px;">
+                        <div
+                            style="width: 100px;height: 100px;border-radius: 100px;background-color: #3f1572;display: flex;justify-content: center;align-items: center;">
+                            <img src="{{ google.profile }}" alt="Reddit profile picture"
+                                style="max-width: 100%;height: 100%;padding: 10px;border-radius: 100px;">
+                        </div>
+                        <div>
+                            <p>Username: {{ google.username }}</p>
+                            <p> Linked on: {{ google.date_linked }}</p>
+                            <div style="display: flex;justify-content: space-between;">
+                                {% if google.active %}
+                                <p>
+                                    <span
+                                        style="background-color: rgb(216, 251, 239);color: rgb(8, 192, 131);padding: 5px;border-radius:5px ;font-size:10px;margin-left:5px;margin-right: 15px;">
+                                        <i class="fa fa-check"></i> Active
+                                    </span>
+                                </p>
+                                {% else %}
+                                <p>
+                                    <span
+                                        style="background-color: rgb(251, 216, 216);color: rgb(192, 8, 8);padding: 5px;border-radius:5px ;font-size:10px;margin-left:5px;margin-right: 15px;">
+                                        <i class="fa fa-cancel"></i> Inactive
+                                    </span>
+                                </p>
+                                {% endif %}
+                                <div class="form-check form-switch" style="margin-left: 20px;">
+                                    <input class="form-check-input" type="checkbox" role="switch"
+                                        id="flexSwitchCheckChecked" checked>
+                                    <label class="form-check-label" for="flexSwitchCheckChecked">Activate</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- You have not linked an Instagram account -->
+                </div>
+                {% else %}
+                <div class="modal-body">
+                    <p>No linked account. Clink Link Account below to connect to the business
+                        account </p>
+                    <!-- You have not linked an Instagram account -->
+                </div>
+                {% endif %}
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    {% if user_permissions.can_link_unlink_account %}
+                    {% if google.linked %}
+                    <button type="button" class="btn btn-primary">Change Account</button>
+                    {% else %}
+                    <button type="button" class="btn btn-primary">Link Account</button>
+                    {% endif %}
+
+                    {% else %}
+                    {% if google.linked %}
+                    <button type="button" class="btn btn-primary" style="cursor: not-allowed;">Change Account</button>
+                    {% else %}
+                    <button type="button" class="btn btn-primary" style="cursor: not-allowed;">Link Account</button>
+                    {% endif %}
+                    {% endif %}
+                    <!-- <button type="button" class="btn btn-danger">Temporary Disable</button> -->
+
+                </div>
+            </div>
+        </div>
+    </div>
+
     <p style="color:white" id="firebase-user" hidden>{{firebase_user}}</p>
 
     <div style="display:flex;justify-content:space-between;width:100%;height:100%">
@@ -248,7 +807,7 @@
                             <li id="verify-contact" data-target="#reviews-content"><i class="fa fa-comments-o"
                                     style="font-size:15px;width:30px"></i> Reviews</li>
                             <li id="report" data-target="#inbox-content"><i class="fa fa-inbox"
-                                    style="font-size:15px;width:30px"></i> Inbox</li>
+                                    style="font-size:15px;width:30px"></i> Messages</li>
                             <li id="report" data-target="#post-content"><i class="fa fa-share"
                                     style="font-size:15px;width:30px"></i> Posts</li>
                             <li id="settings" data-target="#teams-content"><i class="fa fa-group"
@@ -279,7 +838,7 @@
                         <p style="color:rgb(53, 248, 95)">Active </p>
 
                         {% else %}
-                        <p style="color:rgba(246, 22, 22, 1)">Inactive </p>
+                        <p style="color:rgba(246, 22, 22, 1)">Free trial </p>
                         {% endif %}
 
                     </div>
@@ -292,7 +851,7 @@
                     </div>
 
                     <div>
-                        <p style="font-size:12px">Please note that remaining requests do not roll over to the next month
+                        <p style="font-size:12px">Free trial <strong>ends in 5 days</strong>
                         </p>
                     </div>
                     <hr>
@@ -306,6 +865,7 @@
         </div>
         <div class="chat-container light-mode" id="" style="z-index:3;">
             <p hidden id="scam_indx"></p>
+            <!-- business page -->
             <div class="chat-content" id="business-page" style="display:block;width:100%">
                 <div class="chat-header" id="top-header">
                     <div class="logo-container">
@@ -331,32 +891,79 @@
                                 <div>
                                     <div class="business-pfp"
                                         style="margin: 20px;border-radius: 200px;width: 200px;height: 200px;background-color: rgb(247, 186, 17);display: flex;justify-content: center;align-items: center;">
-                                        <img class="business-pfp"
-                                            src="https://marketplace.canva.com/EAF05vS8I5Y/2/0/1600w/canva-blue-and-yellow-modern-circle-with-chart-arrow-business-consulting-logo-design-jr327z1ASfA.jpg"
-                                            alt="business profile"
+                                        <img class="business-pfp" src="{{ company_profile }}" alt="business profile"
                                             style="max-width: 100%;height: 100%;padding: 10px;border-radius: 200px;">
+                                    </div>
+                                    <div style="display: flex;justify-content: space-between;">
+                                        <span style="width: 5px;"></span>
+                                        <p style="font-size: 12px;color: black;cursor: pointer;padding: 0;margin: 0;">
+                                            Edit <i class="fa fa-edit"></i></p>
                                     </div>
                                     <div class="contact-info">
                                         <div class="business-name" style="text-align: center;">
-                                            <h4>Deel Limited</h4>
-                                            <p>+1 (957) 234-233-22</p>
-                                            <p>4256 Boulevard St,
-                                                Dallas Texas United States</p>
-                                            <p style="cursor: pointer;"><i class="fa fa-globe" aria-hidden="true"></i><a
-                                                    href="https://www.google.com" target="_blank"> www.deel.com</a></p>
+                                            <!-- Button trigger modal -->
+                                            <h4>{{ company_name }}</h4>
+                                            <p>{{ company_socials.phone_number }}</p>
+                                            <p>{{ company_address.address}}, {{company_address.city}}
+                                                {{company_address.state}} {{company_address.country }}</p>
+                                            {% if company_socials.website %}<p style="cursor: pointer;">
+                                                <i class="fa fa-globe" aria-hidden="true"></i>
+                                                <a href="{{company_socials.website}}" target="_blank"> visit website
+                                                    <i class="fa fa-external-link"></i>
+                                                </a>
+                                            </p>{% else %}<p class="inactive-socials " style="font-size: 12px;"><i
+                                                    class="fa fa-globe inactive-socials"></i>Add Website</p>{% endif %}
                                             <div style="display: flex;justify-content: space-around;width: 90%;">
-                                                <p><i class="fa fa-instagram"></i></p>
-                                                <p><i class="fa fa-twitter" aria-hidden="true"></i></p>
-                                                <p><i class="fa fa-facebook-f"></i></p>
-                                                <p><i class="fa fa-google" aria-hidden="true"></i></p>
-                                                <p><i class="fa fa-envelope" aria-hidden="true"></i></p>
-                                                <p><i class="fa fa-linkedin" aria-hidden="true"></i></p>
-                                                <p><i class="fa fa-reddit" aria-hidden="true"></i></p>
-                                                <p><i class="fa fa-youtube-play" aria-hidden="true"></i></p>
-                                                <p><i class="fa fa-whatsapp" aria-hidden="true"></i></p>
-                                                <!-- <p><i class="fa fa-instagram"></i></p>
-                                                <p><i class="fa fa-instagram"></i></p>
-                                                <p><i class="fa fa-instagram"></i></p> -->
+
+                                                {% if company_socials.instagram %}<p><a
+                                                        href="{{ company_socials.instagram }}" target="_blank"><i
+                                                            class="fa fa-instagram "></i></a></p>
+                                                {% else %}<i class="fa fa-instagram inactive-socials"></i>
+                                                {% endif %}
+
+                                                {% if company_socials.twitter %}<p><a
+                                                        href="{{ company_socials.twitter }}" target="_blank"><i
+                                                            class="fa fa-twitter" aria-hidden="true"></i></a></p>
+                                                {% else %}<i class="fa fa-twitter inactive-socials"></i>
+                                                {% endif %}
+
+                                                {% if company_socials.facebook %}<p><a
+                                                        href="{{ company_socials.facebook }}" target="_blank"><i
+                                                            class="fa fa-facebook-f"></i></a></p>
+                                                {% else %}<i class="fa fa-facebook-f inactive-socials"></i>
+                                                {% endif %}
+
+                                                {% if company_socials.email %}<p><a href="{{ company_socials.email }}"
+                                                        target="_blank"><i class="fa fa-envelope"
+                                                            aria-hidden="true"></i></a></p>
+                                                {% else %}<i class="fa fa-envelope inactive-socials"
+                                                    aria-hidden="true"></i>
+                                                {% endif %}
+
+                                                {% if company_socials.linkedin %}<p><a
+                                                        href="{{ company_socials.linkedin }}" target="_blank"><i
+                                                            class="fa fa-linkedin" aria-hidden="true"></i></a></p>
+                                                {% else %}<i class="fa fa-linkedin inactive-socials"></i>
+                                                {% endif %}
+
+                                                {% if company_socials.tiktok %}<p><a href="{{ company_socials.tiktok }}"
+                                                        target="_blank"><i class="fa fa-tiktok"
+                                                            aria-hidden="true"></i></a></p>
+                                                {% else %}<i class="fa fa-tiktok inactive-socials"
+                                                    aria-hidden="true"></i>
+                                                {% endif %}
+
+                                                {% if company_socials.youtube %}<p><a
+                                                        href="{{ company_socials.youtube }}" target="_blank"><i
+                                                            class="fa fa-youtube-play" aria-hidden="true"></i></a></p>
+                                                {% else %}<i class="fa fa-youtube-play inactive-socials"></i>
+                                                {% endif %}
+
+                                                {% if company_socials.whatsapp %}<p><a
+                                                        href="{{ company_socials.whatsapp }}" target="_blank"><i
+                                                            class="fa fa-whatsapp" aria-hidden="true"></i></a></p>
+                                                {% else %}<i class="fa fa-whatsapp inactive-socials"></i>
+                                                {% endif %}
 
                                             </div>
                                         </div>
@@ -367,47 +974,103 @@
                             <div class="right-details" style="width:65%;height: 70vh;padding: 20px;overflow-y: scroll;">
                                 <div class="linked-accounts">
                                     <h6>Linked Accounts</h6>
-                                    <ul style="list-style-type: none;">
+                                    <div style="display: none;">
+                                        <span id="instagram_profile"></span>
+                                        <span id="instagram_username"></span>
+                                        <span id="instagram_"></span>
+
+
+                                    </div>
+                                    <ul style="list-style-type: none; ">
                                         <li>
-                                            <p>Instagram <span
+                                            <p><span class="platform" id="ig" data-toggle="modal"
+                                                    data-target="#instagramModalCenter">Instagram</span>
+                                                {% if instagram.linked %}
+                                                <span
                                                     style="background-color: rgb(216, 251, 239);color: rgb(8, 192, 131);padding: 5px;border-radius:5px ;font-size:10px;margin-left:5px;margin-right: 15px;">
-                                                    Linked</span></p>
+                                                    Linked
+                                                </span>
+                                                {% else %}
+                                                <span
+                                                    style="background-color: rgb(251, 216, 216);color: rgb(192, 8, 8);padding: 5px;border-radius:5px ;font-size:10px;margin-left:5px;margin-right: 15px;">
+                                                    Not Linked</span>
+                                                {% endif %}
+                                            </p>
                                         </li>
                                         <li>
-                                            <p>Facebook <span
+                                            <p><span class="platform" id="fb" data-toggle="modal"
+                                                    data-target="#facebookModalCenter">Facebook</span>
+                                                {% if facebook.linked %}
+                                                <span
+                                                    style="background-color: rgb(216, 251, 239);color: rgb(8, 192, 131);padding: 5px;border-radius:5px ;font-size:10px;margin-left:5px;margin-right: 15px;">
+                                                    Linked
+                                                </span>
+                                                {% else %}
+                                                <span
                                                     style="background-color: rgb(251, 216, 216);color: rgb(192, 8, 8);padding: 5px;border-radius:5px ;font-size:10px;margin-left:5px;margin-right: 15px;">
-                                                    Not Linked</span> <i class="fa fa-link"
-                                                    style="cursor: pointer;"></i></p>
+                                                    Not Linked</span>
+                                                {% endif %}
+                                            </p>
                                         </li>
                                         <li>
-                                            <p>X (Twitter) <span
+                                            <p><span class="platform" id="yt" data-toggle="modal"
+                                                    data-target="#youtubeModalCenter">Youtube</span>
+                                                {% if youtube.linked %}
+                                                <span
+                                                    style="background-color: rgb(216, 251, 239);color: rgb(8, 192, 131);padding: 5px;border-radius:5px ;font-size:10px;margin-left:5px;margin-right: 15px;">
+                                                    Linked
+                                                </span>
+                                                {% else %}
+                                                <span
                                                     style="background-color: rgb(251, 216, 216);color: rgb(192, 8, 8);padding: 5px;border-radius:5px ;font-size:10px;margin-left:5px;margin-right: 15px;">
-                                                    Not Linked</span> <i class="fa fa-link"
-                                                    style="cursor: pointer;"></i></p>
+                                                    Not Linked</span>
+                                                {% endif %}
+                                            </p>
                                         </li>
                                         <li>
-                                            <p>Google My Business <span
+                                            <p><span class="platform" id="twitter" data-toggle="modal"
+                                                    data-target="#twitterModalCenter">X (Twitter)</span>
+                                                {% if twitter.linked %}
+                                                <span
+                                                    style="background-color: rgb(216, 251, 239);color: rgb(8, 192, 131);padding: 5px;border-radius:5px ;font-size:10px;margin-left:5px;margin-right: 15px;">
+                                                    Linked
+                                                </span>
+                                                {% else %}
+                                                <span
                                                     style="background-color: rgb(251, 216, 216);color: rgb(192, 8, 8);padding: 5px;border-radius:5px ;font-size:10px;margin-left:5px;margin-right: 15px;">
-                                                    Not Linked</span> <i class="fa fa-link"
-                                                    style="cursor: pointer;"></i></p>
+                                                    Not Linked</span>
+                                                {% endif %}
+                                            </p>
                                         </li>
                                         <li>
-                                            <p>Tiktok <span
+                                            <p><span class="platform" id="google" data-toggle="modal"
+                                                    data-target="#googleModalCenter">Google Business Profile</span>
+                                                {% if google.linked %}
+                                                <span
+                                                    style="background-color: rgb(216, 251, 239);color: rgb(8, 192, 131);padding: 5px;border-radius:5px ;font-size:10px;margin-left:5px;margin-right: 15px;">
+                                                    Linked
+                                                </span>
+                                                {% else %}
+                                                <span
                                                     style="background-color: rgb(251, 216, 216);color: rgb(192, 8, 8);padding: 5px;border-radius:5px ;font-size:10px;margin-left:5px;margin-right: 15px;">
-                                                    Not Linked</span> <i class="fa fa-link"
-                                                    style="cursor: pointer;"></i></p>
+                                                    Not Linked</span>
+                                                {% endif %}
+                                            </p>
                                         </li>
                                         <li>
-                                            <p>Reddit <span
+                                            <p><span class="platform" id="tk" data-toggle="modal"
+                                                    data-target="#tiktokModalCenter">Tiktok</span>
+                                                {% if tiktok.linked %}
+                                                <span
+                                                    style="background-color: rgb(216, 251, 239);color: rgb(8, 192, 131);padding: 5px;border-radius:5px ;font-size:10px;margin-left:5px;margin-right: 15px;">
+                                                    Linked
+                                                </span>
+                                                {% else %}
+                                                <span
                                                     style="background-color: rgb(251, 216, 216);color: rgb(192, 8, 8);padding: 5px;border-radius:5px ;font-size:10px;margin-left:5px;margin-right: 15px;">
-                                                    Not Linked</span> <i class="fa fa-link"
-                                                    style="cursor: pointer;"></i></p>
-                                        </li>
-                                        <li>
-                                            <p>LinkedIn <span
-                                                    style="background-color: rgb(251, 216, 216);color: rgb(192, 8, 8);padding: 5px;border-radius:5px ;font-size:10px;margin-left:5px;margin-right: 15px;">
-                                                    Not Linked</span> <i class="fa fa-link"
-                                                    style="cursor: pointer;"></i></p>
+                                                    Not Linked</span>
+                                                {% endif %}
+                                            </p>
                                         </li>
 
                                     </ul>
@@ -416,26 +1079,15 @@
 
                                 <div class="business-about">
                                     <h6>About <i class="fa fa-edit " style="margin-left: 20px;"></i></h6>
-                                    <p>
-                                        Lorem ipsum dolor calem, lorem ipsum dolor caler
-                                        Lorem ipsum dolor calem, lorem ipsum dolor caler
-                                        Lorem ipsum dolor calem, lorem ipsum dolor caler
-                                        Lorem ipsum dolor calem, lorem ipsum dolor caler
-                                        Lorem ipsum dolor calem, lorem ipsum dolor caler
-                                        Lorem ipsum dolor calem, lorem ipsum dolor caler
-                                        Lorem ipsum dolor calem, lorem ipsum dolor caler
-                                        Lorem ipsum dolor calem, lorem ipsum dolor caler
-                                        Lorem ipsum dolor calem, lorem ipsum dolor caler
-                                        Lorem ipsum dolor calem, lorem ipsum dolor caler
-                                        Lorem ipsum dolor calem, lorem ipsum dolor caler
-                                        Lorem ipsum dolor calem, lorem ipsum dolor caler Lorem ipsum dolor calem, lorem
-                                        ipsum dolor caler
-                                        Lorem ipsum dolor calem, lorem ipsum dolor caler
-                                        Lorem ipsum dolor calem, lorem ipsum dolor caler
-                                        Lorem ipsum dolor calem, lorem ipsum dolor caler
-                                        Lorem ipsum dolor calem, lorem ipsum dolor caler
-                                        Lorem ipsum dolor calem, lorem ipsum dolor caler
+                                    {% if company_about %}
+                                    <p id="company_about" style="padding: 10px;">
+                                        {{ company_about }}
                                     </p>
+                                    {% else %}
+                                    <p style="cursor: default;align-items: center;padding: 10px;">Click here to edit
+                                        about </p>
+                                    {% endif %}
+
                                 </div>
                                 <hr>
                                 <div class="business-about">
@@ -451,12 +1103,272 @@
 
 
                                 </div>
-                            </div>
+                                <hr>
+                                <div class="business-about">
+                                    <h6>AI Assistant </h6>
+                                    <div style="margin-left: 15px;">
+                                        <div style="display: flex;justify-content: space-between;">
+                                            <div class="form-check form-switch" style="margin-left: 20px;">
+                                                <input class="form-check-input" type="checkbox" role="switch"
+                                                    id="flexSwitchCheckChecked" checked>
+                                                <label class="form-check-label"
+                                                    for="flexSwitchCheckChecked">Enabled</label>
+                                            </div>
+                                            <div class="form-group"
+                                                style="text-align:center;font-size:20px;align-items:center;margin-top:10px;margin-bottom:20px">
+                                                <a class=" btn-solid-sm" style="cursor:pointer" id="upload-train"
+                                                    href="">Test
 
+                                                </a>
+                                            </div>
+                                        </div>
+                                        <div style="padding-left: 10px;">
+                                            <p style="font-size: 12px;padding: 0;margin: 0;">Please upload your business
+                                                documents below to
+                                                train the AI Assistant, enabling it to understand and respond
+                                                effectively to
+                                                inquiries related to your business.</p>
+                                            <a style="font-size: 12px;color: blue;" href="">Learn more</a>
+                                            <div class="input-group mb-3">
+
+                                                <div class="custom-file" style="padding: 0;">
+                                                    <input type="file" class="custom-file-input" id="inputGroupFile01"
+                                                        multiple>
+                                                    <label class="custom-file-label" for="inputGroupFile01">Choose
+                                                        files</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group"
+                                            style="text-align:center;font-size:20px;align-items:center;margin-top:30px;margin-bottom:20px">
+                                            <a class=" btn-solid-sm" style="cursor:pointer" id="upload-train"
+                                                href="">Upload
+                                                &
+                                                Train
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+
+
+                            </div>
                         </div>
+
                     </div>
                 </div>
             </div>
+
+            <!-- editing the business page  -->
+            <div class="chat-content" id="post-content" style="display:none;width: 100%;">
+                <div class="chat-header">
+                    <div class="logo-container">
+
+                    </div>
+                    <div class="user-details">
+
+                    </div>
+
+                </div>
+                <div style="display:block">
+                    <div class=""
+                        style="width:70%;align-items:center;margin-left:10%;margin-right:20%;margin-top:20px;text-align:center">
+                    </div>
+                    <div class="company-account-info">
+                        <div id="report-form"
+                            style="display:flex;justify-content:center;width:100%;height:100%;margin-top:20px;overflow-y: scroll;">
+                            <div style="width:60%">
+                                <div style="display:flex;justify-content:space-between;">
+                                    <div class="section-fun-fact">
+                                        <p>Edit Profile </p>
+                                        <hr>
+                                    </div>
+                                    <div style="height:20px;">
+                                        <a class="btn-solid-sm" id="cancel-edit" href=""
+                                            style="cursor:pointer;display:block;padding:8px">Discard
+                                            & Close
+                                            <i class="fa fa-close"></i></a>
+                                    </div>
+                                </div>
+
+                                <form style="width:100%;overflow-y:scroll;height:80%" id="report-input-form"
+                                    method="post" enctype="multipart/form-data">
+                                    <!-- profile -->
+                                    <div class="form-group">
+
+                                        <div class="input-group mb-3">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text">
+                                                    <div class="business-pfp"
+                                                        style="margin: 20px;border-radius: 100px;width: 100px;height: 100px;background-color: rgb(247, 186, 17);display: flex;justify-content: center;align-items: center;">
+                                                        <img class="business-pfp" src="{{ company_profile }}"
+                                                            alt="business profile"
+                                                            style="max-width: 100%;height: 100%;padding: 10px;border-radius: 100px;">
+                                                    </div>
+                                                </span>
+                                            </div>
+                                            <div class="custom-file">
+                                                <input type="file" class="custom-file-input" id="inputGroupFile01">
+                                                <label class="custom-file-label" for="inputGroupFile01">Choose
+                                                    file</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!--  email link -->
+                                    <div class="form-group">
+                                        <div class="input-group input-group-sm mb-3 form-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text" id="inputGroup-sizing-sm"><i
+                                                        class="fa fa-envelope" style="padding-right: 5px;"></i>
+                                                    Email</span>
+                                            </div>
+                                            <input type="text" class="form-control" aria-label="Small"
+                                                placeholder="Ex. example@company.com"
+                                                aria-describedby="inputGroup-sizing-sm">
+                                        </div>
+                                    </div>
+                                    <!--  phone number link -->
+                                    <div class="form-group">
+                                        <div class="input-group input-group-sm mb-3 form-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text" id="inputGroup-sizing-sm"><i
+                                                        class="fa fa-phone " style="padding-right: 5px;"></i>
+                                                    Phone Number</span>
+                                            </div>
+                                            <input type="text" class="form-control" aria-label="Small"
+                                                placeholder="Ex +1 xxx" aria-describedby="inputGroup-sizing-sm">
+                                        </div>
+                                    </div>
+                                    <!--  website link -->
+                                    <div class="form-group">
+                                        <div class="input-group input-group-sm mb-3 form-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text" id="inputGroup-sizing-sm"><i
+                                                        class="fa fa-globe" style="padding-right: 5px;"></i>
+                                                    Website</span>
+                                            </div>
+                                            <input type="text" class="form-control" aria-label="Small"
+                                                placeholder="Ex. https://www.example.com"
+                                                aria-describedby="inputGroup-sizing-sm">
+                                        </div>
+                                    </div>
+                                    <div class="form-group" style="font-size: 15px;">
+                                        <textarea class="form-control-textarea"
+                                            placeholder="Business full description. Include your services and other relevent details"
+                                            style="border: 1px solid #ced4da;border-radius:4px;width:100%;box-sizing: border-box;background-color: white;"
+                                            id="report-details" required></textarea>
+                                    </div>
+                                    <p>Optional but recommended social links</p>
+                                    <!--  Whatsapp link -->
+                                    <div class="form-group">
+                                        <div class="input-group input-group-sm mb-3 form-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text" id="inputGroup-sizing-sm"><i
+                                                        class="fa fa-whatsapp " style="padding-right: 5px;"></i>
+                                                    Whatsapp</span>
+                                            </div>
+                                            <input type="text" class="form-control" aria-label="Small"
+                                                placeholder="enter your Instagram profile link"
+                                                aria-describedby="inputGroup-sizing-sm">
+                                        </div>
+                                    </div>
+                                    <!-- Instagram profile link -->
+                                    <div class="form-group">
+                                        <div class="input-group input-group-sm mb-3 form-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text" id="inputGroup-sizing-sm"><i
+                                                        class="fa fa-instagram " style="padding-right: 5px;"></i>
+                                                    Instagram</span>
+                                            </div>
+                                            <input type="text" class="form-control" aria-label="Small"
+                                                placeholder="enter your Instagram profile link"
+                                                aria-describedby="inputGroup-sizing-sm">
+                                        </div>
+                                    </div>
+                                    <!--  facebook link -->
+                                    <div class="form-group">
+                                        <div class="input-group input-group-sm mb-3 form-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text" id="inputGroup-sizing-sm"><i
+                                                        class="fa fa-facebook-f " style="padding-right: 5px;"></i>
+                                                    Facebook</span>
+                                            </div>
+                                            <input type="text" class="form-control" aria-label="Small" placeholder=""
+                                                aria-describedby="inputGroup-sizing-sm">
+                                        </div>
+                                    </div>
+                                    <!--  twitter link -->
+                                    <div class="form-group">
+                                        <div class="input-group input-group-sm mb-3 form-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text" id="inputGroup-sizing-sm"><i
+                                                        class="fa fa-twitter " style="padding-right: 5px;"></i>
+                                                    X(Twitter)</span>
+                                            </div>
+                                            <input type="text" class="form-control" aria-label="Small" placeholder=""
+                                                aria-describedby="inputGroup-sizing-sm">
+                                        </div>
+                                    </div>
+                                    <!--  youtube link -->
+                                    <div class="form-group">
+                                        <div class="input-group input-group-sm mb-3 form-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text" id="inputGroup-sizing-sm"><i
+                                                        class="fa fa-youtube-play " style="padding-right: 5px;"></i>
+                                                    Youtube</span>
+                                            </div>
+                                            <input type="text" class="form-control" aria-label="Small"
+                                                placeholder="enter your Instagram profile link"
+                                                aria-describedby="inputGroup-sizing-sm">
+                                        </div>
+                                    </div>
+
+                                    <!--  tiktok link -->
+                                    <div class="form-group">
+                                        <div class="input-group input-group-sm mb-3 form-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text" id="inputGroup-sizing-sm"><i
+                                                        class="fa fa-tiktok " style="padding-right: 5px;"></i>
+                                                    Tiktok</span>
+                                            </div>
+                                            <input type="text" class="form-control" aria-label="Small"
+                                                placeholder="enter your Instagram profile link"
+                                                aria-describedby="inputGroup-sizing-sm">
+                                        </div>
+                                    </div>
+
+                                    <!-- <div id="preview" style="margin:10px">
+                                    </div> -->
+                                    <!-- <p style="font-size:12px;display:none" id="image-delete-instruction">Tap on media to
+                                        remove</p>
+                                    <p style="font-size:12px;display:block">Profile Picture
+                                    </p> -->
+                                    <!-- <div>
+                                        <input class="file-upload-input" type="file" id="myScreenshots" name="submitted"
+                                            multiple onchange="FileVerification(event)">
+                                    </div> -->
+                                    <div style="text-align:center;font-size:12px;align-items:center">
+                                        <p id="error-mess-report" style="color:red"></p>
+                                        <p id="suc-mess-report" style="color:lime"></p>
+                                    </div>
+                                    <div style="width:60%;display:flex;justify-content: space-between;">
+
+                                        <div class="form-group"
+                                            style="text-align:center;font-size:20px;align-items:center;margin-top:10px;margin-bottom:20px">
+                                            <a class=" btn-solid-sm" style="cursor:pointer" id="post-now" href="">Update
+                                                Profile</a>
+                                        </div>
+
+                                    </div>
+                                </form>
+
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+            <!-- Analytics -->
             <div class="chat-content" id="analytics-content" style="display:none;width: 100%;">
                 <div class="chat-header">
                     <div class="logo-container">
@@ -493,6 +1405,24 @@
                         style="width:70%;align-items:center;margin-left:10%;margin-right:20%;margin-top:20px;text-align:center">
                     </div>
                     <div class="company-account-info">
+                        <div
+                            style="margin-left:10px;margin-right: 10px;background-color:rgb(248, 247, 247);border-radius: 12px;display: flex;justify-content: space-between;padding:3px;align-items: center;">
+                            <div style="width:70%;display:flex;gap: 10px;">
+                                <p
+                                    style="background-color: rgb(216, 251, 239);color: rgb(0, 0, 0);padding: 5px;border-radius:5px ;font-size: 12px;cursor: pointer;">
+                                    Review</p>
+                                <p
+                                    style="background-color: rgb(216, 251, 239);color: rgb(8, 192, 131);padding: 5px;border-radius:5px ;font-size: 12px;cursor: pointer;">
+                                    Tag/Mention</p>
+                                <p
+                                    style="background-color: rgb(216, 251, 239);color: rgb(0, 0, 0);padding: 5px;border-radius:5px ;font-size: 12px;cursor: pointer;">
+                                    Queries</p>
+                            </div>
+                            <div>
+
+                                <a class="btn-solid-sm" href="#">AI Responses </a>
+                            </div>
+                        </div>
                         <div style="margin-left:20px;margin-right:20px;height:100%;padding:10px;overflow-y: scroll;">
                             <div class="review-list">
                                 <h5><span style="font-size: 12px;">from</span> Ran Blon</h5>
@@ -550,7 +1480,7 @@
                                     style="display:flex;justify-content:space-around;font-size: 12px;">
                                     <p
                                         style="background-color: rgb(216, 251, 239);color: rgb(8, 192, 131);padding: 5px;border-radius:5px ;">
-                                        Google My Business</p>
+                                        Google Business Profile</p>
                                     <p
                                         style="background-color: rgb(251, 216, 216);color: rgb(192, 8, 8);padding: 5px;border-radius:5px ;">
                                         Review</p>
@@ -572,7 +1502,7 @@
                                     style="display:flex;justify-content:space-around;font-size: 12px;">
                                     <p
                                         style="background-color: rgb(216, 251, 239);color: rgb(8, 192, 131);padding: 5px;border-radius:5px ;">
-                                        Google My Business</p>
+                                        Google Business Profile</p>
                                     <p
                                         style="background-color: rgb(251, 216, 216);color: rgb(192, 8, 8);padding: 5px;border-radius:5px ;">
                                         Review</p>
@@ -592,7 +1522,7 @@
             <div class="chat-content" id="inbox-content" style="display:none">
                 <div class="chat-header">
                     <div class="logo-container">
-                        <h4>Inbox
+                        <h4>Messages
                         </h4>
                     </div>
                     <div class="user-details">
@@ -608,7 +1538,13 @@
                     <div class="company-account-info">
                         <div
                             style="margin-left:10px;margin-right: 10px;background-color:rgb(248, 247, 247);border-radius: 10px;display: flex;justify-content: space-between;padding:3px;align-items: center;">
-                            <span style="width:30px"></span>
+                            <div style="width:70%;display:flex;gap: 10px;">
+                                <p
+                                    style="background-color: rgb(216, 251, 239);color: rgb(8, 192, 131);padding: 5px;border-radius:5px ;font-size: 12px;cursor: pointer;">
+                                    Inbox</p>
+                                <p style="padding: 5px;border-radius:5px ;font-size: 12px;cursor: pointer;">
+                                    Sent</p>
+                            </div>
                             <div>
                                 <a class="btn-solid-sm" href="#">New Message</a>
                             </div>
@@ -622,13 +1558,36 @@
 
                                 <p style="padding-left: 10px;">Please fix the error with paypal info
                                 </p>
-                                <p style="font-size: 12px;padding: 0;margin: 0;">2nd October 2024</p>
-                                <div class="review-bar"
-                                    style="display:flex;justify-content:space-around;font-size: 12px;margin-left:30%;margin-right:30%">
-                                    <p style="cursor: pointer;"><i class="fa fa-reply" aria-hidden="true"></i> Reply</p>
-                                    <p style="cursor: pointer;"><i class="fa fa-check"></i> Mark done
-                                    </p>
+                                <div style="display: flex;justify-content: space-between;margin-top: 20px;">
+                                    <p style="font-size: 12px;padding: 0;margin: 0;">2nd October 2024</p>
+                                    <div class="review-bar"
+                                        style="display:flex;gap: 20px;font-size: 12px;margin-left:30%;margin-right:30%">
+                                        <p style="cursor: pointer;"><i class="fa fa-reply" aria-hidden="true"></i> Reply
+                                        </p>
+                                        <p style="cursor: pointer;"><i class="fa fa-check"></i> Mark done
+                                        </p>
 
+                                    </div>
+                                </div>
+
+                                <hr>
+
+                                <h5><span style="font-size: 12px;">from</span> Ran Blon <span
+                                        style="font-size: 12px;font-weight: normal;background-color: rgb(216, 251, 239);color: rgb(8, 192, 131);padding: 5px;border-radius:5px ;">Product
+                                        Manager</span> </h5>
+
+                                <p style="padding-left: 10px;">Please fix the error with paypal info
+                                </p>
+                                <div style="display: flex;justify-content: space-between;margin-top: 20px;">
+                                    <p style="font-size: 12px;padding: 0;margin: 0;">2nd October 2024</p>
+                                    <div class="review-bar"
+                                        style="display:flex;gap: 20px;font-size: 12px;margin-left:30%;margin-right:30%">
+                                        <p style="cursor: pointer;"><i class="fa fa-reply" aria-hidden="true"></i> Reply
+                                        </p>
+                                        <p style="cursor: pointer;"><i class="fa fa-check"></i> Mark done
+                                        </p>
+
+                                    </div>
                                 </div>
                                 <hr>
 
@@ -638,15 +1597,16 @@
 
                                 <p style="padding-left: 10px;">Please fix the error with paypal info
                                 </p>
-                                <p style="font-size: 12px;padding: 0;margin: 0;">2nd October 2024</p>
-                                <div class="review-bar"
-                                    style="display:flex;justify-content:space-around;font-size: 12px;margin-left:30%;margin-right:30%">
-                                    <p style="cursor: pointer;"><i class="fa fa-external-link" aria-hidden="true"></i>
-                                        Link</p>
-                                    <p style="cursor: pointer;"><i class="fa fa-reply" aria-hidden="true"></i> Reply</p>
-                                    <p style="cursor: pointer;"><i class="fa fa-check"></i> Mark done
-                                    </p>
+                                <div style="display: flex;justify-content: space-between;margin-top: 20px;">
+                                    <p style="font-size: 12px;padding: 0;margin: 0;">2nd October 2024</p>
+                                    <div class="review-bar"
+                                        style="display:flex;gap: 20px;font-size: 12px;margin-left:30%;margin-right:30%">
+                                        <p style="cursor: pointer;"><i class="fa fa-reply" aria-hidden="true"></i> Reply
+                                        </p>
+                                        <p style="cursor: pointer;"><i class="fa fa-check"></i> Mark done
+                                        </p>
 
+                                    </div>
                                 </div>
                                 <hr>
 
@@ -656,33 +1616,16 @@
 
                                 <p style="padding-left: 10px;">Please fix the error with paypal info
                                 </p>
-                                <p style="font-size: 12px;padding: 0;margin: 0;">2nd October 2024</p>
-                                <div class="review-bar"
-                                    style="display:flex;justify-content:space-around;font-size: 12px;margin-left:30%;margin-right:30%">
-                                    <p style="cursor: pointer;"><i class="fa fa-external-link" aria-hidden="true"></i>
-                                        Link</p>
-                                    <p style="cursor: pointer;"><i class="fa fa-reply" aria-hidden="true"></i> Reply</p>
-                                    <p style="cursor: pointer;"><i class="fa fa-check"></i> Mark done
-                                    </p>
+                                <div style="display: flex;justify-content: space-between;margin-top: 20px;">
+                                    <p style="font-size: 12px;padding: 0;margin: 0;">2nd October 2024</p>
+                                    <div class="review-bar"
+                                        style="display:flex;gap: 20px;font-size: 12px;margin-left:30%;margin-right:30%">
+                                        <p style="cursor: pointer;"><i class="fa fa-reply" aria-hidden="true"></i> Reply
+                                        </p>
+                                        <p style="cursor: pointer;"><i class="fa fa-check"></i> Mark done
+                                        </p>
 
-                                </div>
-                                <hr>
-
-                                <h5><span style="font-size: 12px;">from</span> Ran Blon <span
-                                        style="font-size: 12px;font-weight: normal;background-color: rgb(216, 251, 239);color: rgb(8, 192, 131);padding: 5px;border-radius:5px ;">Product
-                                        Manager</span> </h5>
-
-                                <p style="padding-left: 10px;">Please fix the error with paypal info
-                                </p>
-                                <p style="font-size: 12px;padding: 0;margin: 0;">2nd October 2024</p>
-                                <div class="review-bar"
-                                    style="display:flex;justify-content:space-around;font-size: 12px;margin-left:30%;margin-right:30%">
-                                    <p style="cursor: pointer;"><i class="fa fa-external-link" aria-hidden="true"></i>
-                                        Link</p>
-                                    <p style="cursor: pointer;"><i class="fa fa-reply" aria-hidden="true"></i> Reply</p>
-                                    <p style="cursor: pointer;"><i class="fa fa-check"></i> Mark done
-                                    </p>
-
+                                    </div>
                                 </div>
                                 <hr>
 
@@ -812,13 +1755,16 @@
                                     <div class="form-group">
                                         <select id="platforms" name="platforms" data-placeholder="Select platform"
                                             multiple data-multi-select>
-                                            <option value="facebook" disabled>Facebook</option>
-                                            <option value="instagram">Instagram</option>
+                                            <option value="facebook-stories">Facebook Stories</option>
+                                            <option value="facebook-reels" disabled>Facebook Reels</option>
+                                            <option value="facebook-post" disabled>Facebook Post</option>
+                                            <option value="instagram-stories">Instagram Stories</option>
+                                            <option value="instagram-reels">Instagram Reels</option>
+                                            <option value="instagram-post">Instagram Post</option>
+                                            <option value="youtube">Youtube</option>
                                             <option value="twitter">X (Twitter)</option>
-                                            <option value="google">Google My Business</option>
+                                            <option value="google">Google Business Profile</option>
                                             <option value="tiktok">Tiktok</option>
-                                            <option value="reddit">Reddit</option>
-                                            <option value="linkedin">LinkedIn</option>
                                         </select>
                                     </div>
                                     <div class="form-group" style="font-size: 15px;">
@@ -906,13 +1852,13 @@
                                 <div class="section-fun-fact">
                                     <p>Help Us Improve – Suggest a Feature or Report an Issue!️</p>
                                 </div>
+
                                 <div style="height:20px">
-                                    <a class="btn-solid-sm" id="request-btn" style="cursor:pointer;padding:8px">Request
+                                    <a class="btn-solid-sm" id="request-btn" href="#" style="padding:8px">AI Responses
                                         <i class="fa fa-plus"></i></a>
-                                    <a class="btn-solid-sm" id="cancel-request-btn"
-                                        style="cursor:pointer;display:none;padding:8px">Discard
-                                        & Close
-                                        <i class="fa fa-close"></i></a>
+                                    <a class="btn-solid-sm" id="cancel-request-btn" href="#"
+                                        style="padding:8px;display:none">Discard
+                                        & Close <i class="fa fa-close"></i></a>
                                 </div>
                             </div>
                         </div>
@@ -975,13 +1921,15 @@
                                     <p id="suc-mess-request" style="color:lime"></p>
                                 </div>
                                 <div class="form-group" style="text-align:center;font-size:20px;align-items:center">
-                                    <a class=" btn-solid-sm" style="cursor:pointer" id="submit-request-form">Submit</a>
+                                    <a class=" btn-solid-sm" style="cursor:pointer" id="submit-request-form"
+                                        href="#">Submit</a>
                                 </div>
                             </form>
                         </div>
                     </div>
                 </div>
             </div>
+
         </div>
         <script src="{% static 'js/main.js' %}"></script>
         <script src="{% static 'js/website-scan.js' %}"></script>
@@ -992,6 +1940,21 @@
         <script src="{% static 'js/feature-request.js' %}"></script>
         <script src="{% static 'js/multiselect.js' %}"></script>
 
+        <script>
+            $(document).ready(function () {
+                // get the clicked item
+                $('.platform').click(function () {
+
+                    // $("#exampleModalCenter").modal('show');
+
+                });
+                // open the modal
+
+
+
+            });
+
+        </script>
         <script>
             var preferences = "{{ theme }}"
             if (preferences == 'dark-mode') {
