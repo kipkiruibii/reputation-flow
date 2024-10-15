@@ -3,578 +3,453 @@
 {% load static %}
 
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
     <!-- SEO Meta Tags -->
     <meta name="description"
-        content="Discover powerful, affordable tools for website analysis, reverse image searches, and brand protection. Choose from our Basic, Standard, and Business plans, starting at just $1.99. Perfect for individuals, professionals, and enterprises needing high-volume analysis and API integration.">
+        content="Centralize customer feedback, reviews, and FAQs from all your social channels. Showcase real customer stories to build trust and drive business growth." />
     <meta name="author" content="Hezron Bii">
     <meta name="keywords"
-        content="website analysis, reverse image search, brand protection, API integration, website scans, image search tools, business analysis tools, affordable analysis plans, comprehensive reports, SEO tools">
+        content="customer feedback, social proof, reviews aggregator, customer engagement, business reviews, social media reviews, FAQ management, reputation management, SaaS for businesses, reviews display" />
     <!-- OG Meta Tags to improve the way the post looks when you share the page on Facebook, Twitter, LinkedIn -->
-    <meta property="og:site_name" content="isThisAscam.online" /> <!-- website name -->
-    <meta property="og:site" content="www.isthisascam.online" /> <!-- website link -->
-    <meta property="og:title" content="AI Meets Security: Your Ultimate Solution for Identifying and Avoiding Scams" />
+    <meta property="og:site_name" content="" /> <!-- website name -->
+    <meta property="og:site" content="" /> <!-- website link -->
+    <meta property="og:title" content="Showcase Social Proof and Boost Your Business" />
     <!-- title shown in the actual shared post -->
     <meta property="og:description"
-        content="Protect yourself and your loved ones from fraud and deception. With IsThisAScam, you’re not just getting a tool—you're gaining peace of mind." />
-    <!-- description shown in the actual shared post -->
-    <meta property="og:image" content="https://pixeliabucket.s3.us-west-1.amazonaws.com/appAssets/scmm.jpg" />
-    <!-- image link, make sure it's jpg -->
-    <meta property="og:url" content="www.isthisascam.online" /> <!-- where do you want your post to link to -->
+        content="Easily collect and display reviews and FAQs from social media. Let your customers' voices amplify your business success." />
+    <meta name="csrf-token" content="{{ csrf_token }}">
 
     <!-- Webpage Title -->
-    <title>We Spot the Scams, So You Don’t Have To</title>
-
-    <!-- Styles -->
-    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,400;0,600;0,700;1,400&display=swap"
-        rel="stylesheet">
-    <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
-    <link href="{% static 'css/fontawesome-all.min.css' %}" rel="stylesheet">
-    <link href="{% static 'css/swiper.css' %}" rel="stylesheet">
-    <link href="{% static 'css/styles.css' %}" rel="stylesheet">
-
-    <!-- Favicon  -->
-    <link rel="icon" href="{% static 'images/favicon.ico' %}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <!--    <link rel="stylesheet" href="{% static  'css/main.css' %}">-->
-
+    <title>Turn Reviews Into Revenue</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- Favicon -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <!-- <link rel="manifest" href="/site.webmanifest"> -->
+    <meta name="msapplication-TileColor" content="#da532c">
+    <meta name="theme-color" content="#ffffff">
+    <link href="{% static 'css/output.css' %}" rel="stylesheet">
+    <!-- bootstrap -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
+        integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js"
+        integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js"
+        integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+        crossorigin="anonymous"></script>
+    <!-- <script src='https://kit.fontawesome.com/a076d05399.js' crossorigin='anonymous'></script> -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js@9.0.1/public/assets/styles/choices.min.css"
+        crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"
+        crossorigin='anonymous'></script>
+    <!-- <script src="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
+        crossorigin='anonymous'></script> -->
+    <link href="{% static 'css/fontawesome-all.min.css' %}" rel="stylesheet">
     <link rel="stylesheet" type="text/css"
         href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
     <script type="text/javascript"
         src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
 
-    <!--    GOOGLE ANALYTICS TRACKING-->
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-R3C8P55552"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag() { dataLayer.push(arguments); }
-        gtag('js', new Date());
-
-        gtag('config', 'G-R3C8P55552');
-    </script>
-
     <style>
-        *,
-        *:before,
-        *:after {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
 
-        body {
-            font-family: 'Open Sans', Helvetica, Arial, sans-serif;
-            background: #ffffff;
-        }
-
-        input,
-        button {
-            border: none;
-            outline: none;
-            background: none;
-            font-family: 'Open Sans', Helvetica, Arial, sans-serif;
-        }
-
-        .tip {
-            font-size: 20px;
-            margin: 40px auto 50px;
-            text-align: center;
-        }
-
-        .cont {
-            border-radius: 20px;
-            overflow: hidden;
-            position: relative;
-            margin: 0 auto 100px;
-            background: #fff;
-        }
-
-        .form {
-            position: relative;
-            width: 640px;
-            height: 100%;
-            -webkit-transition: -webkit-transform 1.2s ease-in-out;
-            transition: -webkit-transform 1.2s ease-in-out;
-            transition: transform 1.2s ease-in-out;
-            transition: transform 1.2s ease-in-out, -webkit-transform 1.2s ease-in-out;
-            padding: 50px 30px 0;
-        }
-
-        .sub-cont {
-            overflow: hidden;
-            position: absolute;
-            left: 640px;
-            top: 0;
-            background: #fff;
-            -webkit-transition: -webkit-transform 1.2s ease-in-out;
-            transition: -webkit-transform 1.2s ease-in-out;
-            transition: transform 1.2s ease-in-out;
-            transition: transform 1.2s ease-in-out, -webkit-transform 1.2s ease-in-out;
-        }
-
-        .cont.s--signup .sub-cont {
-            -webkit-transform: translate3d(-640px, 0, 0);
-            transform: translate3d(-640px, 0, 0);
-        }
-
-        .button {
-            display: block;
-            margin: 0 auto;
-            width: 100px;
-            height: 36px;
-            align-items: center;
-            border-radius: 30px;
-            color: #fff;
-            font-size: 15px;
-            cursor: pointer;
-        }
-
-        .img {
-            overflow: hidden;
-            z-index: 2;
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 260px;
-            height: 100%;
-            padding-top: 360px;
-        }
-
-        .img:before {
-            content: '';
-            position: absolute;
-            right: 0;
-            top: 0;
-            width: 900px;
-            height: 100%;
-            background-image: url("ext.jpg");
-            opacity: .8;
-            background-size: cover;
-            -webkit-transition: -webkit-transform 1.2s ease-in-out;
-            transition: transform 1.2s ease-in-out;
-            transition: transform 1.2s ease-in-out, -webkit-transform 1.2s ease-in-out;
-        }
-
-        .img:after {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.6);
-        }
-
-        .cont.s--signup .img:before {
-            -webkit-transform: translate3d(640px, 0, 0);
-            transform: translate3d(640px, 0, 0);
-        }
-
-        .img__text {
-            z-index: 2;
-            position: absolute;
-            left: 0;
-            top: 50px;
-            width: 100%;
-            padding: 0 20px;
-            text-align: center;
-            color: #fff;
-            -webkit-transition: -webkit-transform 1.2s ease-in-out;
-            transition: -webkit-transform 1.2s ease-in-out;
-            transition: transform 1.2s ease-in-out;
-            transition: transform 1.2s ease-in-out, -webkit-transform 1.2s ease-in-out;
-        }
-
-        .img__text h2 {
-            margin-bottom: 10px;
-            font-weight: normal;
-        }
-
-        .img__text p {
-            font-size: 14px;
-            line-height: 1.5;
-        }
-
-        .cont.s--signup .img__text.m--up {
-            -webkit-transform: translateX(520px);
-            transform: translateX(520px);
-        }
-
-        .img__text.m--in {
-            -webkit-transform: translateX(-520px);
-            transform: translateX(-520px);
-        }
-
-        .cont.s--signup .img__text.m--in {
-            -webkit-transform: translateX(0);
-            transform: translateX(0);
-        }
-
-        .img__btn {
-            overflow: hidden;
-            z-index: 2;
-            position: relative;
-            width: 100px;
-            height: 36px;
-            margin: 0 auto;
-            background: transparent;
-            color: #fff;
-            text-transform: uppercase;
-            font-size: 15px;
-            cursor: pointer;
-        }
-
-        .img__btn:after {
-            content: '';
-            z-index: 2;
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            border: 2px solid #fff;
-            border-radius: 30px;
-        }
-
-        .img__btn span {
-            position: absolute;
-            left: 0;
-            top: 0;
-            display: -webkit-box;
-            display: flex;
-            -webkit-box-pack: center;
-            justify-content: center;
-            -webkit-box-align: center;
-            align-items: center;
-            width: 100%;
-            height: 100%;
-            -webkit-transition: -webkit-transform 1.2s;
-            transition: -webkit-transform 1.2s;
-            transition: transform 1.2s;
-            transition: transform 1.2s, -webkit-transform 1.2s;
-        }
-
-        .img__btn span.m--in {
-            -webkit-transform: translateY(-72px);
-            transform: translateY(-72px);
-        }
-
-        .cont.s--signup .img__btn span.m--in {
-            -webkit-transform: translateY(0);
-            transform: translateY(0);
-        }
-
-        .cont.s--signup .img__btn span.m--up {
-            -webkit-transform: translateY(72px);
-            transform: translateY(72px);
-        }
-
-        h2 {
-            width: 100%;
-            font-size: 26px;
-            text-align: center;
-        }
-
-        label {
-            display: block;
-            width: 260px;
-            margin: 25px auto 0;
-            text-align: center;
-        }
-
-        label span {
-            font-size: 12px;
-            color: #cfcfcf;
-            text-transform: uppercase;
-        }
-
-        input {
-            display: block;
-            width: 100%;
-            margin-top: 5px;
-            padding-bottom: 5px;
-            font-size: 16px;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.4);
-            text-align: center;
-        }
-
-        .forgot-pass {
-            margin-top: 15px;
-            text-align: center;
-            font-size: 12px;
-            color: #cfcfcf;
-        }
-
-        .submit {
-            margin-top: 40px;
-            margin-bottom: 20px;
-            text-transform: uppercase;
-            background-color: #ff5574;
-            color: #ffffff;
-            font-weight: 600;
-            font-size: 0.875rem;
-            line-height: 0;
-            border: 1px solid #ff5574;
-            text-decoration: none;
-            transition: all 0.2s;
-        }
-
-        .submit:hover {
-            background-color: transparent;
-            color: #ff5574;
-            /* needs to stay here because of the color property of a tag */
-            text-decoration: none;
-        }
-
-
-        .fb-btn {
-            border: 2px solid #d3dae9;
-            color: #8fa1c7;
-        }
-
-        .fb-btn span {
-            font-weight: bold;
-            color: #455a81;
-        }
-
-        .sign-in {
-            -webkit-transition-timing-function: ease-out;
-            transition-timing-function: ease-out;
-        }
-
-        .cont.s--signup .sign-in {
-            -webkit-transition-timing-function: ease-in-out;
-            transition-timing-function: ease-in-out;
-            -webkit-transition-duration: 1.2s;
-            transition-duration: 1.2s;
-            -webkit-transform: translate3d(640px, 0, 0);
-            transform: translate3d(640px, 0, 0);
-        }
-
-        .sign-up {
-            -webkit-transform: translate3d(-900px, 0, 0);
-            transform: translate3d(-900px, 0, 0);
-        }
-
-        .cont.s--signup .sign-up {
-            -webkit-transform: translate3d(0, 0, 0);
-            transform: translate3d(0, 0, 0);
-        }
     </style>
-    <!-- CSRF Token -->
-    {% csrf_token %}
+    <!-- <script async defer src="https://buttons.github.io/buttons.js"></script> -->
 </head>
 
-<body data-bs-spy="scroll" data-bs-target="#navbarExample">
-
-    <!-- Navigation -->
-    <nav id="navbarExample" class="navbar navbar-expand-lg fixed-top navbar-light" aria-label="Main navigation">
-        <div class="container">
-
-            <!-- Image Logo -->
-            <a class="navbar-brand logo-image" style="height:60px;text-decoration:none" href="{% url 'landing' %}"><img
-                    style="width:50px;height:50px" src="{% static 'images/icon.jpg' %}" alt="logo"><span
-                    style="font-size:24px;text-align:start">Reputation<span style="color:red">Flow</span></span> </a>
-
-
-            <button class="navbar-toggler p-0 border-0" type="button" id="navbarSideCollapse"
-                aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="navbar-collapse offcanvas-collapse" id="navbarsExampleDefault">
-                <ul class="navbar-nav ms-auto navbar-nav-scroll">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'landing' %}">Home</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'landing' %}#how-it-works">How it works</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'landing' %}#features">Features</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'landing' %}#pricing">Pricing</a>
-                    </li>
-                </ul>
-            </div> <!-- end of navbar-collapse -->
-
-        </div> <!-- end of container -->
-    </nav> <!-- end of navbar -->
-    <!--  of navigation -->
+<body style="margin:0;padding: 0;">
+    <header class="fixed w-full" style="z-index: 5;padding: 0;margin: 0;">
+        <nav class="bg-white">
+            <div class="flex flex-wrap items-center justify-between max-w-screen-xl px-4 mx-auto"
+                style="margin: 0;padding:0;">
+                <a href="#" class="flex items-center" style="text-decoration: none;color: black;margin: 0;padding: 0;">
+                    <img src="./images/logo.svg" class="h-6 mr-3 sm:h-9" alt="ReputationFlow  Logo" />
+                    <span
+                        class="self-center text-xl font-semibold whitespace-nowrap dark:text-white">ReputationFlow</span>
+                </a>
+                <div class="flex items-center lg:order-2">
+                    <!-- <a href="#" class="text-gray-800 dark:text-white hover:bg-gray-50 focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-4 lg:px-5 py-2 lg:py-2.5 sm:mr-2 dark:hover:bg-gray-700 focus:outline-none dark:focus:ring-gray-800">Log in</a> -->
+                    <a href="https://themesberg.com/product/tailwind-css/landing-page" style="text-decoration: none;"
+                        class="text-white bg-purple-700 hover:bg-purple-800 focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-sm px-4 lg:px-5 py-2 lg:py-2.5 sm:mr-2 lg:mr-0 dark:bg-purple-600 dark:hover:bg-purple-700 focus:outline-none dark:focus:ring-purple-800">Get
+                        Started</a>
+                    <button data-collapse-toggle="mobile-menu-2" type="button"
+                        class="inline-flex items-center p-2 ml-1 text-sm text-gray-500 rounded-lg lg:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600"
+                        aria-controls="mobile-menu-2" aria-expanded="false">
+                        <span class="sr-only">Open main menu</span>
+                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                            <path fill-rule="evenodd"
+                                d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
+                                clip-rule="evenodd"></path>
+                        </svg>
+                        <svg class="hidden w-6 h-6" fill="currentColor" viewBox="0 0 20 20"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <path fill-rule="evenodd"
+                                d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                clip-rule="evenodd"></path>
+                        </svg>
+                    </button>
+                </div>
+                <div class="items-center justify-between hidden w-full lg:flex lg:w-auto lg:order-1" id="mobile-menu-2"
+                    style="padding: 0;margin: 0;">
+                    <ul class="flex flex-col mt-4 font-medium lg:flex-row lg:space-x-8 lg:mt-0">
+                        <li>
+                            <a href="#" style="text-decoration: none;"
+                                class="block py-2 pl-3 pr-4 text-white bg-purple-700 rounded lg:bg-transparent lg:text-purple-700 lg:p-0 dark:text-white"
+                                aria-current="page">Home</a>
+                        </li>
+                        <li>
+                            <a href="#features" style="text-decoration: none;"
+                                class="block py-2 pl-3 pr-4 text-gray-700 border-b border-gray-100 hover:bg-gray-50 lg:hover:bg-transparent lg:border-0 lg:hover:text-purple-700 lg:p-0 dark:text-gray-400 lg:dark:hover:text-white dark:hover:bg-gray-700 dark:hover:text-white lg:dark:hover:bg-transparent dark:border-gray-700">Features</a>
+                        </li>
+                        <li>
+                            <a href="#pricing" style="text-decoration: none;"
+                                class="block py-2 pl-3 pr-4 text-gray-700 border-b border-gray-100 hover:bg-gray-50 lg:hover:bg-transparent lg:border-0 lg:hover:text-purple-700 lg:p-0 dark:text-gray-400 lg:dark:hover:text-white dark:hover:bg-gray-700 dark:hover:text-white lg:dark:hover:bg-transparent dark:border-gray-700">Pricing</a>
+                        </li>
+                        <li>
+                            <a href="#faqs" style="text-decoration: none;"
+                                class="block py-2 pl-3 pr-4 text-gray-700 border-b border-gray-100 hover:bg-gray-50 lg:hover:bg-transparent lg:border-0 lg:hover:text-purple-700 lg:p-0 dark:text-gray-400 lg:dark:hover:text-white dark:hover:bg-gray-700 dark:hover:text-white lg:dark:hover:bg-transparent dark:border-gray-700">FAQs</a>
+                        </li>
+                        <li>
+                            <a href="#contact" style="text-decoration: none;"
+                                class="block py-2 pl-3 pr-4 text-gray-700 border-b border-gray-100 hover:bg-gray-50 lg:hover:bg-transparent lg:border-0 lg:hover:text-purple-700 lg:p-0 dark:text-gray-400 lg:dark:hover:text-white dark:hover:bg-gray-700 dark:hover:text-white lg:dark:hover:bg-transparent dark:border-gray-700">Contact</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
     <br>
-    <!-- Pills navs -->
-    <div class="cont" style="width:50%;margin-top: 10%;">
-        <ul class="nav nav-pills nav-justified mb-3" id="ex1" role="tablist">
-            <li class="nav-item" role="presentation">
-                <a class="nav-link active" id="tab-login" data-mdb-pill-init href="#pills-login" role="tab"
-                    aria-controls="pills-login" aria-selected="true">Login</a>
-            </li>
-            <li class="nav-item" role="presentation">
-                <a class="nav-link" id="tab-register" data-mdb-pill-init href="#pills-register" role="tab"
-                    aria-controls="pills-register" aria-selected="false">Register</a>
-            </li>
-        </ul>
-        <!-- Pills navs -->
+    <section style="margin-top:5%;height: 70vh;">
+        <!-- login form -->
+        <div class="container-fluid h-custom" id="login_container" style="display: block;height: 100%;">
+            <div class="row d-flex justify-content-center align-items-center h-100" style="gap: 4rem;">
+                <div class="">
+                    <img src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-login-form/draw2.webp"
+                        class="img-fluid" alt="Sample image" style="width:500px">
+                </div>
+                <div class="" style="overflow-y: scroll;height: 100%;width: 50%;">
+                    <form>
+                        <div class="d-flex flex-row align-items-center justify-content-center justify-content-lg-start">
+                            <p class="lead fw-normal mb-0 me-3">Sign in with</p>
+                            <button type="button" data-mdb-button-init data-mdb-ripple-init
+                                class="btn btn-primary btn-floating mx-1">
+                                <i class="fab fa-google"></i>
+                            </button>
 
-        <!-- Pills content -->
-        <div class="tab-content">
-            <div class="tab-pane fade show active" id="pills-login" role="tabpanel" aria-labelledby="tab-login">
-                <form>
-                    <div class="text-center mb-3">
-                        <p>Sign in with:</p>
-                        <button type="button" data-mdb-button-init data-mdb-ripple-init
-                            class="btn btn-link btn-floating mx-1">
-                            <i class="fab fa-facebook-f"></i>
-                        </button>
+                            <button type="button" data-mdb-button-init data-mdb-ripple-init
+                                class="btn btn-primary btn-floating mx-1">
+                                <i class="fab fa-twitter"></i>
+                            </button>
 
-                        <button type="button" data-mdb-button-init data-mdb-ripple-init
-                            class="btn btn-link btn-floating mx-1">
-                            <i class="fab fa-google"></i>
-                        </button>
+                            <button type="button" data-mdb-button-init data-mdb-ripple-init
+                                class="btn btn-primary btn-floating mx-1">
+                                <i class="fab fa-facebook-f"></i>
+                            </button>
+                        </div>
 
-                        <button type="button" data-mdb-button-init data-mdb-ripple-init
-                            class="btn btn-link btn-floating mx-1">
-                            <i class="fab fa-twitter"></i>
-                        </button>
+                        <div class="divider d-flex align-items-center my-4">
+                            <p class="text-center fw-bold mx-3 mb-0">Or</p>
+                        </div>
 
-                        <button type="button" data-mdb-button-init data-mdb-ripple-init
-                            class="btn btn-link btn-floating mx-1">
-                            <i class="fab fa-github"></i>
-                        </button>
-                    </div>
+                        <!-- Email input -->
+                        <div data-mdb-input-init class="form-outline mb-4">
+                            <input type="name" class="form-control " placeholder="Enter your username "
+                                id="usernameL" />
+                            <label class="form-label" for="usernameL">Username</label>
+                        </div>
 
-                    <p class="text-center">or:</p>
+                        <!-- Password input -->
+                        <div data-mdb-input-init class="form-outline mb-3">
+                            <input type="password" class="form-control" placeholder="Enter password" id="passwL" />
+                            <label class="form-label" for="passwL">Password</label>
+                        </div>
 
-                    <!-- Email input -->
-                    <div data-mdb-input-init class="form-outline mb-4">
-                        <input type="email" id="loginName" class="form-control" />
-                        <label class="form-label" for="loginName">Email or username</label>
-                    </div>
-
-                    <!-- Password input -->
-                    <div data-mdb-input-init class="form-outline mb-4">
-                        <input type="password" id="loginPassword" class="form-control" />
-                        <label class="form-label" for="loginPassword">Password</label>
-                    </div>
-
-                    <!-- 2 column grid layout -->
-                    <div class="row mb-4">
-                        <div class="col-md-6 d-flex justify-content-center">
+                        <div class="d-flex justify-content-between align-items-center">
                             <!-- Checkbox -->
-                            <div class="form-check mb-3 mb-md-0">
-                                <input class="form-check-input" type="checkbox" value="" id="loginCheck" checked />
-                                <label class="form-check-label" for="loginCheck"> Remember me </label>
+                            <div class="form-check mb-0">
+                                <input class="form-check-input me-2" type="checkbox" value="" id="rememberMe" />
+                                <label class="form-check-label" for="rememberMe">
+                                    Remember me
+                                </label>
+                            </div>
+                            <a href="#!" class="text-body">Forgot password?</a>
+                        </div>
+
+                        <div class="text-center text-lg-start mt-4 pt-2">
+                            <button type="button" data-mdb-button-init data-mdb-ripple-init
+                                class="btn btn-primary btn-lg" style="padding-left: 2.5rem; padding-right: 2.5rem;"
+                                id="LoginBtn">Login</button>
+                            <p class="small fw-bold mt-2 pt-1 mb-0">Don't have an account? <a href="#" id="register-sc"
+                                    class="link-danger">Register</a></p>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+        <!-- account register form -->
+        <div class="container-fluid h-custom" id="register_container" style="height: 100%;display: none;">
+            <div class="row d-flex justify-content-center align-items-center h-100" style="gap: 4rem;">
+                <div class="">
+                    <img src="https://png.pngtree.com/element_our/png/20181228/building-vector-icon-png_296032.jpg"
+                        style="width:100%;" class="img-fluid" alt="Sample image">
+                </div>
+                <div class="" style="overflow-y: scroll;height: 100%;width: 50%;">
+                    <form>
+                        <div class="d-flex flex-row align-items-center justify-content-center justify-content-lg-start">
+                            <p class="lead fw-normal mb-0 me-3">Sign up with</p>
+                            <button type="button" data-mdb-button-init data-mdb-ripple-init
+                                class="btn btn-primary btn-floating mx-1">
+                                <i class="fab fa-google"></i>
+                            </button>
+
+                            <button type="button" data-mdb-button-init data-mdb-ripple-init
+                                class="btn btn-primary btn-floating mx-1">
+                                <i class="fab fa-twitter"></i>
+                            </button>
+
+                            <button type="button" data-mdb-button-init data-mdb-ripple-init
+                                class="btn btn-primary btn-floating mx-1">
+                                <i class="fab fa-facebook-f"></i>
+                            </button>
+                        </div>
+
+                        <div class="divider d-flex align-items-center my-4">
+                            <p class="text-center fw-bold mx-3 mb-0">Or</p>
+                        </div>
+
+                        <!-- username input -->
+                        <div data-mdb-input-init class="form-outline mb-4">
+                            <input type="email" id="usernameR" class="form-control " placeholder="Enter username" />
+                            <label class="form-label" for="usernameR">Username</label>
+                        </div>
+                        <!-- Email input -->
+                        <div data-mdb-input-init class="form-outline mb-4">
+                            <input type="email" id="emailR" class="form-control "
+                                placeholder="Enter a valid email address" />
+                            <label class="form-label" for="emailR">Email address</label>
+                        </div>
+
+                        <!-- Password input -->
+                        <div data-mdb-input-init class="form-outline mb-3">
+                            <input type="password" id="passwordR" class="form-control" placeholder="Enter password" />
+                            <label class="form-label" for="passwordR">Password</label>
+                        </div>
+                        <!-- Confirm Password input -->
+                        <div data-mdb-input-init class="form-outline mb-3">
+                            <input type="password" id="cpasswordR" class="form-control"
+                                placeholder="Enter password again" />
+                            <label class="form-label" for="cpasswordR">Confirm Password</label>
+                        </div>
+
+                        <!-- <div class="d-flex justify-content-between align-items-center">
+                            <-- Checkbox --
+                            <div class="form-check mb-0">
+                                <input class="form-check-input me-2" type="checkbox" value="" id="agreeTerms" />
+                                <label class="form-check-label" for="agreeTerms">
+                                    I agree to terms of service
+                                </label>
+                            </div>
+                        </div>
+ -->
+                        <div class="text-center text-lg-start mt-4 pt-2">
+                            <button type="button" data-mdb-button-init data-mdb-ripple-init
+                                class="btn btn-primary btn-lg" id="continue-reg"
+                                style="padding-left: 2.5rem; padding-right: 2.5rem;">Continue to Business
+                                Registration</button>
+                            <p class="small fw-bold mt-2 pt-1 mb-0">Already have an account? <a href="#!" id="login-sc"
+                                    class="link-danger">Login</a></p>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+        <!-- business register form -->
+        <div class="container-fluid h-custom" id="register_business_container" style="height: 100%;display: none;">
+            <div class="row d-flex justify-content-center align-items-center h-100" style="gap: 4rem;">
+                <div class="">
+                    <img src="https://png.pngtree.com/element_our/png/20181228/building-vector-icon-png_296032.jpg"
+                        class="img-fluid" alt="Sample image">
+                </div>
+                <div class="" style="overflow-y: scroll;height: 100%;width: 50%;">
+                    <form>
+                        <div class="d-flex flex-row align-items-center justify-content-center justify-content-lg-start">
+                            <p class="lead fw-normal mb-0 me-3">Tell us about your business</p>
+                        </div>
+                        <hr>
+                        <!-- business category -->
+                        <div data-mdb-input-init class="form-outline mb-4">
+                            <div class="border card">
+
+                                <!-- AUTO COMPLETE DROPDOWN -->
+                                <select class="selectpicker form-control rounded " id="businessCategory">
+                                    <option value="Accounting">Accounting</option>
+                                    <option value="Advertising">Advertising</option>
+                                    <option value="Agriculture">Agriculture</option>
+                                    <option value="Apparel">Apparel</option>
+                                    <option value="Architecture">Architecture</option>
+                                    <option value="Automotive">Automotive</option>
+                                    <option value="Banking">Banking</option>
+                                    <option value="Construction">Construction</option>
+                                    <option value="Consulting">Consulting</option>
+                                    <option value="Consumer Goods">Consumer Goods</option>
+                                    <option value="Cybersecurity">Cybersecurity</option>
+                                    <option value="Ecommerce">E-Commerce</option>
+                                    <option value="Education">Education</option>
+                                    <option value="Energy">Energy</option>
+                                    <option value="Entertainment">Entertainment</option>
+                                    <option value="Environmental">Environmental</option>
+                                    <option value="Finance">Finance</option>
+                                    <option value="Freelance">Freelance</option>
+                                    <option value="Food & Beverage">Food & Beverage</option>
+                                    <option value="Healthcare">Healthcare</option>
+                                    <option value="Hospitality">Hospitality</option>
+                                    <option value="Information Technology">Information Technology</option>
+                                    <option value="Insurance">Insurance</option>
+                                    <option value="Law">Law</option>
+                                    <option value="Logistics">Logistics</option>
+                                    <option value="Manufacturing">Manufacturing</option>
+                                    <option value="Marketing">Marketing</option>
+                                    <option value="Media">Media</option>
+                                    <option value="Nonprofit">Nonprofit</option>
+                                    <option value="Pharmaceuticals">Pharmaceuticals</option>
+                                    <option value="Real Estate">Real Estate</option>
+                                    <option value="Retail">Retail</option>
+                                    <option value="Telecommunications">Telecommunications</option>
+                                    <option value="Transportation">Transportation</option>
+                                    <option value="Travel">Travel</option>
+                                    <option value="Utilities">Utilities</option>
+
+                                </select>
+                            </div>
+                            <label class="form-label" for="businessCategory">Business Category</label>
+
+                        </div>
+                        <!-- business name input -->
+                        <div data-mdb-input-init class="form-outline mb-4">
+                            <input type="text" id="businessName" class="form-control "
+                                placeholder="Enter business name" />
+                            <label class="form-label" for="businessName">Business Name</label>
+                        </div>
+
+                        <!-- address info -->
+                        <label class="d-block mb-4">
+                            <input name="address1" type="text" class="form-control" placeholder="Enter address 1"
+                                id="address1" />
+                            <span class="form-label d-block">Address line 1</span>
+
+                        </label>
+
+                        <label class="d-block mb-4">
+                            <input name="address2" type="text" class="form-control" placeholder="Enter address 2"
+                                id="address2" />
+                            <span class="form-label d-block">Address line 2</span>
+
+                        </label>
+
+                        <label class="d-block mb-4">
+                            <input name="city" type="text" class="form-control" placeholder="Enter City" id="city" />
+                            <span class="form-label d-block">City</span>
+
+                        </label>
+
+                        <label class="d-block mb-4">
+                            <input name="state" type="text" class="form-control" placeholder="Enter State/Province"
+                                id="state" />
+                            <span class="form-label d-block">State/Province</span>
+
+                        </label>
+
+                        <label class="d-block mb-4">
+                            <input name="zip" type="text" class="form-control" placeholder="Enter Zip/Postal code"
+                                id="postalCode" />
+                            <span class="form-label d-block">Zip/Postal code</span>
+
+                        </label>
+
+                        <label class="d-block mb-4">
+                            <input name="country" type="text" class="form-control" placeholder=" Enter Country"
+                                id="country" />
+                            <span class="form-label d-block">Country</span>
+
+                        </label>
+
+                        <label class="d-block mb-4">
+                            <input name="telephone" type="text" class="form-control" id="telephone"
+                                placeholder="Enter Telephone" />
+                            <span class="form-label d-block">Telephone</span>
+
+                        </label>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <!-- Checkbox -->
+                            <div class="form-check mb-0">
+                                <input class="form-check-input me-2" type="checkbox" value="" id="termsAgree"
+                                    required />
+                                <label class="form-check-label" for="termsAgree">
+                                    I agree to terms of service
+                                </label>
                             </div>
                         </div>
 
-                        <div class="col-md-6 d-flex justify-content-center">
-                            <!-- Simple link -->
-                            <a href="#!">Forgot password?</a>
+                        <div class="text-center text-lg-start mt-4 pt-2">
+                            <button type="button" data-mdb-button-init data-mdb-ripple-init id="signup-btn"
+                                class="btn btn-primary btn-lg"
+                                style="padding-left: 2.5rem; padding-right: 2.5rem;">Register</button>
+                            <p class="small fw-bold mt-2 pt-1 mb-0"><a href="#!" id="back-reg"
+                                    class="link-danger">Back</a></p>
                         </div>
-                    </div>
 
-                    <!-- Submit button -->
-                    <button type="submit" data-mdb-button-init data-mdb-ripple-init
-                        class="btn btn-primary btn-block mb-4">Sign in</button>
-
-                    <!-- Register buttons -->
-                    <div class="text-center">
-                        <p>Not a member? <a href="#!">Register</a></p>
-                    </div>
-                </form>
-            </div>
-            <div class="tab-pane fade" id="pills-register" role="tabpanel" aria-labelledby="tab-register">
-                <form>
-                    <div class="text-center mb-3">
-                        <p>Sign up with:</p>
-                        <button type="button" data-mdb-button-init data-mdb-ripple-init
-                            class="btn btn-link btn-floating mx-1">
-                            <i class="fab fa-facebook-f"></i>
-                        </button>
-
-                        <button type="button" data-mdb-button-init data-mdb-ripple-init
-                            class="btn btn-link btn-floating mx-1">
-                            <i class="fab fa-google"></i>
-                        </button>
-
-                        <button type="button" data-mdb-button-init data-mdb-ripple-init
-                            class="btn btn-link btn-floating mx-1">
-                            <i class="fab fa-twitter"></i>
-                        </button>
-
-                        <button type="button" data-mdb-button-init data-mdb-ripple-init
-                            class="btn btn-link btn-floating mx-1">
-                            <i class="fab fa-github"></i>
-                        </button>
-                    </div>
-
-                    <p class="text-center">or:</p>
-
-                    <!-- Name input -->
-                    <div data-mdb-input-init class="form-outline mb-4">
-                        <input type="text" id="registerName" class="form-control" />
-                        <label class="form-label" for="registerName">Name</label>
-                    </div>
-
-                    <!-- Username input -->
-                    <div data-mdb-input-init class="form-outline mb-4">
-                        <input type="text" id="registerUsername" class="form-control" />
-                        <label class="form-label" for="registerUsername">Username</label>
-                    </div>
-
-                    <!-- Email input -->
-                    <div data-mdb-input-init class="form-outline mb-4">
-                        <input type="email" id="registerEmail" class="form-control" />
-                        <label class="form-label" for="registerEmail">Email</label>
-                    </div>
-
-                    <!-- Password input -->
-                    <div data-mdb-input-init class="form-outline mb-4">
-                        <input type="password" id="registerPassword" class="form-control" />
-                        <label class="form-label" for="registerPassword">Password</label>
-                    </div>
-
-                    <!-- Repeat Password input -->
-                    <div data-mdb-input-init class="form-outline mb-4">
-                        <input type="password" id="registerRepeatPassword" class="form-control" />
-                        <label class="form-label" for="registerRepeatPassword">Repeat password</label>
-                    </div>
-
-                    <!-- Checkbox -->
-                    <div class="form-check d-flex justify-content-center mb-4">
-                        <input class="form-check-input me-2" type="checkbox" value="" id="registerCheck" checked
-                            aria-describedby="registerCheckHelpText" />
-                        <label class="form-check-label" for="registerCheck">
-                            I have read and agree to the terms
-                        </label>
-                    </div>
-
-                    <!-- Submit button -->
-                    <button type="submit" data-mdb-button-init data-mdb-ripple-init
-                        class="btn btn-primary btn-block mb-3">Sign in</button>
-                </form>
+                    </form>
+                </div>
             </div>
         </div>
-    </div>
-    <!-- Pills content -->
+    </section>
+
 
     <br>
-    <script type="text/javascript">
-        document.querySelector('.img__btn').addEventListener('click', function () {
-            document.querySelector('.cont').classList.toggle('s--signup');
-        });
+    <!-- Copyright -->
+    <div class="copyright " style="position: fixed;bottom: 0;width: 100%;">
+        <div
+            class="d-flex flex-column flex-md-row text-center text-md-start justify-content-between py-4 px-4 px-xl-5 bg-primary">
+            <!-- Copyright -->
+            <div class="text-white mb-3 mb-md-0">
+                Copyright © 2024. All rights reserved.
+            </div>
+            <!-- Copyright -->
 
-    </script>
+            <!-- Right -->
+            <div>
+                <a href="#!" class="text-white me-4">
+                    <i class="fab fa-facebook-f"></i>
+                </a>
+                <a href="#!" class="text-white me-4">
+                    <i class="fab fa-twitter"></i>
+                </a>
+                <a href="#!" class="text-white me-4">
+                    <i class="fab fa-google"></i>
+                </a>
+                <a href="#!" class="text-white">
+                    <i class="fab fa-linkedin-in"></i>
+                </a>
+            </div>
+            <!-- Right -->
+        </div>
+    </div> <!-- end of copyright -->
+    <!-- end of copyright -->
+
     <!-- Scripts -->
     <script src="{% static 'js/bootstrap.min.js' %}"></script> <!-- Bootstrap framework -->
     <script src="{% static 'js/swiper.min.js' %}"></script> <!-- Swiper for image and text sliders -->
     <script src="{% static 'js/purecounter.min.js' %}"></script> <!-- Purecounter counter for statistics numbers -->
     <script src="{% static 'js/isotope.pkgd.min.js' %}"></script> <!-- Isotope for filter -->
-    <script src="{% static 'js/scripts.js' %}"></script> <!-- Custom scripts -->
+    <!-- <script src="{% static 'js/scripts.js' %}"></script> Custom scripts -->
     <script type="module">
         // Import the functions you need from the SDKs you need
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
@@ -599,15 +474,14 @@
         const app = initializeApp(firebaseConfig);
         const analytics = getAnalytics(app);
         window.auth = getAuth(app);
-
         function getCSRFToken() {
-            return document.querySelector('[name=csrfmiddlewaretoken]').value;
+            return $('meta[name="csrfmiddlewaretoken"]').val();
         }
         function validateEmail(email) {
             var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             return emailRegex.test(email);
         }
-
+        // valid password
         function validatePassword(password) {
             const minLength = 6;
             const uppercasePattern = /[A-Z]/;
@@ -643,6 +517,8 @@
             // If all conditions are met, return null (password is valid)
             return null;
         }
+
+
         $(document).ready(function () {
             toastr.options = {
                 'closeButton': true,
@@ -661,22 +537,12 @@
                 'hideMethod': 'fadeOut',
             };
 
-
-            $('#sign-in-switch').on('click', function () {
-                $('#sign-in-form').css('display', 'block');
-                $('#sign-up-form').css('display', 'none');
-            });
-            $('#sign-up-switch').on('click', function () {
-                $('#sign-in-form').css('display', 'none');
-                $('#sign-up-form').css('display', 'block');
-            });
-
-            $('#signin-btn').on('click', function () {
+            $('#LoginBtn').on('click', function () {
                 $('#errorLog').text('');
 
                 // Get the value from the input field
-                var username = $('#usernameLog').val();
-                var password = $('#passwordLog').val();
+                var username = $('#usernameL').val();
+                var password = $('#passwL').val();
                 if (username == '' || password == '') {
                     return;
                 };
@@ -697,7 +563,6 @@
                         if (!response['result']) {
                             $('#errorLog').text(response['message']);
                             toastr.error(response['message']);
-
                             return;
                         }
                         toastr.success('Login successful');
@@ -714,36 +579,81 @@
                     }
                 });
             });
-            $('#signup-btn').on('click', function () {
-                $('#errorSn').text('');
 
-                // Get the value from the input field
-                var username = $('#usernameSn').val();
-                var email = $('#emailSn').val();
-                var password = $('#passwordSn').val();
-                var cpassword = $('#cpasswordSn').val();
+            // toggle between displaying login and register form
+            $('#register-sc').click(function () {
+                $('#login_container').css('display', 'none');
+                $('#register_container').css('display', 'block');
+            });
+            $('#login-sc').click(function () {
+                $('#login_container').css('display', 'block');
+                $('#register_container').css('display', 'none');
+            });
 
-                if (username == '' || password == '' || email == '') {
+            $('#back-reg').click(function () {
+                $('#register_container').css('display', 'block');
+                $('#register_business_container').css('display', 'none');
+            });
+
+            $('#continue-reg').click(function () {
+                var username = $('#usernameR').val();
+                var email = $('#emailR').val();
+                var passw = $('#passwordR').val();
+                var cpassw = $('#cpasswordR').val();
+                if (username == '' || email == '' || passw == '' || cpassw == '') {
+                    toastr.error('Ensure all fields are filled');
                     return;
-                };
+                }
                 if (!validateEmail(email)) {
-                    $('#errorSn').text('Email appears to be incorrect');
                     toastr.error('Email appears to be incorrect');
 
                     return;
                 }
-                var vald = validatePassword(password);
+                if (passw != cpassw) {
+                    toastr.error('Passwords do not match');
+                    return;
+                }
+                var vald = validatePassword(passw);
                 if (vald != null) {
-                    $('#errorSn').text(vald);
                     toastr.error(vald);
+                    return;
+                }
+                $('#register_container').css('display', 'none');
+                $('#register_business_container').css('display', 'block');
+
+            })
+
+
+            $('#signup-btn').on('click', function () {
+                $('#errorSn').text('');
+
+                // Get the value from the input field
+                var username = $('#usernameR').val();
+                var email = $('#emailR').val();
+                var passw = $('#passwordR').val();
+                var cpassw = $('#cpasswordR').val();
+
+                // business reg
+                var businessCategory = $('#businessCategory').val();
+                var businessName = $('#businessName').val();
+                var address1 = $('#address1').val();
+                var address2 = $('#address2').val();
+                var city = $('#city').val();
+                var state = $('#state').val();
+                var country = $('#country').val();
+                var postal = $('#postalCode').val();
+                var telephone = $('#telephone').val();
+                var terms = $('#termsAgree').is(':checked');
+                
+                if (businessName == '' || address1 == '' || city == '' || country == '' || postal == '' || telephone == '') {
+                    toastr.error('Ensure all fields are filled');
+                    return;
+                }
+                if(!terms){
+                    toastr.error('Agree to the terms before continuing');
 
                     return;
                 }
-                if (cpassword != password) {
-                    $('#errorSn').text('Passwords do not match');
-                    toastr.error('Passwords do not match');
-                    return;
-                };
 
                 var next = '{{next}}';
 
@@ -754,9 +664,18 @@
                     type: "POST",
                     data: {
                         username: username,
-                        password: password,
-                        cpassword: cpassword,
+                        password: passw,
+                        cpassword: cpassw,
                         email: email,
+                        businessCategory:businessCategory,
+                        businessName:businessName,
+                        address1:address1,
+                        address2:address2,
+                        city:city,
+                        state:state,
+                        country:country,
+                        postal:postal,
+                        telephone:telephone,
                         type: 'signup',
                         next: next,
 
@@ -772,8 +691,8 @@
                         toastr.success(response['message']);
                         // verify the email
                         // Sign up the user and send verification email
-                        signUpUser(email, password);
-
+                        // signUpUser(email, password);
+                        window.location.reload();
 
 
                     },
@@ -817,28 +736,22 @@
         }
 
     </script>
+
     <script>
+        const sorting = document.querySelector('.selectpicker');
+        const commentSorting = document.querySelector('.selectpicker');
+        const sortingchoices = new Choices(sorting, {
+            placeholder: false,
+            itemSelectText: ''
+        });
 
 
+        // Trick to apply your custom classes to generated dropdown menu
+        let sortingClass = sorting.getAttribute('class');
+        window.onload = function () {
+            sorting.parentElement.setAttribute('class', sortingClass);
+        }
     </script>
-    <!-- Copyright -->
-    <div class="copyright bg-gray">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-6">
-                    <ul class="list-unstyled li-space-lg p-small">
-                        <li><a href="">Terms & Conditions</a></li>
-                        <li><a href="">Privacy Policy</a></li>
-                    </ul>
-                </div> <!-- end of col -->
-                <div class="col-lg-3">
-                    <p class="p-small statement">Copyright © <a href="#">Roniib</a></p>
-                </div> <!-- end of col -->
-            </div> <!-- enf of row -->
-        </div> <!-- end of container -->
-    </div> <!-- end of copyright -->
-    <!-- end of copyright -->
-
 
 </body>
 

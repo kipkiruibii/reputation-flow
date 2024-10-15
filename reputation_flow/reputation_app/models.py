@@ -11,11 +11,13 @@ class MemberProfile(models.Model):
     
 class Company(models.Model):
     company_name=models.CharField(max_length=255)
-    company_profile=models.TextField(default='')
+    company_id=models.CharField(max_length=255,default='id')
+    company_category=models.TextField(default='')
     date_created=models.DateField(default=timezone.now)
     company_about=models.TextField(default='')
     company_phone=models.CharField(max_length=30)
     company_address=models.TextField(default='')
+    company_address2=models.TextField(default='',null=True)
     city =models.TextField(default='')
     state=models.TextField(default='')
     country=models.TextField(default='')
@@ -29,10 +31,11 @@ class CompanyMember(models.Model):
     member=models.ForeignKey(MemberProfile,on_delete=models.CASCADE)
     role=models.TextField(default='')
     active=models.BooleanField(default=True)
-    permissions=models.JSONField(default=dict())
+    is_admin=models.BooleanField(default=False)
+    permissions=models.JSONField(default=dict(), blank=True,null=True)
     
     def __str__(self):
-        return f'{self.company.name} {self.member.user.username}'
+        return f'{self.company.company_name} {self.member.user.username}'
        
 class CompanyContacts(models.Model):
     company=models.ForeignKey(Company,on_delete=models.CASCADE)
