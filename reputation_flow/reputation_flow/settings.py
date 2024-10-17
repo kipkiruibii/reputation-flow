@@ -27,7 +27,7 @@ SECRET_KEY = config.get('DJANGO_SECURITY_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['858d-197-237-137-103.ngrok-free.app','127.0.0.1']
 
 
 # Application definition
@@ -42,7 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django_user_agents',
     'paypal.standard.ipn',
-
+    'rest_framework',
 
 ]
 
@@ -128,5 +128,7 @@ STATIC_URL = 'static/'
 LOGIN_URL='/login'
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
-
+# Media files (uploaded by users)
+MEDIA_URL = '/'  # URL prefix for accessing media files
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')  # Absolute path to media directory
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

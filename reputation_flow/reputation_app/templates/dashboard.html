@@ -21,6 +21,7 @@
     <!-- title shown in the actual shared post -->
     <meta property="og:description"
         content="Easily collect and display reviews and FAQs from social media. Let your customers' voices amplify your business success." />
+    <meta name="csrf-token" content="{{ csrf_token }}">
 
     <!-- Webpage Title -->
     <title>Turn Reviews Into Revenue</title>
@@ -237,6 +238,54 @@
         .platform {
             cursor: pointer;
         }
+
+        .slider {
+            width: 100%;
+            height: 300px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .slider img {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            animation: slide 10s infinite;
+        }
+
+        @keyframes slide {
+            0% {
+                left: 0%;
+            }
+
+            20% {
+                left: 0%;
+            }
+
+            25% {
+                left: -100%;
+            }
+
+            45% {
+                left: -100%;
+            }
+
+            50% {
+                left: -200%;
+            }
+
+            70% {
+                left: -200%;
+            }
+
+            75% {
+                left: -300%;
+            }
+
+            95% {
+                left: -300%;
+            }
+        }
     </style>
 
 </head>
@@ -345,6 +394,9 @@
                 <div class="modal-body">
                     <p>No linked Instagram account. Clink Link Account below to connect to the business
                         Instagram account </p>
+                    <p style="font-size: 12px;">Important: Instagram account must be business/creator and be linked to a
+                        facebook page <a href="#">Learn more </a></p>
+
                     <!-- You have not linked an Instagram account -->
                 </div>
                 {% endif %}
@@ -352,9 +404,11 @@
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                     {% if user_permissions.can_link_unlink_account %}
                     {% if instagram.linked %}
-                    <button type="button" class="btn btn-primary">Change Account</button>
+                    <a href="{{ instagram.link_url }}"><button type="button" class="btn btn-primary">Change
+                            Account</button></a>
                     {% else %}
-                    <button type="button" class="btn btn-primary">Link Account</button>
+                    <a href="{{ instagram.link_url }}"><button type="button" class="btn btn-primary">Link
+                            Account</button></a>
                     {% endif %}
 
                     {% else %}
@@ -808,7 +862,7 @@
                                     style="font-size:15px;width:30px"></i> Reviews</li>
                             <li id="report" data-target="#inbox-content"><i class="fa fa-inbox"
                                     style="font-size:15px;width:30px"></i> Messages</li>
-                            <li id="report" data-target="#post-content"><i class="fa fa-share"
+                            <li id="post-btn" data-target="#post-content"><i class="fa fa-share"
                                     style="font-size:15px;width:30px"></i> Posts</li>
                             <li id="settings" data-target="#teams-content"><i class="fa fa-group"
                                     style="font-size:15px;width:30px"></i> Teams</li>
@@ -828,8 +882,9 @@
                         <div style="width:80px;">
                             <p>Role</p>
                         </div>
-                        <p id="request-count">Admin</p>
+                        <p id="request-count">{{ member_profile.role }}</p>
                     </div>
+                    {% if member_profile.has_admin_priviledges %}
                     <div style="display:flex;">
                         <div style="width:80px;">
                             <p>Plan</p>
@@ -851,9 +906,11 @@
                     </div>
 
                     <div>
-                        <p style="font-size:12px">Free trial <strong>ends in 5 days</strong>
+                        <p style="font-size:12px">Free trial <strong>ends in {{ company_subs.free_trial_expiry }}
+                                days</strong>
                         </p>
                     </div>
+                    {% endif %}
                     <hr>
                     <div>
                         <a href="{% url 'logout' %} ">Log out<i class="fas fa-sign-out"
@@ -887,22 +944,29 @@
                     <div class="company-account-info">
                         <div class="business-analytics" style="display: flex;">
                             <div class="left-details"
-                                style="width:30%;height: 70vh;display: flex;justify-content: center;">
+                                style="width:30%;height: 90vh;display: flex;justify-content: center;overflow-y: scroll;">
                                 <div>
                                     <div class="business-pfp"
-                                        style="margin: 20px;border-radius: 200px;width: 200px;height: 200px;background-color: rgb(247, 186, 17);display: flex;justify-content: center;align-items: center;">
+                                        style="background-color: rgb(250, 250, 250);display: flex;justify-content: center;">
                                         <img class="business-pfp" src="{{ company_profile }}" alt="business profile"
-                                            style="max-width: 100%;height: 100%;padding: 10px;border-radius: 200px;">
+                                            style="height: 180px;width: 180px;;padding: 10px;border-radius: 180px;">
                                     </div>
                                     <div style="display: flex;justify-content: space-between;">
                                         <span style="width: 5px;"></span>
-                                        <p style="font-size: 12px;color: black;cursor: pointer;padding: 0;margin: 0;">
+                                        {% if user_permissions.can_update_profile %}
+                                        <p style="font-size: 12px;color: black;cursor: pointer;padding: 0;margin: 0;"
+                                            id="edit-profile">
                                             Edit <i class="fa fa-edit"></i></p>
+                                        {% else %}
+                                        <p
+                                            style="font-size: 12px;color: black;cursor: not-allowed;padding: 0;margin: 0;">
+                                            Edit <i class="fa fa-edit"></i></p>
+                                        {% endif %}
                                     </div>
                                     <div class="contact-info">
                                         <div class="business-name" style="text-align: center;">
                                             <!-- Button trigger modal -->
-                                            <h4>{{ company_name }}</h4>
+                                            <h4>{{ company_name }} </h4>
                                             <p>{{ company_category }}</p>
                                             <p>{{ company_address.address}}, {{company_address.city}}
                                                 {{company_address.state}} {{company_address.country }}</p>
@@ -933,9 +997,9 @@
                                                 {% else %}<i class="fa fa-facebook-f inactive-socials"></i>
                                                 {% endif %}
 
-                                                {% if company_socials.email %}<p><a href="{{ company_socials.email }}"
-                                                        target="_blank"><i class="fa fa-envelope"
-                                                            aria-hidden="true"></i></a></p>
+                                                {% if company_socials.email %}<p><a
+                                                        href="mailto:{{ company_socials.email }}" target="_blank"><i
+                                                            class="fa fa-envelope" aria-hidden="true"></i></a></p>
                                                 {% else %}<i class="fa fa-envelope inactive-socials"
                                                     aria-hidden="true"></i>
                                                 {% endif %}
@@ -944,6 +1008,12 @@
                                                         href="{{ company_socials.linkedin }}" target="_blank"><i
                                                             class="fa fa-linkedin" aria-hidden="true"></i></a></p>
                                                 {% else %}<i class="fa fa-linkedin inactive-socials"></i>
+                                                {% endif %}
+
+                                                {% if company_socials.phone_number %}<p><a
+                                                        href="tel:{{ company_socials.phone_number }}" target="_blank"><i
+                                                            class="fa fa-phone" aria-hidden="true"></i></a></p>
+                                                {% else %}<i class="fa fa-phone inactive-socials"></i>
                                                 {% endif %}
 
                                                 {% if company_socials.tiktok %}<p><a href="{{ company_socials.tiktok }}"
@@ -1078,13 +1148,14 @@
                                 </div>
 
                                 <div class="business-about">
-                                    <h6>About <i class="fa fa-edit " style="margin-left: 20px;"></i></h6>
+                                    <h6>About </h6>
                                     {% if company_about %}
-                                    <p id="company_about" style="padding: 10px;">
-                                        {{ company_about }}
+                                    <p id="company_about" style="padding: 10px; white-space: pre-wrap;">
+                                        {{ company_about|safe }}
                                     </p>
                                     {% else %}
-                                    <p style="cursor: default;align-items: center;padding: 10px;">Click here to edit
+                                    <p style="cursor: default;align-items: center;padding: 10px;">Click the edit icon to
+                                        edit
                                         about </p>
                                     {% endif %}
 
@@ -1093,18 +1164,20 @@
                                 <div class="business-about">
                                     <h6>Settings <i class="fa fa-cog " style="margin-left: 20px;"></i></h6>
                                     <ul style="list-style-type: none;">
-                                        <!-- <li>
-                                            <p>AI Assistant</p>
-                                        </li> -->
                                         <li>
-                                            <p>Visibility</p>
+                                            <p>Visibility:</p>
+                                        </li>
+                                        <li>
+                                            <p>Link:</p>
                                         </li>
                                     </ul>
 
 
                                 </div>
                                 <hr>
-                                <div class="business-about">
+                                <div class="business-about ">
+                                    <!-- can modify the AI Assistant -->
+                                    {% if user_permissions.can_modify_ai_assistant %}
                                     <h6>AI Assistant </h6>
                                     <div style="margin-left: 15px;">
                                         <div style="display: flex;justify-content: space-between;">
@@ -1116,7 +1189,7 @@
                                             </div>
                                             <div class="form-group"
                                                 style="text-align:center;font-size:20px;align-items:center;margin-top:10px;margin-bottom:20px">
-                                                <a class=" btn-solid-sm" style="cursor:pointer" id="upload-train"
+                                                <a class=" btn-solid-sm" style="cursor:pointer" id="test-chatbot"
                                                     href="">Test
 
                                                 </a>
@@ -1148,18 +1221,68 @@
                                             </a>
                                         </div>
                                     </div>
+                                    <!-- cannot modify the AI Assistant -->
+                                    {% else %}
+                                    <h6 style="color: rgba(128, 128, 128, 0.712);">AI Assistant </h6>
+                                    <div style="margin-left: 15px;">
+                                        <div style="display: flex;justify-content: space-between;">
+                                            <div class="form-check form-switch" style="margin-left: 20px;">
+                                                <input class="form-check-input" type="checkbox" role="switch"
+                                                    id="flexSwitchCheckChecked" checked disabled>
+                                                <label class="form-check-label"
+                                                    for="flexSwitchCheckChecked">Enabled</label>
+                                            </div>
+                                            <div class="form-group"
+                                                style="text-align:center;font-size:20px;align-items:center;margin-top:10px;margin-bottom:20px">
+                                                <a class=" btn-solid-sm" style="cursor:pointer" id="test-chatbot"
+                                                    href="">Test
+
+                                                </a>
+                                            </div>
+                                        </div>
+                                        <p style="color:  rgba(128, 128, 128, 0.712);"> last Updated :12-oct-2024</p>
+                                        <div style="padding-left: 10px;">
+                                            <p
+                                                style="font-size: 12px;padding: 0;margin: 0;color: rgba(128, 128, 128, 0.712);;">
+                                                Please upload your business
+                                                documents below to
+                                                train the AI Assistant, enabling it to understand and respond
+                                                effectively to
+                                                inquiries related to your business.</p>
+                                            <a style="font-size: 12px;color: rgba(0, 0, 255, 0.308);">Learn
+                                                more</a>
+                                            <div class="input-group mb-3">
+
+                                                <div class="custom-file" style="padding: 0;">
+                                                    <input type="file" class="custom-file-input" id="inputGroupFile01"
+                                                        multiple disabled>
+                                                    <label class="custom-file-label" for="inputGroupFile01"
+                                                        style="color: rgba(128, 128, 128, 0.712);">Choose
+                                                        files</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group"
+                                            style="text-align:center;font-size:20px;align-items:center;margin-top:30px;margin-bottom:20px;">
+                                            <a class=" btn-solid-sm"
+                                                style="cursor:not-allowed;background-color:  rgba(128, 128, 128, 0.712);border: none;">Upload
+                                                &
+                                                Train
+                                            </a>
+                                        </div>
+                                        <p style="font-size: 12px;color: rgb(252, 100, 100);align-items: center;">Note:
+                                            You do not have permission to modify the AI Assistant. Contact your
+                                            administrator for help</p>
+                                    </div>
+                                    {% endif %}
                                 </div>
-
-
                             </div>
                         </div>
-
                     </div>
                 </div>
             </div>
-
             <!-- editing the business page  -->
-            <div class="chat-content" id="post-content" style="display:none;width: 100%;">
+            <div class="chat-content" id="edit-business-page" style="display:none;width: 100%;">
                 <div class="chat-header">
                     <div class="logo-container">
 
@@ -1183,7 +1306,7 @@
                                         <hr>
                                     </div>
                                     <div style="height:20px;">
-                                        <a class="btn-solid-sm" id="cancel-edit" href=""
+                                        <a class="btn-solid-sm" id="cancel-edit" href="#"
                                             style="cursor:pointer;display:block;padding:8px">Discard
                                             & Close
                                             <i class="fa fa-close"></i></a>
@@ -1197,18 +1320,20 @@
 
                                         <div class="input-group mb-3">
                                             <div class="input-group-prepend">
-                                                <span class="input-group-text">
+                                                <span class="">
                                                     <div class="business-pfp"
-                                                        style="margin: 20px;border-radius: 100px;width: 100px;height: 100px;background-color: rgb(247, 186, 17);display: flex;justify-content: center;align-items: center;">
+                                                        style="border-radius: 200px;display: flex;justify-content: center;align-items: center;">
                                                         <img class="business-pfp" src="{{ company_profile }}"
                                                             alt="business profile"
-                                                            style="max-width: 100%;height: 100%;padding: 10px;border-radius: 100px;">
+                                                            style="padding: 10px;width: 200px;height: 200px;border-radius: 200px;"
+                                                            id="image-container">
                                                     </div>
                                                 </span>
                                             </div>
                                             <div class="custom-file">
-                                                <input type="file" class="custom-file-input" id="inputGroupFile01">
-                                                <label class="custom-file-label" for="inputGroupFile01">Choose
+                                                <input type="file" class="custom-file-input" id="image-input"
+                                                    accept="image/*">
+                                                <label class="custom-file-label" for="image-input">Choose
                                                     file</label>
                                             </div>
                                         </div>
@@ -1221,9 +1346,10 @@
                                                         class="fa fa-envelope" style="padding-right: 5px;"></i>
                                                     Email</span>
                                             </div>
-                                            <input type="text" class="form-control" aria-label="Small"
+                                            <input type="text" class="form-control" aria-label="Small" id="update-email"
                                                 placeholder="Ex. example@company.com"
-                                                aria-describedby="inputGroup-sizing-sm">
+                                                aria-describedby="inputGroup-sizing-sm"
+                                                value="{{ company_socials.email }}">
                                         </div>
                                     </div>
                                     <!--  phone number link -->
@@ -1234,8 +1360,9 @@
                                                         class="fa fa-phone " style="padding-right: 5px;"></i>
                                                     Phone Number</span>
                                             </div>
-                                            <input type="text" class="form-control" aria-label="Small"
-                                                placeholder="Ex +1 xxx" aria-describedby="inputGroup-sizing-sm">
+                                            <input type="text" class="form-control" aria-label="Small" id="update-phone"
+                                                placeholder="Ex +1 xxx" aria-describedby="inputGroup-sizing-sm"
+                                                value="{{ company_socials.phone_number }}">
                                         </div>
                                     </div>
                                     <!--  website link -->
@@ -1247,17 +1374,33 @@
                                                     Website</span>
                                             </div>
                                             <input type="text" class="form-control" aria-label="Small"
-                                                placeholder="Ex. https://www.example.com"
-                                                aria-describedby="inputGroup-sizing-sm">
+                                                id="update-website" placeholder="Ex. https://www.example.com"
+                                                aria-describedby="inputGroup-sizing-sm"
+                                                value="{{ company_socials.website }}">
                                         </div>
                                     </div>
                                     <div class="form-group" style="font-size: 15px;">
                                         <textarea class="form-control-textarea"
-                                            placeholder="Business full description. Include your services and other relevent details"
+                                            placeholder="Business full description. Include your services and other relevent details. feel free to use HTML tags"
+                                            id="update-about"
                                             style="border: 1px solid #ced4da;border-radius:4px;width:100%;box-sizing: border-box;background-color: white;"
-                                            id="report-details" required></textarea>
+                                            id="report-details">{{ company_about|safe }}</textarea>
                                     </div>
                                     <p>Optional but recommended social links</p>
+                                    <!--  Linkedin link -->
+                                    <div class="form-group">
+                                        <div class="input-group input-group-sm mb-3 form-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text" id="inputGroup-sizing-sm"><i
+                                                        class="fa fa-linkedin " style="padding-right: 5px;"></i>
+                                                    LinkedIn</span>
+                                            </div>
+                                            <input type="text" class="form-control" aria-label="Small"
+                                                id="update-linkedin" placeholder="enter your Instagram profile link"
+                                                aria-describedby="inputGroup-sizing-sm"
+                                                value="{{ company_socials.linkedin }}">
+                                        </div>
+                                    </div>
                                     <!--  Whatsapp link -->
                                     <div class="form-group">
                                         <div class="input-group input-group-sm mb-3 form-group">
@@ -1267,8 +1410,9 @@
                                                     Whatsapp</span>
                                             </div>
                                             <input type="text" class="form-control" aria-label="Small"
-                                                placeholder="enter your Instagram profile link"
-                                                aria-describedby="inputGroup-sizing-sm">
+                                                id="update-whatsapp" placeholder="enter your Instagram profile link"
+                                                aria-describedby="inputGroup-sizing-sm"
+                                                value="{{ company_socials.whatsapp }}">
                                         </div>
                                     </div>
                                     <!-- Instagram profile link -->
@@ -1280,8 +1424,9 @@
                                                     Instagram</span>
                                             </div>
                                             <input type="text" class="form-control" aria-label="Small"
-                                                placeholder="enter your Instagram profile link"
-                                                aria-describedby="inputGroup-sizing-sm">
+                                                id="update-instagram" placeholder="enter your Instagram profile link"
+                                                aria-describedby="inputGroup-sizing-sm"
+                                                value="{{ company_socials.instagram }}">
                                         </div>
                                     </div>
                                     <!--  facebook link -->
@@ -1293,7 +1438,8 @@
                                                     Facebook</span>
                                             </div>
                                             <input type="text" class="form-control" aria-label="Small" placeholder=""
-                                                aria-describedby="inputGroup-sizing-sm">
+                                                id="update-facebook" aria-describedby="inputGroup-sizing-sm"
+                                                value="{{ company_socials.facebook }}">
                                         </div>
                                     </div>
                                     <!--  twitter link -->
@@ -1305,7 +1451,8 @@
                                                     X(Twitter)</span>
                                             </div>
                                             <input type="text" class="form-control" aria-label="Small" placeholder=""
-                                                aria-describedby="inputGroup-sizing-sm">
+                                                id="update-twitter" aria-describedby="inputGroup-sizing-sm"
+                                                value="{{ company_socials.twitter }}">
                                         </div>
                                     </div>
                                     <!--  youtube link -->
@@ -1317,8 +1464,9 @@
                                                     Youtube</span>
                                             </div>
                                             <input type="text" class="form-control" aria-label="Small"
-                                                placeholder="enter your Instagram profile link"
-                                                aria-describedby="inputGroup-sizing-sm">
+                                                id="update-youtube" placeholder="enter your Instagram profile link"
+                                                aria-describedby="inputGroup-sizing-sm"
+                                                value="{{ company_socials.youtube }}">
                                         </div>
                                     </div>
 
@@ -1331,8 +1479,9 @@
                                                     Tiktok</span>
                                             </div>
                                             <input type="text" class="form-control" aria-label="Small"
-                                                placeholder="enter your Instagram profile link"
-                                                aria-describedby="inputGroup-sizing-sm">
+                                                id="update-tiktok" placeholder="enter your Instagram profile link"
+                                                aria-describedby="inputGroup-sizing-sm"
+                                                value="{{ company_socials.tiktok }}">
                                         </div>
                                     </div>
 
@@ -1354,19 +1503,18 @@
 
                                         <div class="form-group"
                                             style="text-align:center;font-size:20px;align-items:center;margin-top:10px;margin-bottom:20px">
-                                            <a class=" btn-solid-sm" style="cursor:pointer" id="post-now" href="">Update
+                                            <a class=" btn-solid-sm" style="cursor:pointer" id="update-profile"
+                                                href="#">Update
                                                 Profile</a>
                                         </div>
 
                                     </div>
                                 </form>
-
                             </div>
                         </div>
 
                     </div>
                 </div>
-
             </div>
             <!-- Analytics -->
             <div class="chat-content" id="analytics-content" style="display:none;width: 100%;">
@@ -1390,6 +1538,7 @@
                 </div>
 
             </div>
+            <!-- reviews -->
             <div class="chat-content" id="reviews-content" style="display:none">
                 <div class="chat-header">
                     <div class="logo-container">
@@ -1519,6 +1668,7 @@
                     </div>
                 </div>
             </div>
+            <!-- messages -->
             <div class="chat-content" id="inbox-content" style="display:none">
                 <div class="chat-header">
                     <div class="logo-container">
@@ -1636,6 +1786,7 @@
                 </div>
 
             </div>
+            <!-- teams -->
             <div class="chat-content" id="teams-content" style="display:none">
                 <div class="chat-header">
                     <div class="logo-container">
@@ -1697,6 +1848,7 @@
                     </div>
                 </div>
             </div>
+            <!-- help -->
             <div class="chat-content" id="help-content" style="display:none;width: 100%;">
                 <div class="chat-header">
                     <div class="logo-container">
@@ -1718,10 +1870,11 @@
                 </div>
 
             </div>
-            <div class="chat-content" id="post-content" style="display:none;width: 100%;">
+            <!-- create post -->
+            <div class="chat-content" id="create-post-content" style="display:none;width: 100%;">
                 <div class="chat-header">
                     <div class="logo-container">
-                        <h4>Posts
+                        <h4>Create Post
                         </h4>
                     </div>
                     <div class="user-details">
@@ -1761,16 +1914,18 @@
                                             <option value="instagram-stories">Instagram Stories</option>
                                             <option value="instagram-reels">Instagram Reels</option>
                                             <option value="instagram-post">Instagram Post</option>
-                                            <option value="youtube">Youtube</option>
+                                            <option value="youtube">Youtube Video</option>
+                                            <option value="youtube-shorts">Youtube Shorts</option>
                                             <option value="twitter">X (Twitter)</option>
                                             <option value="google">Google Business Profile</option>
                                             <option value="tiktok">Tiktok</option>
+
                                         </select>
                                     </div>
                                     <div class="form-group" style="font-size: 15px;">
                                         <textarea class="form-control-textarea" placeholder="Create post"
                                             style="border: 1px solid #ced4da;border-radius:4px;width:100%;box-sizing: border-box;background-color: white;"
-                                            id="report-details" required></textarea>
+                                            id="post-textarea" required></textarea>
                                     </div>
 
 
@@ -1809,10 +1964,11 @@
                 </div>
 
             </div>
-            <div class="chat-content" id="create-post-content" style="display:none;width: 100%;">
+            <!-- view posts -->
+            <div class="chat-content" id="post-content" style="display:none;width: 100%;">
                 <div class="chat-header">
                     <div class="logo-container">
-                        <h4>Create Post
+                        <h4>Posts
                         </h4>
                     </div>
                     <div class="user-details">
@@ -1824,12 +1980,179 @@
                     <div class=""
                         style="width:70%;align-items:center;margin-left:10%;margin-right:20%;margin-top:20px;text-align:center">
                     </div>
-                    <div class="company-account-info">
+                    <div class="company-account-info" style="overflow-y: scroll;height: 85vh;">
+                        {% if posts|length == 0 %}
+                        <div
+                            style="    position: absolute;top: 50%;right: 25%;left: 25%;transform: translate(50%, 25%);">
+                            <p>Posts you upload using RevFlow will appear here</p>
+                        </div>
+                        {% else %}
+                        {% for p in posts %}
+                        <!-- post with media -->
+                        {% if p.has_media %}
+                        <div
+                            style="width: 100%;display: flex;justify-content: center;margin-top: 10px;margin-bottom: 10px;">
+                            <div></div>
+                            <div
+                                style="display: flex;gap:2px;width: 80%;border: 1px solid rgb(209, 209, 209);border-radius: 10px;box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1), 0px 2px 4px rgba(0, 0, 0, 0.06);">
+                                <div style="width:80%;padding: 20px;">
+                                    <img src="https://images.ctfassets.net/az3stxsro5h5/NjZUwfga63k7mTZCeKhvH/2cbcc7fa1e907b0a9d37155077c253f8/Nov1-What_to_Post_on_Instagram_When_You_re_Fresh_Out_of_Ideas-Newsletter-Feature-FL"
+                                        alt=""
+                                        style="height: 300px;width: 100%;margin-bottom: 20px;border-radius: 5px;">
 
+                                    <p style="max-height: 200px;overflow-y: scroll;">{{ p.content }}
+                                    </p>
+                                    <hr>
+                                    <div
+                                        style="display: flex;justify-content: space-between;font-size: 12px;width: 80%;gap: 10px">
+                                        <p style="cursor: pointer;" title="Click to see impression distribution"><i class="fa fa fa-bar-chart"></i> <span
+                                                style="font-size: 12px;" >211.8k</span></p>
+                                        <p style="cursor: pointer;" title="Click to see comments"><i class="fa fa fa-comments-o"></i> <span
+                                                style="font-size: 12px;">300</span>
+                                        </p>
+                                        <p style="cursor: pointer;" title="Click to like distribution"><i class="fa fa fa-thumbs-up"></i> <span
+                                                style="font-size: 12px;">155</span>
+                                        </p>
+                                        <p><i class="fa fa fa-calendar"></i> <span
+                                                style="font-size: 12px;">12/06/2024 1200h UTC</span></p>
+                                    </div>
+                                </div>
+                                <div style="width: 40%;padding-top: 20px;padding-bottom: 20px;">
+                                    <div style="display: flex;justify-content: space-between;padding: 10px;">
+                                        <div>
+                                            {% if p.is_scheduled %}
+                                            <p
+                                                style="font-size: 12px;padding: 0;margin: 0;background-color: rgb(216, 230, 251);color: rgb(21, 121, 164);width: 80px;border-radius: 5px;padding-left: 5px;padding-right: 10px;align-items: center;margin-bottom: 10px;">
+                                                <i class="fa fa-clock" aria-hidden="true"></i> Scheduled
+                                            </p>
+                                            {% else %}
+                                            <p
+                                                style="font-size: 12px;padding: 0;margin: 0;background-color: rgb(216, 251, 232);color: rgb(21, 164, 97);width: 80px;border-radius: 5px;padding-left: 5px;padding-right: 10px;align-items: center;margin-bottom: 10px;">
+                                                <i class="fa fa-check" aria-hidden="true"></i> Uploaded
+                                            </p>
+
+                                            {% endif %}
+                                        </div>
+                                        <p style="padding-right: 12px;cursor: pointer;" title="Permanently delete post from all channels"><i class="fa fa-trash"></i></p>
+                                    </div>
+                                    <div style="display: flex;gap: 5px;flex-wrap: wrap;padding: 0;">
+                                        <div>
+                                            <p  
+                                                style="background-color: #f5f5f5;padding-left:5px;padding-right: 5px;font-size: 12px;border-radius: 5px;">
+                                                Instagram Reels</p>
+                                        </div>
+                                        <div>
+                                            <p
+                                                style="background-color: #f5f5f5;padding-left:5px;padding-right: 5px;font-size: 12px;border-radius: 5px;">
+                                                Instagram Stories</p>
+                                        </div>
+                                        <div>
+                                            <p
+                                                style="background-color: #f5f5f5;padding-left:5px;padding-right: 5px;font-size: 12px;border-radius: 5px;">
+                                                Facebook</p>
+                                        </div>
+                                        <div>
+                                            <p
+                                                style="background-color: #f5f5f5;padding-left:5px;padding-right: 5px;font-size: 12px;border-radius: 5px;">
+                                                Twitter</p>
+                                        </div>
+
+                                        <div>
+                                            <p
+                                                style="background-color: #f5f5f5;padding-left:5px;padding-right: 5px;font-size: 12px;border-radius: 5px;">
+                                                Youtube Shorts</p>
+                                        </div>
+                                    </div>
+                                    <hr>
+                                    <p>#Tags</p>
+                                    <div
+                                        style="display: flex;gap: 5px;flex-wrap: wrap;padding-top: 0px;padding-bottom:10px;">
+                                        {% for t in p.tags %}
+                                        <p>life</p>
+
+                                        {% endfor %}
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+
+                        {% else %}
+                        <!-- non media post -->
+                        <div style="width: 100%;display: flex;justify-content: center;
+                        margin-top: 10px;margin-bottom: 10px;">
+                            <div></div>
+                            <div
+                                style="display: flex;gap:2px;width: 80%;border: 1px solid rgb(209, 209, 209);border-radius: 10px;box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1), 0px 2px 4px rgba(0, 0, 0, 0.06);">
+                                <div style="width:80%;padding: 20px;">
+                                    <p class=".p-small" style="max-height: 300px;overflow-y: scroll;">{{ p.content }}
+                                    </p>
+                                    <hr>
+                                    <div
+                                        style="display: flex;justify-content: space-between;font-size: 12px;width: 80%;gap: 10px">
+                                        <p><i class="fa fa fa-bar-chart"></i> <span
+                                                style="font-size: 12px;">211.8k</span></p>
+                                        <p style="cursor: pointer;"><i class="fa fa fa-comments-o"></i> <span
+                                                style="font-size: 12px;">300</span>
+                                        </p>
+                                        <p><i class="fa fa fa-thumbs-up"></i> <span style="font-size: 12px;">155</span>
+                                        </p>
+                                        <p><i class="fa fa fa-calendar"></i> <span
+                                                style="font-size: 12px;">12/06/2024</span></p>
+                                    </div>
+                                </div>
+                                <div style="width: 40%;">
+                                    <div style="display: flex;gap: 5px;flex-wrap: wrap;padding: 10px;">
+                                        <p>#life</p>
+                                        <p>#travel</p>
+                                        <p>#solo travel</p>
+                                        <p>#India</p>
+                                    </div>
+                                    <p
+                                        style="font-size: 12px;padding: 0;margin: 0;background-color: rgb(216, 251, 232);color: rgb(21, 164, 97);width: 80px;border-radius: 5px;padding-left: 5px;padding-right: 10px;align-items: center;margin-bottom: 10px;">
+                                        <i class="fa fa-check" aria-hidden="true"></i> Uploaded
+                                    </p>
+
+                                    <div style="display: flex;gap: 5px;flex-wrap: wrap;padding: 2px;">
+                                        <div>
+                                            <p
+                                                style="background-color: #f5f5f5;padding-left:5px;padding-right: 5px;font-size: 12px;border-radius: 5px;">
+                                                Instagram Reels</p>
+                                        </div>
+                                        <div>
+                                            <p
+                                                style="background-color: #f5f5f5;padding-left:5px;padding-right: 5px;font-size: 12px;border-radius: 5px;">
+                                                Instagram Stories</p>
+                                        </div>
+                                        <div>
+                                            <p
+                                                style="background-color: #f5f5f5;padding-left:5px;padding-right: 5px;font-size: 12px;border-radius: 5px;">
+                                                Facebook</p>
+                                        </div>
+                                        <div>
+                                            <p
+                                                style="background-color: #f5f5f5;padding-left:5px;padding-right: 5px;font-size: 12px;border-radius: 5px;">
+                                                Twitter</p>
+                                        </div>
+                                        <div>
+                                            <p
+                                                style="background-color: #f5f5f5;padding-left:5px;padding-right: 5px;font-size: 12px;border-radius: 5px;">
+                                                Youtube Shorts</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+
+                        {% endif %}
+                        {% endfor %}
+                        {% endif %}
                     </div>
                 </div>
 
             </div>
+            <!-- request feature/bug fix -->
             <div class="chat-content" id="feature-request" style="display:none">
                 <div class="chat-header">
                     <div class="logo-container">
@@ -1935,11 +2258,178 @@
         <script src="{% static 'js/website-scan.js' %}"></script>
         <script src="{% static 'js/verify-contact.js' %}"></script>
         <script src="{% static 'js/navigation-router.js' %}"></script>
-        <script src="{% static 'js/upload.js' %}"></script>
+        <!-- <script src="{% static 'js/upload.js' %}"></script> -->
         <script src="{% static 'js/report-scam.js' %}"></script>
         <script src="{% static 'js/feature-request.js' %}"></script>
         <script src="{% static 'js/multiselect.js' %}"></script>
 
+        <!-- general purpose scripts -->
+        <script>
+            $(document).ready(function () {
+                //edit business page
+                $('#edit-profile').click(function () {
+                    $('#business-page').css('display', 'none');
+                    $('#edit-business-page').css('display', 'block');
+
+                });
+                $('#cancel-edit').click(function () {
+                    $('#edit-business-page').css('display', 'none');
+                    $('#business-page').css('display', 'block');
+                });
+                $('#create-post').click(function () {
+                    $('.chat-content').css('display', 'none');
+                    $('.quick_links li').each(function () { $(this).removeClass('active') })
+                    $('#create-post-content').css('display', 'block');
+                });
+            });
+        </script>
+        <!-- update business page -->
+        <script>
+            function getCSRFToken() {
+                return $('meta[name="csrfmiddlewaretoken"]').val();
+            }
+
+            $(document).ready(function () {
+                toastr.options = {
+                    'closeButton': true,
+                    'debug': false,
+                    'newestOnTop': false,
+                    'progressBar': false,
+                    'positionClass': 'toast-top-right',
+                    'preventDuplicates': false,
+                    'showDuration': '1000',
+                    'hideDuration': '1000',
+                    'timeOut': '5000',
+                    'extendedTimeOut': '1000',
+                    'showEasing': 'swing',
+                    'hideEasing': 'linear',
+                    'showMethod': 'fadeIn',
+                    'hideMethod': 'fadeOut',
+                };
+                $('#image-input').on('change', function (event) {
+                    const file = event.target.files[0]; // Get the selected file
+
+                    // Check if a file is selected and if it's an image
+                    if (file && file.type.startsWith('image/')) {
+                        const reader = new FileReader();
+
+                        // When the file is read successfully
+                        reader.onload = function (e) {
+                            // Create an image element and set its source to the file data
+                            $('#image-container').attr('src', e.target.result);
+
+                        };
+                        // Read the file as a Data URL (base64)
+                        reader.readAsDataURL(file);
+                    } else {
+                        // If the file is not an image, reset the container content
+                        toastr.error("Error: Could not upload file");
+                    }
+                });
+
+                $('#update-profile').click(function () {
+                    // Create a new FormData object
+                    var formData = new FormData();
+                    // Append image file to FormData
+                    try {
+                        var imageFile = $('#image-input')[0].files[0];
+                        formData.append('image', imageFile);
+
+                    } catch (e) {
+                        alert(e);
+
+                    }
+
+                    // Append other input fields to FormData
+                    var csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                    formData.append('company_id', '{{ company_id }}');
+                    formData.append('email', $('#update-email').val());
+                    formData.append('phone', $('#update-phone').val());
+                    formData.append('about', $('#update-about').val());
+                    formData.append('website', $('#update-website').val());
+                    formData.append('whatsapp', $('#update-whatsapp').val());
+                    formData.append('instagram', $('#update-instagram').val());
+                    formData.append('facebook', $('#update-facebook').val());
+                    formData.append('tiktok', $('#update-tiktok').val());
+                    formData.append('youtube', $('#update-youtube').val());
+                    formData.append('twitter', $('#update-twitter').val());
+                    formData.append('linkedin', $('#update-linkedin').val());
+                    // Send the form data via AJAX
+                    $.ajax({
+                        url: '{% url "update-profile" %}', // Replace with your Django endpoint URL
+                        type: 'POST',
+                        headers: {
+                            'X-CSRFToken': csrfToken
+                        },
+                        data: formData,
+                        processData: false, // Prevent jQuery from processing the data
+                        contentType: false, // Prevent jQuery from setting the content type
+                        success: function (response) {
+                            if (response['updated']) {
+                                toastr.success('Successfully updated profile');
+                                // time for 2 seconds
+                                setTimeout(() => {
+                                    window.location.reload();
+                                }, 1000);
+
+                            } else {
+                                toastr.error('Failed to update profile');
+                                return;
+                            }
+                        },
+                        error: function (jqXHR, textStatus, errorThrown) {
+                            alert('Failed to submit form.');
+                            console.error(textStatus, errorThrown);
+                        }
+                    });
+                })
+
+                // grab post content
+                $('#post-btn').click(function () {
+                    // Create a new FormData object
+                    var formData = new FormData();
+
+                    // Append other input fields to FormData
+                    var csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                    formData.append('company_id', '{{ company_id }}');
+                    // Send the form data via AJAX
+                    $.ajax({
+                        url: '{% url "fetch-posts" %}', // Replace with your Django endpoint URL
+                        type: 'POST',
+                        headers: {
+                            'X-CSRFToken': csrfToken
+                        },
+                        data: formData,
+                        processData: false, // Prevent jQuery from processing the data
+                        contentType: false, // Prevent jQuery from setting the content type
+                        success: function (response) {
+                            if (response['error']) {
+                                toastr.error('Failed to get current posts');
+
+                            } else {
+                                toastr.success('You are seeing the latest posts');
+                                // update html
+                                var tempDiv = $('<div>').html(response);
+
+                                // Extract the specific element from the new HTML
+                                var newElementContent = tempDiv.find('#post-content').html();
+
+                                $('#post-content').html(newElementContent);
+                                return;
+                            }
+                        },
+                        error: function (jqXHR, textStatus, errorThrown) {
+                            alert('Failed to submit form.');
+                            console.error(textStatus, errorThrown);
+                        }
+                    });
+                })
+
+            });
+
+
+
+        </script>
         <script>
             $(document).ready(function () {
                 // get the clicked item
@@ -1955,15 +2445,7 @@
             });
 
         </script>
-        <script>
-            var preferences = "{{ theme }}"
-            if (preferences == 'dark-mode') {
-                $('.mode-toggle-checkbox').each(function () {
-                    $(this).prop('checked', true);
-                });
-            }
 
-        </script>
         <script type="text/javascript">
             window.DjangoURLs = {
                 home: "",
@@ -2282,32 +2764,6 @@
                         console.error('Error signing in with custom token:', error);
                     });
             }
-            $(document).ready(function () {
-                toastr.options = {
-                    'closeButton': true,
-                    'debug': false,
-                    'newestOnTop': false,
-                    'progressBar': false,
-                    'positionClass': 'toast-top-right',
-                    'preventDuplicates': false,
-                    'showDuration': '1000',
-                    'hideDuration': '1000',
-                    'timeOut': '5000',
-                    'extendedTimeOut': '1000',
-                    'showEasing': 'swing',
-                    'hideEasing': 'linear',
-                    'showMethod': 'fadeIn',
-                    'hideMethod': 'fadeOut',
-                };
-
-
-                $('#verify-email').click(function () {
-                    const fb_usr = $('#firebase-user').text();
-                    signInWithCustomTokenAct(fb_usr);
-                });
-
-            });
-
 
         </script>
         <script>
