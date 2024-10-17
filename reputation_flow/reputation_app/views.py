@@ -402,7 +402,7 @@ def generate_instagram_login_url():
 import requests
 
 def get_instagram_user_info():
-    access_token='IGQWRQaUNyNWNLYlNmVmtSRkExUVROLWYySzZANbDBtY2Q2NXZA5QVVSYjloaWpmdTM5dVE1bmwxbHhRc3lZAMEtNV3llZAVdybGNTeTJpMWhqS2wtS0pEMFJMQnNwZAUZAOQWZAjVjBvcE90M2pHSkdzMGJKalZA0OTN3RXcZD'
+    access_token='ACCESS_TOKEN'
 
     url = 'https://graph.instagram.com/me'
     params = {
