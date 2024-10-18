@@ -22,6 +22,7 @@ from django.urls import reverse
 import firebase_admin
 from firebase_admin import credentials, auth
 import uuid
+import requests
 
  
 # Create your views here.
@@ -399,18 +400,21 @@ def generate_instagram_login_url():
     )
     return oauth_url
 
-import requests
 
 def get_instagram_user_info():
-    access_token='ACCESS_TOKEN'
+    # access_token='ACCESS_TOKEN'
 
-    url = 'https://graph.instagram.com/me'
-    params = {
-        'fields': 'id,username,account_type,profile_picture_url',
-        'access_token': access_token
-    }
-    response = requests.get(url, params=params)
-    return response.json()
+    # url = 'https://graph.instagram.com/me'
+    # params = {
+    #     'fields': 'id,username,account_type,profile_picture_url',
+    #     'access_token': access_token
+    # }
+    # response = requests.get(url, params=params)
+    # try:
+    #     return response.json()
+    # except:
+    return {}
+        
 
 # Use the token you retrieved manually
 
