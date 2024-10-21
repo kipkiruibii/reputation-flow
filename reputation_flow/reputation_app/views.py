@@ -23,8 +23,26 @@ import firebase_admin
 from firebase_admin import credentials, auth
 import uuid
 import requests
-
+import bleach
  
+ 
+# Define the allowed HTML tags and attributes
+ALLOWED_TAGS = ['p', 'b', 'i', 'u', 'strong', 'em', 'a', 'img', 'div', 'span', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ul', 'li', 'ol', 'br']
+ALLOWED_ATTRIBUTES = {
+    '*': ['class', 'style'],  # Allow 'class' and 'style' on all tags
+    'a': ['href', 'title'],
+    'img': ['src', 'alt'],
+}
+ALLOWED_STYLES = ['color', 'font-weight', 'text-decoration', 'font-style']  # Allowed CSS styles
+
+def clean_html(input_html):
+    # Sanitize the input HTML using Bleach
+    clean_html = bleach.clean(input_html,
+                              tags=ALLOWED_TAGS,
+                              attributes=ALLOWED_ATTRIBUTES,
+                            #   styles=ALLOWED_STYLES,
+                              strip=True)  # strip=True removes disallowed tags completely
+    return clean_html
 # Create your views here.
 def index(request):
     """
@@ -91,7 +109,7 @@ def loginUser(request):
                     return redirect('landing')
                 user_comp=cm.company.company_id
                 print(user_comp)
-                next_url=f'/business/id/{user_comp}/details'
+                next_url=f'/business/id/{user_comp}/dashboard'
                 return Response({'result': True, 'message': 'success', 'redirect': next_url},
                                 status.HTTP_200_OK)
             return Response({'result': False, 'message': 'Invalid credentials'},
@@ -190,7 +208,8 @@ def dashboard(request,company_id):
         'company_name':cm.company_name,
         'company_category':cm.company_category,
         'company_link':cm.company_link,
-        'company_profile':cpp.p_pic.url if cpp else 'https://pic.onlinewebfonts.com/thumbnails/icons_358304.svg' ,
+        # 'company_profile':cpp.p_pic.url if cpp else 'https://pic.onlinewebfonts.com/thumbnails/icons_358304.svg' ,
+        'company_profile': 'https://pic.onlinewebfonts.com/thumbnails/icons_358304.svg' ,
         'company_about':cm.company_about,
         'company_subs':{
             'subscription_active':cm.company_active_subscription,
@@ -359,14 +378,14 @@ def updateBusinessProfile(request):
         cpp.save()
     cc = CompanyContacts.objects.filter(company = cm).first()
     if cc:
-        cc.instagram=instagram if instagram else cc.instagram
-        cc.whatsapp=whatsapp if whatsapp else cc.whatsapp
-        cc.tiktok=tiktok if tiktok else cc.tiktok
-        cc.youtube=youtube if youtube else cc.youtube
-        cc.twitter=twitter if twitter else cc.twitter
-        cc.linkedin=linkedin if linkedin else cc.linkedin
-        cc.email=email if email else cc.email
-        cc.facebook=facebook if facebook else cc.facebook
+        cc.instagram=instagram 
+        cc.whatsapp=whatsapp 
+        cc.tiktok=tiktok 
+        cc.youtube=youtube 
+        cc.twitter=twitter 
+        cc.linkedin=linkedin 
+        cc.email=email
+        cc.facebook=facebook 
         cc.save()
     else:
         cc=CompanyContacts(
@@ -383,7 +402,7 @@ def updateBusinessProfile(request):
         cc.save()
     cm.company_phone=phone if phone else cm.company_phone
     cm.company_website = website if website else cm.company_website
-    cm.company_about= about if about else cm.company_about
+    cm.company_about= clean_html(about) if about else cm.company_about
     cm.save()
 
     return Response({'updated':True})

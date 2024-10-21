@@ -4,189 +4,290 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <link href="{% static 'css/fontawesome-all.min.css' %}" rel="stylesheet">
+
     <style>
-        /* START TOOLTIP STYLES */
-        [tooltip] {
-            position: relative;
-            /* opinion 1 */
+        @import url('https://fonts.googleapis.com/css?family=Nunito');
+
+        body {
+            background-color: #77e;
+            margin: 0;
+            padding: 0;
+            font-family: nunito;
         }
 
-        /* Applies to all tooltips */
-        [tooltip]::before,
-        [tooltip]::after {
-            text-transform: none;
-            /* opinion 2 */
-            font-size: .9em;
-            /* opinion 3 */
-            line-height: 1;
-            user-select: none;
-            pointer-events: none;
+        .chat_button {
             position: absolute;
-            display: none;
-            opacity: 0;
-        }
-
-        [tooltip]::before {
-            content: '';
-            border: 5px solid transparent;
-            /* opinion 4 */
-            z-index: 1001;
-            /* absurdity 1 */
-        }
-
-        [tooltip]::after {
-            content: attr(tooltip);
-            /* magic! */
-
-            /* most of the rest of this is opinion */
-            font-family: Helvetica, sans-serif;
+            bottom: 0;
+            right: 0;
+            margin: 30px 40px;
+            height: 80px;
+            width: 80px;
             text-align: center;
-
-            /* 
-    Let the content set the size of the tooltips 
-    but this will also keep them from being obnoxious
-    */
-            min-width: 3em;
-            max-width: 1005px;
-            padding: 1ch 1.5ch;
-            border-radius: 5px;
-            box-shadow: 0 1em 2em -.5em rgba(0, 0, 0, 0.35);
-            background: #e3faf6;
-            z-index: 1000;
-            /* absurdity 2 */
+            background-color: #eff;
+            border-radius: 100px;
+            border: none;
+            font-size: 1.6rem;
+            color: #77e;
+            cursor: pointer;
+            transition: 0.5s ease-in-out;
         }
 
-        /* Make the tooltips respond to hover */
-        [tooltip]:hover::before,
-        [tooltip]:hover::after {
+        .chat_button:hover {
+            border: 2px solid #eff;
+            background-color: #77e;
+            color: #eff;
+        }
+
+        .chat_button:focus,
+        .chat_button:active {
+            outline: none;
+        }
+
+        .chat_box {
+            max-height: 100%;
+            max-width: 100%;
+            height: 500px;
+            width: 350px;
+            background-color: #fff;
+            position: absolute;
+            bottom: 100px;
+            right: 100px;
+            display: none;
+            z-index: -1;
+            border-radius: 15px;
+            background-image: url(https://i.pinimg.com/originals/40/39/e0/4039e0f1ef08b7b965bacb4641a7af49.jpg);
+            box-shadow: 0 0 50px rgba(0, 0, 0, .45);
+        }
+
+        .chat_box_header {
+            padding: 20px;
+            background: #e1e3e8;
+            border-top-left-radius: 15px;
+            border-top-right-radius: 15px;
+            text-align: center;
+            color: #77e;
+            font-weight: 600;
+            letter-spacing: 0.25rem;
+        }
+
+        .chat_box_body {
+            padding: 16px;
+            height: 100%;
+            overflow-y: scroll;
+            height: 380px;
+            scroll-behavior: smooth;
+        }
+
+        .chat_box_body_self {
+            padding: 16px 15px;
+            float: right;
+            border-radius: 25px;
+            margin-right: 10px;
+            background: #5a5eb9;
+            color: white;
+            margin: 10px 0;
+            clear: both;
+            max-width: 75%;
+        }
+
+        .chat_box_body_other {
+            background: whitesmoke;
+            padding: 16px 15px;
+            color: #666;
+            max-width: 75%;
+            float: left;
+            margin-left: 10px;
+            margin: 10px 0;
+            position: relative;
+            margin-bottom: 20px;
+            border-radius: 25px;
+            clear: both;
+        }
+
+        .chat_box_body::-webkit-scrollbar {
+            width: 5px;
+            background-color: #f5f5f5;
+        }
+
+        .chat_box_body::-webkit-scrollbar-thumb {
+            background-color: #77e;
+        }
+
+        .chat_box_footer {
+            max-width: 100%;
+            height: 80px;
+            position: absolute;
+            bottom: -31px;
+        }
+
+        .chat_box_footer input {
+            max-width: 100%;
+            width: 270px;
+            padding: 17px 15px;
+            border-bottom-left-radius: 15px;
+            border: none;
+            position: fixed;
+            background-color: #eee;
+        }
+
+        .chat_box_footer input:focus {
+            outline: none;
+        }
+
+        .chat_box_footer input::placeholder {
+            font-family: nunito;
+        }
+
+        .chat_box_footer button {
+            position: absolute;
+            bottom: 30px;
+            font-size: 1.4rem;
+            background: white;
+            box-shadow: none;
+            border: none;
+            border-bottom-right-radius: 16px;
+            color: #5a5eb9;
+            padding: 12px 15px;
+            left: 300px;
+        }
+
+        .chat_box_footer button:focus {
+            outline: none;
+        }
+
+        .toggle {
             display: block;
         }
 
-        /* don't show empty tooltips */
-        [tooltip='']::before,
-        [tooltip='']::after {
-            display: none !important;
+        .animated {
+            -webkit-animation-duration: 1s;
+            animation-duration: 1s;
+            -webkit-animation-fill-mode: both;
+            animation-fill-mode: both;
         }
 
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                -webkit-transform: translate3d(0, 10%, 0);
+                transform: translate3d(0, 10%, 0);
+            }
 
-
-        /* FLOW: DOWN */
-        [tooltip][flow^="down"]::before {
-            top: 100%;
-            border-top-width: 0;
-            border-bottom-color: #333;
-        }
-
-        [tooltip][flow^="down"]::after {
-            top: calc(100% + 5px);
-        }
-
-        [tooltip][flow^="down"]::before,
-        [tooltip][flow^="down"]::after {
-            left: 50%;
-            transform: translate(-50%, .5em);
-        }
-
-
-        /* KEYFRAMES */
-        @keyframes tooltips-vert {
             to {
-                opacity: .9;
-                transform: translate(-50%, 0);
+                opacity: 1;
+                -webkit-transform: translate3d(0, 0, 0);
+                transform: translate3d(0, 0, 0);
             }
         }
 
-        @keyframes tooltips-horz {
-            to {
-                opacity: .9;
-                transform: translate(0, -50%);
-            }
+        .fadeInUp {
+            -webkit-animation-name: fadeInUp;
+            animation-name: fadeInUp;
         }
 
-        /* FX All The Things */
-        [tooltip]:not([flow]):hover::before,
-        [tooltip]:not([flow]):hover::after,
-        [tooltip][flow^="down"]:hover::before,
-        [tooltip][flow^="down"]:hover::after {
-            animation: tooltips-vert 300ms ease-out forwards;
+        .brand {
+            text-align: center !important;
+            margin-top: 25px;
         }
 
-
-
-
-
-
-
-
-
-
-
-        /* UNRELATED to tooltips */
-        body {
-            margin: 0;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            font-family: sans-serif;
-            background: #ededed;
-        }
-
-        main {
-            flex: 1 1 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
-
-        aside {
-            flex: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: #49b293;
-            color: #fff;
-            padding: 1em;
-        }
-
-        main div {
-            text-align: center;
-            color: #353539;
-        }
-
-        main span {
-            padding: .5em 1em;
-            margin: .5em;
-            display: inline-block;
-            background: #dedede;
-        }
-
-        aside a {
-            color: inherit;
+        .brand a {
+            color: white;
             text-decoration: none;
-            font-weight: bold;
-            display: inline-block;
-            padding: .4em 1em;
+        }
+
+        @media only screen and (max-width: 420px) {
+            #chatbar {
+                width: 100%;
+                position: absolute;
+                left: 0;
+                bottom: 8rem;
+            }
+
+            #chatbar .chat_box_footer input {
+                width: 100%;
+            }
+
+            #chatbar .chat_box_footer button {
+                width: 30%;
+                right: 0;
+            }
         }
     </style>
 </head>
 
 <body>
-    <main>
-        <div>
-          <span tooltip="I'm up above it!">Up</span>
+    <div id="chatPage" class="chat_page">
+        <button onclick="openChatBox()" class="chat_button">
+            <i id="chatOpen" class="fas fa-comments"></i>
+        </button>
+
+
+        <div id="chatbar" class="chat_box animated fadeInUp">
+            <div class="chat_box_header">
+                Chat with our AI Assistant
+            </div>
+            <div id="chatBody" class="chat_box_body">
+
+            </div>
+            <div class="chat_box_footer">
+
+                <input type="text" id="MsgInput" placeholder="Enter Message">
+                <button onclick="send()"><i class="fab fa-telegram-plane"></i></button>
+            </div>
         </div>
-        <div>
-          <span tooltip="Slide to the left" flow="left">Left</span>
-          <span tooltip="Slide to the right" flow="right">Right</span>
-        </div>
-        <div>
-          <span tooltip="Get Down sdjfbushfas dfugadsfuyads fuasdyfguyasd futadsasdf." flow="down">Down</span>
-        </div>
-      </main>
-      
-      <aside>
-        <div><a href="https://webdesign.tutsplus.com/tutorials/css-tooltip-magic--cms-28082" target="_parent">Read the tutorial on Tuts+</a></div>
-      </aside></body>
+    </div>
+
+    <script>
+
+        var ischatopen = false;
+        var ele = document.getElementById("chatbar");
+
+        function openChatBox() {
+            if (ischatopen == false) {
+                ele.classList.add("toggle");
+                ischatopen = true;
+                document.getElementById("chatOpen").classList.remove("fa-comments");
+                document.getElementById("chatOpen").classList.add("fa-times");
+
+            }
+            else {
+                ele.classList.remove("toggle");
+                ischatopen = false;
+                document.getElementById("chatOpen").classList.add("fa-comments");
+                document.getElementById("chatOpen").classList.remove("fa-times");
+            }
+        }
+
+
+
+        function send() {
+            console.log("Here");
+            var chatBody = document.getElementById("chatBody");
+            var Clientmsg = document.getElementById("MsgInput").value;
+            document.getElementById('MsgInput').value = '';
+            var divClient = document.createElement("div");
+            divClient.classList.add("chat_box_body_self");
+
+            divClient.innerHTML = Clientmsg;
+
+            chatBody.append(divClient);
+
+
+            var divBot = document.createElement("div");
+            divBot.classList.add("chat_box_body_other");
+
+            divBot.innerHTML = Clientmsg;
+            setTimeout(function () {
+                $('divBot').show();
+            }, 5000);
+            chatBody.append(divBot);
+            chatBody.scrollTop = chatBody.scrollHeight;
+        }
+
+
+
+    </script>
+</body>
 
 </html>
