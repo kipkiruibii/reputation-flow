@@ -635,6 +635,264 @@
             box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1), 0px 2px 4px rgba(0, 0, 0, 0.06);
             background-color: white;
         }
+
+        .bx-shadow {
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1), 0px 2px 4px rgba(0, 0, 0, 0.06);
+        }
+
+        .hover-active:hover {
+            cursor: pointer;
+            color: rgb(78, 78, 244);
+        }
+
+        .hover-active-div:hover {
+            cursor: pointer;
+            background-color: rgba(222, 222, 222, 0.381);
+            border-radius: 5px;
+        }
+
+        .zero-padding-margin {
+            margin: 0;
+            padding: 0;
+        }
+        .font-12{
+            font-size: 12px;
+        }
+        .pointer {
+            cursor: pointer;
+        }
+
+        .flex-space-between {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .scroll-y {
+            height: 100%;
+            overflow-y: scroll;
+        }
+
+        .warning-flair {
+            background-color: rgb(251, 216, 216);
+            color: rgb(164, 21, 21);
+            border-radius: 5px;
+            padding-left: 5px;
+            padding-right: 5px;
+        }
+
+        .success-flair {
+            background-color: rgb(224, 251, 216);
+            color: rgb(33, 164, 21);
+            border-radius: 5px;
+            padding-left: 5px;
+            padding-right: 5px;
+        }
+
+        .pending-flair {
+            background-color: rgb(216, 232, 251);
+            color: rgb(21, 35, 164);
+            border-radius: 5px;
+            padding-left: 5px;
+            padding-right: 5px;
+        }
+
+        .not-sent-flair {
+            background-color: rgb(232, 232, 232);
+            color: rgb(0, 0, 0);
+            border-radius: 5px;
+            padding-left: 5px;
+            padding-right: 5px;
+        }
+
+        .center-div {
+            display: flex;
+            justify-content: center;
+            height: 100%;
+            top: 25;
+            left: 25;
+            transform: translate(0, 50%);
+        }
+
+        .t-c {
+            height: 100%;
+        }
+
+
+
+
+        .chat .chat-history {
+            padding: 20px;
+            width: 80%;
+            border-bottom: 2px solid #fff
+        }
+
+        .chat .chat-history ul {
+            padding: 0
+        }
+
+        .chat .chat-history ul li {
+            list-style: none;
+            margin-bottom: 30px
+        }
+
+        .chat .chat-history ul li:last-child {
+            margin-bottom: 0px
+        }
+
+        .chat .chat-history .message-data {
+            margin-bottom: 15px
+        }
+
+        .chat .chat-history .message-data img {
+            border-radius: 40px;
+            width: 40px
+        }
+
+        .chat .chat-history .message-data-time {
+            color: #434651;
+            padding-left: 6px
+        }
+
+        .chat .chat-history .message {
+            color: #444;
+            padding: 18px 20px;
+            line-height: 26px;
+            font-size: 16px;
+            border-radius: 7px;
+            display: inline-block;
+            position: relative
+        }
+
+        .chat .chat-history .message:after {
+            bottom: 100%;
+            left: 7%;
+            border: solid transparent;
+            content: " ";
+            height: 0;
+            width: 0;
+            position: absolute;
+            pointer-events: none;
+            border-bottom-color: #fff;
+            border-width: 10px;
+            margin-left: -10px
+        }
+
+        .chat .chat-history .my-message {
+            background: #efefef
+        }
+
+        .chat .chat-history .my-message:after {
+            bottom: 100%;
+            left: 30px;
+            border: solid transparent;
+            content: " ";
+            height: 0;
+            width: 0;
+            position: absolute;
+            pointer-events: none;
+            border-bottom-color: #efefef;
+            border-width: 10px;
+            margin-left: -10px
+        }
+
+        .chat .chat-history .other-message {
+            background: #e8f1f3;
+            text-align: right
+        }
+
+        .chat .chat-history .other-message:after {
+            border-bottom-color: #e8f1f3;
+            left: 93%
+        }
+
+        .chat .chat-message {
+            padding: 20px
+        }
+
+        .online,
+        .offline,
+        .me {
+            margin-right: 2px;
+            font-size: 8px;
+            vertical-align: middle
+        }
+
+        .online {
+            color: #86c541
+        }
+
+        .offline {
+            color: #e47297
+        }
+
+        .me {
+            color: #1d8ecd
+        }
+
+        .float-right {
+            float: right
+        }
+
+        .clearfix:after {
+            visibility: hidden;
+            display: block;
+            font-size: 0;
+            content: " ";
+            clear: both;
+            height: 0
+        }
+
+        @media only screen and (max-width: 767px) {
+            .chat-app .people-list {
+                height: 465px;
+                width: 100%;
+                overflow-x: auto;
+                background: #fff;
+                left: -400px;
+                display: none
+            }
+
+            .chat-app .people-list.open {
+                left: 0
+            }
+
+            .chat-app .chat {
+                margin: 0
+            }
+
+            .chat-app .chat .chat-header {
+                border-radius: 0.55rem 0.55rem 0 0
+            }
+
+            .chat-app .chat-history {
+                height: 300px;
+                overflow-x: auto
+            }
+        }
+
+        @media only screen and (min-width: 768px) and (max-width: 992px) {
+            .chat-app .chat-list {
+                height: 650px;
+                overflow-x: auto
+            }
+
+            .chat-app .chat-history {
+                height: 600px;
+                overflow-x: auto
+            }
+        }
+
+        @media only screen and (min-device-width: 768px) and (max-device-width: 1024px) and (orientation: landscape) and (-webkit-min-device-pixel-ratio: 1) {
+            .chat-app .chat-list {
+                height: 480px;
+                overflow-x: auto
+            }
+
+            .chat-app .chat-history {
+                height: calc(100vh - 350px);
+                overflow-x: auto
+            }
+        }
     </style>
 
 </head>
@@ -679,7 +937,8 @@
                     {% if user_permissions.can_link_unlink_account %}
                     <button type="button" class="btn btn-primary">Change Account</button>
                     {% else %}
-                    <button type="button" class="btn btn-primary" style="cursor: not-allowed;">Change Account</button>
+                    <button type="button" class="btn btn-primary" tooltip="Forbidden. Contact admin" flow="down"
+                        style="cursor: not-allowed;">Change Account</button>
                     {% endif %}
                     <!-- <button type="button" class="btn btn-danger">Temporary Disable</button> -->
 
@@ -1209,8 +1468,8 @@
                                     style="font-size:15px;width:30px"></i> Analytics</li> -->
                             <li id="verify-contact" data-target="#reviews-content"><i class="fa fa-comments-o"
                                     style="font-size:15px;width:30px"></i> Reviews</li>
-                            <!-- <li id="report" data-target="#inbox-content"><i class="fa fa-inbox"
-                                    style="font-size:15px;width:30px"></i> Messages</li> -->
+                            <li id="report" data-target="#inbox-content"><i class="fa fa-inbox"
+                                    style="font-size:15px;width:30px"></i> Drafts</li>
                             <li id="post-btn" data-target="#post-content"><i class="fa fa-share"
                                     style="font-size:15px;width:30px"></i> Posts</li>
                             <li id="settings" data-target="#teams-content"><i class="fa fa-group"
@@ -1351,13 +1610,13 @@
                             <form style="width:70%" id="request-input-form">
                                 <div class="form-group">
                                     <input type="text" class="form-control-input" id="request-title"
-                                        style="border: 1px solid #ced4da;border-radius:4px;width: 100%;box-sizing: border-box;background-color: white;"
+                                        style="border: 1px solid #ced4da;border-radius:4px;width: 100%;box-sizing: border-box;background-color: white;font-size: 15px;padding-left:15px"
                                         placeholder="Title" required>
                                 </div>
                                 <div class="form-group">
                                     <textarea class="form-control-textarea" placeholder="Tell us more"
                                         id="request-details"
-                                        style="border: 1px solid #ced4da;border-radius:4px;width:100%;box-sizing: border-box;background-color: white;"
+                                        style="border: 1px solid #ced4da;border-radius:4px;width:100%;box-sizing: border-box;background-color: white;font-size: 15px;padding-left:15px"
                                         required></textarea>
                                 </div>
                                 <div style="text-align:center;font-size:12px;align-items:center">
@@ -1526,6 +1785,7 @@
                                                     style="font-size: 12px;">Change</button>
                                                 {% else %}
                                                 <button type="button" class="btn btn-primary"
+                                                    tooltip="Forbidden. Contact admin" flow="down"
                                                     style="cursor: not-allowed;font-size: 12px;">Change</button>
                                                 {% endif %}
 
@@ -1541,6 +1801,7 @@
                                                     style="font-size: 12px;">Link</button>
                                                 {% else %}
                                                 <button type="button" class="btn btn-primary"
+                                                    tooltip="Forbidden. Contact admin" flow="down"
                                                     style="cursor: not-allowed;font-size: 12px;">Link</button>
                                                 {% endif %}
                                                 {% endif %}
@@ -1580,6 +1841,7 @@
                                                     style="font-size: 12px;">Change</button>
                                                 {% else %}
                                                 <button type="button" class="btn btn-primary"
+                                                    tooltip="Forbidden. Contact admin" flow="down"
                                                     style="cursor: not-allowed;font-size: 12px;">Change</button>
                                                 {% endif %}
 
@@ -1595,6 +1857,7 @@
                                                     style="font-size: 12px;">Link</button>
                                                 {% else %}
                                                 <button type="button" class="btn btn-primary"
+                                                    tooltip="Forbidden. Contact admin" flow="down"
                                                     style="cursor: not-allowed;font-size: 12px;">Link</button>
                                                 {% endif %}
                                                 {% endif %}
@@ -1634,6 +1897,7 @@
                                                     style="font-size: 12px;">Change</button>
                                                 {% else %}
                                                 <button type="button" class="btn btn-primary"
+                                                    tooltip="Forbidden. Contact admin" flow="down"
                                                     style="cursor: not-allowed;font-size: 12px;">Change</button>
                                                 {% endif %}
 
@@ -1649,6 +1913,7 @@
                                                     style="font-size: 12px;">Link</button>
                                                 {% else %}
                                                 <button type="button" class="btn btn-primary"
+                                                    tooltip="Forbidden. Contact admin" flow="down"
                                                     style="cursor: not-allowed;font-size: 12px;">Link</button>
                                                 {% endif %}
                                                 {% endif %}
@@ -1688,6 +1953,7 @@
                                                     style="font-size: 12px;">Change</button>
                                                 {% else %}
                                                 <button type="button" class="btn btn-primary"
+                                                    tooltip="Forbidden. Contact admin" flow="down"
                                                     style="cursor: not-allowed;font-size: 12px;">Change</button>
                                                 {% endif %}
 
@@ -1703,6 +1969,7 @@
                                                     style="font-size: 12px;">Link</button>
                                                 {% else %}
                                                 <button type="button" class="btn btn-primary"
+                                                    tooltip="Forbidden. Contact admin" flow="down"
                                                     style="cursor: not-allowed;font-size: 12px;">Link</button>
                                                 {% endif %}
                                                 {% endif %}
@@ -1742,6 +2009,7 @@
                                                     style="font-size: 12px;">Change</button>
                                                 {% else %}
                                                 <button type="button" class="btn btn-primary"
+                                                    tooltip="Forbidden. Contact admin" flow="up"
                                                     style="cursor: not-allowed;font-size: 12px;">Change</button>
                                                 {% endif %}
 
@@ -1757,6 +2025,7 @@
                                                     style="font-size: 12px;">Link</button>
                                                 {% else %}
                                                 <button type="button" class="btn btn-primary"
+                                                    tooltip="Forbidden. Contact admin" flow="up"
                                                     style="cursor: not-allowed;font-size: 12px;">Link</button>
                                                 {% endif %}
                                                 {% endif %}
@@ -1796,6 +2065,7 @@
                                                     style="font-size: 12px;">Change</button>
                                                 {% else %}
                                                 <button type="button" class="btn btn-primary"
+                                                    tooltip="Forbidden. Contact admin" flow="up"
                                                     style="cursor: not-allowed;font-size: 12px;">Change</button>
                                                 {% endif %}
 
@@ -1811,6 +2081,7 @@
                                                     style="font-size: 12px;">Link</button>
                                                 {% else %}
                                                 <button type="button" class="btn btn-primary"
+                                                    tooltip="Forbidden. Contact admin" flow="up"
                                                     style="cursor: not-allowed;font-size: 12px;">Link</button>
                                                 {% endif %}
                                                 {% endif %}
@@ -1828,7 +2099,7 @@
 
                                     </div>
                                 </div>
-
+                                <hr>
                                 <div class="business-about">
                                     <h6>About </h6>
                                     {% if company_about %}
@@ -1847,10 +2118,35 @@
                                     <h6>Settings <i class="fa fa-cog " style="margin-left: 20px;"></i></h6>
                                     <ul style="list-style-type: none;">
                                         <li>
-                                            <p>Visibility:</p>
+                                            <div class="form-check form-switch" style="margin-left: 20px;">
+                                                <input class="form-check-input" type="checkbox" role="switch"
+                                                    id="flexSwitchCheckChecked" checked>
+                                                <label class="form-check-label" for="flexSwitchCheckChecked">Auto
+                                                    publish positive reviews</label>
+                                            </div>
                                         </li>
                                         <li>
-                                            <p>Link:</p>
+                                            <div class="form-check form-switch" style="margin-left: 20px;">
+                                                <input class="form-check-input" type="checkbox" role="switch"
+                                                    id="flexSwitchCheckChecked" checked>
+                                                <label class="form-check-label" for="flexSwitchCheckChecked"
+                                                    tooltip="Respond to comments using your AI Knowledgebase"
+                                                    flow="down">Auto respond to queries</label>
+                                            </div>
+                                        </li>
+                                        <li>
+                                            <div class="form-check form-switch" style="margin-left: 20px;">
+                                                <input class="form-check-input" type="checkbox" role="switch"
+                                                    id="flexSwitchCheckChecked" checked>
+                                                <label class="form-check-label" for="flexSwitchCheckChecked"
+                                                    tooltip="Show your customers that you appreciate their comments"
+                                                    flow="down">Auto like positive comments</label>
+                                            </div>
+                                        </li>
+
+                                        <li style="margin-top: 10px;">
+                                            <p tooltip="Add this link to your bio to showcase your customers reviews"
+                                                flow="down">Review Wall Link:</p>
                                         </li>
                                     </ul>
 
@@ -2000,8 +2296,6 @@
                     </div>
                 </div>
             </div>
-            <!-- AI chatbot template -->
-
             <!-- editing the business page  -->
             <div class="chat-content" id="edit-business-page" style="display:none;width: 100%;">
                 <div class="chat-header" id="top-header"
@@ -2118,8 +2412,8 @@
                                                     LinkedIn</span>
                                             </div>
                                             <input type="text" class="form-control" aria-label="Small"
-                                                id="update-linkedin" placeholder="enter your Instagram profile link"
                                                 aria-describedby="inputGroup-sizing-sm"
+                                                placeholder="enter your LinkedIn business profile link"
                                                 value="{{ company_socials.linkedin }}">
                                         </div>
                                     </div>
@@ -2132,7 +2426,7 @@
                                                     Whatsapp</span>
                                             </div>
                                             <input type="text" class="form-control" aria-label="Small"
-                                                id="update-whatsapp" placeholder="enter your Instagram profile link"
+                                                id="update-whatsapp" placeholder="enter your WhatsApp business number"
                                                 aria-describedby="inputGroup-sizing-sm"
                                                 value="{{ company_socials.whatsapp }}">
                                         </div>
@@ -2146,7 +2440,8 @@
                                                     Instagram</span>
                                             </div>
                                             <input type="text" class="form-control" aria-label="Small"
-                                                id="update-instagram" placeholder="enter your Instagram profile link"
+                                                id="update-instagram"
+                                                placeholder="enter your Instagram business profile link"
                                                 aria-describedby="inputGroup-sizing-sm"
                                                 value="{{ company_socials.instagram }}">
                                         </div>
@@ -2159,8 +2454,9 @@
                                                         class="fa fa-facebook-f " style="padding-right: 5px;"></i>
                                                     Facebook</span>
                                             </div>
-                                            <input type="text" class="form-control" aria-label="Small" placeholder=""
-                                                id="update-facebook" aria-describedby="inputGroup-sizing-sm"
+                                            <input type="text" class="form-control" aria-label="Small"
+                                                placeholder="enter your Facebook page link" id="update-facebook"
+                                                aria-describedby="inputGroup-sizing-sm"
                                                 value="{{ company_socials.facebook }}">
                                         </div>
                                     </div>
@@ -2172,8 +2468,9 @@
                                                         class="fa fa-twitter " style="padding-right: 5px;"></i>
                                                     X(Twitter)</span>
                                             </div>
-                                            <input type="text" class="form-control" aria-label="Small" placeholder=""
-                                                id="update-twitter" aria-describedby="inputGroup-sizing-sm"
+                                            <input type="text" class="form-control" aria-label="Small"
+                                                placeholder="enter your X business profile link" id="update-twitter"
+                                                aria-describedby="inputGroup-sizing-sm"
                                                 value="{{ company_socials.twitter }}">
                                         </div>
                                     </div>
@@ -2186,7 +2483,7 @@
                                                     Youtube</span>
                                             </div>
                                             <input type="text" class="form-control" aria-label="Small"
-                                                id="update-youtube" placeholder="enter your Instagram profile link"
+                                                id="update-youtube" placeholder="enter your Youtube channel link"
                                                 aria-describedby="inputGroup-sizing-sm"
                                                 value="{{ company_socials.youtube }}">
                                         </div>
@@ -2201,7 +2498,7 @@
                                                     Tiktok</span>
                                             </div>
                                             <input type="text" class="form-control" aria-label="Small"
-                                                id="update-tiktok" placeholder="enter your Instagram profile link"
+                                                id="update-tiktok" placeholder="enter your Tiktok profile link"
                                                 aria-describedby="inputGroup-sizing-sm"
                                                 value="{{ company_socials.tiktok }}">
                                         </div>
@@ -2270,33 +2567,30 @@
                         </h4>
                     </div>
                     <div>
-                        <div style="display: flex;justify-content: space-between;align-items: center;">
-                            <!-- <div> -->
-                                <!-- <form style="width:200px;overflow-y:scroll;z-index: 1600;position: relative;" id="filter-review-form"
-                                    enctype="multipart/form-data">-->
-                                    <div style="width: 300px;height: 50px;"> 
-                                        <select id="filters" name="filters" data-placeholder="Filter" multiple
-                                            data-multi-select >
-                                            <option value="reviews">Reviews</option>
-                                            <option value="mentions" >Tags/Mentions</option>
-                                            <option value="positive" >Positive</option>
-                                            <option value="negative">Negative</option>
-                                            <option value="neutral">Neutral</option>
-                                            <option value="ig">Instagram</option>
-                                            <option value="fb">Facebook</option>
-                                            <option value="x">X</option>
-                                            <option value="youtube">Youtube</option>
-                                            <option value="tiktok">Tiktok</option>
-                                            <option value="google">Google Business </option>
+                        <div style="display: flex;justify-content: space-between;align-items: center;gap: 10px">
+                            <div style="width: 300px;height: 50px;">
+                                <select id="filters" name="filters" data-placeholder="Filter" multiple
+                                    data-multi-select>
+                                    <option value="reviews">Reviews</option>
+                                    <option value="mentions">Tags/Mentions</option>
+                                    <option value="positive">Positive</option>
+                                    <option value="negative">Negative</option>
+                                    <option value="neutral">Neutral</option>
+                                    <option value="published">Published</option>
+                                    <option value="ig">Instagram</option>
+                                    <option value="fb">Facebook</option>
+                                    <option value="x">X</option>
+                                    <option value="youtube">Youtube</option>
+                                    <option value="tiktok">Tiktok</option>
+                                    <option value="google">Google Business </option>
 
-                                        </select>
-                                     </div>
-
-                                <!-- </form>  -->
-                            <!-- </div> -->
-                             <div>
-                                Apply
-                             </div>
+                                </select>
+                            </div>
+                            <div style="margin-top: 10px;">
+                                <div style="cursor: pointer;border-radius: 10px;" class="bx-shadow">
+                                    <p style="padding: 5px;">Apply</p>
+                                </div>
+                            </div>
                             <div>
 
                                 <a class="btn-solid-sm" href="#">AI Responses </a>
@@ -2365,8 +2659,8 @@
                                                     style="background: #fff;"
                                                     placeholder="Type your response"></textarea>
                                                 <button type="button" data-mdb-button-init data-mdb-ripple-init
-                                                    class="btn btn-primary btn-sm" style="margin: 10px;">Post
-                                                    comment</button>
+                                                    class="btn btn-primary btn-sm"
+                                                    style="margin: 10px;">comment</button>
                                             </div>
                                         </div>
 
@@ -2418,8 +2712,9 @@
                                         <p style="cursor: pointer;font-size: 12px;"><i class="fa fa-external-link"
                                                 aria-hidden="true"></i>
                                             Link</p>
-                                        <p style="cursor: pointer;font-size: 12px;"><i class="fa fa-mail-forward"></i>
-                                            Publish
+                                        <p style="cursor: pointer;font-size: 12px;color: red;"><i
+                                                class="fa fa-trash"></i>
+                                            unpublish
                                         </p>
                                     </div>
                                     <div class="comment-reply-container-box" style="display: none;">
@@ -2511,37 +2806,25 @@
             </div>
             <!-- messages -->
             <div class="chat-content" id="inbox-content" style="display:none">
-                <div class="chat-header">
+                <div class="chat-header" id="top-header"
+                    style="margin-left: 40px;margin-right: 40px;margin-top: 10px;margin-bottom: 10px;">
                     <div class="logo-container">
-                        <h4>Messages
+                        <h4>
+                            Drafts
                         </h4>
                     </div>
-                    <div class="user-details">
 
-                    </div>
 
                 </div>
                 <div class="company-account-info">
-                    <div
-                        style="margin-left:10px;margin-right: 10px;background-color:rgb(248, 247, 247);border-radius: 10px;display: flex;justify-content: space-between;padding:3px;align-items: center;">
-                        <div style="width:70%;display:flex;gap: 10px;">
-                            <p
-                                style="background-color: rgb(216, 251, 239);color: rgb(8, 192, 131);padding: 5px;border-radius:5px ;font-size: 12px;cursor: pointer;">
-                                Inbox</p>
-                            <p style="padding: 5px;border-radius:5px ;font-size: 12px;cursor: pointer;">
-                                Sent</p>
-                        </div>
-                        <div>
-                            <a class="btn-solid-sm" href="#">New Message</a>
-                        </div>
-                    </div>
+                    <p class="font-12" style="display: flex;justify-content: center;">Review content here before they go live</p>
                     <div style="margin-left:20px;margin-right:20px;height:100%;padding:10px;overflow-y: scroll;">
                         <div class="review-list">
 
                             <h5><span style="font-size: 12px;">from</span> Ran Blon <span
-                                    style="font-size: 12px;font-weight: normal;background-color: rgb(216, 251, 239);color: rgb(8, 192, 131);padding: 5px;border-radius:5px ;">Product
-                                    Manager</span> </h5>
-
+                                    style="font-size: 12px;font-weight: normal;background-color: rgb(216, 251, 239);color: rgb(8, 192, 131);padding: 5px;border-radius:5px ;">Graphic Designers Team
+                                    </span> </h5>
+                                    <p >Attached files(1)</p>
                             <p style="padding-left: 10px;">Please fix the error with paypal info
                             </p>
                             <div style="display: flex;justify-content: space-between;margin-top: 20px;">
@@ -2651,7 +2934,8 @@
 
                 </div>
                 <div class="company-account-info">
-                    <div class="no-team" style="display: flex;justify-content: center;margin-top: 50px;"
+                    <!-- instructions -->
+                    <div class="no-team" style="display: none;justify-content: center;margin-top: 50px;"
                         id="available-teams">
                         <div>
                             <p>You do not have any teams at the moment. To create a team:</p>
@@ -2686,6 +2970,8 @@
                             </ol>
                         </div>
                     </div>
+
+                    <!-- create team -->
                     <div id="create-team-form"
                         style="display:none;justify-content:center;width:100%;height:100%;margin-top:5%;">
 
@@ -2727,6 +3013,377 @@
                         </form>
                     </div>
 
+                    <!-- team workspace -->
+                    <div style="display: flex;gap: 10px;height: 100%;">
+                        <div style="height: 100%;width: 30%;">
+                            <p style="align-items: center;color: rgb(7, 113, 90);font-weight: bold;">Graphic
+                                Designers </p>
+
+                            <div>
+                                <p style="padding: 0;margin: 0;"><span style="font-size: 12px;padding-right: 5px;">About
+                                    </span></p>
+                                <p
+                                    style="padding: 0;margin-top:0 ;margin-bottom: 10px;margin-left: 10px;max-height: 100px;overflow-y: scroll;">
+                                    jergregher guewrguer erwyueruf erwyuferwfuwer
+                                    jergregher guewrguer erwyueruf erwyuferwfuwer
+                                    jergregher guewrguer erwyueruf erwyuferwfuwer
+                                    jergregher guewrguer erwyueruf erwyuferwfuwer
+                                    jergregher guewrguer erwyueruf erwyuferwfuwer
+                                    jergregher guewrguer erwyueruf erwyuferwfuwer
+
+                                </p>
+                            </div>
+                            <div style="display: flex;justify-content: space-between;margin-right: 10px;">
+                                <p><span style="font-size: 12px;padding-right: 5px;">Created </span></p>
+                                <p>6/07/19</p>
+                            </div>
+                            <div style="display: flex;justify-content: space-between;margin-right: 10px;">
+                                <p><span style="font-size: 12px;padding-right: 5px;">Members </span></p>
+                                <p><i class="fa fa-caret-right"></i></p>
+                            </div>
+
+                            <p><span style="font-size: 12px;padding-right: 5px;">Invite link </span><span
+                                    class="hover-active">Generate and copy</span></p>
+                            <hr>
+                            <div style="height: 170px;overflow-y: scroll;">
+                                <div class="hover-active-div teams-container" data-target="#teams-chats"
+                                    style="display: flex;justify-content: space-between;margin: 5px;padding: 5px;">
+                                    <p><i class="fa fa-comments-o"></i> Chat</p>
+                                    <p><i class="fa fa-caret-right"></i></p>
+                                </div>
+                                <div class="hover-active-div teams-container" data-target="#teams-files"
+                                    style="display: flex;justify-content: space-between;margin: 5px;padding: 5px;">
+                                    <p><i class="fa fa-files-o"></i> Files</p>
+                                    <p><i class="fa fa-caret-right"></i></p>
+                                </div>
+                                <div class="hover-active-div teams-container" data-target="#teams-announcements"
+                                    style="display: flex;justify-content: space-between;margin: 5px;padding: 5px;">
+                                    <p><i class="fa fa-bell-o"></i> Announcements</p>
+                                    <p><i class="fa fa-caret-right"></i></p>
+                                </div>
+                                <div class="hover-active-div teams-container" data-target="#teams-activity"
+                                    style="display: flex;justify-content: space-between;margin: 5px;padding: 5px;">
+                                    <p><i class="fa fa-tasks"></i> Activity</p>
+                                    <p><i class="fa fa-caret-right"></i></p>
+                                </div>
+                            </div>
+                        </div>
+                        <div style="height: 100%;width: 70%;" class="bx-shadow">
+                            <!-- chat -->
+                            <div id="teams-chats" class="t-c" style="height: 100%;width: 100%;">
+                                <div class="row clearfix">
+                                    <div class="col-lg-12">
+                                        <div class=" chat-app">
+                                            <div class="chat">
+                                                <div class="chat-history" style="width: 90%;">
+                                                    <ul class=".scroll-y"
+                                                        style="height: 66vh;overflow-y: scroll;margin: 0;">
+                                                        <li class="clearfix">
+                                                            <div class="message-data text-right">
+                                                                <span class="message-data-time"><strong>Fred loyd</strong>,
+                                                                    <span style="font-size: 12px;" class="success-flair">Supervisor</span>
+                                                                </span>
+                                                                <img src="https://bootdey.com/img/Content/avatar/avatar7.png"
+                                                                    alt="avatar">
+                                                            </div>
+                                                            <div class="message other-message float-right" style="padding-bottom: 10px;"> Hi Aiden,
+                                                                how are you? How is the
+                                                                project coming along?
+                                                            <p class="zero-padding-margin font-12" >10:10AM</p>
+                                                            </div>
+                                                        </li>
+                                                        <li class="clearfix">
+                                                            <div class="message-data">
+                                                                <span class="message-data-time"></span>
+                                                            </div>
+                                                            <div class="message my-message" style="padding-bottom: 10px;">Are we meeting today?
+                                                                <p class="zero-padding-margin font-12" >10:10AM</p>
+
+                                                            </div>
+                                                        </li>
+                                                        <li class="clearfix">
+                                                            <div class="message-data text-right">
+                                                                <span class="message-data-time">10:10 AM, Today</span>
+                                                                <img src="https://bootdey.com/img/Content/avatar/avatar7.png"
+                                                                    alt="avatar">
+                                                            </div>
+                                                            <div class="message other-message float-right"> Hi Aiden,
+                                                                how are you? How is the
+                                                                project coming along? </div>
+                                                        </li>
+                                                        <li class="clearfix">
+                                                            <div class="message-data text-right">
+                                                                <span class="message-data-time"><strong>Fred loyd</strong>,
+                                                                    <span style="font-size: 12px;" class="success-flair">Supervisor</span>
+                                                                </span>
+                                                                <img src="https://bootdey.com/img/Content/avatar/avatar7.png"
+                                                                    alt="avatar">
+                                                            </div>
+                                                            <div class="message other-message float-right" style="padding-bottom: 10px;"> Hi Aiden,
+                                                                how are you? How is the
+                                                                project coming along?
+                                                            <p class="zero-padding-margin font-12" >10:10AM</p>
+                                                            </div>
+                                                        </li>
+                                                        <li class="clearfix">
+                                                            <div class="message-data text-right">
+                                                                <span class="message-data-time">10:10 AM, Today</span>
+                                                                <img src="https://bootdey.com/img/Content/avatar/avatar7.png"
+                                                                    alt="avatar">
+                                                            </div>
+                                                            <div class="message other-message float-right"> Hi Aiden,
+                                                                how are you? How is the
+                                                                project coming along? </div>
+                                                        </li>
+                                                        <li class="clearfix">
+                                                            <div class="message-data text-right">
+                                                                <span class="message-data-time">10:10 AM, Today</span>
+                                                                <img src="https://bootdey.com/img/Content/avatar/avatar7.png"
+                                                                    alt="avatar">
+                                                            </div>
+                                                            <div class="message other-message float-right"> Hi Aiden,
+                                                                how are you? How is the
+                                                                project coming along? </div>
+                                                        </li>
+
+                                                        <li class="clearfix">
+                                                            <div class="message-data">
+                                                                <span class="message-data-time">10:15 AM, Today</span>
+                                                            </div>
+                                                            <div class="message my-message">Project has been already
+                                                                finished and I have results to
+                                                                show you.</div>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                                <div class="chat-message zero-padding-margin"
+                                                    style="padding: 1px;width: 95%;">
+                                                    <div class="input-group mb-0">
+                                                        <div class="input-group-prepend">
+                                                            <span class="input-group-text"><i
+                                                                    class="fa fa-send"></i></span>
+                                                        </div>
+                                                        <input type="text" class="form-control"
+                                                            style="background-color: #d6d6d688;"
+                                                            placeholder="Enter text here...">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- files -->
+                            <div id="teams-files" style="margin: 20px;" class="t-c">
+                                <div class="flex-space-between">
+                                    <p style="font-weight: bold;"><i class="fa fa-files-o"></i> Files</p>
+                                    <p class="hover-active"><i class="fa fa-plus"></i> Add files</p>
+                                </div>
+                                <div style="list-style-type: none;height: 400px;overflow-y: scroll;display: block; ">
+
+                                    <div
+                                        style="border: 1px rgba(128, 128, 128, 0.491) solid;border-radius: 10px;padding:10px;margin-bottom: 15px;">
+                                        <div class="flex-space-between">
+                                            <div style="width: 50%;">
+                                                <span style="font-size: 12px;">File Name</span><br>
+                                                <p style="margin-left: 20px;font-weight: bold;padding: 0;">
+                                                    APIview
+                                                </p>
+                                            </div>
+                                            <div>
+                                                <span style="font-size: 12px;">By</span>
+                                                <p style="margin-left: 20px;font-size: 12px;font-weight: bold;">Rao Kjui
+                                                </p>
+                                            </div>
+                                            <div>
+                                                <span style="font-size: 12px;">Status</span>
+                                                <p class="pending-flair" style="margin-left: 20px;font-size: 12px;">In
+                                                    Drafts
+                                                </p>
+
+                                            </div>
+                                        </div>
+                                        <hr class="zero-padding-margin" style="height: 1px;">
+                                        <div>
+                                            <p style="font-size: 12px;">
+                                                This is the content. conrtghtrjgetr rtegetetg egtrettrg ergteretr reger
+                                                This is the content. conrtghtrjgetr rtegetetg egtrettrg ergteretr reger
+                                            </p>
+                                        </div>
+                                        <div
+                                            style="display: flex;justify-content: space-between;margin-left: 20px;margin-right: 20px;margin-bottom: 5px;width: 80%;">
+                                            <p style="margin-left: 20px;font-size: 12px;font-weight: bold;">16/2023
+                                                at 09:00am</p>
+                                            <p class="zero-padding-margin pointer" tooltip="Permanently remove"
+                                                flow="up"><i class="fa fa-trash"></i></p>
+                                            <p class="zero-padding-margin pointer" tooltip="Save to local storage"
+                                                flow="up"><i class="fa fa-download"></i></p>
+                                        </div>
+                                    </div>
+
+                                    <div
+                                        style="border: 1px rgba(128, 128, 128, 0.491) solid;border-radius: 10px;padding:10px;margin-bottom: 15px;">
+                                        <div class="flex-space-between">
+                                            <div style="width: 50%;">
+                                                <span style="font-size: 12px;">File Name</span><br>
+                                                <p style="margin-left: 20px;font-weight: bold;padding: 0;">
+                                                    APIview
+                                                </p>
+                                            </div>
+                                            <div>
+                                                <span style="font-size: 12px;">By</span>
+                                                <p style="margin-left: 20px;font-size: 12px;font-weight: bold;">Rao Kjui
+                                                </p>
+                                            </div>
+                                            <div>
+                                                <span style="font-size: 12px;">Status</span>
+                                                <p class="warning-flair" style="margin-left: 20px;font-size: 12px;">Sent
+                                                    Back
+                                                </p>
+
+                                            </div>
+                                        </div>
+                                        <hr class="zero-padding-margin" style="height: 1px;">
+                                        <div>
+                                            <p style="font-size: 12px;">
+                                                This is the content. conrtghtrjgetr rtegetetg egtrettrg ergteretr reger
+                                            </p>
+                                        </div>
+                                        <div
+                                            style="display: flex;justify-content: space-between;margin-left: 20px;margin-right: 20px;margin-bottom: 5px;width: 80%;">
+                                            <p style="margin-left: 20px;font-size: 12px;font-weight: bold;">16/2023
+                                                at 09:00am</p>
+                                            <p class="zero-padding-margin pointer" tooltip="Permanently remove"
+                                                flow="up"><i class="fa fa-trash"></i></p>
+                                            <p class="zero-padding-margin pointer" tooltip="Save to local storage"
+                                                flow="up"><i class="fa fa-download"></i></p>
+                                            <p class="zero-padding-margin pointer" tooltip="Replace file" flow="up"><i
+                                                    class="fa fa fa-exchange"></i></p>
+                                        </div>
+                                    </div>
+
+                                    <div
+                                        style="border: 1px rgba(128, 128, 128, 0.491) solid;border-radius: 10px;padding:10px;margin-bottom: 15px;">
+                                        <div class="flex-space-between">
+                                            <div style="width: 50%;">
+                                                <span style="font-size: 12px;">File Name</span><br>
+                                                <p style="margin-left: 20px;font-weight: bold;padding: 0;">
+                                                    APIview
+                                                </p>
+                                            </div>
+                                            <div>
+                                                <span style="font-size: 12px;">By</span>
+                                                <p style="margin-left: 20px;font-size: 12px;font-weight: bold;">Rao Kjui
+                                                </p>
+                                            </div>
+                                            <div>
+                                                <span style="font-size: 12px;">Status</span>
+                                                <p class="success-flair" style="margin-left: 20px;font-size: 12px;">
+                                                    Accepted
+
+                                                </p>
+
+                                            </div>
+                                        </div>
+                                        <hr class="zero-padding-margin" style="height: 1px;">
+                                        <div>
+                                            <p style="font-size: 12px;">
+                                                This is the content. conrtghtrjgetr rtegetetg egtrettrg ergteretr reger
+                                                This is the content. conrtghtrjgetr rtegetetg egtrettrg ergteretr reger
+                                            </p>
+                                        </div>
+                                        <div
+                                            style="display: flex;justify-content: space-between;margin-left: 20px;margin-right: 20px;margin-bottom: 5px;width: 80%;">
+                                            <p style="margin-left: 20px;font-size: 12px;font-weight: bold;">16/2023
+                                                at 09:00am</p>
+                                            <!-- <p class="zero-padding-margin pointer" tooltip="Permanently remove"
+                                                flow="up"><i class="fa fa-trash"></i></p>
+                                            <p class="zero-padding-margin pointer" tooltip="Save to local storage"
+                                                flow="up"><i class="fa fa-download"></i></p>
+                                            <p class="zero-padding-margin pointer"
+                                                tooltip="Push to drafts for publishing" flow="up"><i
+                                                    class="fa fa-paper-plane"></i></p> -->
+                                        </div>
+                                    </div>
+
+                                    <div
+                                        style="border: 1px rgba(128, 128, 128, 0.491) solid;border-radius: 10px;padding:10px;margin-bottom: 15px;">
+                                        <div class="flex-space-between">
+                                            <div style="width: 50%;">
+                                                <span style="font-size: 12px;">File Name</span><br>
+                                                <p style="margin-left: 20px;font-weight: bold;padding: 0;">
+                                                    APIview
+                                                </p>
+                                            </div>
+                                            <div>
+                                                <span style="font-size: 12px;">By</span>
+                                                <p style="margin-left: 20px;font-size: 12px;font-weight: bold;">Rao Kjui
+                                                </p>
+                                            </div>
+                                            <div>
+                                                <span style="font-size: 12px;">Status</span>
+                                                <p class="not-sent-flair" style="margin-left: 20px;font-size: 12px;">Not
+                                                    sent
+
+                                                </p>
+
+                                            </div>
+                                        </div>
+                                        <hr class="zero-padding-margin" style="height: 1px;">
+                                        <div>
+                                            <p style="font-size: 12px;">
+                                                This is the content. conrtghtrjgetr rtegetetg egtrettrg ergteretr reger
+                                                This is the content. conrtghtrjgetr rtegetetg egtrettrg ergteretr reger
+                                                This is the content. conrtghtrjgetr rtegetetg egtrettrg ergteretr reger
+                                                This is the content. conrtghtrjgetr rtegetetg egtrettrg ergteretr reger
+                                                This is the content. conrtghtrjgetr rtegetetg egtrettrg ergteretr reger
+                                                This is the content. conrtghtrjgetr rtegetetg egtrettrg ergteretr reger
+                                                This is the content. conrtghtrjgetr rtegetetg egtrettrg ergteretr reger
+                                            </p>
+                                        </div>
+                                        <div
+                                            style="display: flex;justify-content: space-between;margin-left: 20px;margin-right: 20px;margin-bottom: 5px;width: 80%;">
+                                            <p style="margin-left: 20px;font-size: 12px;font-weight: bold;">16/2023
+                                                at 09:00am</p>
+                                            <p class="zero-padding-margin pointer" tooltip="Permanently remove"
+                                                flow="up"><i class="fa fa-trash"></i></p>
+                                            <p class="zero-padding-margin pointer" tooltip="Save to local storage"
+                                                flow="up"><i class="fa fa-download"></i></p>
+                                            <p class="zero-padding-margin pointer" tooltip="Replace file" flow="up"><i
+                                                    class="fa fa fa-exchange"></i></p>
+
+                                            <p class="zero-padding-margin pointer"
+                                                tooltip="Push to drafts for publishing" flow="up"><i
+                                                    class="fa fa-paper-plane"></i></p>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                            <!-- announcements -->
+                            <div id="teams-announcements" class="t-c">
+                                <div class="flex-space-between">
+                                    <p style="font-weight: bold;"><i class="fa fa-bell-o"></i> Announcements</p>
+                                    <p class="hover-active"><i class="fa fa-plus"></i> Creat Announcement</p>
+                                </div>
+
+                                <div class="center-div">
+                                    <p>There are no announcements. Create new</p>
+                                </div>
+                            </div>
+
+                            <!-- activity -->
+                            <div id="teams-activity" class="t-c">
+                                <div class="center-div">
+                                    <p>There are no recent activities</p>
+                                </div>
+
+
+                            </div>
+                        </div>
+
+
+                    </div>
                 </div>
             </div>
             <!-- help -->
@@ -3223,11 +3880,6 @@
                                         </div>
                                     </div>
                                 </div>
-                                <script>
-
-                                </script>
-                                <script>
-                                </script>
                             </div>
 
                         </div>
@@ -3356,6 +4008,7 @@
     </script>
     <!-- update business page -->
     <script>
+        // grab-content scripts POST/GET
         function getCSRFToken() {
             return $('meta[name="csrfmiddlewaretoken"]').val();
         }
@@ -3377,6 +4030,8 @@
                 'showMethod': 'fadeIn',
                 'hideMethod': 'fadeOut',
             };
+
+            // -----------------------------------BUSINESS PROFILE ---------------------------------------
             $('#image-input').on('change', function (event) {
                 const file = event.target.files[0]; // Get the selected file
 
@@ -3455,7 +4110,7 @@
                 });
             })
 
-            // grab post content
+            // grab post content fetch comments
             $('#post-btn').click(function () {
                 // Create a new FormData object
                 var formData = new FormData();
@@ -3511,7 +4166,8 @@
                     });
                 }, 500);
             });
-            // open comment reply box
+
+            // open comment reply box - fetch replies
             $(document).on('click', '.comments-reply-container', function () {
                 var repdisp = $(this).parent().siblings('.comment-reply-container-box').css('display');
                 if (repdisp == 'block') {
@@ -3523,7 +4179,7 @@
 
             });
 
-            // open 2nd comment reply box
+            // open 2nd comment reply box- fetch replies
             $(document).on('click', '.second-reply-comment', function () {
                 var repdisp = $(this).parent().siblings('.second-replies-comment').css('display');
                 if (repdisp == 'block') {
@@ -3535,7 +4191,7 @@
 
             });
 
-
+            // get analyitics
             $(document).on('click', '.impression-container', function () {
                 var disp = $(this).closest('.action-bar').siblings('.impression-analysis').css('display');
                 if (disp == 'block') {
@@ -3744,6 +4400,15 @@
                         behavior: 'smooth'
                     });
                 }, 500);
+            });
+
+
+            // -----------------------------------------------TEAMS------------------------------------
+            // switch to chat
+            $(document).on('click', '.teams-container', function () {
+                $('.t-c').each(function () { $(this).css('display', 'none') });
+                $($(this).data('target')).css('display', 'block');
+
             });
         });
 
@@ -4095,9 +4760,9 @@
         // Your web app's Firebase configuration
         // For Firebase JS SDK v7.20.0 and later, measurementId is optional
         const firebaseConfig = {
-            apiKey: "AIzaSyCGMkSgNJ0GMzodbN91TI3swCIIRU1vBoc",
-            authDomain: "is-this-a-scam.firebaseapp.com",
-            projectId: "is-this-a-scam",
+            apiKey: "",
+            authDomain: "",
+            projectId: "",
             storageBucket: "is-this-a-scam.appspot.com",
             messagingSenderId: "890670762870",
             appId: "1:890670762870:web:1fee0a93e33568345c4857",
@@ -4105,9 +4770,9 @@
         };
 
         // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const analytics = getAnalytics(app);
-        window.auth = getAuth(app);
+        // const app = initializeApp(firebaseConfig);
+        // const analytics = getAnalytics(app);
+        // window.auth = getAuth(app);
 
         function signInWithCustomTokenAct(customToken) {
             signInWithCustomToken(auth, customToken)
@@ -4137,16 +4802,6 @@
                 });
         }
 
-    </script>
-    <script>
-        $(document).ready(function () {
-            $(".sd-CustomSelect").multipleSelect({
-                selectAll: false,
-                onOptgroupClick: function (view) {
-                    $(view).parents("label").addClass("selected-optgroup");
-                }
-            });
-        });
     </script>
 </body>
 
