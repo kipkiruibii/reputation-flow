@@ -11,7 +11,11 @@ urlpatterns=[
     path('update-profile/',views.updateBusinessProfile,name='update-profile'),
     # get posts
     path('fetch-posts/',views.fetchPosts,name='fetch-posts'),
-
+    # create team
+    path('create-team/',views.createTeam,name='create-team'),
+    # get teams
+    path('fetch-team/',views.fetchTeams,name='fetch-team'),
+    
     # social 
     path('instagram-redirect/',views.instagram_post_url,name='instagram_redirect'),
 

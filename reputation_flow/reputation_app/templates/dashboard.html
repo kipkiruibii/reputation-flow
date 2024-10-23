@@ -640,6 +640,10 @@
             box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1), 0px 2px 4px rgba(0, 0, 0, 0.06);
         }
 
+        .br-10 {
+            border-radius: 10px;
+        }
+
         .hover-active:hover {
             cursor: pointer;
             color: rgb(78, 78, 244);
@@ -655,9 +659,11 @@
             margin: 0;
             padding: 0;
         }
-        .font-12{
+
+        .font-12 {
             font-size: 12px;
         }
+
         .pointer {
             cursor: pointer;
         }
@@ -679,6 +685,11 @@
             padding-left: 5px;
             padding-right: 5px;
         }
+
+        .team-details .title {
+            color: #4ab7ed
+        }
+
 
         .success-flair {
             background-color: rgb(224, 251, 216);
@@ -893,6 +904,41 @@
                 overflow-x: auto
             }
         }
+
+        /* pop up for profile */
+        .chat-header {
+            position: relative;
+        }
+
+        .popup {
+            display: none;
+            /* Hidden by default */
+            position: absolute;
+            top: 100%;
+            /* Position it below the button */
+            right: 0;
+            background-color: #f9f9f9;
+            border: 1px solid #ccc;
+            padding: 10px;
+            width: 200px;
+            z-index: 1;
+            /* Ensure the pop-up appears on top */
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .chat-header.active .popup {
+            display: block;
+            /* Show the pop-up when container has 'active' class */
+        }
+
+        .user-details {
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            margin: 10px;
+            background-color: rgb(41, 41, 41);
+
+        }
     </style>
 
 </head>
@@ -1060,7 +1106,6 @@
                             <p> Linked on: {{ facebook.date_linked }}</p>
                             <div style="display: flex;justify-content: space-between;">
                                 {% if facebook.active %}
-
                                 <p>
                                     <span
                                         style="background-color: rgb(216, 251, 239);color: rgb(8, 192, 131);padding: 5px;border-radius:5px ;font-size:10px;margin-left:5px;margin-right: 15px;">
@@ -1472,7 +1517,7 @@
                                     style="font-size:15px;width:30px"></i> Drafts</li>
                             <li id="post-btn" data-target="#post-content"><i class="fa fa-share"
                                     style="font-size:15px;width:30px"></i> Posts</li>
-                            <li id="settings" data-target="#teams-content"><i class="fa fa-group"
+                            <li id="teams-btn" data-target="#teams-content"><i class="fa fa-group"
                                     style="font-size:15px;width:30px"></i> Teams</li>
 
                             <li id="settings" data-target="#help-content"><i class="fa fa-question"
@@ -1537,13 +1582,38 @@
             <!-- request feature/bug fix -->
             <div class="chat-content" id="feature-request" style="display:none;width: 100%;">
                 <div class="chat-header" id="top-header"
-                    style="margin-left: 40px;margin-right: 40px;margin-top: 10px;margin-bottom: 10px;">
+                    style="margin-left: 40px;margin-right: 40px;margin-top: 10px;margin-bottom: 10px;position: relative;">
                     <div class="logo-container">
                         <h4>Request bug fix/ feature introduction
                         </h4>
                     </div>
-                    <div class="user-details">
+                    <div class="user-details" tooltip="Me" flow="down">
 
+                    </div>
+                    <div class="popup" style="width: 250px;">
+                        <div style="display: flex;gap: 10px;">
+                            <div
+                                style="width: 70px;height: 70px;border-radius: 70px;background-color: rgb(255, 145, 0);">
+                            </div>
+                            <div>
+                                <p class="font-12">my_username </p>
+                                <p class="font-12">Change Picture</p>
+                            </div>
+                        </div>
+                        <hr>
+                        <p>Permissions</p>
+                        <ul style="max-height: 100px;overflow-y: scroll;list-style-type: none;">
+                            <li class="font-12" style="color: green;"><i class="fa fa-check"></i> Can update business
+                                profile
+                            </li>
+                            <li class="font-12" style="color: red;"><i class="fa fa-times"></i> Can update profile</li>
+                        </ul>
+                        <a href="{% url 'logout' %}" style="text-decoration: none;">
+                            <div class="logout-btn"
+                                style="background-color: red;display: flex;margin-left: 30%;margin-right: 30%;align-items: center;justify-content: center;border-radius: 30px;color: white;">
+                                <span style="margin-right: 10px;">Log out</span> <i class="fas fa-sign-out"></i>
+                            </div>
+                        </a>
                     </div>
 
                 </div>
@@ -1641,8 +1711,33 @@
 
                         </h4>
                     </div>
-                    <div class="user-details">
+                    <div class="user-details" tooltip="Me" flow="down">
 
+                    </div>
+                    <div class="popup" style="width: 250px;">
+                        <div style="display: flex;gap: 10px;">
+                            <div
+                                style="width: 70px;height: 70px;border-radius: 70px;background-color: rgb(255, 145, 0);">
+                            </div>
+                            <div>
+                                <p class="font-12">my_username </p>
+                                <p class="font-12">Change Picture</p>
+                            </div>
+                        </div>
+                        <hr>
+                        <p>Permissions</p>
+                        <ul style="max-height: 100px;overflow-y: scroll;list-style-type: none;">
+                            <li class="font-12" style="color: green;"><i class="fa fa-check"></i> Can update business
+                                profile
+                            </li>
+                            <li class="font-12" style="color: red;"><i class="fa fa-times"></i> Can update profile</li>
+                        </ul>
+                        <a href="{% url 'logout' %}" style="text-decoration: none;">
+                            <div class="logout-btn"
+                                style="background-color: red;display: flex;margin-left: 30%;margin-right: 30%;align-items: center;justify-content: center;border-radius: 30px;color: white;">
+                                <span style="margin-right: 10px;">Log out</span> <i class="fas fa-sign-out"></i>
+                            </div>
+                        </a>
                     </div>
 
                 </div>
@@ -2308,6 +2403,31 @@
                     <div class="user-details">
 
                     </div>
+                    <div class="popup" style="width: 250px;">
+                        <div style="display: flex;gap: 10px;">
+                            <div
+                                style="width: 70px;height: 70px;border-radius: 70px;background-color: rgb(255, 145, 0);">
+                            </div>
+                            <div>
+                                <p class="font-12">my_username </p>
+                                <p class="font-12">Change Picture</p>
+                            </div>
+                        </div>
+                        <hr>
+                        <p>Permissions</p>
+                        <ul style="max-height: 100px;overflow-y: scroll;list-style-type: none;">
+                            <li class="font-12" style="color: green;"><i class="fa fa-check"></i> Can update business
+                                profile
+                            </li>
+                            <li class="font-12" style="color: red;"><i class="fa fa-times"></i> Can update profile</li>
+                        </ul>
+                        <a href="{% url 'logout' %}" style="text-decoration: none;">
+                            <div class="logout-btn"
+                                style="background-color: red;display: flex;margin-left: 30%;margin-right: 30%;align-items: center;justify-content: center;border-radius: 30px;color: white;">
+                                <span style="margin-right: 10px;">Log out</span> <i class="fas fa-sign-out"></i>
+                            </div>
+                        </a>
+                    </div>
 
                 </div>
 
@@ -2545,6 +2665,31 @@
                     <div class="user-details">
 
                     </div>
+                    <div class="popup" style="width: 250px;">
+                        <div style="display: flex;gap: 10px;">
+                            <div
+                                style="width: 70px;height: 70px;border-radius: 70px;background-color: rgb(255, 145, 0);">
+                            </div>
+                            <div>
+                                <p class="font-12">my_username </p>
+                                <p class="font-12">Change Picture</p>
+                            </div>
+                        </div>
+                        <hr>
+                        <p>Permissions</p>
+                        <ul style="max-height: 100px;overflow-y: scroll;list-style-type: none;">
+                            <li class="font-12" style="color: green;"><i class="fa fa-check"></i> Can update business
+                                profile
+                            </li>
+                            <li class="font-12" style="color: red;"><i class="fa fa-times"></i> Can update profile</li>
+                        </ul>
+                        <a href="{% url 'logout' %}" style="text-decoration: none;">
+                            <div class="logout-btn"
+                                style="background-color: red;display: flex;margin-left: 30%;margin-right: 30%;align-items: center;justify-content: center;border-radius: 30px;color: white;">
+                                <span style="margin-right: 10px;">Log out</span> <i class="fas fa-sign-out"></i>
+                            </div>
+                        </a>
+                    </div>
 
                 </div>
                 <div style="display:block">
@@ -2566,6 +2711,7 @@
                             Reviews
                         </h4>
                     </div>
+
                     <div>
                         <div style="display: flex;justify-content: space-between;align-items: center;gap: 10px">
                             <div style="width: 300px;height: 50px;">
@@ -2813,92 +2959,181 @@
                             Drafts
                         </h4>
                     </div>
+                    <div class="user-details">
 
+                    </div>
 
+                    <div class="popup" style="width: 250px;">
+                        <div style="display: flex;gap: 10px;">
+                            <div
+                                style="width: 70px;height: 70px;border-radius: 70px;background-color: rgb(255, 145, 0);">
+                            </div>
+                            <div>
+                                <p class="font-12">my_username </p>
+                                <p class="font-12">Change Picture</p>
+                            </div>
+                        </div>
+                        <hr>
+                        <p>Permissions</p>
+                        <ul style="max-height: 100px;overflow-y: scroll;list-style-type: none;">
+                            <li class="font-12" style="color: green;"><i class="fa fa-check"></i> Can update business
+                                profile
+                            </li>
+                            <li class="font-12" style="color: red;"><i class="fa fa-times"></i> Can update profile</li>
+                        </ul>
+                        <a href="{% url 'logout' %}" style="text-decoration: none;">
+                            <div class="logout-btn"
+                                style="background-color: red;display: flex;margin-left: 30%;margin-right: 30%;align-items: center;justify-content: center;border-radius: 30px;color: white;">
+                                <span style="margin-right: 10px;">Log out</span> <i class="fas fa-sign-out"></i>
+                            </div>
+                        </a>
+                    </div>
                 </div>
                 <div class="company-account-info">
-                    <p class="font-12" style="display: flex;justify-content: center;">Review content here before they go live</p>
-                    <div style="margin-left:20px;margin-right:20px;height:100%;padding:10px;overflow-y: scroll;">
+                    <p class="font-12" style="display: flex;justify-content: center;">Review content here before they go
+                        live</p>
+                    <div style="margin-left:20px;margin-right:20px;height:90%;padding:10px;overflow-y: scroll;">
                         <div class="review-list">
-
-                            <h5><span style="font-size: 12px;">from</span> Ran Blon <span
-                                    style="font-size: 12px;font-weight: normal;background-color: rgb(216, 251, 239);color: rgb(8, 192, 131);padding: 5px;border-radius:5px ;">Graphic Designers Team
+                            <div class="review-item">
+                                <h5><span style="font-size: 12px;">from</span> Ran Blon <span
+                                        style="font-size: 12px;font-weight: normal;background-color: rgb(216, 251, 239);color: rgb(8, 192, 131);padding: 5px;border-radius:5px ;">Graphic
+                                        Designers Team
                                     </span> </h5>
-                                    <p >Attached files(1)</p>
-                            <p style="padding-left: 10px;">Please fix the error with paypal info
-                            </p>
-                            <div style="display: flex;justify-content: space-between;margin-top: 20px;">
-                                <p style="font-size: 12px;padding: 0;margin: 0;">2nd October 2024</p>
-                                <div class="review-bar"
-                                    style="display:flex;gap: 20px;font-size: 12px;margin-left:30%;margin-right:30%">
-                                    <p style="cursor: pointer;"><i class="fa fa-reply" aria-hidden="true"></i> Reply
-                                    </p>
-                                    <p style="cursor: pointer;"><i class="fa fa-check"></i> Mark done
-                                    </p>
+                                <p>Attached files(1)</p>
+                                <p style="padding-left: 10px;">Please fix the error with paypal info
+                                </p>
+                                <div style="display: flex;justify-content: space-between;margin-top: 20px;">
+                                    <p style="font-size: 12px;padding: 0;margin: 0;">2nd October 2024</p>
+                                    <div class="review-bar"
+                                        style="display:flex;gap: 20px;font-size: 12px;margin-left:20%;margin-right:20%">
+                                        <p style="cursor: pointer;"
+                                            tooltip="Send the files back and request modifications" flow="up"><i
+                                                class="fa fa-reply" aria-hidden="true"></i> Request Changes
+                                        </p>
+                                        <p style="cursor: pointer;" tooltip="Download file for review" flow="up"><i
+                                                class="fa fa-download"></i> Download
+                                        </p>
+                                        <p style="cursor: pointer;" tooltip="Use the file in a new post" flow="up"><i
+                                                class="fa fa-share"></i> Approve & Post
+                                        </p>
 
+                                    </div>
                                 </div>
+
+                                <hr>
                             </div>
+                            <div class="review-item">
+                                <h5><span style="font-size: 12px;">from</span> Ran Blon <span
+                                        style="font-size: 12px;font-weight: normal;background-color: rgb(216, 251, 239);color: rgb(8, 192, 131);padding: 5px;border-radius:5px ;">Graphic
+                                        Designers Team
+                                    </span> </h5>
+                                <p>Attached files(1)</p>
+                                <p style="padding-left: 10px;">Please fix the error with paypal info
+                                </p>
+                                <div style="display: flex;justify-content: space-between;margin-top: 20px;">
+                                    <p style="font-size: 12px;padding: 0;margin: 0;">2nd October 2024</p>
+                                    <div class="review-bar"
+                                        style="display:flex;gap: 20px;font-size: 12px;margin-left:20%;margin-right:20%">
+                                        <p style="cursor: pointer;"
+                                            tooltip="Send the files back and request modifications" flow="up"><i
+                                                class="fa fa-reply" aria-hidden="true"></i> Request Changes
+                                        </p>
+                                        <p style="cursor: pointer;" tooltip="Download file for review" flow="up"><i
+                                                class="fa fa-download"></i> Download
+                                        </p>
+                                        <p style="cursor: pointer;" tooltip="Use the file in a new post" flow="up"><i
+                                                class="fa fa-share"></i> Approve & Post
+                                        </p>
 
-                            <hr>
-
-                            <h5><span style="font-size: 12px;">from</span> Ran Blon <span
-                                    style="font-size: 12px;font-weight: normal;background-color: rgb(216, 251, 239);color: rgb(8, 192, 131);padding: 5px;border-radius:5px ;">Product
-                                    Manager</span> </h5>
-
-                            <p style="padding-left: 10px;">Please fix the error with paypal info
-                            </p>
-                            <div style="display: flex;justify-content: space-between;margin-top: 20px;">
-                                <p style="font-size: 12px;padding: 0;margin: 0;">2nd October 2024</p>
-                                <div class="review-bar"
-                                    style="display:flex;gap: 20px;font-size: 12px;margin-left:30%;margin-right:30%">
-                                    <p style="cursor: pointer;"><i class="fa fa-reply" aria-hidden="true"></i> Reply
-                                    </p>
-                                    <p style="cursor: pointer;"><i class="fa fa-check"></i> Mark done
-                                    </p>
-
+                                    </div>
                                 </div>
+
+                                <hr>
                             </div>
-                            <hr>
+                            <div class="review-item">
+                                <h5><span style="font-size: 12px;">from</span> Ran Blon <span
+                                        style="font-size: 12px;font-weight: normal;background-color: rgb(216, 251, 239);color: rgb(8, 192, 131);padding: 5px;border-radius:5px ;">Graphic
+                                        Designers Team
+                                    </span> </h5>
+                                <p>Attached files(1)</p>
+                                <p style="padding-left: 10px;">Please fix the error with paypal info
+                                </p>
+                                <div style="display: flex;justify-content: space-between;margin-top: 20px;">
+                                    <p style="font-size: 12px;padding: 0;margin: 0;">2nd October 2024</p>
+                                    <div class="review-bar"
+                                        style="display:flex;gap: 20px;font-size: 12px;margin-left:20%;margin-right:20%">
+                                        <p style="cursor: pointer;"
+                                            tooltip="Send the files back and request modifications" flow="up"><i
+                                                class="fa fa-reply" aria-hidden="true"></i> Request Changes
+                                        </p>
+                                        <p style="cursor: pointer;" tooltip="Download file for review" flow="up"><i
+                                                class="fa fa-download"></i> Download
+                                        </p>
+                                        <p style="cursor: pointer;" tooltip="Use the file in a new post" flow="up"><i
+                                                class="fa fa-share"></i> Approve & Post
+                                        </p>
 
-                            <h5><span style="font-size: 12px;">from</span> Ran Blon <span
-                                    style="font-size: 12px;font-weight: normal;background-color: rgb(216, 251, 239);color: rgb(8, 192, 131);padding: 5px;border-radius:5px ;">Product
-                                    Manager</span> </h5>
-
-                            <p style="padding-left: 10px;">Please fix the error with paypal info
-                            </p>
-                            <div style="display: flex;justify-content: space-between;margin-top: 20px;">
-                                <p style="font-size: 12px;padding: 0;margin: 0;">2nd October 2024</p>
-                                <div class="review-bar"
-                                    style="display:flex;gap: 20px;font-size: 12px;margin-left:30%;margin-right:30%">
-                                    <p style="cursor: pointer;"><i class="fa fa-reply" aria-hidden="true"></i> Reply
-                                    </p>
-                                    <p style="cursor: pointer;"><i class="fa fa-check"></i> Mark done
-                                    </p>
-
+                                    </div>
                                 </div>
+
+                                <hr>
                             </div>
-                            <hr>
+                            <div class="review-item">
+                                <h5><span style="font-size: 12px;">from</span> Ran Blon <span
+                                        style="font-size: 12px;font-weight: normal;background-color: rgb(216, 251, 239);color: rgb(8, 192, 131);padding: 5px;border-radius:5px ;">Graphic
+                                        Designers Team
+                                    </span> </h5>
+                                <p>Attached files(1)</p>
+                                <p style="padding-left: 10px;">Please fix the error with paypal info
+                                </p>
+                                <div style="display: flex;justify-content: space-between;margin-top: 20px;">
+                                    <p style="font-size: 12px;padding: 0;margin: 0;">2nd October 2024</p>
+                                    <div class="review-bar"
+                                        style="display:flex;gap: 20px;font-size: 12px;margin-left:20%;margin-right:20%">
+                                        <p style="cursor: pointer;"
+                                            tooltip="Send the files back and request modifications" flow="up"><i
+                                                class="fa fa-reply" aria-hidden="true"></i> Request Changes
+                                        </p>
+                                        <p style="cursor: pointer;" tooltip="Download file for review" flow="up"><i
+                                                class="fa fa-download"></i> Download
+                                        </p>
+                                        <p style="cursor: pointer;" tooltip="Use the file in a new post" flow="up"><i
+                                                class="fa fa-share"></i> Approve & Post
+                                        </p>
 
-                            <h5><span style="font-size: 12px;">from</span> Ran Blon <span
-                                    style="font-size: 12px;font-weight: normal;background-color: rgb(216, 251, 239);color: rgb(8, 192, 131);padding: 5px;border-radius:5px ;">Product
-                                    Manager</span> </h5>
-
-                            <p style="padding-left: 10px;">Please fix the error with paypal info
-                            </p>
-                            <div style="display: flex;justify-content: space-between;margin-top: 20px;">
-                                <p style="font-size: 12px;padding: 0;margin: 0;">2nd October 2024</p>
-                                <div class="review-bar"
-                                    style="display:flex;gap: 20px;font-size: 12px;margin-left:30%;margin-right:30%">
-                                    <p style="cursor: pointer;"><i class="fa fa-reply" aria-hidden="true"></i> Reply
-                                    </p>
-                                    <p style="cursor: pointer;"><i class="fa fa-check"></i> Mark done
-                                    </p>
-
+                                    </div>
                                 </div>
+
+                                <hr>
                             </div>
-                            <hr>
+                            <div class="review-item">
+                                <h5><span style="font-size: 12px;">from</span> Ran Blon <span
+                                        style="font-size: 12px;font-weight: normal;background-color: rgb(216, 251, 239);color: rgb(8, 192, 131);padding: 5px;border-radius:5px ;">Graphic
+                                        Designers Team
+                                    </span> </h5>
+                                <p>Attached files(1)</p>
+                                <p style="padding-left: 10px;">Please fix the error with paypal info
+                                </p>
+                                <div style="display: flex;justify-content: space-between;margin-top: 20px;">
+                                    <p style="font-size: 12px;padding: 0;margin: 0;">2nd October 2024</p>
+                                    <div class="review-bar"
+                                        style="display:flex;gap: 20px;font-size: 12px;margin-left:20%;margin-right:20%">
+                                        <p style="cursor: pointer;"
+                                            tooltip="Send the files back and request modifications" flow="up"><i
+                                                class="fa fa-reply" aria-hidden="true"></i> Request Changes
+                                        </p>
+                                        <p style="cursor: pointer;" tooltip="Download file for review" flow="up"><i
+                                                class="fa fa-download"></i> Download
+                                        </p>
+                                        <p style="cursor: pointer;" tooltip="Use the file in a new post" flow="up"><i
+                                                class="fa fa-share"></i> Approve & Post
+                                        </p>
 
+                                    </div>
+                                </div>
 
+                                <hr>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -2919,6 +3154,10 @@
                         <div>
                             <a class="btn-solid-sm" href="#" id="create-team-btn">Create Team</a>
                         </div>
+                        <div>
+                            <a class="btn-solid-sm" href="#" id="back-to-teams" style="display: none;">Back to Teams</a>
+                        </div>
+
                         {% else %}
 
                         <div tooltip="Forbidden. Contact Admin" flow="down">
@@ -2935,9 +3174,10 @@
                 </div>
                 <div class="company-account-info">
                     <!-- instructions -->
-                    <div class="no-team" style="display: none;justify-content: center;margin-top: 50px;"
+                    <div style="display: flex;justify-content: center;height: 100%;overflow-y: scroll;"
                         id="available-teams">
-                        <div>
+                        {% if not all_teams %}
+                        <div style="display: block;margin-top: 50px;">
                             <p>You do not have any teams at the moment. To create a team:</p>
                             <ol style="color: grey;">
                                 <p style="font-size: 12px;"><strong>Ensure you are the admin/ have admin priviledges
@@ -2969,6 +3209,39 @@
                                 </li>
                             </ol>
                         </div>
+                        {% else %}
+                        <div style="height: 90%;overflow-y: scroll;display: block;width: 100%;">
+                            {% for t in all_teams %}
+                            <div class="bx-shadow br-10"
+                                style="display: flex;gap: 10px;border: 1px rgb(211, 211, 211) solid;margin: 20px;margin-left: 30px;margin-right: 30px;">
+                                <div class="team-details" style="width: 30%;padding: 10px;">
+                                    <p class="title" style="font-size: 20px;"><strong>{{ t.team_name }}</strong>
+                                    </p>
+                                    <p>Created {{ t.date_created }}</p>
+                                    <p>{{ t.members.count }} members</p>
+                                    <hr>
+                                    <div class="flex-space-between" style="height: 30px;">
+
+                                        <p class="pointer"
+                                            tooltip="Permanently delete this team. All files will be lost" flow="up"><i
+                                                class="fa fa-trash"></i><span class="font-12"> Delete team</span></p>
+                                        <button type="button" data-mdb-button-init data-mdb-ripple-init
+                                            class="btn btn-primary btn-sm view-team-btn">View</button>
+
+                                    </div>
+                                </div>
+                                <div style="width: 70%;height: 75px;padding: 10px;">
+                                    <p class="font-12 zero-padding-margin">About</p>
+                                    <p style="height: 120px;overflow-y: scroll;">
+                                        {{ t.team_about }}
+                                    </p>
+                                </div>
+
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+
                     </div>
 
                     <!-- create team -->
@@ -2988,33 +3261,19 @@
                                     style="border: 1px solid #ced4da;border-radius:4px;width:100%;box-sizing: border-box;background-color: white;font-size: 15px;padding-left: 15px;"
                                     required></textarea>
                             </div>
-                            <div class="form-group">
-                                <select id="platforms" name="platforms" data-placeholder="Select permissions" multiple
-                                    data-multi-select>
-                                    <option value="modify-ai">Can modify AI assistant</option>
-                                    <option value="update-profile" disabled>Can update profile</option>
-                                    <option value="can_link_unlink_account" disabled>Can link and unlink social channels
-                                    </option>
-                                    <option value="can_reply_to_reviews">Can reply to reviews and mentions</option>
-                                    <option value="can_post">Can create and delete posts</option>
-                                    <option value="can_create_team_add_member">Can create/delete teams and add/remove
-                                        members</option>
-                                </select>
-                            </div>
-
                             <div style="text-align:center;font-size:12px;align-items:center">
                                 <p id="error-mess-request" style="color:red"></p>
                                 <p id="suc-mess-request" style="color:lime"></p>
                             </div>
                             <div class="form-group" style="text-align:center;font-size:20px;align-items:center">
-                                <a class=" btn-solid-sm" style="cursor:pointer" id="submit-request-form"
+                                <a class=" btn-solid-sm" style="cursor:pointer" id="finish-create-form"
                                     href="#">Finish</a>
                             </div>
                         </form>
                     </div>
 
                     <!-- team workspace -->
-                    <div style="display: flex;gap: 10px;height: 100%;">
+                    <div id="team-workspace" style="display: none;gap: 10px;height: 100%;">
                         <div style="height: 100%;width: 30%;">
                             <p style="align-items: center;color: rgb(7, 113, 90);font-weight: bold;">Graphic
                                 Designers </p>
@@ -3080,24 +3339,28 @@
                                                         style="height: 66vh;overflow-y: scroll;margin: 0;">
                                                         <li class="clearfix">
                                                             <div class="message-data text-right">
-                                                                <span class="message-data-time"><strong>Fred loyd</strong>,
-                                                                    <span style="font-size: 12px;" class="success-flair">Supervisor</span>
+                                                                <span class="message-data-time"><strong>Fred
+                                                                        loyd</strong>,
+                                                                    <span style="font-size: 12px;"
+                                                                        class="success-flair">Supervisor</span>
                                                                 </span>
                                                                 <img src="https://bootdey.com/img/Content/avatar/avatar7.png"
                                                                     alt="avatar">
                                                             </div>
-                                                            <div class="message other-message float-right" style="padding-bottom: 10px;"> Hi Aiden,
+                                                            <div class="message other-message float-right"
+                                                                style="padding-bottom: 10px;"> Hi Aiden,
                                                                 how are you? How is the
                                                                 project coming along?
-                                                            <p class="zero-padding-margin font-12" >10:10AM</p>
+                                                                <p class="zero-padding-margin font-12">10:10AM</p>
                                                             </div>
                                                         </li>
                                                         <li class="clearfix">
                                                             <div class="message-data">
                                                                 <span class="message-data-time"></span>
                                                             </div>
-                                                            <div class="message my-message" style="padding-bottom: 10px;">Are we meeting today?
-                                                                <p class="zero-padding-margin font-12" >10:10AM</p>
+                                                            <div class="message my-message"
+                                                                style="padding-bottom: 10px;">Are we meeting today?
+                                                                <p class="zero-padding-margin font-12">10:10AM</p>
 
                                                             </div>
                                                         </li>
@@ -3113,16 +3376,19 @@
                                                         </li>
                                                         <li class="clearfix">
                                                             <div class="message-data text-right">
-                                                                <span class="message-data-time"><strong>Fred loyd</strong>,
-                                                                    <span style="font-size: 12px;" class="success-flair">Supervisor</span>
+                                                                <span class="message-data-time"><strong>Fred
+                                                                        loyd</strong>,
+                                                                    <span style="font-size: 12px;"
+                                                                        class="success-flair">Supervisor</span>
                                                                 </span>
                                                                 <img src="https://bootdey.com/img/Content/avatar/avatar7.png"
                                                                     alt="avatar">
                                                             </div>
-                                                            <div class="message other-message float-right" style="padding-bottom: 10px;"> Hi Aiden,
+                                                            <div class="message other-message float-right"
+                                                                style="padding-bottom: 10px;"> Hi Aiden,
                                                                 how are you? How is the
                                                                 project coming along?
-                                                            <p class="zero-padding-margin font-12" >10:10AM</p>
+                                                                <p class="zero-padding-margin font-12">10:10AM</p>
                                                             </div>
                                                         </li>
                                                         <li class="clearfix">
@@ -3395,10 +3661,34 @@
                             How to
                         </h4>
                     </div>
-                    <div class="user-details">
+                    <div class="user-details" tooltip="Me" flow="down">
 
                     </div>
-
+                    <div class="popup" style="width: 250px;">
+                        <div style="display: flex;gap: 10px;">
+                            <div
+                                style="width: 70px;height: 70px;border-radius: 70px;background-color: rgb(255, 145, 0);">
+                            </div>
+                            <div>
+                                <p class="font-12">my_username </p>
+                                <p class="font-12">Change Picture</p>
+                            </div>
+                        </div>
+                        <hr>
+                        <p>Permissions</p>
+                        <ul style="max-height: 100px;overflow-y: scroll;list-style-type: none;">
+                            <li class="font-12" style="color: green;"><i class="fa fa-check"></i> Can update business
+                                profile
+                            </li>
+                            <li class="font-12" style="color: red;"><i class="fa fa-times"></i> Can update profile</li>
+                        </ul>
+                        <a href="{% url 'logout' %}" style="text-decoration: none;">
+                            <div class="logout-btn"
+                                style="background-color: red;display: flex;margin-left: 30%;margin-right: 30%;align-items: center;justify-content: center;border-radius: 30px;color: white;">
+                                <span style="margin-right: 10px;">Log out</span> <i class="fas fa-sign-out"></i>
+                            </div>
+                        </a>
+                    </div>
                 </div>
                 <div class="company-account-info">
 
@@ -3414,8 +3704,33 @@
                             Create Post
                         </h4>
                     </div>
-                    <div class="user-details">
+                    <div class="user-details" tooltip="Me" flow="down">
 
+                    </div>
+                    <div class="popup" style="width: 250px;">
+                        <div style="display: flex;gap: 10px;">
+                            <div
+                                style="width: 70px;height: 70px;border-radius: 70px;background-color: rgb(255, 145, 0);">
+                            </div>
+                            <div>
+                                <p class="font-12">my_username </p>
+                                <p class="font-12">Change Picture</p>
+                            </div>
+                        </div>
+                        <hr>
+                        <p>Permissions</p>
+                        <ul style="max-height: 100px;overflow-y: scroll;list-style-type: none;">
+                            <li class="font-12" style="color: green;"><i class="fa fa-check"></i> Can update business
+                                profile
+                            </li>
+                            <li class="font-12" style="color: red;"><i class="fa fa-times"></i> Can update profile</li>
+                        </ul>
+                        <a href="{% url 'logout' %}" style="text-decoration: none;">
+                            <div class="logout-btn"
+                                style="background-color: red;display: flex;margin-left: 30%;margin-right: 30%;align-items: center;justify-content: center;border-radius: 30px;color: white;">
+                                <span style="margin-right: 10px;">Log out</span> <i class="fas fa-sign-out"></i>
+                            </div>
+                        </a>
                     </div>
 
                 </div>
@@ -3497,8 +3812,33 @@
                             Posts
                         </h4>
                     </div>
-                    <div class="user-details">
+                    <div class="user-details" tooltip="Me" flow="down">
 
+                    </div>
+                    <div class="popup" style="width: 250px;">
+                        <div style="display: flex;gap: 10px;">
+                            <div
+                                style="width: 70px;height: 70px;border-radius: 70px;background-color: rgb(255, 145, 0);">
+                            </div>
+                            <div>
+                                <p class="font-12">my_username </p>
+                                <p class="font-12">Change Picture</p>
+                            </div>
+                        </div>
+                        <hr>
+                        <p>Permissions</p>
+                        <ul style="max-height: 100px;overflow-y: scroll;list-style-type: none;">
+                            <li class="font-12" style="color: green;"><i class="fa fa-check"></i> Can update business
+                                profile
+                            </li>
+                            <li class="font-12" style="color: red;"><i class="fa fa-times"></i> Can update profile</li>
+                        </ul>
+                        <a href="{% url 'logout' %}" style="text-decoration: none;">
+                            <div class="logout-btn"
+                                style="background-color: red;display: flex;margin-left: 30%;margin-right: 30%;align-items: center;justify-content: center;border-radius: 30px;color: white;">
+                                <span style="margin-right: 10px;">Log out</span> <i class="fas fa-sign-out"></i>
+                            </div>
+                        </a>
                     </div>
 
                 </div>
@@ -3975,21 +4315,25 @@
     <script>
         $(document).ready(function () {
             //edit business page
-            $('#edit-profile').click(function () {
+            $(document).on('click', '#edit-profile', function () {
+
                 $('#business-page').css('display', 'none');
                 $('#edit-business-page').css('display', 'block');
 
             });
-            $('#cancel-edit').click(function () {
+            $(document).on('click', '#cancel-edit', function () {
+
                 $('#edit-business-page').css('display', 'none');
                 $('#business-page').css('display', 'block');
             });
-            $('#create-post').click(function () {
+            $(document).on('click', '#create-post', function () {
+
                 $('.chat-content').css('display', 'none');
                 $('.quick_links li').each(function () { $(this).removeClass('active') })
                 $('#create-post-content').css('display', 'block');
             });
-            $('#create-team-btn').click(function () {
+            $(document).on('click', '#create-team-btn', function () {
+
                 var txt = $('#create-team-btn').text();
                 if (txt == 'Create Team') {
                     $('#create-team-btn').text('Close');
@@ -4053,7 +4397,61 @@
                 }
             });
 
-            $('#update-profile').click(function () {
+            // create team
+            $(document).on('click', '#finish-create-form', function () {
+
+                // Create a new FormData object
+                var formData = new FormData();
+
+                var team_name = $('#team-name').val();
+                var team_desc = $('#team-description').val();
+
+                if (team_desc == '' || team_name == '') {
+                    toastr.error('Kindly fill all the details');
+                    return;
+                }
+
+                // Append other input fields to FormData
+                var csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                formData.append('company_id', '{{ company_id }}');
+                formData.append('team_name', team_name);
+                formData.append('team_about', team_desc);
+
+                // Send the form data via AJAX
+                $.ajax({
+                    url: '{% url "create-team" %}', // Replace with your Django endpoint URL
+                    type: 'POST',
+                    headers: {
+                        'X-CSRFToken': csrfToken
+                    },
+                    data: formData,
+                    processData: false, // Prevent jQuery from processing the data
+                    contentType: false, // Prevent jQuery from setting the content type
+                    success: function (response) {
+                        if (response['error']) {
+                            toastr.error(response['error']);
+
+                        } else {
+                            toastr.success('Team created successfully');
+                            // update html
+                            var tempDiv = $('<div>').html(response);
+
+                            // Extract the specific element from the new HTML
+                            var newElementContent = tempDiv.find('#teams-content').html();
+
+                            $('#teams-content').html(newElementContent);
+                            return;
+                        }
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        alert('Failed to submit form.');
+                        console.error(textStatus, errorThrown);
+                    }
+                });
+            });
+
+            $(document).on('click', '#update-profile', function () {
+
                 // Create a new FormData object
                 var formData = new FormData();
                 // Append image file to FormData
@@ -4111,7 +4509,8 @@
             })
 
             // grab post content fetch comments
-            $('#post-btn').click(function () {
+            $(document).on('click', '#post-btn', function () {
+
                 // Create a new FormData object
                 var formData = new FormData();
 
@@ -4145,23 +4544,67 @@
                         }
                     },
                     error: function (jqXHR, textStatus, errorThrown) {
-                        alert('Failed to submit form.');
+                        toastr.error('Failed to submit form.');
                         console.error(textStatus, errorThrown);
                     }
                 });
-            })
+            });
+
+            $(document).on('click', '#teams-btn', function () {
+                // Create a new FormData object
+                var formData = new FormData();
+
+                // Append other input fields to FormData
+                var csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                formData.append('company_id', '{{ company_id }}');
+                // Send the form data via AJAX
+                $.ajax({
+                    url: '{% url "fetch-team" %}', // Replace with your Django endpoint URL
+                    type: 'POST',
+                    headers: {
+                        'X-CSRFToken': csrfToken
+                    },
+                    data: formData,
+                    processData: false, // Prevent jQuery from processing the data
+                    contentType: false, // Prevent jQuery from setting the content type
+                    success: function (response) {
+                        if (response['error']) {
+
+                        } else {
+                            // update html
+                            var tempDiv = $('<div>').html(response);
+
+                            // Extract the specific element from the new HTML
+                            var newElementContent = tempDiv.find('#teams-content').html();
+
+                            $('#teams-content').html(newElementContent);
+
+                            return;
+                        }
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        toastr.error('Failed to submit form.');
+                        console.error(textStatus, errorThrown);
+                    }
+                });
+            });
+
+
+            $(document).on('click', '.user-details', function () {
+                $(this).parent().toggleClass('active');
+            });
 
             $(document).on('click', '.comments-container', function () {
 
                 $(this).closest('.action-bar').siblings('.post-comment-box').css('display', 'block');
                 $(this).closest('.action-bar').siblings('.impression-analysis').css('display', 'none');
                 this.scrollIntoView({
-                    behavior: 'smooth',  // Smooth scrolling
-                    block: 'start'       // Align to the top of the viewport
+                    behavior: 'smooth', // Smooth scrolling
+                    block: 'start' // Align to the top of the viewport
                 });
                 setTimeout(() => {
                     window.scrollBy({
-                        top: -800,   // Move 800px upward
+                        top: -800, // Move 800px upward
                         behavior: 'smooth'
                     });
                 }, 500);
@@ -4216,7 +4659,7 @@
                         data: [201, 700, 25, 13, 22, 8]
                     }],
                     dataLabels: {
-                        enabled: false  // Disable data labels
+                        enabled: false // Disable data labels
                     },
                     chart: {
                         type: 'bar',
@@ -4272,16 +4715,16 @@
                 engagementChart.render();
                 if ($('#chartContainer').is(':visible')) {
                     setTimeout(function () {
-                        engagementChart.resize();  // Resize the chart after the container becomes visible
+                        engagementChart.resize(); // Resize the chart after the container becomes visible
                     }, 300); // Adding a slight delay to ensure container is fully rendered
                 }
-                //  impressions
+                // impressions
 
                 var options = {
                     chart: {
                         type: 'bar',
                         width: 400,
-                        height: 150,  // Set a small height for a progress bar effect
+                        height: 150, // Set a small height for a progress bar effect
                         stacked: true,
                         toolbar: {
                             show: false
@@ -4289,31 +4732,31 @@
                     },
                     plotOptions: {
                         bar: {
-                            horizontal: true,  // Horizontal progress bar
+                            horizontal: true, // Horizontal progress bar
                         },
                     },
                     series:
                         [{
                             name: 'Facebook',
-                            data: [10]  // 40% of the total bar
+                            data: [10] // 40% of the total bar
                         }, {
                             name: 'Instagram',
-                            data: [25]  // 25% of the total bar
+                            data: [25] // 25% of the total bar
                         },
                         {
                             name: 'Tiktok',
-                            data: [50]  // 25% of the total bar
+                            data: [50] // 25% of the total bar
                         },
                         {
                             name: 'Twitter',
-                            data: [15]  // 25% of the total bar
+                            data: [15] // 25% of the total bar
                         },],
                     dataLabels: {
-                        enabled: false  // Disable data labels
+                        enabled: false // Disable data labels
                     },
 
                     xaxis: {
-                        max: 100,  // The total percentage
+                        max: 100, // The total percentage
                         categories: ['Impression count (%)'],
                     },
                     fill: {
@@ -4326,7 +4769,7 @@
                 }
                 var chartrt = new ApexCharts(document.querySelector("#impression-chart"), options);
                 chartrt.render();
-                //  impression dist
+                // impression dist
 
                 var ctx = document.getElementById("chart-pie");
                 var chartPie = new ApexCharts(ctx, {
@@ -4391,12 +4834,12 @@
                 chartPie.render();
                 // scroll
                 this.scrollIntoView({
-                    behavior: 'smooth',  // Smooth scrolling
-                    block: 'start'       // Align to the top of the viewport
+                    behavior: 'smooth', // Smooth scrolling
+                    block: 'start' // Align to the top of the viewport
                 });
                 setTimeout(() => {
                     window.scrollBy({
-                        top: -800,   // Move 800px upward
+                        top: -800, // Move 800px upward
                         behavior: 'smooth'
                     });
                 }, 500);
@@ -4410,11 +4853,30 @@
                 $($(this).data('target')).css('display', 'block');
 
             });
+            // back to all teams
+            $(document).on('click', '#back-to-teams', function () {
+                $('#create-team-btn').css('display', 'block');
+                $('#back-to-teams').css('display', 'none');
+                $('#available-teams').css('display', 'block');
+                $('#team-workspace').css('display', 'none');
+
+            });
+            // get team
+            $(document).on('click', '.view-team-btn', function () {
+                $('#available-teams').css('display', 'none');
+                $('#create-team-btn').css('display', 'none');
+                $('#back-to-teams').css('display', 'block');
+                $('#team-workspace').css('display', 'flex');
+
+            });
+
+
         });
 
 
 
     </script>
+
 
     <script>
 

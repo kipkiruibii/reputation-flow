@@ -38,7 +38,18 @@ class CompanyProfilePicture(models.Model):
     p_pic=models.ImageField(upload_to='company_profile/')
     def __str__(self) -> str: 
         return self.company.company_name + ' Profile Picture'
+  
+class CompanyTeam(models.Model):
+    company=models.ForeignKey(Company,on_delete=models.CASCADE)
+    team_name=models.CharField(max_length=50)
+    team_about=models.TextField(default='')
+    date_created=models.DateField(default=timezone.now)
+    members=models.ManyToManyField(MemberProfile,related_name='team_members')
     
+    def __str__(self):
+        return self.team_name
+    
+      
 class CompanyMember(models.Model):
     company=models.ForeignKey(Company,on_delete=models.CASCADE)
     member=models.ForeignKey(MemberProfile,on_delete=models.CASCADE)

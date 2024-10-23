@@ -333,8 +333,120 @@ def fetchPosts(request):
     }
     print(context)
     return render(request,'dashboard.html',context=context)
-  
+
+
+@api_view(['POST'])
+def fetchTeams(request):
+    company_id=request.POST.get('company_id', None)
+
+    if not company_id:
+        return Response({'error':'Bad request'})
+    cp=Company.objects.filter(company_id=company_id).first()
+    if not cp:
+        return Response({'error':'Bad request'})
+    mp=MemberProfile.objects.filter(user=request.user).first()
+    cmp=CompanyMember.objects.filter(member=mp,company=cp).first()
+    cmp=CompanyMember.objects.filter(member=mp,company=cp).first()
+
+    context={
+        'user_permissions':{
+            'can_modify_ai_assistant':False if not cmp.permissions else cmp.permissions.get('can_modify_ai_assistant',False),
+            'can_update_profile':False if not cmp.permissions else cmp.permissions.get('can_update_profile',False),
+            'can_link_unlink_account':False if not cmp.permissions else cmp.permissions.get('can_link_unlink_account',False),
+            'can_reply_to_reviews':False if not cmp.permissions else cmp.permissions.get('can_reply_to_reviews',False),
+            'can_assign_member_review':False if not cmp.permissions else cmp.permissions.get('can_assign_member_review',False),
+            'can_post':False if not cmp.permissions else cmp.permissions.get('can_post',False),
+            'can_see_analytics':False if not cmp.permissions else cmp.permissions.get('can_see_analytics',False),
+            'can_create_team_add_member':False if not cmp.permissions else cmp.permissions.get('can_create_team_add_member',False),
+            'can_report_issues_to_Rflow':False if not cmp.permissions else cmp.permissions.get('can_report_issues_to_Rflow',False)
+        },
+        'all_teams':CompanyTeam.objects.filter(company=cp).order_by('-pk')
+    }
+    return render(request,'dashboard.html',context=context)
     
+  
+#  create team
+@login_required
+@api_view(['POST'])
+def createTeam(request):
+    company_id=request.POST.get('company_id', None)
+    team_name=request.POST.get('team_name', None)
+    team_about=request.POST.get('team_about', None)
+    mp=MemberProfile.objects.filter(user=request.user).first()
+    if not mp:
+        return Response({'error':'Forbidden'})
+    if not all([company_id,team_name,team_about]):
+        return Response({'error':'Bad request'})
+    cp=Company.objects.filter(company_id=company_id).first()
+    if not cp:
+        return Response({'error':'Bad request'})
+    ct=CompanyTeam.objects.filter(company=cp,team_name=team_name).first()
+    if ct:
+        return Response({'error':'Team with similar name already exist'})
+    ct=CompanyTeam(
+            company=cp,
+            team_name=team_name,
+            team_about=team_about
+    )
+
+    ct.save()
+    ct.members.add(mp)
+    ct.save()
+    mp=MemberProfile.objects.filter(user=request.user).first()
+    cmp=CompanyMember.objects.filter(member=mp,company=cp).first()
+    cmp=CompanyMember.objects.filter(member=mp,company=cp).first()
+
+    context={
+        'user_permissions':{
+            'can_modify_ai_assistant':False if not cmp.permissions else cmp.permissions.get('can_modify_ai_assistant',False),
+            'can_update_profile':False if not cmp.permissions else cmp.permissions.get('can_update_profile',False),
+            'can_link_unlink_account':False if not cmp.permissions else cmp.permissions.get('can_link_unlink_account',False),
+            'can_reply_to_reviews':False if not cmp.permissions else cmp.permissions.get('can_reply_to_reviews',False),
+            'can_assign_member_review':False if not cmp.permissions else cmp.permissions.get('can_assign_member_review',False),
+            'can_post':False if not cmp.permissions else cmp.permissions.get('can_post',False),
+            'can_see_analytics':False if not cmp.permissions else cmp.permissions.get('can_see_analytics',False),
+            'can_create_team_add_member':False if not cmp.permissions else cmp.permissions.get('can_create_team_add_member',False),
+            'can_report_issues_to_Rflow':False if not cmp.permissions else cmp.permissions.get('can_report_issues_to_Rflow',False)
+        },
+        'all_teams':CompanyTeam.objects.filter(company=cp).order_by('-pk')
+    }
+    return render(request,'dashboard.html',context=context)
+
+
+# delete team 
+@api_view(['POST'])
+def deleteTeams(request):
+    company_id=request.POST.get('company_id', None)
+    team_id=request.POST.get('team_id', None)
+    if not all([company_id,team_id]):
+        return Response({'error':'Bad request'})
+    cp=Company.objects.filter(company_id=company_id).first()
+    if not cp:
+        return Response({'error':'Bad request'})
+    ct=CompanyTeam.objects.filter(company=cp,id=team_id).first()
+    if not ct:
+        return Response({'error':'Bad request'})
+    ct.delete()
+    mp=MemberProfile.objects.filter(user=request.user).first()
+    cmp=CompanyMember.objects.filter(member=mp,company=cp).first()
+    cmp=CompanyMember.objects.filter(member=mp,company=cp).first()
+
+    context={
+        'user_permissions':{
+            'can_modify_ai_assistant':False if not cmp.permissions else cmp.permissions.get('can_modify_ai_assistant',False),
+            'can_update_profile':False if not cmp.permissions else cmp.permissions.get('can_update_profile',False),
+            'can_link_unlink_account':False if not cmp.permissions else cmp.permissions.get('can_link_unlink_account',False),
+            'can_reply_to_reviews':False if not cmp.permissions else cmp.permissions.get('can_reply_to_reviews',False),
+            'can_assign_member_review':False if not cmp.permissions else cmp.permissions.get('can_assign_member_review',False),
+            'can_post':False if not cmp.permissions else cmp.permissions.get('can_post',False),
+            'can_see_analytics':False if not cmp.permissions else cmp.permissions.get('can_see_analytics',False),
+            'can_create_team_add_member':False if not cmp.permissions else cmp.permissions.get('can_create_team_add_member',False),
+            'can_report_issues_to_Rflow':False if not cmp.permissions else cmp.permissions.get('can_report_issues_to_Rflow',False)
+        },
+        'all_teams':CompanyTeam.objects.filter(company=cp).order_by('-pk')
+    }
+    return render(request,'dashboard.html',context=context)
+           
 def logoutUser(request):
     logout(request)
     return redirect('landing')

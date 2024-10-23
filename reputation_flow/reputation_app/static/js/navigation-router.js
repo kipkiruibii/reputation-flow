@@ -10,6 +10,9 @@ $(document).ready(function() {
         $('.chat-content').hide();
         // Show the corresponding content section
         $(target).show();
+        // remove the pop ups if any
+        $('.chat-header').each(function(){$(this).removeClass('active')});
+
     });
     $('#new-conversation-btn-left').click(function() {
         // Remove the 'active' class from all li elements
