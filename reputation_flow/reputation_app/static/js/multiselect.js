@@ -4,6 +4,11 @@
  * 
  * Released under the MIT license
  */
+// multiselect.js
+function initializeMultiSelect() {
+    document.querySelectorAll('[data-multi-select]').forEach(select => new MultiSelect(select));
+}
+
 class MultiSelect {
 
     constructor(element, options = {}) {
@@ -257,4 +262,8 @@ class MultiSelect {
     }
 
 }
-document.querySelectorAll('[data-multi-select]').forEach(select => new MultiSelect(select));
+// document.querySelectorAll('[data-multi-select]').forEach(select => new MultiSelect(select));
+
+
+// Initialize on page load
+document.addEventListener("DOMContentLoaded", initializeMultiSelect);

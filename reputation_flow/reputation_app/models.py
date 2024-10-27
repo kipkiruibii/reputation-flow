@@ -8,6 +8,12 @@ class MemberProfile(models.Model):
     def __str__(self) -> str:
         return self.user.username
     
+class MemberPP(models.Model):
+    member=models.ForeignKey(MemberProfile,on_delete=models.CASCADE)
+    pic=  models.ImageField(upload_to='member_profile_picture/')  
+    def __str__(self):
+        return self.member.user.username + ' Profile Picture'
+    
     
 class Company(models.Model):
     company_name=models.CharField(max_length=255)
@@ -49,7 +55,63 @@ class CompanyTeam(models.Model):
     def __str__(self):
         return self.team_name
     
-      
+class CompanyTeamInviteLinks(models.Model):
+    team=models.ForeignKey(CompanyTeam,on_delete=models.CASCADE)
+    link=models.CharField(max_length=255)
+    permissions=models.JSONField(default=list())
+    active=models.BooleanField(default=True)
+    num_members=models.IntegerField(default=0)
+    max_members=models.IntegerField(default=0)
+    date_created=models.DateTimeField(default=timezone.now)
+    
+    def __str__(self):
+        return self.team.team_name  
+    
+class CompanyTeamFiles(models.Model):
+    team=models.ForeignKey(CompanyTeam,on_delete=models.CASCADE)
+    creator_id=models.CharField(max_length=255)
+    file_name=models.TextField(default='')
+    description=models.TextField(default='')
+    not_sent=models.BooleanField(default=True)
+    sent_drafts=models.BooleanField(default=False)
+    sent_back=models.BooleanField(default=False)
+    approved=models.BooleanField(default=False)
+    date_created=models.DateTimeField(default=timezone.now)
+    def __str__(self):
+        return self.file_name
+    
+class UploadedFiles(models.Model):
+    file=models.FileField(upload_to='uploaded_files/')
+    team=models.ForeignKey(CompanyTeamFiles,on_delete=models.CASCADE) 
+    
+class CompanyTeamAnnouncements(models.Model):
+    team=models.ForeignKey(CompanyTeam,on_delete=models.CASCADE)
+    title=models.TextField(default='')
+    content=models.TextField(default='')
+    creator=models.ForeignKey(MemberProfile,on_delete=models.DO_NOTHING)
+    date_created=models.DateTimeField(default=timezone.now)  
+    
+    def __str__(self):
+        return self.team.team_name+' TITLE '+ self.title 
+    
+    
+class CompanyTeamActivity(models.Model):
+    team=models.ForeignKey(CompanyTeam,on_delete=models.CASCADE)
+    title=models.TextField(default='')
+    date_created=models.DateTimeField(default=timezone.now)
+    
+    def __str__(self):
+        return self.team.team_name + ' TITLE '+ self.date_created
+                     
+class CompanyTeamChat(models.Model):
+    team=models.ForeignKey(CompanyTeam,on_delete=models.CASCADE)
+    sender=models.ForeignKey(MemberProfile,on_delete=models.CASCADE)
+    message=models.TextField(default='')
+    date_sent=models.DateTimeField(default=timezone.now)
+    def __str__(self):
+        return self.team.team_name
+    
+        
 class CompanyMember(models.Model):
     company=models.ForeignKey(Company,on_delete=models.CASCADE)
     member=models.ForeignKey(MemberProfile,on_delete=models.CASCADE)

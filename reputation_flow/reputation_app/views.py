@@ -360,7 +360,7 @@ def fetchTeams(request):
             'can_create_team_add_member':False if not cmp.permissions else cmp.permissions.get('can_create_team_add_member',False),
             'can_report_issues_to_Rflow':False if not cmp.permissions else cmp.permissions.get('can_report_issues_to_Rflow',False)
         },
-        'all_teams':CompanyTeam.objects.filter(company=cp).order_by('-pk')
+        'all_teams':CompanyTeam.objects.filter(company=cp).order_by('-pk'),
     }
     return render(request,'dashboard.html',context=context)
     
@@ -408,14 +408,15 @@ def createTeam(request):
             'can_create_team_add_member':False if not cmp.permissions else cmp.permissions.get('can_create_team_add_member',False),
             'can_report_issues_to_Rflow':False if not cmp.permissions else cmp.permissions.get('can_report_issues_to_Rflow',False)
         },
-        'all_teams':CompanyTeam.objects.filter(company=cp).order_by('-pk')
+        'all_teams':CompanyTeam.objects.filter(company=cp).order_by('-pk'),
+        'invite_links':CompanyTeamInviteLinks.objects.filter(team=ct).order_by('-pk')
     }
     return render(request,'dashboard.html',context=context)
 
 
 # delete team 
 @api_view(['POST'])
-def deleteTeams(request):
+def deleteTeam(request):
     company_id=request.POST.get('company_id', None)
     team_id=request.POST.get('team_id', None)
     if not all([company_id,team_id]):
@@ -443,10 +444,111 @@ def deleteTeams(request):
             'can_create_team_add_member':False if not cmp.permissions else cmp.permissions.get('can_create_team_add_member',False),
             'can_report_issues_to_Rflow':False if not cmp.permissions else cmp.permissions.get('can_report_issues_to_Rflow',False)
         },
-        'all_teams':CompanyTeam.objects.filter(company=cp).order_by('-pk')
+        'all_teams':CompanyTeam.objects.filter(company=cp).order_by('-pk'),
+        'invite_links':CompanyTeamInviteLinks.objects.filter(team=ct).order_by('-pk')
+
     }
     return render(request,'dashboard.html',context=context)
-           
+   
+# get team 
+@api_view(['POST'])
+def viewTeam(request):
+    company_id=request.POST.get('company_id', None)
+    team_id=request.POST.get('team_id', None)
+    if not all([company_id,team_id]):
+        return Response({'error':'Bad request'})
+    cp=Company.objects.filter(company_id=company_id).first()
+    if not cp:
+        return Response({'error':'Bad request'}) 
+    ct=CompanyTeam.objects.filter(company=cp,id=team_id).first()
+    if not ct:
+        return Response({'error':'Bad request'})
+    mp=MemberProfile.objects.filter(user=request.user).first()
+    cmp=CompanyMember.objects.filter(member=mp,company=cp).first()
+    cmp=CompanyMember.objects.filter(member=mp,company=cp).first()
+    
+   
+    t_mem=[]
+    for r in ct.members.all():
+        profile_pic=MemberPP.objects.filter(member=r).first()
+        t_mem.append(   
+            {'name':r.user.username,
+             'profile_pic':profile_pic.pic if profile_pic else None
+             }
+        )
+    t_actv=[]
+    for t_a in CompanyTeamActivity.objects.filter(team=ct).order_by('-pk'):
+        tm_bef=(timezone.now-t_a.date_created)
+        ti_b=''
+        if tm_bef<86400:
+            ti_b=tm_bef//3600 #how many hours ago
+            ti_b=ti_b +' hours ago'
+            if ti_b<0:
+                ti_b=tm_bef//60 # how many minutes ago
+                ti_b=ti_b +' minutes ago'
+        t_actv.append(
+            {
+                'title':t_a.title,
+                'date_created':ti_b
+            }
+        )
+        
+    context={
+        'user_permissions':{
+            'can_modify_ai_assistant':False if not cmp.permissions else cmp.permissions.get('can_modify_ai_assistant',False),
+            'can_update_profile':False if not cmp.permissions else cmp.permissions.get('can_update_profile',False),
+            'can_link_unlink_account':False if not cmp.permissions else cmp.permissions.get('can_link_unlink_account',False),
+            'can_reply_to_reviews':False if not cmp.permissions else cmp.permissions.get('can_reply_to_reviews',False),
+            'can_assign_member_review':False if not cmp.permissions else cmp.permissions.get('can_assign_member_review',False),
+            'can_post':False if not cmp.permissions else cmp.permissions.get('can_post',False),
+            'can_see_analytics':False if not cmp.permissions else cmp.permissions.get('can_see_analytics',False),
+            'can_create_team_add_member':False if not cmp.permissions else cmp.permissions.get('can_create_team_add_member',False),
+            'can_report_issues_to_Rflow':False if not cmp.permissions else cmp.permissions.get('can_report_issues_to_Rflow',False)
+        },
+        'team':ct,
+        'all_teams':CompanyTeam.objects.filter(company=cp).order_by('-pk'),
+        'invite_links':CompanyTeamInviteLinks.objects.filter(team=ct).order_by('-pk'),
+        'team_members':t_mem,
+        'team_files':CompanyTeamFiles.objects.filter(team=ct).order_by('-pk'),
+        'announcements':CompanyTeamAnnouncements.objects.filter(team=ct).order_by('-pk'),
+        'activities':t_actv
+
+    }
+    return render(request,'dashboard.html',context=context)
+
+# get team 
+@api_view(['POST'])
+def generateInviteLink(request):
+    company_id=request.POST.get('company_id', None)
+    team_id=request.POST.get('team_id', None)
+    members_num=request.POST.get('members_number', None)
+    members_perm=request.POST.get('members_permissions', None)
+    if not all([company_id,team_id,members_num,members_perm]):
+        return Response({'error':'Bad request'})
+    cp=Company.objects.filter(company_id=company_id).first()
+    if not cp:
+        return Response({'error':'Bad request'}) 
+    ct=CompanyTeam.objects.filter(company=cp,id=team_id).first()
+    if not ct:
+        return Response({'error':'Bad request'})
+    print(members_perm)
+    permissions=members_perm.split(',')
+    cleaned_permissions = [permission.strip().replace('\r', '').replace('\n', ' ') for permission in permissions]
+    uid=uuid.uuid4()
+    url_link=f'https://www.revflow.co/invite/{uid}'
+
+    # save the link
+    cil=CompanyTeamInviteLinks(
+            team=ct,
+            link=url_link,
+            permissions=cleaned_permissions,
+            max_members=members_num
+    )
+    cil.save()
+
+    
+    return Response({'result':url_link})
+        
 def logoutUser(request):
     logout(request)
     return redirect('landing')

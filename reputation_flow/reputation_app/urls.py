@@ -15,7 +15,14 @@ urlpatterns=[
     path('create-team/',views.createTeam,name='create-team'),
     # get teams
     path('fetch-team/',views.fetchTeams,name='fetch-team'),
-    
+    # delete team
+    path('delete-team/',views.deleteTeam,name='delete-team'),
+    # view team
+    path('view-team/',views.viewTeam,name='view-team'),
+    # generate invite link team
+    path('generate-invite-link/',views.generateInviteLink,name='generate-invite-link'),
+
+
     # social 
     path('instagram-redirect/',views.instagram_post_url,name='instagram_redirect'),
 

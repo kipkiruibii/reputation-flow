@@ -7,9 +7,9 @@ $(document).ready(function() {
         // Get the target content ID from the data-target attribute
         var target = $(this).data('target');
         // Hide all content sections
-        $('.chat-content').hide();
+        // $('.chat-content').hide();
         // Show the corresponding content section
-        $(target).show();
+        // $(target).show();
         // remove the pop ups if any
         $('.chat-header').each(function(){$(this).removeClass('active')});
 

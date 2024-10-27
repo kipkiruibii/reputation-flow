@@ -307,7 +307,7 @@
             position: absolute;
             display: none;
             opacity: 0;
-            z-index: 1000;
+            z-index: 2000;
         }
 
         [tooltip]::before {
@@ -332,11 +332,12 @@
     */
             width: 150px;
             padding: 1ch 1.5ch;
+            position: absolute;
             border-radius: 5px;
             box-shadow: 0 1em 2em -.5em rgba(0, 0, 0, 0.35);
             background: #333;
             color: #fff;
-            z-index: 1000;
+            z-index: 2000;
             /* absurdity 2 */
         }
 
@@ -693,7 +694,7 @@
 
         .success-flair {
             background-color: rgb(224, 251, 216);
-            color: rgb(33, 164, 21);
+            color: rgb(16, 197, 0);
             border-radius: 5px;
             padding-left: 5px;
             padding-right: 5px;
@@ -939,52 +940,46 @@
             background-color: rgb(41, 41, 41);
 
         }
+
+        .inactive-gen-link {
+            color: rgb(178, 178, 178);
+        }
+
+        .mild-title {
+            color: #4ab7ed;
+        }
+
+        .mild-desc {
+            color: #5e5002;
+        }
     </style>
 
 </head>
 
 <body>
     <!-- Modal -->
-    <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog"
+    <div class="modal fade" id="confirmModalCenter" tabindex="-1" role="dialog"
         aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLongTitle">Link account?</h5>
+                    <h5 class="modal-title" id="confirmModalTitle">Link account?</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
-                    <div style="display: flex;gap: 20px;">
-                        <div style="width: 100px;height: 100px;border-radius: 100px;background-color: #3f1572;">
-
-                        </div>
-                        <div>
-                            <p>roniib_smm_tool</p>
-                            <p> 1400 followers</p>
-                            <p><span
-                                    style="background-color: rgb(216, 251, 239);color: rgb(8, 192, 131);padding: 5px;border-radius:5px ;font-size:10px;margin-left:5px;margin-right: 15px;">
-                                    <i class="fa fa-check"></i> Linked</span></p>
-
-                        </div>
-                        <div>
-                            <p>Permissions</p>
-                            <ul>
-                                <li>Post to account</li>
-                                <li>Get account info</li>
-                            </ul>
-                        </div>
-                    </div>
+                    <p id="confirmModalBody"></p>
                     <!-- You have not linked an Instagram account -->
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    {% if user_permissions.can_link_unlink_account %}
-                    <button type="button" class="btn btn-primary">Change Account</button>
+                    {% if user_permissions.can_create_team_add_member %}
+                    <button type="button" id="confirmModalAction" class="btn btn-primary">Change Account</button>
                     {% else %}
-                    <button type="button" class="btn btn-primary" tooltip="Forbidden. Contact admin" flow="down"
-                        style="cursor: not-allowed;">Change Account</button>
+                    <button type="button" id="forbiddenModalAction" class="btn btn-primary"
+                        tooltip="Forbidden. Contact admin" flow="down" style="cursor: not-allowed;">Change
+                        Account</button>
                     {% endif %}
                     <!-- <button type="button" class="btn btn-danger">Temporary Disable</button> -->
 
@@ -1506,26 +1501,26 @@
                     <div class="conversation">
                         <ul id="quick-links" style="list-style-type: none;cursor:pointer;margin-top:50px;top:20"
                             class="quick_links">
-                            <li id="analyse-convo" class="active" data-target="#business-page"><i class="fa fa-home"
+                            <li id="business-prof" class="active" data-target="#business-page"><i class="fa fa-home"
                                     style="font-size:15px;width:30px"></i> Business Profile
                             </li>
                             <!-- <li id="scan-web" data-target="#analytics-content"><i class="fa fa-bar-chart"
                                     style="font-size:15px;width:30px"></i> Analytics</li> -->
-                            <li id="verify-contact" data-target="#reviews-content"><i class="fa fa-comments-o"
+                            <li id="reviews" data-target="#reviews-content"><i class="fa fa-comments-o"
                                     style="font-size:15px;width:30px"></i> Reviews</li>
-                            <li id="report" data-target="#inbox-content"><i class="fa fa-inbox"
+                            <li id="drafts" data-target="#drafts-content"><i class="fa fa-inbox"
                                     style="font-size:15px;width:30px"></i> Drafts</li>
                             <li id="post-btn" data-target="#post-content"><i class="fa fa-share"
                                     style="font-size:15px;width:30px"></i> Posts</li>
                             <li id="teams-btn" data-target="#teams-content"><i class="fa fa-group"
                                     style="font-size:15px;width:30px"></i> Teams</li>
 
-                            <li id="settings" data-target="#help-content"><i class="fa fa-question"
+                            <li id="help" data-target="#help-content"><i class="fa fa-question"
                                     style="font-size:15px;width:30px"></i> Help</li>
 
-                            <li id="integration" data-target="#teams-content"><i class="fa fa-book"
+                            <li id="integration" data-target="#integration-content"><i class="fa fa-book"
                                     style="font-size:15px;width:30px"></i> Integration Guide</li>
-                            <li id="feature" data-target="#feature-request"><i class="fa fa-bug"
+                            <li id="requests" data-target="#feature-request"><i class="fa fa-bug"
                                     style="font-size:15px;width:30px"></i> Issues & Requests</li>
                         </ul>
                     </div>
@@ -1554,6 +1549,7 @@
                         {% endif %}
 
                     </div>
+
                     <div style="width:100%;display:flex;justify-content:center;align-items:center">
                         <div style="width:100%;display:flex;justify-content:center;align-items:center">
 
@@ -1596,7 +1592,7 @@
                                 style="width: 70px;height: 70px;border-radius: 70px;background-color: rgb(255, 145, 0);">
                             </div>
                             <div>
-                                <p class="font-12">my_username </p>
+                                <p class="font-12">{{ request.user.username }} </p>
                                 <p class="font-12">Change Picture</p>
                             </div>
                         </div>
@@ -1720,7 +1716,7 @@
                                 style="width: 70px;height: 70px;border-radius: 70px;background-color: rgb(255, 145, 0);">
                             </div>
                             <div>
-                                <p class="font-12">my_username </p>
+                                <p class="font-12">{{ request.user.username }} </p>
                                 <p class="font-12">Change Picture</p>
                             </div>
                         </div>
@@ -2409,7 +2405,7 @@
                                 style="width: 70px;height: 70px;border-radius: 70px;background-color: rgb(255, 145, 0);">
                             </div>
                             <div>
-                                <p class="font-12">my_username </p>
+                                <p class="font-12">{{ request.user.username }} </p>
                                 <p class="font-12">Change Picture</p>
                             </div>
                         </div>
@@ -2671,7 +2667,7 @@
                                 style="width: 70px;height: 70px;border-radius: 70px;background-color: rgb(255, 145, 0);">
                             </div>
                             <div>
-                                <p class="font-12">my_username </p>
+                                <p class="font-12">{{ request.user.username }} </p>
                                 <p class="font-12">Change Picture</p>
                             </div>
                         </div>
@@ -2703,7 +2699,7 @@
 
             </div>
             <!-- reviews -->
-            <div class="chat-content" id="reviews-content" style="display:none">
+            <div class="chat-content" id="reviews-content" style="display:none;width: 100%;">
                 <div class="chat-header" id="top-header"
                     style="margin-left: 40px;margin-right: 40px;margin-top: 10px;margin-bottom: 10px;">
                     <div class="logo-container">
@@ -2712,38 +2708,35 @@
                         </h4>
                     </div>
 
-                    <div>
-                        <div style="display: flex;justify-content: space-between;align-items: center;gap: 10px">
-                            <div style="width: 300px;height: 50px;">
-                                <select id="filters" name="filters" data-placeholder="Filter" multiple
-                                    data-multi-select>
-                                    <option value="reviews">Reviews</option>
-                                    <option value="mentions">Tags/Mentions</option>
-                                    <option value="positive">Positive</option>
-                                    <option value="negative">Negative</option>
-                                    <option value="neutral">Neutral</option>
-                                    <option value="published">Published</option>
-                                    <option value="ig">Instagram</option>
-                                    <option value="fb">Facebook</option>
-                                    <option value="x">X</option>
-                                    <option value="youtube">Youtube</option>
-                                    <option value="tiktok">Tiktok</option>
-                                    <option value="google">Google Business </option>
+                    <div style="display: flex;justify-content: space-between;align-items: center;gap: 10px">
+                        <div style="width: 300px;height: 50px;">
+                            <select id="filters" name="filters" data-placeholder="Filter" multiple data-multi-select>
+                                <option value="reviews">Reviews</option>
+                                <option value="mentions">Tags/Mentions</option>
+                                <option value="positive">Positive</option>
+                                <option value="negative">Negative</option>
+                                <option value="neutral">Neutral</option>
+                                <option value="published">Published</option>
+                                <option value="ig">Instagram</option>
+                                <option value="fb">Facebook</option>
+                                <option value="x">X</option>
+                                <option value="youtube">Youtube</option>
+                                <option value="tiktok">Tiktok</option>
+                                <option value="google">Google Business </option>
 
-                                </select>
-                            </div>
-                            <div style="margin-top: 10px;">
-                                <div style="cursor: pointer;border-radius: 10px;" class="bx-shadow">
-                                    <p style="padding: 5px;">Apply</p>
-                                </div>
-                            </div>
-                            <div>
-
-                                <a class="btn-solid-sm" href="#">AI Responses </a>
+                            </select>
+                        </div>
+                        <div style="margin-top: 10px;">
+                            <div style="cursor: pointer;border-radius: 10px;" class="bx-shadow">
+                                <p style="padding: 5px;">Apply</p>
                             </div>
                         </div>
+                        <div style="margin-right: 10px;">
 
+                            <a class="btn-solid-sm" href="#">AI Responses </a>
+                        </div>
                     </div>
+
 
                 </div>
                 <div class="company-account-info">
@@ -2950,194 +2943,6 @@
                     </div>
                 </div>
             </div>
-            <!-- messages -->
-            <div class="chat-content" id="inbox-content" style="display:none">
-                <div class="chat-header" id="top-header"
-                    style="margin-left: 40px;margin-right: 40px;margin-top: 10px;margin-bottom: 10px;">
-                    <div class="logo-container">
-                        <h4>
-                            Drafts
-                        </h4>
-                    </div>
-                    <div class="user-details">
-
-                    </div>
-
-                    <div class="popup" style="width: 250px;">
-                        <div style="display: flex;gap: 10px;">
-                            <div
-                                style="width: 70px;height: 70px;border-radius: 70px;background-color: rgb(255, 145, 0);">
-                            </div>
-                            <div>
-                                <p class="font-12">my_username </p>
-                                <p class="font-12">Change Picture</p>
-                            </div>
-                        </div>
-                        <hr>
-                        <p>Permissions</p>
-                        <ul style="max-height: 100px;overflow-y: scroll;list-style-type: none;">
-                            <li class="font-12" style="color: green;"><i class="fa fa-check"></i> Can update business
-                                profile
-                            </li>
-                            <li class="font-12" style="color: red;"><i class="fa fa-times"></i> Can update profile</li>
-                        </ul>
-                        <a href="{% url 'logout' %}" style="text-decoration: none;">
-                            <div class="logout-btn"
-                                style="background-color: red;display: flex;margin-left: 30%;margin-right: 30%;align-items: center;justify-content: center;border-radius: 30px;color: white;">
-                                <span style="margin-right: 10px;">Log out</span> <i class="fas fa-sign-out"></i>
-                            </div>
-                        </a>
-                    </div>
-                </div>
-                <div class="company-account-info">
-                    <p class="font-12" style="display: flex;justify-content: center;">Review content here before they go
-                        live</p>
-                    <div style="margin-left:20px;margin-right:20px;height:90%;padding:10px;overflow-y: scroll;">
-                        <div class="review-list">
-                            <div class="review-item">
-                                <h5><span style="font-size: 12px;">from</span> Ran Blon <span
-                                        style="font-size: 12px;font-weight: normal;background-color: rgb(216, 251, 239);color: rgb(8, 192, 131);padding: 5px;border-radius:5px ;">Graphic
-                                        Designers Team
-                                    </span> </h5>
-                                <p>Attached files(1)</p>
-                                <p style="padding-left: 10px;">Please fix the error with paypal info
-                                </p>
-                                <div style="display: flex;justify-content: space-between;margin-top: 20px;">
-                                    <p style="font-size: 12px;padding: 0;margin: 0;">2nd October 2024</p>
-                                    <div class="review-bar"
-                                        style="display:flex;gap: 20px;font-size: 12px;margin-left:20%;margin-right:20%">
-                                        <p style="cursor: pointer;"
-                                            tooltip="Send the files back and request modifications" flow="up"><i
-                                                class="fa fa-reply" aria-hidden="true"></i> Request Changes
-                                        </p>
-                                        <p style="cursor: pointer;" tooltip="Download file for review" flow="up"><i
-                                                class="fa fa-download"></i> Download
-                                        </p>
-                                        <p style="cursor: pointer;" tooltip="Use the file in a new post" flow="up"><i
-                                                class="fa fa-share"></i> Approve & Post
-                                        </p>
-
-                                    </div>
-                                </div>
-
-                                <hr>
-                            </div>
-                            <div class="review-item">
-                                <h5><span style="font-size: 12px;">from</span> Ran Blon <span
-                                        style="font-size: 12px;font-weight: normal;background-color: rgb(216, 251, 239);color: rgb(8, 192, 131);padding: 5px;border-radius:5px ;">Graphic
-                                        Designers Team
-                                    </span> </h5>
-                                <p>Attached files(1)</p>
-                                <p style="padding-left: 10px;">Please fix the error with paypal info
-                                </p>
-                                <div style="display: flex;justify-content: space-between;margin-top: 20px;">
-                                    <p style="font-size: 12px;padding: 0;margin: 0;">2nd October 2024</p>
-                                    <div class="review-bar"
-                                        style="display:flex;gap: 20px;font-size: 12px;margin-left:20%;margin-right:20%">
-                                        <p style="cursor: pointer;"
-                                            tooltip="Send the files back and request modifications" flow="up"><i
-                                                class="fa fa-reply" aria-hidden="true"></i> Request Changes
-                                        </p>
-                                        <p style="cursor: pointer;" tooltip="Download file for review" flow="up"><i
-                                                class="fa fa-download"></i> Download
-                                        </p>
-                                        <p style="cursor: pointer;" tooltip="Use the file in a new post" flow="up"><i
-                                                class="fa fa-share"></i> Approve & Post
-                                        </p>
-
-                                    </div>
-                                </div>
-
-                                <hr>
-                            </div>
-                            <div class="review-item">
-                                <h5><span style="font-size: 12px;">from</span> Ran Blon <span
-                                        style="font-size: 12px;font-weight: normal;background-color: rgb(216, 251, 239);color: rgb(8, 192, 131);padding: 5px;border-radius:5px ;">Graphic
-                                        Designers Team
-                                    </span> </h5>
-                                <p>Attached files(1)</p>
-                                <p style="padding-left: 10px;">Please fix the error with paypal info
-                                </p>
-                                <div style="display: flex;justify-content: space-between;margin-top: 20px;">
-                                    <p style="font-size: 12px;padding: 0;margin: 0;">2nd October 2024</p>
-                                    <div class="review-bar"
-                                        style="display:flex;gap: 20px;font-size: 12px;margin-left:20%;margin-right:20%">
-                                        <p style="cursor: pointer;"
-                                            tooltip="Send the files back and request modifications" flow="up"><i
-                                                class="fa fa-reply" aria-hidden="true"></i> Request Changes
-                                        </p>
-                                        <p style="cursor: pointer;" tooltip="Download file for review" flow="up"><i
-                                                class="fa fa-download"></i> Download
-                                        </p>
-                                        <p style="cursor: pointer;" tooltip="Use the file in a new post" flow="up"><i
-                                                class="fa fa-share"></i> Approve & Post
-                                        </p>
-
-                                    </div>
-                                </div>
-
-                                <hr>
-                            </div>
-                            <div class="review-item">
-                                <h5><span style="font-size: 12px;">from</span> Ran Blon <span
-                                        style="font-size: 12px;font-weight: normal;background-color: rgb(216, 251, 239);color: rgb(8, 192, 131);padding: 5px;border-radius:5px ;">Graphic
-                                        Designers Team
-                                    </span> </h5>
-                                <p>Attached files(1)</p>
-                                <p style="padding-left: 10px;">Please fix the error with paypal info
-                                </p>
-                                <div style="display: flex;justify-content: space-between;margin-top: 20px;">
-                                    <p style="font-size: 12px;padding: 0;margin: 0;">2nd October 2024</p>
-                                    <div class="review-bar"
-                                        style="display:flex;gap: 20px;font-size: 12px;margin-left:20%;margin-right:20%">
-                                        <p style="cursor: pointer;"
-                                            tooltip="Send the files back and request modifications" flow="up"><i
-                                                class="fa fa-reply" aria-hidden="true"></i> Request Changes
-                                        </p>
-                                        <p style="cursor: pointer;" tooltip="Download file for review" flow="up"><i
-                                                class="fa fa-download"></i> Download
-                                        </p>
-                                        <p style="cursor: pointer;" tooltip="Use the file in a new post" flow="up"><i
-                                                class="fa fa-share"></i> Approve & Post
-                                        </p>
-
-                                    </div>
-                                </div>
-
-                                <hr>
-                            </div>
-                            <div class="review-item">
-                                <h5><span style="font-size: 12px;">from</span> Ran Blon <span
-                                        style="font-size: 12px;font-weight: normal;background-color: rgb(216, 251, 239);color: rgb(8, 192, 131);padding: 5px;border-radius:5px ;">Graphic
-                                        Designers Team
-                                    </span> </h5>
-                                <p>Attached files(1)</p>
-                                <p style="padding-left: 10px;">Please fix the error with paypal info
-                                </p>
-                                <div style="display: flex;justify-content: space-between;margin-top: 20px;">
-                                    <p style="font-size: 12px;padding: 0;margin: 0;">2nd October 2024</p>
-                                    <div class="review-bar"
-                                        style="display:flex;gap: 20px;font-size: 12px;margin-left:20%;margin-right:20%">
-                                        <p style="cursor: pointer;"
-                                            tooltip="Send the files back and request modifications" flow="up"><i
-                                                class="fa fa-reply" aria-hidden="true"></i> Request Changes
-                                        </p>
-                                        <p style="cursor: pointer;" tooltip="Download file for review" flow="up"><i
-                                                class="fa fa-download"></i> Download
-                                        </p>
-                                        <p style="cursor: pointer;" tooltip="Use the file in a new post" flow="up"><i
-                                                class="fa fa-share"></i> Approve & Post
-                                        </p>
-
-                                    </div>
-                                </div>
-
-                                <hr>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
             <!-- teams -->
             <div class="chat-content" id="teams-content" style="display:none">
                 <div class="chat-header" id="top-header"
@@ -3211,6 +3016,7 @@
                         </div>
                         {% else %}
                         <div style="height: 90%;overflow-y: scroll;display: block;width: 100%;">
+
                             {% for t in all_teams %}
                             <div class="bx-shadow br-10"
                                 style="display: flex;gap: 10px;border: 1px rgb(211, 211, 211) solid;margin: 20px;margin-left: 30px;margin-right: 30px;">
@@ -3224,8 +3030,11 @@
 
                                         <p class="pointer"
                                             tooltip="Permanently delete this team. All files will be lost" flow="up"><i
-                                                class="fa fa-trash"></i><span class="font-12"> Delete team</span></p>
+                                                class="fa fa-trash"></i><span class="font-12 d-team" id="{{t.id}}"
+                                                data-placeholder="{{t.team_name}}">
+                                                Delete team</span></p>
                                         <button type="button" data-mdb-button-init data-mdb-ripple-init
+                                            data-placeholder="{{t.id}}"
                                             class="btn btn-primary btn-sm view-team-btn">View</button>
 
                                     </div>
@@ -3275,36 +3084,33 @@
                     <!-- team workspace -->
                     <div id="team-workspace" style="display: none;gap: 10px;height: 100%;">
                         <div style="height: 100%;width: 30%;">
-                            <p style="align-items: center;color: rgb(7, 113, 90);font-weight: bold;">Graphic
-                                Designers </p>
+                            <p style="display: none;" id="team-id">{{ team.id }}</p>
+                            <p style="align-items: center;color: rgb(7, 113, 90);font-weight: bold;font-size: 20px;">{{ team.team_name}}
+                            </p>
 
                             <div>
                                 <p style="padding: 0;margin: 0;"><span style="font-size: 12px;padding-right: 5px;">About
                                     </span></p>
                                 <p
                                     style="padding: 0;margin-top:0 ;margin-bottom: 10px;margin-left: 10px;max-height: 100px;overflow-y: scroll;">
-                                    jergregher guewrguer erwyueruf erwyuferwfuwer
-                                    jergregher guewrguer erwyueruf erwyuferwfuwer
-                                    jergregher guewrguer erwyueruf erwyuferwfuwer
-                                    jergregher guewrguer erwyueruf erwyuferwfuwer
-                                    jergregher guewrguer erwyueruf erwyuferwfuwer
-                                    jergregher guewrguer erwyueruf erwyuferwfuwer
-
+                                    {{ team.team_about }}
                                 </p>
                             </div>
                             <div style="display: flex;justify-content: space-between;margin-right: 10px;">
                                 <p><span style="font-size: 12px;padding-right: 5px;">Created </span></p>
-                                <p>6/07/19</p>
+                                <p>{{ team.date_created }}</p>
                             </div>
-                            <div style="display: flex;justify-content: space-between;margin-right: 10px;">
+                            <div class="hover-active-div"
+                                style="display: flex;justify-content: space-between;margin-right: 10px;"
+                                id="team-members-btn">
                                 <p><span style="font-size: 12px;padding-right: 5px;">Members </span></p>
                                 <p><i class="fa fa-caret-right"></i></p>
                             </div>
 
                             <p><span style="font-size: 12px;padding-right: 5px;">Invite link </span><span
-                                    class="hover-active">Generate and copy</span></p>
+                                    class="hover-active" id="generate-link-btn">Generate and copy</span></p>
                             <hr>
-                            <div style="height: 170px;overflow-y: scroll;">
+                            <div style="min-height: 170px;overflow-y: scroll;">
                                 <div class="hover-active-div teams-container" data-target="#teams-chats"
                                     style="display: flex;justify-content: space-between;margin: 5px;padding: 5px;">
                                     <p><i class="fa fa-comments-o"></i> Chat</p>
@@ -3327,10 +3133,18 @@
                                 </div>
                             </div>
                         </div>
-                        <div style="height: 100%;width: 70%;" class="bx-shadow">
+                        <div style="height: 100%;width: 70%;background-color: #f0f0f06d;" class="bx-shadow">
+
                             <!-- chat -->
+                            {% if team.members.count == 1 %}
+                            <div id="teams-chats" class="t-c">
+                                <div class="center-div">
+                                    <p>You are the only one here. Add members to start a conversation</p>
+                                </div>
+                            </div>
+                            {% else %}
                             <div id="teams-chats" class="t-c" style="height: 100%;width: 100%;">
-                                <div class="row clearfix">
+                                <div class="row clearfix" style="background-color: white;">
                                     <div class="col-lg-12">
                                         <div class=" chat-app">
                                             <div class="chat">
@@ -3439,216 +3253,459 @@
                                     </div>
                                 </div>
                             </div>
+                            {% endif %}
                             <!-- files -->
-                            <div id="teams-files" style="margin: 20px;" class="t-c">
+                            <div id="teams-files" style="margin: 20px;height: 100%;" class="t-c">
                                 <div class="flex-space-between">
                                     <p style="font-weight: bold;"><i class="fa fa-files-o"></i> Files</p>
-                                    <p class="hover-active"><i class="fa fa-plus"></i> Add files</p>
+                                    <p class="hover-active" id="add-files-btn" style="display: block;"><i
+                                            class="fa fa-plus"></i> Add files</p>
+                                    <p class="hover-active" id="back-files-btn" style="display:none ;"><i
+                                            class="fa fa-caret-left"></i> Back</p>
                                 </div>
-                                <div style="list-style-type: none;height: 400px;overflow-y: scroll;display: block; ">
-
-                                    <div
-                                        style="border: 1px rgba(128, 128, 128, 0.491) solid;border-radius: 10px;padding:10px;margin-bottom: 15px;">
-                                        <div class="flex-space-between">
-                                            <div style="width: 50%;">
-                                                <span style="font-size: 12px;">File Name</span><br>
-                                                <p style="margin-left: 20px;font-weight: bold;padding: 0;">
-                                                    APIview
-                                                </p>
-                                            </div>
-                                            <div>
-                                                <span style="font-size: 12px;">By</span>
-                                                <p style="margin-left: 20px;font-size: 12px;font-weight: bold;">Rao Kjui
-                                                </p>
-                                            </div>
-                                            <div>
-                                                <span style="font-size: 12px;">Status</span>
-                                                <p class="pending-flair" style="margin-left: 20px;font-size: 12px;">In
-                                                    Drafts
-                                                </p>
-
-                                            </div>
-                                        </div>
-                                        <hr class="zero-padding-margin" style="height: 1px;">
-                                        <div>
-                                            <p style="font-size: 12px;">
-                                                This is the content. conrtghtrjgetr rtegetetg egtrettrg ergteretr reger
-                                                This is the content. conrtghtrjgetr rtegetetg egtrettrg ergteretr reger
-                                            </p>
-                                        </div>
+                                <div id="view-team-files" style="display: block;height: 95%;overflow-y: scrol;">
+                                    {% if not team_files %}
+                                    <div class="center-div">
+                                        <p>No files</p>
+                                    </div>
+                                    {% else %}
+                                    <div style="height:90%;overflow-y: scroll;display: block; ">
+                                        {% for tf in team_files %}
                                         <div
-                                            style="display: flex;justify-content: space-between;margin-left: 20px;margin-right: 20px;margin-bottom: 5px;width: 80%;">
-                                            <p style="margin-left: 20px;font-size: 12px;font-weight: bold;">16/2023
-                                                at 09:00am</p>
-                                            <p class="zero-padding-margin pointer" tooltip="Permanently remove"
-                                                flow="up"><i class="fa fa-trash"></i></p>
-                                            <p class="zero-padding-margin pointer" tooltip="Save to local storage"
-                                                flow="up"><i class="fa fa-download"></i></p>
+                                            style="border: 1px rgba(128, 128, 128, 0.491) solid;border-radius: 10px;padding:10px;margin-bottom: 15px;background-color: white;">
+                                            <div class="flex-space-between">
+                                                <div style="width: 50%;">
+                                                    <!-- <span style="font-size: 12px;">File Name</span><br> -->
+                                                    <p class="mild-title"
+                                                        style="margin-left: 20px;font-weight: bold;padding: 0;">
+                                                        {{ tf.file_name }}
+                                                    </p>
+                                                </div>
+                                                <div>
+                                                    <!-- <span style="font-size: 12px;">By</span> -->
+                                                    <p class="mild-desc"
+                                                        style="margin-left: 20px;font-size: 12px;font-weight: bold;">
+                                                        {{ tf.creator_id }}
+                                                    </p>
+                                                </div>
+                                                <div>
+                                                    <!-- <span style="font-size: 12px;">Status</span> -->
+
+                                                    {% if tf.sent_drafts %}
+                                                    <p class="pending-flair" style="margin-left: 20px;font-size: 12px;">
+                                                        In
+                                                        Drafts
+                                                    </p>
+                                                    {% elif tf.not_sent %}
+                                                    <p class="not-sent-flair"
+                                                        style="margin-left: 20px;font-size: 12px;">
+                                                        Not Sent
+                                                    </p>
+                                                    {% elif tf.sent_back %}
+                                                    <p class="warning-flair" style="margin-left: 20px;font-size: 12px;">
+                                                        Sent Back
+                                                    </p>
+                                                    {% else %}
+                                                    <p class="success-flair" style="margin-left: 20px;font-size: 12px;">
+                                                        Approved
+                                                    </p>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                            <hr class="zero-padding-margin" style="height: 1px;">
+                                            <div>
+                                                <p>
+                                                    {{ tf.description }}
+                                                </p>
+                                            </div>
+                                            <div
+                                                style="display: flex;justify-content: space-between;margin-left: 20px;margin-right: 20px;margin-bottom: 5px;width: 80%;">
+                                                <p class="mild-desc"
+                                                    style="margin-left: 20px;font-size: 12px;font-weight: bold;">
+                                                    {{ tf.date_created }}</p>
+                                                <p class="zero-padding-margin pointer" tooltip="Permanently remove"
+                                                    flow="up"><i class="fa fa-trash"></i></p>
+                                                <p class="zero-padding-margin pointer" tooltip="Save to local storage"
+                                                    flow="up"><i class="fa fa-download"></i></p>
+                                                {% if tf.not_sent or tf.sent_back %}
+                                                <p class="zero-padding-margin pointer"
+                                                    tooltip="Send to drafts for review" flow="up"><i
+                                                        class="fa fa-share"></i></p>
+                                                <p class="zero-padding-margin pointer" tooltip="Replace file" flow="up">
+                                                    <i class="fa fa-exchange"></i>
+                                                </p>
+
+                                                {% endif %}
+                                            </div>
                                         </div>
+                                        {% endfor %}
                                     </div>
 
-                                    <div
-                                        style="border: 1px rgba(128, 128, 128, 0.491) solid;border-radius: 10px;padding:10px;margin-bottom: 15px;">
-                                        <div class="flex-space-between">
-                                            <div style="width: 50%;">
-                                                <span style="font-size: 12px;">File Name</span><br>
-                                                <p style="margin-left: 20px;font-weight: bold;padding: 0;">
-                                                    APIview
-                                                </p>
-                                            </div>
-                                            <div>
-                                                <span style="font-size: 12px;">By</span>
-                                                <p style="margin-left: 20px;font-size: 12px;font-weight: bold;">Rao Kjui
-                                                </p>
-                                            </div>
-                                            <div>
-                                                <span style="font-size: 12px;">Status</span>
-                                                <p class="warning-flair" style="margin-left: 20px;font-size: 12px;">Sent
-                                                    Back
-                                                </p>
+                                    {% endif %}
+                                </div>
+                                <!-- create files -->
 
-                                            </div>
+                                <div id="add-files" style="height:100%;width: 100%;">
+                                    <form style="overflow-y:scroll;height:90%;margin-left: 5%;margin-right: 5%;"
+                                        method="post" enctype="multipart/form-data">
+                                        <div class="form-group">
+                                            <input type="text" class="form-control-input" placeholder="File Name/ Title"
+                                                id="file-title"
+                                                style="border: 1px solid #ced4da;border-radius:4px;width: 100%;box-sizing: border-box;background-color: white;font-size: 15px;padding-left:15px"
+                                                required>
                                         </div>
-                                        <hr class="zero-padding-margin" style="height: 1px;">
+                                        <div class="form-group">
+                                            <textarea class="form-control-textarea" placeholder="Attachment notes"
+                                                style="border: 1px solid #ced4da;border-radius:4px;width:100%;box-sizing: border-box;background-color: white;font-size: 15px;padding-left:15px"
+                                                id="file-notes" required></textarea>
+                                        </div>
+
+                                        <div class="form-group" style="width: 95%;">
+                                            <label for="formFile" class="form-label">Upload file</label>
+                                            <input class="form-control" type="file" id="team-file">
+                                        </div>
+
                                         <div>
-                                            <p style="font-size: 12px;">
-                                                This is the content. conrtghtrjgetr rtegetetg egtrettrg ergteretr reger
-                                            </p>
-                                        </div>
-                                        <div
-                                            style="display: flex;justify-content: space-between;margin-left: 20px;margin-right: 20px;margin-bottom: 5px;width: 80%;">
-                                            <p style="margin-left: 20px;font-size: 12px;font-weight: bold;">16/2023
-                                                at 09:00am</p>
-                                            <p class="zero-padding-margin pointer" tooltip="Permanently remove"
-                                                flow="up"><i class="fa fa-trash"></i></p>
-                                            <p class="zero-padding-margin pointer" tooltip="Save to local storage"
-                                                flow="up"><i class="fa fa-download"></i></p>
-                                            <p class="zero-padding-margin pointer" tooltip="Replace file" flow="up"><i
-                                                    class="fa fa fa-exchange"></i></p>
-                                        </div>
-                                    </div>
-
-                                    <div
-                                        style="border: 1px rgba(128, 128, 128, 0.491) solid;border-radius: 10px;padding:10px;margin-bottom: 15px;">
-                                        <div class="flex-space-between">
-                                            <div style="width: 50%;">
-                                                <span style="font-size: 12px;">File Name</span><br>
-                                                <p style="margin-left: 20px;font-weight: bold;padding: 0;">
-                                                    APIview
-                                                </p>
+                                            <div class="form-group"
+                                                style="text-align:center;font-size:20px;align-items:center;margin-top:10px;margin-bottom:20px">
+                                                <a href="#" class=" btn-solid-sm" style="cursor:pointer"
+                                                    id="file-upload-btn">Done</a>
                                             </div>
-                                            <div>
-                                                <span style="font-size: 12px;">By</span>
-                                                <p style="margin-left: 20px;font-size: 12px;font-weight: bold;">Rao Kjui
-                                                </p>
-                                            </div>
-                                            <div>
-                                                <span style="font-size: 12px;">Status</span>
-                                                <p class="success-flair" style="margin-left: 20px;font-size: 12px;">
-                                                    Accepted
 
-                                                </p>
-
-                                            </div>
                                         </div>
-                                        <hr class="zero-padding-margin" style="height: 1px;">
-                                        <div>
-                                            <p style="font-size: 12px;">
-                                                This is the content. conrtghtrjgetr rtegetetg egtrettrg ergteretr reger
-                                                This is the content. conrtghtrjgetr rtegetetg egtrettrg ergteretr reger
-                                            </p>
-                                        </div>
-                                        <div
-                                            style="display: flex;justify-content: space-between;margin-left: 20px;margin-right: 20px;margin-bottom: 5px;width: 80%;">
-                                            <p style="margin-left: 20px;font-size: 12px;font-weight: bold;">16/2023
-                                                at 09:00am</p>
-                                            <!-- <p class="zero-padding-margin pointer" tooltip="Permanently remove"
-                                                flow="up"><i class="fa fa-trash"></i></p>
-                                            <p class="zero-padding-margin pointer" tooltip="Save to local storage"
-                                                flow="up"><i class="fa fa-download"></i></p>
-                                            <p class="zero-padding-margin pointer"
-                                                tooltip="Push to drafts for publishing" flow="up"><i
-                                                    class="fa fa-paper-plane"></i></p> -->
-                                        </div>
-                                    </div>
-
-                                    <div
-                                        style="border: 1px rgba(128, 128, 128, 0.491) solid;border-radius: 10px;padding:10px;margin-bottom: 15px;">
-                                        <div class="flex-space-between">
-                                            <div style="width: 50%;">
-                                                <span style="font-size: 12px;">File Name</span><br>
-                                                <p style="margin-left: 20px;font-weight: bold;padding: 0;">
-                                                    APIview
-                                                </p>
-                                            </div>
-                                            <div>
-                                                <span style="font-size: 12px;">By</span>
-                                                <p style="margin-left: 20px;font-size: 12px;font-weight: bold;">Rao Kjui
-                                                </p>
-                                            </div>
-                                            <div>
-                                                <span style="font-size: 12px;">Status</span>
-                                                <p class="not-sent-flair" style="margin-left: 20px;font-size: 12px;">Not
-                                                    sent
-
-                                                </p>
-
-                                            </div>
-                                        </div>
-                                        <hr class="zero-padding-margin" style="height: 1px;">
-                                        <div>
-                                            <p style="font-size: 12px;">
-                                                This is the content. conrtghtrjgetr rtegetetg egtrettrg ergteretr reger
-                                                This is the content. conrtghtrjgetr rtegetetg egtrettrg ergteretr reger
-                                                This is the content. conrtghtrjgetr rtegetetg egtrettrg ergteretr reger
-                                                This is the content. conrtghtrjgetr rtegetetg egtrettrg ergteretr reger
-                                                This is the content. conrtghtrjgetr rtegetetg egtrettrg ergteretr reger
-                                                This is the content. conrtghtrjgetr rtegetetg egtrettrg ergteretr reger
-                                                This is the content. conrtghtrjgetr rtegetetg egtrettrg ergteretr reger
-                                            </p>
-                                        </div>
-                                        <div
-                                            style="display: flex;justify-content: space-between;margin-left: 20px;margin-right: 20px;margin-bottom: 5px;width: 80%;">
-                                            <p style="margin-left: 20px;font-size: 12px;font-weight: bold;">16/2023
-                                                at 09:00am</p>
-                                            <p class="zero-padding-margin pointer" tooltip="Permanently remove"
-                                                flow="up"><i class="fa fa-trash"></i></p>
-                                            <p class="zero-padding-margin pointer" tooltip="Save to local storage"
-                                                flow="up"><i class="fa fa-download"></i></p>
-                                            <p class="zero-padding-margin pointer" tooltip="Replace file" flow="up"><i
-                                                    class="fa fa fa-exchange"></i></p>
-
-                                            <p class="zero-padding-margin pointer"
-                                                tooltip="Push to drafts for publishing" flow="up"><i
-                                                    class="fa fa-paper-plane"></i></p>
-                                        </div>
-                                    </div>
+                                    </form>
 
                                 </div>
+
                             </div>
-                            <!-- announcements -->
-                            <div id="teams-announcements" class="t-c">
+
+                            <!-- show announcements -->
+                            <div id="teams-announcements" class="t-c" style="margin: 20px;height: 100%;">
                                 <div class="flex-space-between">
                                     <p style="font-weight: bold;"><i class="fa fa-bell-o"></i> Announcements</p>
-                                    <p class="hover-active"><i class="fa fa-plus"></i> Creat Announcement</p>
+                                    <p class="hover-active" id="new-announce-btn" style="display: block;"><i
+                                            class="fa fa-plus"></i> Create</p>
+                                    <p class="hover-active" id="back-announce-btn" style="display: none;"><i
+                                            class="fa fa-caret-left"></i> Back</p>
                                 </div>
 
-                                <div class="center-div">
-                                    <p>There are no announcements. Create new</p>
+                                <div id="announce-list" style="display: flex;height: 80%;">
+                                    {% if not announcements %}
+                                    <div class="center-div" style="width: 100%;">
+                                        <p style="display: flex;justify-content: center;">There are no announcements.
+                                            Create new</p>
+                                    </div>
+                                    {% else %}
+
+                                    <div
+                                        style="background-color: white;width: 100%;padding: 10px;overflow-y: scroll;height: 100%;">
+                                        {% for an in announcemnets %}
+                                        <div>
+                                            <p><strong class="mild-title">{{ an.title }}</strong></p>
+                                            <p>{{ an.content }}</p>
+                                            <div style="display: flex;gap: 20px;">
+                                                <p class="font-12">{{ an.date_created }}</p>
+                                                <p class="font-12 mild-desc">{{ an.creator.user.username }}</p>
+                                            </div>
+                                            <hr class="zero-padding-margin">
+
+                                        </div>
+                                        {% endfor %}
+
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                <!-- create announcement -->
+
+                                <div id="announce-create" style="display: none;">
+                                    <form
+                                        style="overflow-y:scroll;height:100%;margin-left: 5%;margin-right: 5%;margin-top: 20px;"
+                                        method="post" enctype="multipart/form-data">
+                                        <div class="form-group">
+                                            <input type="text" class="form-control-input" placeholder="Title"
+                                                id="announce-title"
+                                                style="border: 1px solid #ced4da;border-radius:4px;width: 100%;box-sizing: border-box;background-color: white;font-size: 15px;padding-left:15px"
+                                                required>
+                                        </div>
+                                        <div class="form-group">
+                                            <textarea class="form-control-textarea" placeholder="Content"
+                                                style="border: 1px solid #ced4da;border-radius:4px;width:100%;box-sizing: border-box;background-color: white;font-size: 15px;padding-left:15px"
+                                                id="announce-content" required></textarea>
+                                        </div>
+
+                                        <div>
+                                            <div class="form-group"
+                                                style="text-align:center;font-size:20px;align-items:center;margin-top:10px;margin-bottom:20px">
+                                                <a href="#" class=" btn-solid-sm" style="cursor:pointer"
+                                                    id="announce-create-btn">Create</a>
+                                            </div>
+
+                                        </div>
+                                    </form>
                                 </div>
                             </div>
 
                             <!-- activity -->
-                            <div id="teams-activity" class="t-c">
+                            <div id="teams-activity" class="t-c" style="margin: 20px;height: 100%;">
+                                {% if not activities %}
                                 <div class="center-div">
                                     <p>There are no recent activities</p>
                                 </div>
+                                {% else %}
+                                {% for ac in activities %}
+                                <div style="background-color: white;height: 90%;overflow-y: scroll;padding: 10px;">
+                                    <div style="margin-bottom: 15px;">
+                                        <div style="display: flex;gap: 10px;">
+                                            <div style="width: 20%;">
+                                                <p class="font-12 mild-desc zero-padding-margin">{{ ac.date_created }}</p>
+                                                <p class="font-12 zero-padding-margin mild-title">{{ ac.time_from }}</p>
+
+                                            </div>
+                                            <p>{{ ac.title }}</p>
+                                        </div>
+                                        <hr class="zero-padding-margin">
+                                    </div>
+                                </div>
+                                {% endfor %}
+                                {% endif %}
+                            </div>
+                            <!-- members -->
+                            <div id="team-members" class="t-c">
+                                <p style="padding: 10px;">Members ({{ team_members|length }})</p>
+                                <div style="height: 80%;overflow-y: scroll;background-color: white;">
+                                    {% for tm in team_members %}
+                                    <div>
+                                        <div style="margin:10px;display: flex;justify-content: space-between;">
+                                            <div style="display: flex;">
+                                                {% if tm.profile_pic %}
+                                                {% else %}
+                                                <!-- <div
+                                                                style="width: 40px;height: 40px;background-color: #1d8ecd;border-radius: 40px;margin-right: 10px;">
+                                                            </div> -->
+                                                <img src="{% static 'images/default-avatar.avif' %}" alt=""
+                                                    style="width: 40px;height: 40px;border-radius: 40px;margin-right: 10px;">
+                                                {% endif %}
+                                                <p>{{tm.name}}</p>
+                                            </div>
+
+                                            <p style="font-size: 14x;margin-right: 15px;"><i
+                                                    class="fa fa-caret-right"></i>
+                                            </p>
+                                        </div>
+                                        <hr style="margin-left: 5%;margin-right: 5%;">
+                                    </div>
+                                    {% endfor %}
 
 
+                                </div>
+                            </div>
+                            <!-- generate invite link -->
+                            <div id="generate-link" class="t-c">
+                                <div style="margin-left: 10%;margin-right: 10%;height: 80%;">
+                                    <div style="display:flex;justify-content:space-between;margin: 20px;">
+                                        <div class="section-fun-fact">
+                                            <p id="link-action-title">Create a new link</p>
+                                            <hr>
+                                        </div>
+                                        <div class="section-fun-fact " style="display: flex;gap: 30px;">
+                                            <p class="pointer hover-active " id="new-link" style="display: none;"><i
+                                                    class="fa fa-plus"></i>
+                                                New
+                                            </p>
+                                            <p class="pointer hover-active" style="display: block;" id="all-links"><i
+                                                    class="fa fa-link"></i>
+                                                All</p>
+
+                                        </div>
+
+                                    </div>
+                                    <div id="inv-form" style="display: block;height: 100%;">
+                                        <form style="width:100%;overflow-y:scroll;height:100%;" method="post"
+                                            enctype="multipart/form-data">
+                                            <div class="form-group"
+                                                tooltip="Number of members that can join using this link" flow="down">
+                                                <input type="number" class="form-control-input"
+                                                    placeholder="Number of members" id="link-member-number"
+                                                    style="border: 1px solid #ced4da;border-radius:4px;width: 100%;box-sizing: border-box;background-color: white;font-size: 15px;padding-left:15px"
+                                                    required>
+                                            </div>
+                                            <div class="form-group">
+                                                <select data-name="link-permissions" name="link-permissions"
+                                                    data-placeholder="Select permissions" multiple multiple
+                                                    data-multi-select>
+                                                    <option value="can_modify_ai_assistant">Can modify the AI Assistant
+                                                    </option>
+                                                    <option value="can_update_profile">Can update business profile
+                                                    </option>
+                                                    <option value="can_link_unlink_account">Can link and unlink social
+                                                        channels</option>
+                                                    <option value="can_reply_to_reviews">Can reply to reviews</option>
+                                                    <option value="can_post">Can post content</option>
+                                                    <option value="can_create_team_add_member">Can create team and add
+                                                        members </option>
+
+                                                </select>
+                                            </div>
+
+                                            <div>
+                                                <div class="form-group"
+                                                    style="text-align:center;font-size:20px;align-items:center;margin-top:10px;margin-bottom:20px">
+                                                    <a href="#" class=" btn-solid-sm" style="cursor:pointer"
+                                                        id="generate-link-btn2">Generate
+                                                        Link</a>
+                                                </div>
+
+                                            </div>
+                                            <div style="display: none;gap: 10px;justify-content: center;"
+                                                id="generated-link">
+                                                <p class="font-12 pointer" style="color: blue;" id="gen-link">
+                                                    htpps://www.gdfhdfsdf.cdscds/ygsfer-fdgfdg-dfgfdgfdgf</p>
+                                                <p class="pointer" tooltip="copy link" flow="down"><i
+                                                        class="fa fa-copy"></i></p>
+                                            </div>
+                                            <div style="display: none;justify-content: center;margin-top: 10px;margin-bottom: 10px;"
+                                                id="wait-link-spinner">
+                                                <i class="fa fa-spinner fa-spin"></i>
+                                            </div>
+                                            <p class="font-12 zero-padding-margin"> Enter the number of members you want
+                                                to join your team and select the permissions they will have
+                                            </p>
+                                            <p class="font-12 zero-padding-margin">Note: The link only accepts the given
+                                                number of members,
+                                                you can revoke or generate a new link</p>
+                                            <p class="font-12 zero-padding-margin">Share the link to the members</p>
+                                        </form>
+                                    </div>
+                                    <div id="all-inv-links" style="display: none;height: 100%;overflow-y: scroll;">
+                                        {% if invite_links %}
+                                        {% for l in invite_links %}
+                                        <div>
+                                            <div style="display: flex;justify-content: space-between;">
+                                                <p
+                                                    style="width: 60%;text-overflow: ellipsis;flex-wrap: nowrap;color: rgb(86, 86, 249);">
+                                                    {{ l.link }}
+                                                </p>
+                                                <p class="font-12">Created {{ l.date_created }}</p>
+                                            </div>
+                                            <div style="display: flex;gap: 30px;">
+                                                {% if l.active %}
+                                                <p class="success-flair font-12">Active</p>
+                                                <p class="pointer" tooltip="Copy" flow="up"><i class="fa fa-copy"></i>
+                                                </p>
+                                                <p class="pointer" tooltip="Revoke" flow="down"><i
+                                                        class="fa fa-cancel"></i></p>
+                                                {% else %}
+                                                <p class="warning-flair font-12">Revoked</p>
+                                                <p style="color: grey;"><i class="fa fa-copy"></i>
+                                                </p>
+                                                <p style="color: grey;"><i class="fa fa-cancel"></i></p>
+                                                {% endif %}
+                                                <p class="pointer" tooltip="members" flow="down">4/5</p>
+                                            </div>
+
+                                            <hr class="zero-padding-margin" style="size: 10px;">
+                                        </div>
+                                        {% endfor %}
+                                        {% else %}
+                                        <div style="display: flex;justify-content: center;">
+                                            <p>You have no active invite links. </p>
+                                        </div>
+
+                                        {% endif %}
+
+                                    </div>
+                                </div>
+                            </div>
+
+
+                        </div>
+                    </div>
+
+
+                </div>
+            </div>
+
+            <!-- drafts -->
+            <div class="chat-content" id="drafts-content" style="display:none">
+                <div class="chat-header" id="top-header"
+                    style="margin-left: 40px;margin-right: 40px;margin-top: 10px;margin-bottom: 10px;">
+                    <div class="logo-container">
+                        <h4>
+                            Drafts
+                        </h4>
+                    </div>
+                    <div class="user-details">
+
+                    </div>
+
+                    <div class="popup" style="width: 250px;">
+                        <div style="display: flex;gap: 10px;">
+                            <div
+                                style="width: 70px;height: 70px;border-radius: 70px;background-color: rgb(255, 145, 0);">
+                            </div>
+                            <div>
+                                <p class="font-12">{{ request.user.username }} </p>
+                                <p class="font-12">Change Picture</p>
                             </div>
                         </div>
+                        <hr>
+                        <p>Permissions</p>
+                        <ul style="max-height: 100px;overflow-y: scroll;list-style-type: none;">
+                            <li class="font-12" style="color: green;"><i class="fa fa-check"></i> Can update business
+                                profile
+                            </li>
+                            <li class="font-12" style="color: red;"><i class="fa fa-times"></i> Can update profile</li>
+                        </ul>
+                        <a href="{% url 'logout' %}" style="text-decoration: none;">
+                            <div class="logout-btn"
+                                style="background-color: red;display: flex;margin-left: 30%;margin-right: 30%;align-items: center;justify-content: center;border-radius: 30px;color: white;">
+                                <span style="margin-right: 10px;">Log out</span> <i class="fas fa-sign-out"></i>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+                <div class="company-account-info">
+                    <p class="font-12" style="display: flex;justify-content: center;">Review content here before they go
+                        live</p>
+                    <div style="margin-left:20px;margin-right:20px;height:85%;padding:10px;overflow-y: scroll;">
+                        <div class="review-list">
+                            {% if not drafts %}
+                            <div class="center-div">
+                               <p>There is no content to review.</p>     
+                            </div>
+                            {% else %}
+                            {% for d in drafts %}
+                            <div class="review-item">
+                                <h5><span style="font-size: 12px;">from</span> Ran Blon <span
+                                        style="font-size: 12px;font-weight: normal;background-color: rgb(216, 251, 239);color: rgb(8, 192, 131);padding: 5px;border-radius:5px ;">Graphic
+                                        Designers Team
+                                    </span> </h5>
+                                <p>Attached files(1)</p>
+                                <p style="padding-left: 10px;">Please fix the error with paypal info
+                                </p>
+                                <div style="display: flex;justify-content: space-between;margin-top: 20px;">
+                                    <p style="font-size: 12px;padding: 0;margin: 0;">2nd October 2024</p>
+                                    <div class="review-bar"
+                                        style="display:flex;gap: 20px;font-size: 12px;margin-left:20%;margin-right:20%">
+                                        <p style="cursor: pointer;"
+                                            tooltip="Send the files back and request modifications" flow="up"><i
+                                                class="fa fa-reply" aria-hidden="true"></i> Request Changes
+                                        </p>
+                                        <p style="cursor: pointer;" tooltip="Download file for review" flow="up"><i
+                                                class="fa fa-download"></i> Download
+                                        </p>
+                                        <p style="cursor: pointer;" tooltip="Use the file in a new post" flow="up"><i
+                                                class="fa fa-share"></i> Approve & Post
+                                        </p>
 
+                                    </div>
+                                </div>
 
+                                <hr>
+                            </div>
+                            {% endfor %}
+                            {% endif %}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -3670,7 +3727,50 @@
                                 style="width: 70px;height: 70px;border-radius: 70px;background-color: rgb(255, 145, 0);">
                             </div>
                             <div>
-                                <p class="font-12">my_username </p>
+                                <p class="font-12">{{ request.user.username }} </p>
+                                <p class="font-12">Change Picture</p>
+                            </div>
+                        </div>
+                        <hr>
+                        <p>Permissions</p>
+                        <ul style="max-height: 100px;overflow-y: scroll;list-style-type: none;">
+                            <li class="font-12" style="color: green;"><i class="fa fa-check"></i> Can update business
+                                profile
+                            </li>
+                            <li class="font-12" style="color: red;"><i class="fa fa-times"></i> Can update profile</li>
+                        </ul>
+                        <a href="{% url 'logout' %}" style="text-decoration: none;">
+                            <div class="logout-btn"
+                                style="background-color: red;display: flex;margin-left: 30%;margin-right: 30%;align-items: center;justify-content: center;border-radius: 30px;color: white;">
+                                <span style="margin-right: 10px;">Log out</span> <i class="fas fa-sign-out"></i>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+                <div class="company-account-info">
+
+                </div>
+
+            </div>
+            <!-- integration -->
+            <div class="chat-content" id="integration-content" style="display:none;width: 100%;">
+                <div class="chat-header" id="top-header"
+                    style="margin-left: 40px;margin-right: 40px;margin-top: 10px;margin-bottom: 10px;">
+                    <div class="logo-container">
+                        <h4>
+                            Integration
+                        </h4>
+                    </div>
+                    <div class="user-details" tooltip="Me" flow="down">
+
+                    </div>
+                    <div class="popup" style="width: 250px;">
+                        <div style="display: flex;gap: 10px;">
+                            <div
+                                style="width: 70px;height: 70px;border-radius: 70px;background-color: rgb(255, 145, 0);">
+                            </div>
+                            <div>
+                                <p class="font-12">{{ request.user.username }} </p>
                                 <p class="font-12">Change Picture</p>
                             </div>
                         </div>
@@ -3713,7 +3813,7 @@
                                 style="width: 70px;height: 70px;border-radius: 70px;background-color: rgb(255, 145, 0);">
                             </div>
                             <div>
-                                <p class="font-12">my_username </p>
+                                <p class="font-12">{{ request.user.username }} </p>
                                 <p class="font-12">Change Picture</p>
                             </div>
                         </div>
@@ -3788,11 +3888,13 @@
                                 <div style="width:60%;display:flex;justify-content: space-between;">
                                     <div class="form-group"
                                         style="text-align:center;font-size:20px;align-items:center;margin-top:10px;margin-bottom:20px">
-                                        <a class=" btn-solid-sm" style="cursor:pointer" id="schedule-post">Schedule</a>
+                                        <a href="#" class=" btn-solid-sm" style="cursor:pointer"
+                                            id="schedule-post">Schedule</a>
                                     </div>
                                     <div class="form-group"
                                         style="text-align:center;font-size:20px;align-items:center;margin-top:10px;margin-bottom:20px">
-                                        <a class=" btn-solid-sm" style="cursor:pointer" id="post-now">Post Now</a>
+                                        <a href="#" class=" btn-solid-sm" style="cursor:pointer" id="post-now">Post
+                                            Now</a>
                                     </div>
 
                                 </div>
@@ -3821,7 +3923,7 @@
                                 style="width: 70px;height: 70px;border-radius: 70px;background-color: rgb(255, 145, 0);">
                             </div>
                             <div>
-                                <p class="font-12">my_username </p>
+                                <p class="font-12">{{ request.user.username }} </p>
                                 <p class="font-12">Change Picture</p>
                             </div>
                         </div>
@@ -4308,8 +4410,281 @@
     <!-- <script src="{% static 'js/upload.js' %}"></script> -->
     <script src="{% static 'js/report-scam.js' %}"></script>
     <script src="{% static 'js/feature-request.js' %}"></script>
-    <script src="{% static 'js/multiselect.js' %}"></script>
+    <!-- <script src="{% static 'js/multiselect.js' %}"></script> -->
+    <!-- multiselect script -->
+    <script>
+        const multiSelectInstances = [];
 
+        function initializeMultiSelect() {
+            multiSelectInstances.length = 0;
+            // document.querySelectorAll('[data-multi-select]').forEach(select => new MultiSelect(select));
+            document.querySelectorAll('[data-multi-select]').forEach(select => {
+                const instance = new MultiSelect(select);
+                multiSelectInstances.push(instance); // Store instance
+            });
+        }
+
+        class MultiSelect {
+            constructor(element, options = {}) {
+                let defaults = {
+                    placeholder: 'Select item(s)',
+                    max: null,
+                    search: true,
+                    selectAll: true,
+                    listAll: true,
+                    closeListOnItemSelect: false,
+                    name: '',
+                    width: '',
+                    height: '',
+                    dropdownWidth: '',
+                    dropdownHeight: '',
+                    data: [],
+                    onChange: function () { },
+                    onSelect: function () { },
+                    onUnselect: function () { }
+                };
+                this.options = Object.assign(defaults, options);
+                this.selectElement = typeof element === 'string' ? document.querySelector(element) : element;
+                for (const prop in this.selectElement.dataset) {
+                    if (this.options[prop] !== undefined) {
+                        this.options[prop] = this.selectElement.dataset[prop];
+                    }
+                }
+                this.name = this.selectElement.getAttribute('name') ? this.selectElement.getAttribute('name') : 'multi-select-' + Math.floor(Math.random() * 1000000);
+                if (!this.options.data.length) {
+                    let options = this.selectElement.querySelectorAll('option');
+                    for (let i = 0; i < options.length; i++) {
+                        this.options.data.push({
+                            value: options[i].value,
+                            text: options[i].innerHTML,
+                            selected: options[i].selected,
+                            html: options[i].getAttribute('data-html')
+                        });
+                    }
+                }
+                this.element = this._template();
+                this.selectElement.replaceWith(this.element);
+                this._updateSelected();
+                this._eventHandlers();
+            }
+
+            _template() {
+                let optionsHTML = '';
+                for (let i = 0; i < this.data.length; i++) {
+                    optionsHTML += `
+                <div class="multi-select-option${this.selectedValues.includes(this.data[i].value) ? ' multi-select-selected' : ''}" data-value="${this.data[i].value}">
+                    <span class="multi-select-option-radio"></span>
+                    <span class="multi-select-option-text">${this.data[i].html ? this.data[i].html : this.data[i].text}</span>
+                </div>
+            `;
+                }
+                let selectAllHTML = '';
+                if (this.options.selectAll === true || this.options.selectAll === 'true') {
+                    selectAllHTML = `<div class="multi-select-all">
+                <span class="multi-select-option-radio"></span>
+                <span class="multi-select-option-text">Select all</span>
+            </div>`;
+                }
+                let template = `
+            <div class="multi-select ${this.name}"${this.selectElement.id ? ' id="' + this.selectElement.id + '"' : ''} style="${this.width ? 'width:' + this.width + ';' : ''}${this.height ? 'height:' + this.height + ';' : ''}">
+                ${this.selectedValues.map(value => `<input type="hidden" name="${this.name}[]" value="${value}">`).join('')}
+                <div class="multi-select-header" style="${this.width ? 'width:' + this.width + ';' : ''}${this.height ? 'height:' + this.height + ';' : ''}">
+                    <span class="multi-select-header-max">${this.options.max ? this.selectedValues.length + '/' + this.options.max : ''}</span>
+                    <span class="multi-select-header-placeholder">${this.placeholder}</span>
+                </div>
+                <div class="multi-select-options" style="${this.options.dropdownWidth ? 'width:' + this.options.dropdownWidth + ';' : ''}${this.options.dropdownHeight ? 'height:' + this.options.dropdownHeight + ';' : ''}">
+                    ${this.options.search === true || this.options.search === 'true' ? '<input type="text" class="multi-select-search" placeholder="Search...">' : ''}
+                    ${selectAllHTML}
+                    ${optionsHTML}
+                </div>
+            </div>
+        `;
+                let element = document.createElement('div');
+                element.innerHTML = template;
+                return element;
+            }
+
+            _eventHandlers() {
+                let headerElement = this.element.querySelector('.multi-select-header');
+                this.element.querySelectorAll('.multi-select-option').forEach(option => {
+                    option.onclick = () => {
+                        let selected = true;
+                        if (!option.classList.contains('multi-select-selected')) {
+                            if (this.options.max && this.selectedValues.length >= this.options.max) {
+                                return;
+                            }
+                            option.classList.add('multi-select-selected');
+                            if (this.options.listAll === true || this.options.listAll === 'true') {
+                                if (this.element.querySelector('.multi-select-header-option')) {
+                                    let opt = Array.from(this.element.querySelectorAll('.multi-select-header-option')).pop();
+                                    opt.insertAdjacentHTML('afterend', `<span class="multi-select-header-option" data-value="${option.dataset.value}">${option.querySelector('.multi-select-option-text').innerHTML}</span>`);
+                                } else {
+                                    headerElement.insertAdjacentHTML('afterbegin', `<span class="multi-select-header-option" data-value="${option.dataset.value}">${option.querySelector('.multi-select-option-text').innerHTML}</span>`);
+                                }
+                            }
+                            this.element.querySelector('.multi-select').insertAdjacentHTML('afterbegin', `<input type="hidden" name="${this.name}[]" value="${option.dataset.value}">`);
+                            this.data.filter(data => data.value == option.dataset.value)[0].selected = true;
+                        } else {
+                            option.classList.remove('multi-select-selected');
+                            this.element.querySelectorAll('.multi-select-header-option').forEach(headerOption => headerOption.dataset.value == option.dataset.value ? headerOption.remove() : '');
+                            this.element.querySelector(`input[value="${option.dataset.value}"]`).remove();
+                            this.data.filter(data => data.value == option.dataset.value)[0].selected = false;
+                            selected = false;
+                        }
+                        if (this.options.listAll === false || this.options.listAll === 'false') {
+                            if (this.element.querySelector('.multi-select-header-option')) {
+                                this.element.querySelector('.multi-select-header-option').remove();
+                            }
+                            headerElement.insertAdjacentHTML('afterbegin', `<span class="multi-select-header-option">${this.selectedValues.length} selected</span>`);
+                        }
+                        if (!this.element.querySelector('.multi-select-header-option')) {
+                            headerElement.insertAdjacentHTML('afterbegin', `<span class="multi-select-header-placeholder">${this.placeholder}</span>`);
+                        } else if (this.element.querySelector('.multi-select-header-placeholder')) {
+                            this.element.querySelector('.multi-select-header-placeholder').remove();
+                        }
+                        if (this.options.max) {
+                            this.element.querySelector('.multi-select-header-max').innerHTML = this.selectedValues.length + '/' + this.options.max;
+                        }
+                        if (this.options.search === true || this.options.search === 'true') {
+                            this.element.querySelector('.multi-select-search').value = '';
+                        }
+                        this.element.querySelectorAll('.multi-select-option').forEach(option => option.style.display = 'flex');
+                        if (this.options.closeListOnItemSelect === true || this.options.closeListOnItemSelect === 'true') {
+                            headerElement.classList.remove('multi-select-header-active');
+                        }
+                        this.options.onChange(option.dataset.value, option.querySelector('.multi-select-option-text').innerHTML, option);
+                        if (selected) {
+                            this.options.onSelect(option.dataset.value, option.querySelector('.multi-select-option-text').innerHTML, option);
+                        } else {
+                            this.options.onUnselect(option.dataset.value, option.querySelector('.multi-select-option-text').innerHTML, option);
+                        }
+                    };
+                });
+                headerElement.onclick = () => headerElement.classList.toggle('multi-select-header-active');
+                if (this.options.search === true || this.options.search === 'true') {
+                    let search = this.element.querySelector('.multi-select-search');
+                    search.oninput = () => {
+                        this.element.querySelectorAll('.multi-select-option').forEach(option => {
+                            option.style.display = option.querySelector('.multi-select-option-text').innerHTML.toLowerCase().indexOf(search.value.toLowerCase()) > -1 ? 'flex' : 'none';
+                        });
+                    };
+                }
+                if (this.options.selectAll === true || this.options.selectAll === 'true') {
+                    let selectAllButton = this.element.querySelector('.multi-select-all');
+                    selectAllButton.onclick = () => {
+                        let allSelected = selectAllButton.classList.contains('multi-select-selected');
+                        this.element.querySelectorAll('.multi-select-option').forEach(option => {
+                            let dataItem = this.data.find(data => data.value == option.dataset.value);
+                            if (dataItem && ((allSelected && dataItem.selected) || (!allSelected && !dataItem.selected))) {
+                                option.click();
+                            }
+                        });
+                        selectAllButton.classList.toggle('multi-select-selected');
+                    };
+                }
+                if (this.selectElement.id && document.querySelector('label[for="' + this.selectElement.id + '"]')) {
+                    document.querySelector('label[for="' + this.selectElement.id + '"]').onclick = () => {
+                        headerElement.classList.toggle('multi-select-header-active');
+                    };
+                }
+                document.addEventListener('click', event => {
+                    if (!event.target.closest('.' + this.name) && !event.target.closest('label[for="' + this.selectElement.id + '"]')) {
+                        headerElement.classList.remove('multi-select-header-active');
+                    }
+                });
+            }
+
+            _updateSelected() {
+                if (this.options.listAll === true || this.options.listAll === 'true') {
+                    this.element.querySelectorAll('.multi-select-option').forEach(option => {
+                        if (option.classList.contains('multi-select-selected')) {
+                            this.element.querySelector('.multi-select-header').insertAdjacentHTML('afterbegin', `<span class="multi-select-header-option" data-value="${option.dataset.value}">${option.querySelector('.multi-select-option-text').innerHTML}</span>`);
+                        }
+                    });
+                } else {
+                    if (this.selectedValues.length > 0) {
+                        this.element.querySelector('.multi-select-header').insertAdjacentHTML('afterbegin', `<span class="multi-select-header-option">${this.selectedValues.length} selected</span>`);
+                    }
+                }
+                if (this.element.querySelector('.multi-select-header-option')) {
+                    this.element.querySelector('.multi-select-header-placeholder').remove();
+                }
+            }
+
+            get selectedValues() {
+                return this.data.filter(data => data.selected).map(data => data.value);
+            }
+
+            get selectedItems() {
+                return this.data.filter(data => data.selected);
+            }
+
+            set data(value) {
+                this.options.data = value;
+            }
+
+            get data() {
+                return this.options.data;
+            }
+
+            set selectElement(value) {
+                this.options.selectElement = value;
+            }
+
+            get selectElement() {
+                return this.options.selectElement;
+            }
+
+            set element(value) {
+                this.options.element = value;
+            }
+
+            get element() {
+                return this.options.element;
+            }
+
+            set placeholder(value) {
+                this.options.placeholder = value;
+            }
+
+            get placeholder() {
+                return this.options.placeholder;
+            }
+
+            set name(value) {
+                this.options.name = value;
+            }
+
+            get name() {
+                return this.options.name;
+            }
+
+            set width(value) {
+                this.options.width = value;
+            }
+
+            get width() {
+                return this.options.width;
+            }
+
+            set height(value) {
+                this.options.height = value;
+            }
+
+            get height() {
+                return this.options.height;
+            }
+
+        }
+
+
+        // document.querySelectorAll('[data-multi-select]').forEach(select => new MultiSelect(select));
+
+
+        // Initialize on page load
+        document.addEventListener("DOMContentLoaded", initializeMultiSelect);
+
+    </script>
     <!-- general purpose scripts -->
 
     <script>
@@ -4332,6 +4707,31 @@
                 $('.quick_links li').each(function () { $(this).removeClass('active') })
                 $('#create-post-content').css('display', 'block');
             });
+            // toggle between showing links and creating new link
+            $(document).on('click', '#new-link', function () {
+
+                $('#link-action-title').text('Create a new link');
+                $('#all-inv-links').css('display', 'none');
+                $('#new-link').css('display', 'none');
+                $('#all-links').css('display', 'block');
+
+                // $('#new-link').toggleClass('inactive-gen-link');
+                // $('#all-links').toggleClass('inactive-gen-link');
+
+                $('#inv-form').css('display', 'block');
+            });
+            $(document).on('click', '#all-links', function () {
+                $('#link-action-title').text('All inks');
+                $('#all-inv-links').css('display', 'block');
+                $('#inv-form').css('display', 'none');
+                $('#all-links').css('display', 'none');
+                $('#new-link').css('display', 'block');
+                // $('#new-link').toggleClass('inactive-gen-link');
+                // $('#all-links').toggleClass('inactive-gen-link');
+
+            });
+
+
             $(document).on('click', '#create-team-btn', function () {
 
                 var txt = $('#create-team-btn').text();
@@ -4350,8 +4750,27 @@
 
         });
     </script>
+
+
     <!-- update business page -->
     <script>
+        // Function to get selected values for each instance
+        // Function to get selected values for each instance
+        function getSelectedOptions() {
+            multiSelectInstances.forEach((instance, index) => {
+                const selectedValues = instance.selectedValues; // Array of selected values
+                const selectedItems = instance.selectedItems; // Array of selected data objects
+
+                console.log(`Selected options for instance ${instance.selectElement.id}:`, selectedValues);
+                // If you need more information, use selectedItems instead
+                // console.log(`Selected items (detailed) for instance ${index + 1}:`, selectedItems);
+            });
+        }
+
+        // Usage: Call this function when you need to retrieve selected options
+        // Usage example
+
+
         // grab-content scripts POST/GET
         function getCSRFToken() {
             return $('meta[name="csrfmiddlewaretoken"]').val();
@@ -4374,8 +4793,42 @@
                 'showMethod': 'fadeIn',
                 'hideMethod': 'fadeOut',
             };
+            // ---------------------------------HELP-------------------------------------- 
+            $(document).on('click', '#help', function () {
+                $('.chat-content').hide();
+                $('#help-content').show()
+            });
+
+            // ---------------------------------INTEGRATION GUIDE-------------------------------------- 
+            $(document).on('click', '#integration', function () {
+                $('.chat-content').hide();
+                $('#integration-content').show()
+            });
+            // ---------------------------------DRAFTS-------------------------------------- 
+            $(document).on('click', '#drafts', function () {
+                $('.chat-content').hide();
+                $('#drafts-content').show()
+            });
+
+            // ---------------------------------REVIEWS-------------------------------------- 
+            $(document).on('click', '#reviews', function () {
+                $('.chat-content').hide();
+                $('#reviews-content').show()
+            });
+
+            // ---------------------------------ISSUES & REQUESTS-------------------------------------- 
+            $(document).on('click', '#requests', function () {
+                $('.chat-content').hide();
+                $('#feature-request').show()
+            });
 
             // -----------------------------------BUSINESS PROFILE ---------------------------------------
+            $(document).on('click', '#business-prof', function () {
+                $('.chat-content').hide();
+                $('#business-page').show()
+            });
+
+
             $('#image-input').on('change', function (event) {
                 const file = event.target.files[0]; // Get the selected file
 
@@ -4399,7 +4852,6 @@
 
             // create team
             $(document).on('click', '#finish-create-form', function () {
-
                 // Create a new FormData object
                 var formData = new FormData();
 
@@ -4435,21 +4887,89 @@
                             toastr.success('Team created successfully');
                             // update html
                             var tempDiv = $('<div>').html(response);
-
                             // Extract the specific element from the new HTML
                             var newElementContent = tempDiv.find('#teams-content').html();
 
                             $('#teams-content').html(newElementContent);
+                            initializeMultiSelect();
+
                             return;
                         }
                     },
                     error: function (jqXHR, textStatus, errorThrown) {
-                        alert('Failed to submit form.');
+                        toastr.error('Failed to submit form.');
                         console.error(textStatus, errorThrown);
                     }
                 });
             });
 
+            // delete team
+            $(document).on('click', '.d-team', function () {
+                var t_id = $(this).attr('id');
+                $('#confirmModalTitle').text('Delete ?');
+                var team_name = $(this).data('placeholder');
+                var bdy = 'Are you sure you want to permanently delete team ' + team_name
+                $('#confirmModalBody').text(bdy);
+                $('#confirmModalAction').data('placeholder', t_id);
+
+                $('#forbiddenModalAction').removeClass();
+                $('#forbiddenModalAction').text('Delete');
+                $('#forbiddenModalAction').addClass('btn btn-danger');
+
+                $('#confirmModalAction').removeClass();
+                $('#confirmModalAction').text('Delete');
+                $('#confirmModalAction').addClass('btn btn-danger');
+                $('#confirmModalCenter').modal('show');
+            });
+            // confirm delete
+            $(document).on('click', '#confirmModalAction', function () {
+                var t_id = $(this).data('placeholder');
+                // Create a new FormData object
+                var formData = new FormData();
+
+                // Append other input fields to FormData
+                var csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                formData.append('company_id', '{{ company_id }}');
+                formData.append('team_id', t_id);
+
+                // Send the form data via AJAX
+                $.ajax({
+                    url: '{% url "delete-team" %}', // Replace with your Django endpoint URL
+                    type: 'POST',
+                    headers: {
+                        'X-CSRFToken': csrfToken
+                    },
+                    data: formData,
+                    processData: false, // Prevent jQuery from processing the data
+                    contentType: false, // Prevent jQuery from setting the content type
+                    success: function (response) {
+                        if (response['error']) {
+                            toastr.error(response['error']);
+                            toastr.error('Failed to submit form.');
+                            $('#confirmModalCenter').modal('hide');
+                        } else {
+                            toastr.success('Team deleted successfully');
+                            // update html
+                            var tempDiv = $('<div>').html(response);
+
+                            // Extract the specific element from the new HTML
+                            var newElementContent = tempDiv.find('#teams-content').html();
+
+                            $('#teams-content').html(newElementContent);
+                            initializeMultiSelect();
+                            $('#confirmModalCenter').modal('hide');
+                            return;
+                        }
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        toastr.error('Failed to submit form.');
+                        $('#confirmModalCenter').modal('hide');
+                        console.error(textStatus, errorThrown);
+                    }
+                });
+            });
+
+            // update bus profile
             $(document).on('click', '#update-profile', function () {
 
                 // Create a new FormData object
@@ -4532,7 +5052,6 @@
                             toastr.error('Failed to get current posts');
 
                         } else {
-                            toastr.success('You are seeing the latest posts');
                             // update html
                             var tempDiv = $('<div>').html(response);
 
@@ -4540,6 +5059,9 @@
                             var newElementContent = tempDiv.find('#post-content').html();
 
                             $('#post-content').html(newElementContent);
+                            initializeMultiSelect();
+                            $('.chat-content').hide();
+                            $('#post-content').show()
                             return;
                         }
                     },
@@ -4553,7 +5075,6 @@
             $(document).on('click', '#teams-btn', function () {
                 // Create a new FormData object
                 var formData = new FormData();
-
                 // Append other input fields to FormData
                 var csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
                 formData.append('company_id', '{{ company_id }}');
@@ -4576,8 +5097,10 @@
 
                             // Extract the specific element from the new HTML
                             var newElementContent = tempDiv.find('#teams-content').html();
-
                             $('#teams-content').html(newElementContent);
+                            initializeMultiSelect();
+                            $('.chat-content').hide();
+                            $('#teams-content').show();
 
                             return;
                         }
@@ -4594,6 +5117,34 @@
                 $(this).parent().toggleClass('active');
             });
 
+            // announcement 
+            $(document).on('click', '#new-announce-btn', function () {
+                $('#announce-list').hide();
+                $('#new-announce-btn').hide();
+                $('#announce-create').show();
+                $('#back-announce-btn').show();
+            });
+            $(document).on('click', '#back-announce-btn', function () {
+                $('#announce-create').hide();
+                $('#back-announce-btn').hide();
+                $('#announce-list').show();
+                $('#new-announce-btn').show();
+            });
+
+            // ------------end announce switch---
+            // files add-files-btn
+            $(document).on('click', '#add-files-btn', function () {
+                $('#view-team-files').hide();
+                $('#add-files-btn').hide();
+                $('#add-files').show();
+                $('#back-files-btn').show();
+            });
+            $(document).on('click', '#back-files-btn', function () {
+                $('#add-files').hide();
+                $('#back-files-btn').hide();
+                $('#view-team-files').show();
+                $('#add-files-btn').show();
+            });
             $(document).on('click', '.comments-container', function () {
 
                 $(this).closest('.action-bar').siblings('.post-comment-box').css('display', 'block');
@@ -4861,14 +5412,199 @@
                 $('#team-workspace').css('display', 'none');
 
             });
+
             // get team
             $(document).on('click', '.view-team-btn', function () {
-                $('#available-teams').css('display', 'none');
-                $('#create-team-btn').css('display', 'none');
-                $('#back-to-teams').css('display', 'block');
-                $('#team-workspace').css('display', 'flex');
+
+                // Create a new FormData object
+                var formData = new FormData();
+                var team_id = $(this).data('placeholder');
+                if (team_id == '') {
+                    return;
+                }
+                // Append other input fields to FormData
+                var csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                formData.append('company_id', '{{ company_id }}');
+                formData.append('team_id', team_id);
+
+                // Send the form data via AJAX
+                $.ajax({
+                    url: '{% url "view-team" %}', // Replace with your Django endpoint URL
+                    type: 'POST',
+                    headers: {
+                        'X-CSRFToken': csrfToken
+                    },
+                    data: formData,
+                    processData: false, // Prevent jQuery from processing the data
+                    contentType: false, // Prevent jQuery from setting the content type
+                    success: function (response) {
+                        if (response['error']) {
+
+                        } else {
+                            // update html
+                            var tempDiv = $('<div>').html(response);
+
+                            // Extract the specific element from the new HTML
+                            var newElementContent = tempDiv.find('#teams-content').html();
+
+                            $('#teams-content').html(newElementContent);
+                            initializeMultiSelect();
+                            $('#available-teams').css('display', 'none');
+                            $('#create-team-btn').css('display', 'none');
+                            $('#back-to-teams').css('display', 'block');
+                            $('#team-workspace').css('display', 'flex');
+
+                            return;
+                        }
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        toastr.error('Failed to get the team.');
+                        console.error(textStatus, errorThrown);
+                    }
+                });
+
 
             });
+
+            // members
+            $(document).on('click', '#team-members-btn', function () {
+                $('.t-c').each(function () { $(this).css('display', 'none') });
+                $('#team-members').css('display', 'block');
+
+            });
+
+            // generate link sidebar
+            $(document).on('click', '#generate-link-btn', function () {
+                $('.t-c').each(function () { $(this).css('display', 'none') });
+                $('#generate-link').css('display', 'block');
+
+            });
+            // generate-link-btn2
+            $(document).on('click', '#generate-link-btn2', function () {
+                var num_mem = $('#link-member-number').val();
+                const linkPermissionsInstance = multiSelectInstances.find(instance => instance.selectElement.dataset.name === "link-permissions");
+
+                if (!linkPermissionsInstance) {
+                    // Get selected items
+                    toastr.error('Kindly ')
+                    return;
+
+                }
+                const selectedItems = linkPermissionsInstance.selectedItems.map(item => item.text);
+                // getSelectedOptions();
+                if (num_mem == '' || selectedItems == '') {
+                    toastr.error('Kindly fill all the fields')
+                    return;
+                }
+
+                // show loading spinner 
+                $('#wait-link-spinner').css('display', 'flex');
+                var formData = new FormData();
+                var csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                formData.append('company_id', '{{ company_id }}');
+                formData.append('team_id', $('#team-id').text());
+                formData.append('members_number', num_mem);
+                formData.append('members_permissions', selectedItems)
+
+                // Send the form data via AJAX
+                $.ajax({
+                    url: '{% url "generate-invite-link" %}', // Replace with your Django endpoint URL
+                    type: 'POST',
+                    headers: {
+                        'X-CSRFToken': csrfToken
+                    },
+                    data: formData,
+                    processData: false, // Prevent jQuery from processing the data
+                    contentType: false, // Prevent jQuery from setting the content type
+                    success: function (response) {
+                        if (response['error']) {
+                            toastr.error('failed to load');
+
+                        } else {
+                            // update html
+                            var tempDiv = $('<div>').html(response);
+
+                            // Extract the specific element from the new HTML
+                            var newElementContent = tempDiv.find('#teams-content').html();
+
+                            $('#teams-content').html(newElementContent);
+                            initializeMultiSelect();
+                            $('#available-teams').css('display', 'none');
+                            $('#create-team-btn').css('display', 'none');
+                            $('#back-to-teams').css('display', 'block');
+                            $('#team-workspace').css('display', 'flex');
+                            $('#wait-link-spinner').css('display', 'none');
+                            $('#gen-link').text(response['result']);
+                            $('#generated-link').css('display', 'flex');
+
+                            return;
+                        }
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        toastr.error('Failed to get the team.');
+                        console.error(textStatus, errorThrown);
+                        $('#wait-link-spinner').css('display', 'none');
+
+                    }
+                });
+
+
+
+            });
+
+            // view the team
+            $(document).on('click', '.view-team-btn', function () {
+
+                // Create a new FormData object
+                var formData = new FormData();
+                var team_id = $(this).data('placeholder');
+                if (team_id == '') {
+                    return;
+                }
+                // Append other input fields to FormData
+                var csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                formData.append('company_id', '{{ company_id }}');
+                formData.append('team_id', team_id);
+
+                // Send the form data via AJAX
+                $.ajax({
+                    url: '{% url "view-team" %}', // Replace with your Django endpoint URL
+                    type: 'POST',
+                    headers: {
+                        'X-CSRFToken': csrfToken
+                    },
+                    data: formData,
+                    processData: false, // Prevent jQuery from processing the data
+                    contentType: false, // Prevent jQuery from setting the content type
+                    success: function (response) {
+                        if (response['error']) {
+
+                        } else {
+                            // update html
+                            var tempDiv = $('<div>').html(response);
+
+                            // Extract the specific element from the new HTML
+                            var newElementContent = tempDiv.find('#teams-content').html();
+
+                            $('#teams-content').html(newElementContent);
+                            initializeMultiSelect();
+                            $('#available-teams').css('display', 'none');
+                            $('#create-team-btn').css('display', 'none');
+                            $('#back-to-teams').css('display', 'block');
+                            $('#team-workspace').css('display', 'flex');
+
+                            return;
+                        }
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        toastr.error('Failed to get the team.');
+                        console.error(textStatus, errorThrown);
+                    }
+                });
+
+
+            });
+
 
 
         });
