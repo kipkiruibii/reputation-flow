@@ -655,6 +655,10 @@
             background-color: rgba(222, 222, 222, 0.381);
             border-radius: 5px;
         }
+        .active-div{
+            background-color: rgba(222, 222, 222, 0.381);
+            border-radius: 5px;
+        }
 
         .zero-padding-margin {
             margin: 0;
@@ -951,6 +955,16 @@
 
         .mild-desc {
             color: #5e5002;
+        }
+
+        .input-decor {
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            width: 100%;
+            box-sizing: border-box;
+            background-color: white;
+            font-size: 15px;
+            padding-left: 15px
         }
     </style>
 
@@ -2529,7 +2543,7 @@
                                             </div>
                                             <input type="text" class="form-control" aria-label="Small"
                                                 aria-describedby="inputGroup-sizing-sm"
-                                                placeholder="enter your LinkedIn business profile link"
+                                                id="update-linkedin"  placeholder="enter your LinkedIn business profile link"
                                                 value="{{ company_socials.linkedin }}">
                                         </div>
                                     </div>
@@ -3052,8 +3066,8 @@
                         {% endif %}
 
                     </div>
-
                     <!-- create team -->
+
                     <div id="create-team-form"
                         style="display:none;justify-content:center;width:100%;height:100%;margin-top:5%;">
 
@@ -3085,7 +3099,8 @@
                     <div id="team-workspace" style="display: none;gap: 10px;height: 100%;">
                         <div style="height: 100%;width: 30%;">
                             <p style="display: none;" id="team-id">{{ team.id }}</p>
-                            <p style="align-items: center;color: rgb(7, 113, 90);font-weight: bold;font-size: 20px;">{{ team.team_name}}
+                            <p style="align-items: center;color: rgb(7, 113, 90);font-weight: bold;font-size: 20px;">
+                                {{ team.team_name}}
                             </p>
 
                             <div>
@@ -3100,7 +3115,7 @@
                                 <p><span style="font-size: 12px;padding-right: 5px;">Created </span></p>
                                 <p>{{ team.date_created }}</p>
                             </div>
-                            <div class="hover-active-div"
+                            <div class="hover-active-div teams-container"
                                 style="display: flex;justify-content: space-between;margin-right: 10px;"
                                 id="team-members-btn">
                                 <p><span style="font-size: 12px;padding-right: 5px;">Members </span></p>
@@ -3111,7 +3126,7 @@
                                     class="hover-active" id="generate-link-btn">Generate and copy</span></p>
                             <hr>
                             <div style="min-height: 170px;overflow-y: scroll;">
-                                <div class="hover-active-div teams-container" data-target="#teams-chats"
+                                <div class="hover-active-div teams-container active-div" data-target="#teams-chats"
                                     style="display: flex;justify-content: space-between;margin: 5px;padding: 5px;">
                                     <p><i class="fa fa-comments-o"></i> Chat</p>
                                     <p><i class="fa fa-caret-right"></i></p>
@@ -3137,6 +3152,7 @@
 
                             <!-- chat -->
                             {% if team.members.count == 1 %}
+
                             <div id="teams-chats" class="t-c">
                                 <div class="center-div">
                                     <p>You are the only one here. Add members to start a conversation</p>
@@ -3147,103 +3163,66 @@
                                 <div class="row clearfix" style="background-color: white;">
                                     <div class="col-lg-12">
                                         <div class=" chat-app">
-                                            <div class="chat">
-                                                <div class="chat-history" style="width: 90%;">
-                                                    <ul class=".scroll-y"
-                                                        style="height: 66vh;overflow-y: scroll;margin: 0;">
+                                            <div class="chat" id="chat-box">
+                                                {% if not chat_messages %}
+                                                <div class="chat-history "
+                                                    style="height: 66vh;background-color: #f0f0f06d;">
+                                                    <p class="center-div">No chats. Be the first to send a message</p>
+                                                </div>
+                                                {% else %}
+                                                <div class="chat-history">
+                                                    <ul id="chat-elem"
+                                                        style="height: 66vh;overflow-y: scroll;overflow-x: hidden; ">
+                                                        {% for chat_message in chat_messages %}
+                                                        {% if not chat_message.me %}
                                                         <li class="clearfix">
                                                             <div class="message-data text-right">
-                                                                <span class="message-data-time"><strong>Fred
-                                                                        loyd</strong>,
-                                                                    <span style="font-size: 12px;"
-                                                                        class="success-flair">Supervisor</span>
+                                                                <span class="message-data-time"><strong>
+                                                                        {{ chat_message.sender.user.username }}</strong>,
+                                                                    <!-- <span style="font-size: 12px;"
+                                                                        class="success-flair">Supervisor</span> -->
                                                                 </span>
-                                                                <img src="https://bootdey.com/img/Content/avatar/avatar7.png"
+                                                                {% if not chat_message.dp %}
+                                                                <img src="{% static 'images/default-avatar.avif' %}"
                                                                     alt="avatar">
+                                                                {% else %}
+                                                                <img src="{{ chat_message.dp }}" alt="avatar">
+                                                                {% endif %}
+
                                                             </div>
                                                             <div class="message other-message float-right"
-                                                                style="padding-bottom: 10px;"> Hi Aiden,
-                                                                how are you? How is the
-                                                                project coming along?
-                                                                <p class="zero-padding-margin font-12">10:10AM</p>
+                                                                style="padding-bottom: 10px;">{{ chat_message.message }}
+                                                                <p class="zero-padding-margin font-12">
+                                                                    {{ chat_message.date_sent }}</p>
                                                             </div>
                                                         </li>
+                                                        {% else %}
                                                         <li class="clearfix">
                                                             <div class="message-data">
                                                                 <span class="message-data-time"></span>
                                                             </div>
                                                             <div class="message my-message"
-                                                                style="padding-bottom: 10px;">Are we meeting today?
-                                                                <p class="zero-padding-margin font-12">10:10AM</p>
+                                                                style="padding-bottom: 10px;">
+                                                                {{ chat_message.message }}
+                                                                <p class="zero-padding-margin font-12">
+                                                                    {{ chat_message.date_sent }}</p>
 
                                                             </div>
                                                         </li>
-                                                        <li class="clearfix">
-                                                            <div class="message-data text-right">
-                                                                <span class="message-data-time">10:10 AM, Today</span>
-                                                                <img src="https://bootdey.com/img/Content/avatar/avatar7.png"
-                                                                    alt="avatar">
-                                                            </div>
-                                                            <div class="message other-message float-right"> Hi Aiden,
-                                                                how are you? How is the
-                                                                project coming along? </div>
-                                                        </li>
-                                                        <li class="clearfix">
-                                                            <div class="message-data text-right">
-                                                                <span class="message-data-time"><strong>Fred
-                                                                        loyd</strong>,
-                                                                    <span style="font-size: 12px;"
-                                                                        class="success-flair">Supervisor</span>
-                                                                </span>
-                                                                <img src="https://bootdey.com/img/Content/avatar/avatar7.png"
-                                                                    alt="avatar">
-                                                            </div>
-                                                            <div class="message other-message float-right"
-                                                                style="padding-bottom: 10px;"> Hi Aiden,
-                                                                how are you? How is the
-                                                                project coming along?
-                                                                <p class="zero-padding-margin font-12">10:10AM</p>
-                                                            </div>
-                                                        </li>
-                                                        <li class="clearfix">
-                                                            <div class="message-data text-right">
-                                                                <span class="message-data-time">10:10 AM, Today</span>
-                                                                <img src="https://bootdey.com/img/Content/avatar/avatar7.png"
-                                                                    alt="avatar">
-                                                            </div>
-                                                            <div class="message other-message float-right"> Hi Aiden,
-                                                                how are you? How is the
-                                                                project coming along? </div>
-                                                        </li>
-                                                        <li class="clearfix">
-                                                            <div class="message-data text-right">
-                                                                <span class="message-data-time">10:10 AM, Today</span>
-                                                                <img src="https://bootdey.com/img/Content/avatar/avatar7.png"
-                                                                    alt="avatar">
-                                                            </div>
-                                                            <div class="message other-message float-right"> Hi Aiden,
-                                                                how are you? How is the
-                                                                project coming along? </div>
-                                                        </li>
-
-                                                        <li class="clearfix">
-                                                            <div class="message-data">
-                                                                <span class="message-data-time">10:15 AM, Today</span>
-                                                            </div>
-                                                            <div class="message my-message">Project has been already
-                                                                finished and I have results to
-                                                                show you.</div>
-                                                        </li>
+                                                        {% endif %}
+                                                        {% endfor %}
+                                                        <div id="lastElement" style="display: none;">Last Item</div>
                                                     </ul>
                                                 </div>
+                                                {% endif %}
                                                 <div class="chat-message zero-padding-margin"
                                                     style="padding: 1px;width: 95%;">
                                                     <div class="input-group mb-0">
-                                                        <div class="input-group-prepend">
+                                                        <div class="input-group-prepend" id="send-chat">
                                                             <span class="input-group-text"><i
                                                                     class="fa fa-send"></i></span>
                                                         </div>
-                                                        <input type="text" class="form-control"
+                                                        <input type="text" class="form-control" id="input-message"
                                                             style="background-color: #d6d6d688;"
                                                             placeholder="Enter text here...">
                                                     </div>
@@ -3457,7 +3436,8 @@
                                     <div style="margin-bottom: 15px;">
                                         <div style="display: flex;gap: 10px;">
                                             <div style="width: 20%;">
-                                                <p class="font-12 mild-desc zero-padding-margin">{{ ac.date_created }}</p>
+                                                <p class="font-12 mild-desc zero-padding-margin">{{ ac.date_created }}
+                                                </p>
                                                 <p class="font-12 zero-padding-margin mild-title">{{ ac.time_from }}</p>
 
                                             </div>
@@ -3671,7 +3651,7 @@
                         <div class="review-list">
                             {% if not drafts %}
                             <div class="center-div">
-                               <p>There is no content to review.</p>     
+                                <p>There is no content to review.</p>
                             </div>
                             {% else %}
                             {% for d in drafts %}
@@ -3850,7 +3830,7 @@
                                 <div class="form-group">
                                     <select id="platforms" name="platforms" data-placeholder="Select platform" multiple
                                         data-multi-select>
-                                        <option value="facebook-stories">Facebook Stories</option>
+                                        <option id="fb_stories" value="facebook-stories">Facebook Stories</option>
                                         <option value="facebook-reels" disabled>Facebook Reels</option>
                                         <option value="facebook-post" disabled>Facebook Post</option>
                                         <option value="instagram-stories">Instagram Stories</option>
@@ -3865,7 +3845,7 @@
                                     </select>
                                 </div>
                                 <div class="form-group" style="font-size: 15px;">
-                                    <textarea class="form-control-textarea" placeholder="Create post"
+                                    <textarea class="form-control-textarea input-decor" placeholder="Create post"
                                         style="border: 1px solid #ced4da;border-radius:4px;width:100%;box-sizing: border-box;background-color: white;"
                                         id="post-textarea" required></textarea>
                                 </div>
@@ -5112,6 +5092,75 @@
                 });
             });
 
+            $(document).on('scrollToBottom', function () {
+                var scrollableDiv = $('#chat-elem');
+                scrollableDiv.scrollTop(scrollableDiv[0].scrollHeight);
+            });
+            function sendMessage() {
+                var formData = new FormData();
+                var team_id = $('#team-id').text();
+                var input_message = $('#input-message').val();
+
+                // Append other input fields to FormData
+                var csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                formData.append('company_id', '{{ company_id }}');
+                formData.append('team_id', team_id);
+                formData.append('message', input_message);
+
+                // Send the form data via AJAX
+                $.ajax({
+                    url: '{% url "send-chat" %}', // Replace with your Django endpoint URL
+                    type: 'POST',
+                    headers: {
+                        'X-CSRFToken': csrfToken
+                    },
+                    data: formData,
+                    processData: false, // Prevent jQuery from processing the data
+                    contentType: false, // Prevent jQuery from setting the content type
+                    success: function (response) {
+                        if (response['error']) {
+                            toastr.error('Failed to submit form.');
+
+                        } else {
+                            // update html
+                            var tempDiv = $('<div>').html(response);
+
+                            // Extract the specific element from the new HTML
+                            var newElementContent = tempDiv.find('#chat-box').html();
+                            $('#chat-box').html(newElementContent);
+                            $(document).trigger('scrollToBottom');
+                            initializeMultiSelect();
+
+                            return;
+                        }
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        toastr.error('Failed to submit form.');
+                        console.error(textStatus, errorThrown);
+                    }
+                });
+
+            }
+            // send chat when enter btn is clicked
+            $(document).on('keydown', '#input-message', function () {
+                // Check if the Enter key (key code 13) was pressed
+                if (event.key === "Enter") {
+                    var input_message = $('#input-message').val();
+                    if (input_message == '') {
+                        return;
+                    }
+                    sendMessage(); // 
+                    event.preventDefault(); // Prevent default action (optional, for forms)
+                }
+            });
+            // send chat when arrow is clicked
+            $(document).on('click', '#send-chat', function () {
+                var input_message = $('#input-message').val();
+                if (input_message == '') {
+                    return;
+                }
+                sendMessage();
+            });
 
             $(document).on('click', '.user-details', function () {
                 $(this).parent().toggleClass('active');
@@ -5402,6 +5451,13 @@
             $(document).on('click', '.teams-container', function () {
                 $('.t-c').each(function () { $(this).css('display', 'none') });
                 $($(this).data('target')).css('display', 'block');
+                $('.teams-container').each(function(){$(this).removeClass('active-div')});
+                $(this).addClass('active-div');
+                if ($(this).data('target') == '#teams-chats') {
+                    var scrollableDiv = $('#chat-elem');
+                    scrollableDiv.scrollTop(scrollableDiv[0].scrollHeight);
+
+                }
 
             });
             // back to all teams
@@ -5415,7 +5471,6 @@
 
             // get team
             $(document).on('click', '.view-team-btn', function () {
-
                 // Create a new FormData object
                 var formData = new FormData();
                 var team_id = $(this).data('placeholder');
@@ -5453,8 +5508,11 @@
                             $('#create-team-btn').css('display', 'none');
                             $('#back-to-teams').css('display', 'block');
                             $('#team-workspace').css('display', 'flex');
-
-                            return;
+                            setTimeout(function(){
+                                var scrollableDiv = $('#chat-elem');
+                                scrollableDiv.scrollTop(scrollableDiv[0].scrollHeight);
+                                return;
+                            },2)
                         }
                     },
                     error: function (jqXHR, textStatus, errorThrown) {
@@ -5606,7 +5664,19 @@
             });
 
 
+            // create post 
+            $(document).on('click', '#post-now', function () {
+                alert('post item');
+            });
 
+            // schedule post
+            $(document).on('click', '#schedule-post', function () {
+                alert('schedule post');
+            });
+            // fb_stories
+            $(document).on('click', '#fb_stories', function () {
+                alert('clicked fb')
+            });
         });
 
 
@@ -5796,16 +5866,6 @@
 
             var minImageWidth = 400;
             var minImageHeight = 400;
-
-            var nbMaxImages = 5;
-
-
-            //verification du nombre d<images:
-            if ((files.length > nbMaxImages) || (validatedFiles > 5 || imageContainer > 5)) {
-                //files.splice(0,5)
-                alert("Maximum number of images is 5");
-
-            }
 
 
             for (var i = 0; i < files.length; i++) {

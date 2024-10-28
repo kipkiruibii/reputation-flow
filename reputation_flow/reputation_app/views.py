@@ -204,6 +204,7 @@ def dashboard(request,company_id):
     cpp=CompanyProfilePicture.objects.filter(company=cm).first()
     sc=CompanyContacts.objects.filter(company=cm).first()
     
+
     context={
         'company_name':cm.company_name,
         'company_category':cm.company_category,
@@ -308,7 +309,6 @@ def fetchPosts(request):
     cp=CompanyPosts.objects.filter(company=cp)
     all_posts=[]
     for p in cp:
-        print('has post')
         um=UploadedMedia.objects.filter(post=p)
         med=[] 
         for m in um:
@@ -467,7 +467,19 @@ def viewTeam(request):
     cmp=CompanyMember.objects.filter(member=mp,company=cp).first()
     cmp=CompanyMember.objects.filter(member=mp,company=cp).first()
     
-   
+    chat_messages=[]
+    for cm in CompanyTeamChat.objects.filter(team=ct):
+        prf=MemberPP.objects.filter(member=mp).first()
+        chat_messages.append(
+            {
+              'me':True if cm.sender==mp else False, 
+              'dp':prf.pic.url if prf else None,
+              'sender':cm.sender,
+              'message':cm.message,
+              'date_sent':cm.date_sent.strftime('%m/%y %H:%M')
+            }
+        )
+
     t_mem=[]
     for r in ct.members.all():
         profile_pic=MemberPP.objects.filter(member=r).first()
@@ -489,7 +501,8 @@ def viewTeam(request):
         t_actv.append(
             {
                 'title':t_a.title,
-                'date_created':ti_b
+                'time_from':t_a.date_created,
+                'date_created':ti_b,
             }
         )
         
@@ -511,12 +524,13 @@ def viewTeam(request):
         'team_members':t_mem,
         'team_files':CompanyTeamFiles.objects.filter(team=ct).order_by('-pk'),
         'announcements':CompanyTeamAnnouncements.objects.filter(team=ct).order_by('-pk'),
-        'activities':t_actv
+        'activities':t_actv,
+        'chat_messages':chat_messages
 
     }
     return render(request,'dashboard.html',context=context)
 
-# get team 
+# create invite link
 @api_view(['POST'])
 def generateInviteLink(request):
     company_id=request.POST.get('company_id', None)
@@ -548,7 +562,65 @@ def generateInviteLink(request):
 
     
     return Response({'result':url_link})
-        
+
+# get team 
+@api_view(['POST'])
+def sendChat(request):
+    company_id=request.POST.get('company_id', None)
+    team_id=request.POST.get('team_id', None)
+    message=request.POST.get('message', None)
+    if not all([message,team_id,company_id]):
+        return Response({'error':'Bad request'})
+    usr=MemberProfile.objects.filter(user=request.user).first()
+    if not usr:
+        return Response({'error':'Bad request'})
+    ct=CompanyTeam.objects.filter(id=team_id).first()
+    if not ct:
+        return Response({'error':'Bad request'})
+    # check if user if part of the team
+    if not ct.members.filter(id=usr.id).exists():
+        print('member dont exist')
+
+        return Response({'error':'Bad request'})
+    ctc=CompanyTeamChat(
+            team=ct,
+            sender=usr,
+            message=message,
+        )   
+    ctc.save()
+    chat_messages=[]
+    for cm in CompanyTeamChat.objects.filter(team=ct):
+        prf=MemberPP.objects.filter(member=usr).first()
+        chat_messages.append(
+            {
+              'me':True if cm.sender==usr else False, 
+              'dp':prf.pic.url if prf else None,
+              'sender':cm.sender,
+              'message':cm.message,
+              'date_sent':cm.date_sent.strftime('%m/%y %H:%M')
+            }
+        )
+    context={
+        'chat_messages':chat_messages
+    }
+    return render(request,'dashboard.html',context=context)
+
+@api_view(['POST'])
+def uploadPost(request):
+    company_id=request.POST.get('company_id', None)           
+    content=request.POST.get('content', None) 
+    platforms=request.POST.get('platforms', None)           
+    tags=request.POST.get('tags', None)           
+    media = request.FILES.get('media',None)
+    sheduled=request.POST.get('scheduled', False)  
+    if not all([company_id,content]):
+        return Response({'error':'Bad request'})
+    cp=Company.objects.filter(company_id=company_id).first()
+    if not cp:
+        return Response({'error':'Bad request'}) 
+    
+
+
 def logoutUser(request):
     logout(request)
     return redirect('landing')

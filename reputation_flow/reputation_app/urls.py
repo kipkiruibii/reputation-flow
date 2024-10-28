@@ -21,8 +21,9 @@ urlpatterns=[
     path('view-team/',views.viewTeam,name='view-team'),
     # generate invite link team
     path('generate-invite-link/',views.generateInviteLink,name='generate-invite-link'),
-
-
+    # send chat       
+    path('send-chat/',views.sendChat,name='send-chat'),
+    
     # social 
     path('instagram-redirect/',views.instagram_post_url,name='instagram_redirect'),
 
