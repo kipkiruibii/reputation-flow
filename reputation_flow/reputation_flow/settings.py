@@ -27,11 +27,10 @@ SECRET_KEY = config.get('DJANGO_SECURITY_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['858d-197-237-137-103.ngrok-free.app','127.0.0.1']
+ALLOWED_HOSTS = ['640a-197-237-137-103.ngrok-free.app','127.0.0.1']
 
 
 # Application definition
-
 INSTALLED_APPS = [
     'reputation_app',
     'django.contrib.admin',
@@ -132,3 +131,37 @@ LOGIN_URL='/login'
 MEDIA_URL = '/'  # URL prefix for accessing media files
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')  # Absolute path to media directory
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# instagram keys
+INSTAGRAM_CLIENT_ID=''
+INSTAGRAM_CLIENT_SECRET=''
+INSTAGRAM_REDIRECT_URI=''
+
+# facebook keys
+FACEBOOK_APP_ID = ''
+FACEBOOK_APP_SECRET = ''
+FACEBOOK_REDIRECT_URI = ''  
+
+# tiktok
+TIKTOK_CLIENT_ID = ""
+TIKTOK_CLIENT_SECRET = ""
+TIKTOK_REDIRECT_URI = ""  # e.g., "https://yourdomain.com/tiktok/callback/"
+TIKTOK_SCOPES = ["video.publish", "user.info.basic", "comment.list"]
+
+# twitter.py
+TWITTER_CLIENT_ID = ""
+TWITTER_CLIENT_SECRET = ""
+TWITTER_REDIRECT_URI = ""  # e.g., "https://yourdomain.com/twitter/callback/"
+
+# youtube 
+YOUTUBE_CLIENT_ID = "YOUR_CLIENT_ID"
+YOUTUBE_CLIENT_SECRET = "YOUR_CLIENT_SECRET"
+YOUTUBE_REDIRECT_URI = "YOUR_REDIRECT_URI"  # e.g., "https://yourdomain.com/youtube/callback/"
+YOUTUBE_SCOPES = ["https://www.googleapis.com/auth/youtube.upload", "https://www.googleapis.com/auth/youtube.force-ssl"]
+
+# google
+# settings.py
+GOOGLE_CLIENT_ID = "YOUR_CLIENT_ID"
+GOOGLE_CLIENT_SECRET = "YOUR_CLIENT_SECRET"
+GOOGLE_REDIRECT_URI = "YOUR_REDIRECT_URI"  # e.g., "https://yourdomain.com/google-business/callback/"
+GOOGLE_SCOPES = ["https://www.googleapis.com/auth/business.manage"]

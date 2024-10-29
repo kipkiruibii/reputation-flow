@@ -69,7 +69,11 @@
 
     <!-- Include ApexCharts from CDN -->
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <!-- Include Flatpickr CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 
+    <!-- Include Flatpickr JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script>
 
         window.dataLayer = window.dataLayer || [];
@@ -655,7 +659,8 @@
             background-color: rgba(222, 222, 222, 0.381);
             border-radius: 5px;
         }
-        .active-div{
+
+        .active-div {
             background-color: rgba(222, 222, 222, 0.381);
             border-radius: 5px;
         }
@@ -1066,6 +1071,7 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                     {% if user_permissions.can_link_unlink_account %}
+
                     {% if instagram.linked %}
                     <a href="{{ instagram.link_url }}"><button type="button" class="btn btn-primary">Change
                             Account</button></a>
@@ -1876,7 +1882,7 @@
                                                 {% endif %}
 
                                             </div>
-                                            <div style="height:30px;display: flex;justify-content: space-between;">
+                                            <div style="height:40px;display: flex;justify-content: space-between;">
 
                                                 {% if instagram.linked %}
                                                 <div>
@@ -1889,11 +1895,11 @@
                                                 <button type="button" class="btn btn-primary"
                                                     style="font-size: 12px;">Change</button>
                                                 {% else %}
-                                                <button type="button" class="btn btn-primary"
-                                                    tooltip="Forbidden. Contact admin" flow="down"
-                                                    style="cursor: not-allowed;font-size: 12px;">Change</button>
+                                                <a style="margin-right: 10px;" href="{{ instagram.link_url }}"><button
+                                                        type="button" class="btn btn-primary"
+                                                        tooltip="Forbidden. Contact admin" flow="down"
+                                                        style="cursor: not-allowed;font-size: 12px;">Change</button></a>
                                                 {% endif %}
-
                                                 {% else %}
                                                 <div>
                                                     <span
@@ -1902,8 +1908,9 @@
                                                     </span>
                                                 </div>
                                                 {% if user_permissions.can_link_unlink_account %}
-                                                <button type="button" class="btn btn-primary"
-                                                    style="font-size: 12px;">Link</button>
+                                                <a style="margin-right: 10px;" href="{{ instagram.link_url }}"><button
+                                                        type="button" class="btn btn-primary"
+                                                        style="font-size: 12px;">Link</button></a>
                                                 {% else %}
                                                 <button type="button" class="btn btn-primary"
                                                     tooltip="Forbidden. Contact admin" flow="down"
@@ -1942,8 +1949,8 @@
                                                     </span>
                                                 </div>
                                                 {% if user_permissions.can_link_unlink_account %}
-                                                <button type="button" class="btn btn-primary"
-                                                    style="font-size: 12px;">Change</button>
+                                                <a  style="margin-right: 10px;" href="{{ facebook.link_url }}"><button type="button" class="btn btn-primary"
+                                                    style="font-size: 12px;">Change</button></a>
                                                 {% else %}
                                                 <button type="button" class="btn btn-primary"
                                                     tooltip="Forbidden. Contact admin" flow="down"
@@ -1958,8 +1965,8 @@
                                                     </span>
                                                 </div>
                                                 {% if user_permissions.can_link_unlink_account %}
-                                                <button type="button" class="btn btn-primary"
-                                                    style="font-size: 12px;">Link</button>
+                                                <a  style="margin-right: 10px;" href="{{ facebook.link_url }}"><button type="button" class="btn btn-primary"
+                                                    style="font-size: 12px;">Link</button></a>
                                                 {% else %}
                                                 <button type="button" class="btn btn-primary"
                                                     tooltip="Forbidden. Contact admin" flow="down"
@@ -1998,8 +2005,8 @@
                                                     </span>
                                                 </div>
                                                 {% if user_permissions.can_link_unlink_account %}
-                                                <button type="button" class="btn btn-primary"
-                                                    style="font-size: 12px;">Change</button>
+                                                <a  style="margin-right: 10px;" href="{{ twitter.link_url }}"><button type="button" class="btn btn-primary"
+                                                    style="font-size: 12px;">Change</button></a>
                                                 {% else %}
                                                 <button type="button" class="btn btn-primary"
                                                     tooltip="Forbidden. Contact admin" flow="down"
@@ -2014,8 +2021,8 @@
                                                     </span>
                                                 </div>
                                                 {% if user_permissions.can_link_unlink_account %}
-                                                <button type="button" class="btn btn-primary"
-                                                    style="font-size: 12px;">Link</button>
+                                                <a  style="margin-right: 10px;" href="{{ twitter.link_url }}"><button type="button" class="btn btn-primary"
+                                                    style="font-size: 12px;">Link</button></a>
                                                 {% else %}
                                                 <button type="button" class="btn btn-primary"
                                                     tooltip="Forbidden. Contact admin" flow="down"
@@ -2054,8 +2061,9 @@
                                                     </span>
                                                 </div>
                                                 {% if user_permissions.can_link_unlink_account %}
-                                                <button type="button" class="btn btn-primary"
-                                                    style="font-size: 12px;">Change</button>
+                                                <a  style="margin-right: 10px;" href="{{ tiktok.link_url }}"><button type="button"
+                                                        class="btn btn-primary"
+                                                        style="font-size: 12px;">Change</button></a>
                                                 {% else %}
                                                 <button type="button" class="btn btn-primary"
                                                     tooltip="Forbidden. Contact admin" flow="down"
@@ -2070,8 +2078,9 @@
                                                     </span>
                                                 </div>
                                                 {% if user_permissions.can_link_unlink_account %}
-                                                <button type="button" class="btn btn-primary"
-                                                    style="font-size: 12px;">Link</button>
+                                                <a  style="margin-right: 10px;" href="{{ tiktok.link_url }}"><button type="button"
+                                                        class="btn btn-primary"
+                                                        style="font-size: 12px;">Link</button></a>
                                                 {% else %}
                                                 <button type="button" class="btn btn-primary"
                                                     tooltip="Forbidden. Contact admin" flow="down"
@@ -2389,7 +2398,7 @@
                                                 <hr style="padding: 0;margin: 0;">
                                                 <p
                                                     style="font-size: 12px;margin: 0;display: flex;justify-content: center;">
-                                                    Powered by Revflow</p>
+                                                    Powered by Insightlyze</p>
 
                                             </div>
                                         </div>
@@ -2542,8 +2551,8 @@
                                                     LinkedIn</span>
                                             </div>
                                             <input type="text" class="form-control" aria-label="Small"
-                                                aria-describedby="inputGroup-sizing-sm"
-                                                id="update-linkedin"  placeholder="enter your LinkedIn business profile link"
+                                                aria-describedby="inputGroup-sizing-sm" id="update-linkedin"
+                                                placeholder="enter your LinkedIn business profile link"
                                                 value="{{ company_socials.linkedin }}">
                                         </div>
                                     </div>
@@ -2634,16 +2643,7 @@
                                         </div>
                                     </div>
 
-                                    <!-- <div id="preview" style="margin:10px">
-                                    </div> -->
-                                    <!-- <p style="font-size:12px;display:none" id="image-delete-instruction">Tap on media to
-                                        remove</p>
-                                    <p style="font-size:12px;display:block">Profile Picture
-                                    </p> -->
-                                    <!-- <div>
-                                        <input class="file-upload-input" type="file" id="myScreenshots" name="submitted"
-                                            multiple onchange="FileVerification(event)">
-                                    </div> -->
+
                                     <div style="text-align:center;font-size:12px;align-items:center">
                                         <p id="error-mess-report" style="color:red"></p>
                                         <p id="suc-mess-report" style="color:lime"></p>
@@ -3177,8 +3177,10 @@
                                                         {% if not chat_message.me %}
                                                         <li class="clearfix">
                                                             <div class="message-data text-right">
-                                                                <span class="message-data-time"><strong>
-                                                                        {{ chat_message.sender.user.username }}</strong>,
+                                                                <span class="message-data-time">
+                                                                    <strong>
+                                                                        {{ chat_message.sender.user.username}}
+                                                                    </strong>,
                                                                     <!-- <span style="font-size: 12px;"
                                                                         class="success-flair">Supervisor</span> -->
                                                                 </span>
@@ -3865,16 +3867,19 @@
                                     <p id="error-mess-report" style="color:red"></p>
                                     <p id="suc-mess-report" style="color:lime"></p>
                                 </div>
+                                <div class="form-group" style="font-size: 15px;">
+                                    <label class="" for="datePicker"
+                                        style="color: rgba(128, 128, 128, 0.712);">Schedule(Optional)</label>
+
+                                    <input class=" input-decor" placeholder="Pick date"
+                                        style="border: 1px solid #ced4da;border-radius:4px;width:100%;box-sizing: border-box;background-color: white;"
+                                        id="datePicker" required>
+                                </div>
                                 <div style="width:60%;display:flex;justify-content: space-between;">
                                     <div class="form-group"
                                         style="text-align:center;font-size:20px;align-items:center;margin-top:10px;margin-bottom:20px">
-                                        <a href="#" class=" btn-solid-sm" style="cursor:pointer"
-                                            id="schedule-post">Schedule</a>
-                                    </div>
-                                    <div class="form-group"
-                                        style="text-align:center;font-size:20px;align-items:center;margin-top:10px;margin-bottom:20px">
-                                        <a href="#" class=" btn-solid-sm" style="cursor:pointer" id="post-now">Post
-                                            Now</a>
+                                        <a href="#" class=" btn-solid-sm" style="cursor:pointer" id="post-now">Submit
+                                        </a>
                                     </div>
 
                                 </div>
@@ -3928,7 +3933,7 @@
                     <div class="company-account-info" style="overflow-y: scroll;">
                         {% if posts|length == 0 %}
                         <div style="position: absolute;top: 50%;right: 25%;left: 25%;transform: translate(50%, 25%);">
-                            <p>Posts you upload using RevFlow will appear here</p>
+                            <p>Posts you upload using Insightlyze will appear here</p>
                         </div>
                         {% else %}
                         {% for p in posts %}
@@ -5451,7 +5456,7 @@
             $(document).on('click', '.teams-container', function () {
                 $('.t-c').each(function () { $(this).css('display', 'none') });
                 $($(this).data('target')).css('display', 'block');
-                $('.teams-container').each(function(){$(this).removeClass('active-div')});
+                $('.teams-container').each(function () { $(this).removeClass('active-div') });
                 $(this).addClass('active-div');
                 if ($(this).data('target') == '#teams-chats') {
                     var scrollableDiv = $('#chat-elem');
@@ -5508,11 +5513,11 @@
                             $('#create-team-btn').css('display', 'none');
                             $('#back-to-teams').css('display', 'block');
                             $('#team-workspace').css('display', 'flex');
-                            setTimeout(function(){
+                            setTimeout(function () {
                                 var scrollableDiv = $('#chat-elem');
                                 scrollableDiv.scrollTop(scrollableDiv[0].scrollHeight);
                                 return;
-                            },2)
+                            }, 2)
                         }
                     },
                     error: function (jqXHR, textStatus, errorThrown) {
@@ -5662,11 +5667,17 @@
 
 
             });
+            function postContent(post_now) {
+                if (post_now) {
+                    // post content now
+                } else {
+                    // scedule post
+                }
 
+            }
 
             // create post 
             $(document).on('click', '#post-now', function () {
-                alert('post item');
             });
 
             // schedule post
@@ -5674,7 +5685,7 @@
                 alert('schedule post');
             });
             // fb_stories
-            $(document).on('click', '#fb_stories', function () {
+            $(document).on('select', '#fb_stories', function () {
                 alert('clicked fb')
             });
         });
@@ -5683,7 +5694,22 @@
 
     </script>
 
+    <!-- time picker -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const today = new Date();
+            const futureLimit = new Date();
+            futureLimit.setDate(today.getDate() + 30); // Example: 6 months from today
 
+            // Initialize Flatpickr
+            flatpickr("#datePicker", {
+                minDate: today,                // Only future dates allowed
+                maxDate: futureLimit,          // Set a limit for the future date (6 months here)
+                enableTime: true,              // Enable time selection
+                dateFormat: "l, j F Y h:i K",      // Display format for date and time
+            });
+        });
+    </script>
     <script>
 
         var ischatopen = false;
@@ -5883,16 +5909,13 @@
                 ImageWidth = image.width;
                 ImageHeight = image.height;
 
-
-                //Verification du format des images
-                if ((fileType != "image/png") &&
-                    (fileType != "image/jpeg") &&
-                    (fileType != "image/jpg")) {
+                // Check if the file is an image or video
+                if (!fileType.startsWith("image/") && !fileType.startsWith("video/")) {
                     errorStatement += "File format not supported";
+                }
 
-
-                    //verification de la qualit
-                } else if ((ImageHeight < minImageHeight) && (ImageWidth > minImageWidth)) {
+                //verification de la qualit
+                else if ((ImageHeight < minImageHeight) && (ImageWidth > minImageWidth)) {
 
                     errorStatement += "Resolution too low";
 
@@ -5907,7 +5930,7 @@
 
             if (errorStatement != "") {
 
-                alert(errorStatement);
+                toastr.error(errorStatement);
 
             }
 
@@ -5916,45 +5939,56 @@
             FileDisplayA(validatedFiles);
         }
 
-
-
         function FileDisplayA(files) {
-
             var preview = document.querySelector('#preview');
 
             function readAndPreview(file) {
-
-                // Make sure `file.name` matches our extensions criteria
                 var reader = new FileReader();
                 reader.readAsDataURL(file);
 
                 reader.onloadend = function () {
                     $('#image-delete-instruction').css('display', 'block');
-                    var image = new Image();
-                    image.height = 200;
-                    image.style.borderRadius = "10px";
-                    image.style.margin = "10px";
-                    image.title = file.name;
-                    image.src = this.result;
-                    var nImage = $(image).on('click', function () {
+                    var mediaElement;
+
+                    // Create image or video element based on file type
+                    if (file.type.startsWith("image/")) {
+                        mediaElement = new Image();
+                        mediaElement.height = 200;
+                        mediaElement.style.borderRadius = "10px";
+                        mediaElement.style.margin = "10px";
+                        mediaElement.title = file.name;
+                        mediaElement.src = this.result;
+
+                    } else if (file.type.startsWith("video/")) {
+                        mediaElement = document.createElement('video');
+                        mediaElement.controls = true; // Show video controls
+                        mediaElement.style.borderRadius = "10px";
+                        mediaElement.style.margin = "10px";
+                        mediaElement.title = file.name;
+                        mediaElement.src = this.result;
+                        mediaElement.height = 200; // Set height for video
+                    }
+
+                    // Event listener to remove the media element on click
+                    var nMediaElement = $(mediaElement).on('click', function () {
                         $(this).fadeOut(500, function () {
-                            // Remove image element from DOM
+                            // Remove media element from DOM
                             $(this).remove();
                             // Remove file from the array
                             files = files.filter(f => f.name !== file.name);
-                            var imageCount = $('#preview').children().length;
-                            // Optional: Hide the delete instruction if there are no images
-                            if (imageCount == 0) {
+                            var mediaCount = $('#preview').children().length;
+                            // Optional: Hide the delete instruction if there are no media items
+                            if (mediaCount == 0) {
                                 $('#image-delete-instruction').css('display', 'none');
                             }
                         });
                     });
-                    preview.appendChild(image);
+
+                    preview.appendChild(mediaElement);
                     // Add file to the array if it’s not already there
                     if (!files.some(f => f.name === file.name)) {
                         files.push(file);
                     }
-
                 };
             }
 
@@ -5962,6 +5996,7 @@
                 [].forEach.call(files, readAndPreview);
             }
         }
+
 
 
         function create_zip(Images) {

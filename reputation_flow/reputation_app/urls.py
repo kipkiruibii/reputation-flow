@@ -24,9 +24,18 @@ urlpatterns=[
     # send chat       
     path('send-chat/',views.sendChat,name='send-chat'),
     
-    # social 
-    path('instagram-redirect/',views.instagram_post_url,name='instagram_redirect'),
-
+    # instagram
+    path('instagram-callback/',views.instagram_callback,name='instagram_callback'),
+    # facebook
+    path('facebook-callback/',views.facebook_callback,name='facebook_callback'),
+    # tiktok 
+    path('tiktok-callback/',views.tiktok_callback,name='tiktok_callback'),
+    # twitter
+    path('twitter-callback/',views.twitter_callback,name='twitter_callback'),
+    # youtube
+    path('youtube-callback/',views.youtube_callback,name='youtube_callback'),
+    # google
+    path('google-callback/',views.google_business_callback,name='google_business_callback'),
 
 ]
 # Serve media files during development
