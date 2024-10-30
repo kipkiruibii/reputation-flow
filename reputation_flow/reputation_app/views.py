@@ -279,8 +279,8 @@ def dashboard(request,company_id):
             'can_report_issues_to_Rflow':False if not cmp.permissions else cmp.permissions.get('can_report_issues_to_Rflow',False)
         },
         'instagram':{
-            'profile':get_instagram_user_info().get('profile_picture_url',None),
-            'username':get_instagram_user_info().get('username',None),
+            # 'profile':get_instagram_user_info().get('profile_picture_url',None),
+            # 'username':get_instagram_user_info().get('username',None),
             'date_linked':'',
             'link_url':get_instagram_auth_url(company_id),
             'linked':False,
