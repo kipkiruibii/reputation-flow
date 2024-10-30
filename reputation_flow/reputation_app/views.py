@@ -778,13 +778,13 @@ def get_instagram_auth_url(user_id):
         f"https://www.facebook.com/v21.0/dialog/oauth"
         f"?client_id={settings.FACEBOOK_APP_ID}"
         f"&redirect_uri={settings.FACEBOOK_REDIRECT_URI}"
-        f"&scope=instagram_basic,instagram_content_publish,pages_show_list"
+        f"&scope=instagram_basic,instagram_content_publish,pages_show_list,pages_manage_posts,pages_read_engagement"
         f"&state={state}"
-    )
+        )
     return oauth_url
 
 @api_view(['GET'])  
-def instagram_callback(request):
+def facebook_callback(request):
     code = request.GET.get('code')
     state = request.GET.get("state")  # Retrieve the state parameter
     company_id = urllib.parse.unquote_plus(state)  # Decode the state to get the original user_id
@@ -983,7 +983,7 @@ def generate_facebook_login_url():
     auth_url = f"https://www.facebook.com/v21.0/dialog/oauth?client_id={settings.FACEBOOK_APP_ID}&redirect_uri={settings.FACEBOOK_REDIRECT_URI}&scope={scope}&response_type=code"
     return auth_url
 
-def facebook_callback(request):
+def instagram_callback(request):
     code = request.GET.get('code')
     token_url = f"https://graph.facebook.com/v12.0/oauth/access_token?client_id={settings.FACEBOOK_APP_ID}&redirect_uri={settings.FACEBOOK_REDIRECT_URI}&client_secret={settings.FACEBOOK_APP_SECRET}&code={code}"
     
@@ -995,7 +995,7 @@ def facebook_callback(request):
     
     # Use access_token to interact with Facebook API
     request.session['access_token'] = access_token
-    return redirect('your-redirect-view')  # Redirect to a page where users can manage their Facebook Page
+    return redirect('landing')  # Redirect to a page where users can manage their Facebook Page
 
 def tiktok_auth_link():
     """Generates the TikTok OAuth authorization link."""
