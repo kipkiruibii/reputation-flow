@@ -791,7 +791,7 @@ def facebook_callback(request):
     token_url = f"https://graph.facebook.com/v21.0/oauth/access_token?client_id={settings.FACEBOOK_APP_ID}&redirect_uri={settings.FACEBOOK_REDIRECT_URI}&client_secret={settings.FACEBOOK_APP_SECRET}&code={code}"
     response = requests.get(token_url)
     data = response.json()
-    print('data',data)
+    print('datahyhyh',data)
     access_token = data.get('access_token') 
     print(access_token,'token')
     print('access token received') 
