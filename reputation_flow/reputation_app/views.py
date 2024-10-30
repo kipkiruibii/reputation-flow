@@ -31,7 +31,7 @@ from googleapiclient.http import MediaFileUpload
 import secrets
 import hashlib
 import base64
-
+import urllib.parse
 # 1. Generate a State Token for CSRF protection
 def generate_state_token():
     return secrets.token_urlsafe(16)  # Generates a random URL-safe token
@@ -282,7 +282,7 @@ def dashboard(request,company_id):
             'profile':get_instagram_user_info().get('profile_picture_url',None),
             'username':get_instagram_user_info().get('username',None),
             'date_linked':'',
-            'link_url':get_instagram_auth_url(),
+            'link_url':get_instagram_auth_url(company_id),
             'linked':False,
             'active':False
         },
@@ -765,89 +765,78 @@ def instagram_upload_content(request):
 
     return render(request, 'upload_content.html')
 
-def get_instagram_auth_url():
-    oauth_url = f"https://www.facebook.com/v14.0/dialog/oauth?client_id={settings.FACEBOOK_APP_ID}&redirect_uri={settings.FACEBOOK_REDIRECT_URI}&scope=instagram_basic,instagram_content_publish,pages_show_list"
-    return oauth_url
+def get_instagram_auth_url(user_id):
+    """
+    Generates the Instagram OAuth URL with a state parameter for session integrity.
 
-
-def generate_instagram_login_url():
-    """Redirect the user to the Instagram authorization page."""
-    scope = "instagram_basic,instagram_manage_comments,instagram_manage_messages,instagram_content_publish,pages_show_list"
-    auth_url = f'https://api.instagram.com/oauth/authorize?client_id={INSTAGRAM_CLIENT_ID}&redirect_uri={INSTAGRAM_REDIRECT_URI}&scope=instagram_basic,instagram_content_publish&response_type=code'
-    return auth_url
-
-
-def generate_instagram_login_urll():
-    client_id = ''  # Your Instagram App ID
-    redirect_uri =  '' # Your Redirect URI
-    scope = "instagram_basic,instagram_manage_comments,instagram_manage_messages,instagram_content_publish,pages_show_list"
+    :param user_id: Unique identifier for the user, such as a database user ID.
+    :return: OAuth URL with state parameter for user identification.
+    """
+    # Encode the user_id or other identifying data in the state parameter
+    state = urllib.parse.quote_plus(str(user_id))  # Ensure URL encoding for special characters
     oauth_url = (
-        f"https://www.facebook.com/v14.0/dialog/oauth?"
-        f"client_id={client_id}&redirect_uri={redirect_uri}&"
-        f"scope={scope}&response_type=code"
+        f"https://www.facebook.com/v21.0/dialog/oauth"
+        f"?client_id={settings.FACEBOOK_APP_ID}"
+        f"&redirect_uri={settings.FACEBOOK_REDIRECT_URI}"
+        f"&scope=instagram_basic,instagram_content_publish,pages_show_list"
+        f"&state={state}"
     )
     return oauth_url
 
-
-def get_instagram_user_info():
-    # access_token='ACCESS_TOKEN'
-
-    # url = 'https://graph.instagram.com/me'
-    # params = {
-    #     'fields': 'id,username,account_type,profile_picture_url',
-    #     'access_token': access_token
-    # }
-    # response = requests.get(url, params=params)
-    # try:
-    #     return response.json()
-    # except:
-    return {}
 @api_view(['GET'])  
 def instagram_callback(request):
-    print('instagram called back')
     code = request.GET.get('code')
-    print(f'code received {code}')
-    token_url = f"https://graph.facebook.com/v14.0/oauth/access_token?client_id={settings.FACEBOOK_APP_ID}&redirect_uri={settings.FACEBOOK_REDIRECT_URI}&client_secret={settings.FACEBOOK_APP_SECRET}&code={code}"
+    state = request.GET.get("state")  # Retrieve the state parameter
+    company_id = urllib.parse.unquote_plus(state)  # Decode the state to get the original user_id
+    token_url = f"https://graph.facebook.com/v21.0/oauth/access_token?client_id={settings.FACEBOOK_APP_ID}&redirect_uri={settings.FACEBOOK_REDIRECT_URI}&client_secret={settings.FACEBOOK_APP_SECRET}&code={code}"
     response = requests.get(token_url)
     data = response.json()
     access_token = data.get('access_token') 
     print('access token received') 
-    print(access_token)
-    return Response({'result':True})
+    cm=Company.objects.filter(company_id = company_id).first()
+    if not cm:
+        return redirect('dashboard')
+    ci=CompanyInstagram.objects.filter(company=cm).first()
+    inst_id = get_instagram_account_id(access_token)
+    insgts=get_instagram_account_insights(access_token,inst_id)
+    if ci:
+        ci.short_lived_token=access_token
+        ci.account_id=inst_id
+        ci.long_lived_token=get_long_lived_token(access_token)
+        ci.linked=True
+        ci.active=True
+        ci.account_name=insgts['username']
+        ci.account_type=insgts['account_type']
+        ci.profile_url=insgts['profile_picture_url']
+        ci.followers_trend.add(insgts['followers_count'])
+        ci.impressions.add(insgts['impressions'])
+        ci.reach.add(insgts['reach'])
+        ci.profile_views.add(insgts['profile_views'])
+        ci.save()
+        
+    else:
+        ci = CompanyInstagram(
+            short_lived_token=access_token,
+            account_id=inst_id,
+            long_lived_token=get_long_lived_token(access_token),
+            linked=True,
+            active=True,
+            account_name=insgts['username'],
+            account_type=insgts['account_type'],
+            profile_url=insgts['profile_picture_url']
+
+        )
+        ci.followers_trend.add(insgts['followers_count'])
+        ci.impressions.add(insgts['impressions'])
+        ci.reach.add(insgts['reach'])
+        ci.profile_views.add(insgts['profile_views'])
+        ci.save()
+
+    return redirect('dashboard')
     
-      
-def instagram_callbackhh(request):
-    """Handle the callback from Instagram after user authorization."""
-    code = request.GET.get('code')
-    if code:
-        token_url = 'https://api.instagram.com/oauth/access_token'
-        data = {
-            'client_id': INSTAGRAM_CLIENT_ID,
-            'client_secret': INSTAGRAM_CLIENT_SECRET,
-            'grant_type': 'authorization_code',
-            'redirect_uri': INSTAGRAM_REDIRECT_URI,
-            'code': code
-        }
-
-        # Exchange code for access token
-        response = requests.post(token_url, data=data)
-        response_data = response.json()
-
-        if 'access_token' in response_data:
-            access_token = response_data['access_token']
-            user_id = response_data['user_id']
-            # Store the access_token and user_id in the session or database as needed
-            request.session['access_token'] = access_token
-            print('successsful token',access_token)
-            request.session['user_id'] = user_id
-            return redirect('home')  # Redirect to a home view or dashboard
-        else:
-            return render(request, 'error.html', {'error': response_data.get('error_message', 'Failed to retrieve access token')})
-
-    return render(request, 'error.html', {'error': 'Authorization code not provided.'})
 
 def get_instagram_account_id(page_access_token):
-    page_url = "https://graph.facebook.com/v14.0/me/accounts"
+    page_url = "https://graph.facebook.com/v21.0/me/accounts"
     params = {"access_token": page_access_token}
     response = requests.get(page_url, params=params)
     page_data = response.json()
@@ -856,10 +845,124 @@ def get_instagram_account_id(page_access_token):
     page_id = page_data['data'][0]['id']
 
     # Get Instagram Business Account ID
-    insta_url = f"https://graph.facebook.com/v14.0/{page_id}?fields=instagram_business_account&access_token={page_access_token}"
+    insta_url = f"https://graph.facebook.com/v21.0/{page_id}?fields=instagram_business_account&access_token={page_access_token}"
     response = requests.get(insta_url)
     insta_data = response.json()
     return insta_data['instagram_business_account']['id']
+
+def post_to_instagram(insta_account_id, page_access_token, image_url, caption):
+    # Step 1: Create a container
+    container_url = f"https://graph.facebook.com/v21.0/{insta_account_id}/media"
+    container_params = {
+        "image_url": image_url,
+        "caption": caption,
+        "access_token": page_access_token,
+    }
+    container_response = requests.post(container_url, data=container_params)
+    container_data = container_response.json()
+    container_id = container_data['id']
+
+    # Step 2: Publish the container
+    publish_url = f"https://graph.facebook.com/v21.0/{insta_account_id}/media_publish"
+    publish_params = {
+        "creation_id": container_id,
+        "access_token": page_access_token,
+    }
+    publish_response = requests.post(publish_url, data=publish_params)
+    publish_data = publish_response.json()
+    return publish_data
+
+def get_long_lived_token(short_lived_token):
+    exchange_url = f"https://graph.facebook.com/v21.0/oauth/access_token"
+    params = {
+        "grant_type": "fb_exchange_token",
+        "client_id": settings.FACEBOOK_APP_ID,
+        "client_secret": settings.FACEBOOK_APP_SECRET,
+        "fb_exchange_token": short_lived_token,
+    }
+    response = requests.get(exchange_url, params=params)
+    data = response.json()
+    return data.get("access_token")
+
+def refresh_long_lived_token(current_long_lived_token):
+    """
+    Refreshes the Facebook long-lived access token, extending its validity by 60 days.
+    """
+    refresh_url = "https://graph.facebook.com/v21.0/oauth/access_token"
+    params = {
+        "grant_type": "fb_exchange_token",
+        "client_id": settings.FACEBOOK_APP_ID,
+        "client_secret": settings.FACEBOOK_APP_SECRET,
+        "fb_exchange_token": current_long_lived_token,
+    }
+    
+    response = requests.get(refresh_url, params=params)
+    data = response.json()
+    
+    # Check for errors
+    if "error" in data:
+        raise Exception(f"Error refreshing token: {data['error']['message']}")
+    
+    # Extract the new token and its expiration info
+    new_long_lived_token = data.get("access_token")
+    expires_in = data.get("expires_in")  # typically 5184000 seconds (60 days)
+
+    # You would generally save this new_long_lived_token in your database
+    # with its expiry information to track it.
+
+    return new_long_lived_token, expires_in
+
+
+def get_instagram_account_insights(access_token, instagram_account_id):
+    """
+    Retrieves basic data, profile information, and analytics for an Instagram Business account.
+    
+    :param access_token: The long-lived Instagram access token.
+    :param instagram_account_id: The ID of the Instagram Business account.
+    :return: A dictionary containing basic account metrics, username, and profile picture.
+    """
+    url = f"https://graph.facebook.com/v14.0/{instagram_account_id}"
+    params = {
+        "fields": "followers_count,media_count,account_type,username,profile_picture_url",
+        "access_token": access_token
+    }
+    
+    response = requests.get(url, params=params)
+    data = response.json()
+
+    # Check for errors in the response
+    if "error" in data:
+        raise Exception(f"Error fetching insights: {data['error']['message']}")
+    
+    # Additional insights (optional)
+    insights_url = f"https://graph.facebook.com/v14.0/{instagram_account_id}/insights"
+    insights_params = {
+        "metric": "impressions,reach,profile_views",
+        "period": "day",
+        "access_token": access_token
+    }
+
+    insights_response = requests.get(insights_url, params=insights_params)
+    insights_data = insights_response.json()
+
+    if "error" in insights_data:
+        raise Exception(f"Error fetching insights data: {insights_data['error']['message']}")
+
+    # Combine account data and insights for easier access
+    account_data = {
+        "followers_count": data.get("followers_count"),
+        "media_count": data.get("media_count"),
+        "account_type": data.get("account_type"),
+        "username": data.get("username"),
+        "profile_picture_url": data.get("profile_picture_url"),
+        "impressions": insights_data["data"][0]["values"] if "data" in insights_data else None,
+        "reach": insights_data["data"][1]["values"] if "data" in insights_data else None,
+        "profile_views": insights_data["data"][2]["values"] if "data" in insights_data else None,
+    }
+
+    return account_data
+
+
 
 def get_facebook_user_pages(access_token):
     pages_url = f"https://graph.facebook.com/v12.0/me/accounts?access_token={access_token}"
