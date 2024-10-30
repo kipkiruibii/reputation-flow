@@ -15,20 +15,19 @@ import json
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# with open("../config.json","r") as file:
-#     config = json.load(file)
+with open("../config.json","r") as file:
+    config = json.load(file)
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-# SECRET_KEY = config.get('DJANGO_SECURITY_KEY')
-SECRET_KEY = 'django-insecure-y@m3v3ka!wf3o%1=qr2&r4t9p!5f!1w!%-t95xc4vd@)+9e2bm'
+SECRET_KEY = config.get('DJANGO_SECURITY_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['640a-197-237-137-103.ngrok-free.app','127.0.0.1']
+ALLOWED_HOSTS = ['interstatemovers.pythonanywhere.com','127.0.0.1']
 
 
 # Application definition
@@ -134,35 +133,35 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')  # Absolute path to media directory
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # instagram keys
-INSTAGRAM_CLIENT_ID=''
-INSTAGRAM_CLIENT_SECRET=''
-INSTAGRAM_REDIRECT_URI=''
+INSTAGRAM_CLIENT_ID=config.get('INSTAGRAM_CLIENT_ID')
+INSTAGRAM_CLIENT_SECRET=config.get('INSTAGRAM_CLIENT_SECRET')
+INSTAGRAM_REDIRECT_URI=config.get('INSTAGRAM_REDIRECT_URI')
 
 # facebook keys
-FACEBOOK_APP_ID = ''
-FACEBOOK_APP_SECRET = ''
-FACEBOOK_REDIRECT_URI = ''  
+FACEBOOK_APP_ID = config.get('FACEBOOK_APP_ID')
+FACEBOOK_APP_SECRET = config.get('FACEBOOK_APP_SECRET')
+FACEBOOK_REDIRECT_URI = config.get('FACEBOOK_REDIRECT_URI')  
 
 # tiktok
-TIKTOK_CLIENT_ID = ""
-TIKTOK_CLIENT_SECRET = ""
-TIKTOK_REDIRECT_URI = ""  # e.g., "https://yourdomain.com/tiktok/callback/"
+TIKTOK_CLIENT_ID = config.get('TIKTOK_CLIENT_ID')
+TIKTOK_CLIENT_SECRET = config.get('TIKTOK_CLIENT_SECRET')
+TIKTOK_REDIRECT_URI = config.get('TIKTOK_REDIRECT_URI')  
 TIKTOK_SCOPES = ["video.publish", "user.info.basic", "comment.list"]
 
 # twitter.py
-TWITTER_CLIENT_ID = ""
-TWITTER_CLIENT_SECRET = ""
-TWITTER_REDIRECT_URI = ""  # e.g., "https://yourdomain.com/twitter/callback/"
+TWITTER_CLIENT_ID = config.get('TWITTER_CLIENT_ID')
+TWITTER_CLIENT_SECRET = config.get('TWITTER_CLIENT_SECRET')
+TWITTER_REDIRECT_URI = config.get('TWITTER_REDIRECT_URI')  
 
 # youtube 
-YOUTUBE_CLIENT_ID = "YOUR_CLIENT_ID"
-YOUTUBE_CLIENT_SECRET = "YOUR_CLIENT_SECRET"
-YOUTUBE_REDIRECT_URI = "YOUR_REDIRECT_URI"  # e.g., "https://yourdomain.com/youtube/callback/"
+YOUTUBE_CLIENT_ID = config.get('YOUTUBE_CLIENT_ID')
+YOUTUBE_CLIENT_SECRET = config.get('YOUTUBE_CLIENT_SECRET')
+YOUTUBE_REDIRECT_URI = config.get('YOUTUBE_REDIRECT_URI')  
 YOUTUBE_SCOPES = ["https://www.googleapis.com/auth/youtube.upload", "https://www.googleapis.com/auth/youtube.force-ssl"]
 
 # google
 # settings.py
-GOOGLE_CLIENT_ID = "YOUR_CLIENT_ID"
-GOOGLE_CLIENT_SECRET = "YOUR_CLIENT_SECRET"
-GOOGLE_REDIRECT_URI = "YOUR_REDIRECT_URI"  # e.g., "https://yourdomain.com/google-business/callback/"
+GOOGLE_CLIENT_ID = config.get('GOOGLE_CLIENT_ID')
+GOOGLE_CLIENT_SECRET = config.get('GOOGLE_CLIENT_SECRET')
+GOOGLE_REDIRECT_URI = config.get('GOOGLE_REDIRECT_URI')
 GOOGLE_SCOPES = ["https://www.googleapis.com/auth/business.manage"]
