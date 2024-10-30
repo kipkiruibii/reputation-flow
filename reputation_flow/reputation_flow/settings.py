@@ -22,7 +22,8 @@ with open("../config.json","r") as file:
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = config.get('DJANGO_SECURITY_KEY')
+# SECRET_KEY = config.get('DJANGO_SECURITY_KEY')
+SECRET_KEY = 'django-insecure-y@m3v3ka!wf3o%1=qr2&r4t9p!5f!1w!%-t95xc4vd@)+9e2bm'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
