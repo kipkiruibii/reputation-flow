@@ -840,7 +840,8 @@ def get_instagram_account_id(page_access_token):
     params = {"access_token": page_access_token}
     response = requests.get(page_url, params=params)
     page_data = response.json()
-
+    print('@page data')
+    print(page_data)
     # Assume first page is the linked one
     page_id = page_data['data'][0]['id']
 
