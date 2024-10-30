@@ -282,7 +282,7 @@ def dashboard(request,company_id):
             'profile':get_instagram_user_info().get('profile_picture_url',None),
             'username':get_instagram_user_info().get('username',None),
             'date_linked':'',
-            'link_url':generate_instagram_login_url(),
+            'link_url':get_instagram_auth_url(),
             'linked':False,
             'active':False
         },
@@ -765,6 +765,11 @@ def instagram_upload_content(request):
 
     return render(request, 'upload_content.html')
 
+def get_instagram_auth_url():
+    oauth_url = f"https://www.facebook.com/v14.0/dialog/oauth?client_id={settings.FACEBOOK_APP_ID}&redirect_uri={settings.FACEBOOK_REDIRECT_URI}&scope=instagram_basic,instagram_content_publish,pages_show_list"
+    return oauth_url
+
+
 def generate_instagram_login_url():
     """Redirect the user to the Instagram authorization page."""
     scope = "instagram_basic,instagram_manage_comments,instagram_manage_messages,instagram_content_publish,pages_show_list"
@@ -797,8 +802,21 @@ def get_instagram_user_info():
     #     return response.json()
     # except:
     return {}
-        
+@api_view(['GET'])  
 def instagram_callback(request):
+    print('instagram called back')
+    code = request.GET.get('code')
+    print(f'code received {code}')
+    token_url = f"https://graph.facebook.com/v14.0/oauth/access_token?client_id={settings.FACEBOOK_APP_ID}&redirect_uri={settings.FACEBOOK_REDIRECT_URI}&client_secret={settings.FACEBOOK_APP_SECRET}&code={code}"
+    response = requests.get(token_url)
+    data = response.json()
+    access_token = data.get('access_token') 
+    print('access token received') 
+    print(access_token)
+    return Response({'result':True})
+    
+      
+def instagram_callbackhh(request):
     """Handle the callback from Instagram after user authorization."""
     code = request.GET.get('code')
     if code:
@@ -827,6 +845,21 @@ def instagram_callback(request):
             return render(request, 'error.html', {'error': response_data.get('error_message', 'Failed to retrieve access token')})
 
     return render(request, 'error.html', {'error': 'Authorization code not provided.'})
+
+def get_instagram_account_id(page_access_token):
+    page_url = "https://graph.facebook.com/v14.0/me/accounts"
+    params = {"access_token": page_access_token}
+    response = requests.get(page_url, params=params)
+    page_data = response.json()
+
+    # Assume first page is the linked one
+    page_id = page_data['data'][0]['id']
+
+    # Get Instagram Business Account ID
+    insta_url = f"https://graph.facebook.com/v14.0/{page_id}?fields=instagram_business_account&access_token={page_access_token}"
+    response = requests.get(insta_url)
+    insta_data = response.json()
+    return insta_data['instagram_business_account']['id']
 
 def get_facebook_user_pages(access_token):
     pages_url = f"https://graph.facebook.com/v12.0/me/accounts?access_token={access_token}"
