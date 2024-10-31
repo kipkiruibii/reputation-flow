@@ -765,6 +765,7 @@ def instagram_upload_content(request):
 
     return render(request, 'upload_content.html')
 
+   
 def get_instagram_auth_url(user_id):
     """
     Generates the Instagram OAuth URL with a state parameter for session integrity.
@@ -778,7 +779,7 @@ def get_instagram_auth_url(user_id):
         f"https://www.facebook.com/v21.0/dialog/oauth"
         f"?client_id={settings.FACEBOOK_APP_ID}"
         f"&redirect_uri={settings.FACEBOOK_REDIRECT_URI}"
-        f"&scope=instagram_basic,instagram_content_publish,pages_show_list,pages_manage_posts,pages_read_engagement"
+        f"&scope=instagram_basic,instagram_manage_comments,instagram_content_publish,instagram_manage_insights"
         f"&state={state}"
         )
     return oauth_url
