@@ -16,3 +16,4 @@ admin.site.register(CompanyTeamAnnouncements)
 
 # socials
 admin.site.register(CompanyInstagram)
+admin.site.register(CompanyFacebook)

@@ -27,8 +27,7 @@ SECRET_KEY = config.get('DJANGO_SECURITY_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['interstatemovers.pythonanywhere.com','127.0.0.1']
-
+ALLOWED_HOSTS = ['interstatemovers.pythonanywhere.com','127.0.0.1','b965-41-80-113-235.ngrok-free.app']
 
 # Application definition
 INSTALLED_APPS = [
@@ -42,7 +41,6 @@ INSTALLED_APPS = [
     'django_user_agents',
     'paypal.standard.ipn',
     'rest_framework',
-
 ]
 
 MIDDLEWARE = [

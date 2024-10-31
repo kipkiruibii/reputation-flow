@@ -157,6 +157,26 @@ class CompanyInstagram(models.Model):
     def __str__(self):
         return self.company.company_name+ ' '+self.account_name
 
+class CompanyFacebook(models.Model):
+    company=models.ForeignKey(Company,on_delete=models.CASCADE,null=True,blank=True)
+    active=models.BooleanField(default=False)
+    linked=models.BooleanField(default=False)
+    page_id=models.TextField(default='')
+    short_lived_token=models.TextField(default='')
+    long_lived_token=models.TextField(default='')
+    token_expiry=models.DateField(default=timezone.now() + timezone.timedelta(days=60))
+    account_name=models.TextField(default='')
+    profile_url=models.TextField(default='')
+    account_id=models.TextField(default='')
+    account_type=models.TextField(default='')
+    followers_trend=models.JSONField(default=dict())
+    impressions=models.JSONField(default=dict())
+    profile_views=models.JSONField(default=dict())
+    reach=models.JSONField(default=dict())
+    last_update_time=models.DateTimeField(default=timezone.now)
+    def __str__(self):
+        return self.company.company_name+ ' '+self.account_name
+
      
 class CompanyPosts(models.Model):
     company=models.ForeignKey(Company,on_delete=models.CASCADE,null=True,blank=True)

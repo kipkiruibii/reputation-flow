@@ -136,7 +136,7 @@ def loginUser(request):
                     return redirect('landing')
                 user_comp=cm.company.company_id
                 print(user_comp)
-                next_url=f'/business/id/{user_comp}/dashboard'
+                next_url=f'/b/{user_comp}/dashboard'
                 return Response({'result': True, 'message': 'success', 'redirect': next_url},
                                 status.HTTP_200_OK)
             return Response({'result': False, 'message': 'Invalid credentials'},
@@ -290,7 +290,7 @@ def dashboard(request,company_id):
             'profile':'',
             'username':'',
             'date_linked':'',
-            'link_url':generate_facebook_login_url(),
+            'link_url':get_facebook_auth_url(company_id),
             'linked':False,
             'active':True
         },
@@ -723,8 +723,6 @@ def updateBusinessProfile(request):
     return Response({'updated':True})
 # social platforms
 
-
-
 def instagram_upload_content(request):
     """View to handle content upload to Instagram."""
     if request.method == 'POST':
@@ -776,15 +774,34 @@ def get_instagram_auth_url(company_id):
     state = urllib.parse.quote_plus(str(company_id))  # Ensure URL encoding for special characters
     oauth_url = (
         f"https://www.facebook.com/v21.0/dialog/oauth"
-        f"?client_id={settings.FACEBOOK_APP_ID}"
-        f"&redirect_uri={settings.FACEBOOK_REDIRECT_URI}"
-        f"&scope=instagram_basic,instagram_content_publish,pages_show_list,pages_manage_posts,pages_read_engagement"
+        f"?client_id={settings.INSTAGRAM_CLIENT_ID}"
+        f"&redirect_uri={settings.INSTAGRAM_REDIRECT_URI}"
+        f"&scope=instagram_basic,instagram_content_publish,instagram_manage_insights,pages_show_list,pages_manage_posts,pages_read_engagement,pages_manage_engagement"
         f"&state={state}"
         )
     return oauth_url
 
+def get_facebook_auth_url(company_id):
+    """
+    Generates the Instagram OAuth URL with a state parameter for session integrity.
+
+    :param company_id: Unique identifier for the Company, such as a database Company ID.
+    :return: OAuth URL with state parameter for user identification.
+    """
+    # Encode the user_id or other identifying data in the state parameter
+    state = urllib.parse.quote_plus(str(company_id))  # Ensure URL encoding for special characters
+    oauth_url = (
+        f"https://www.facebook.com/v21.0/dialog/oauth"
+        f"?client_id={settings.FACEBOOK_APP_ID}"
+        f"&redirect_uri={settings.FACEBOOK_REDIRECT_URI}"
+        f"&scope=pages_show_list,pages_manage_posts,pages_read_engagement,pages_manage_engagement"
+        f"&state={state}"
+        )
+    return oauth_url
+
+
 @api_view(['GET'])  
-def facebook_callback(request):
+def instagram_callback(request):
     code = request.GET.get('code')
     state = request.GET.get("state")  # Retrieve the state parameter
     company_id = urllib.parse.unquote_plus(state)  # Decode the state to get the original user_id
@@ -797,12 +814,14 @@ def facebook_callback(request):
     if not cm:
         return redirect('dashboard')
     ci=CompanyInstagram.objects.filter(company=cm).first()
-    inst_id = get_instagram_account_id(access_token)
+    pg_id=get_facebook_ig_page_id(access_token)
+    inst_id = get_instagram_account_id(access_token,pg_id)
     insgts=get_instagram_account_insights(access_token,inst_id)
+    l_lived_token=get_long_lived_token(access_token)
     if ci:
         ci.short_lived_token=access_token
         ci.account_id=inst_id
-        ci.long_lived_token=get_long_lived_token(access_token)
+        ci.long_lived_token=l_lived_token
         ci.linked=True
         ci.active=True
         ci.account_name=insgts['username']
@@ -818,33 +837,68 @@ def facebook_callback(request):
         ci = CompanyInstagram(
             short_lived_token=access_token,
             account_id=inst_id,
-            long_lived_token=get_long_lived_token(access_token),
+            long_lived_token=l_lived_token,
             linked=True,
             active=True,
             account_name=insgts['username'],
             account_type=insgts['account_type'],
             profile_url=insgts['profile_picture_url']
-
         )
         ci.followers_trend.add(insgts['followers_count'])
         ci.impressions.add(insgts['impressions'])
         ci.reach.add(insgts['reach'])
         ci.profile_views.add(insgts['profile_views'])
         ci.save()
+        
+    cf=CompanyFacebook.objects.filter(company=cm).first()
+    insgts=get_facebook_page_insights(access_token,pg_id)
+    if cf:
+        cf.short_lived_token=access_token
+        cf.account_id=pg_id
+        cf.long_lived_token=l_lived_token
+        cf.linked=True
+        cf.active=True
+        cf.page_id=pg_id
+        cf.account_name=insgts['page_name']
+        cf.profile_url=insgts['p_picture']
+        cf.followers_trend.add(insgts['fan_count'])
+        cf.impressions.add(insgts['page_impressions'])
+        cf.page_negative_feedback.add(insgts['page_negative_feedback'])
+        cf.profile_views.add(insgts['page_views_total'])
+        cf.page_engaged_users.add(insgts['page_engaged_users'])
+        cf.page_fans.add(insgts['page_fans'])
+        cf.save()
+    else:
+        cf = CompanyFacebook(
+            short_lived_token=access_token,
+            account_id=pg_id,
+            long_lived_token=l_lived_token,
+            linked=True,
+            active=True,
+            page_id=pg_id,
+            account_name=insgts['page_name'],
+            profile_url=insgts['p_picture'],
+        )
+        cf.followers_trend.add(insgts['fan_count'])
+        cf.impressions.add(insgts['page_impressions'])
+        cf.page_negative_feedback.add(insgts['page_negative_feedback'])
+        cf.profile_views.add(insgts['page_views_total'])
+        cf.page_engaged_users.add(insgts['page_engaged_users'])
+        cf.page_fans.add(insgts['page_fans'])
+        cf.save()
 
     return redirect('dashboard')
     
-
-def get_instagram_account_id(page_access_token):
-    page_url = f"https://graph.facebook.com/v21.0/me/accounts?access_token={page_access_token}"
+def get_facebook_ig_page_id(page_access_token):
+    page_url = f"https://graph.facebook.com/v21.0/me/accounts"
     params = {"access_token": page_access_token}
-    response = requests.get(page_url)
+    response = requests.get(page_url,params=params)
     page_data = response.json()
-    print('@page data')
-    print(page_data)
-    # Assume first page is the linked one
     page_id = page_data['data'][0]['id']
+    return page_id
 
+
+def get_instagram_account_id(page_access_token,page_id):
     # Get Instagram Business Account ID
     insta_url = f"https://graph.facebook.com/v21.0/{page_id}?fields=instagram_business_account&access_token={page_access_token}"
     response = requests.get(insta_url)
@@ -963,15 +1017,45 @@ def get_instagram_account_insights(access_token, instagram_account_id):
 
     return account_data
 
-
-
+def get_facebook_page_insights(access_token,page_id):
+    url = f"https://graph.facebook.com/v21.0/{page_id}"
+    params = {
+        "fields": "name,username,picture,fan_count",
+        "access_token": access_token
+    }
+    
+    response = requests.get(url, params=params)   
+    profile_info=response.json()
+    
+    url = f"https://graph.facebook.com/v21.0/{page_id}/insights"
+    params = {
+        "metric": "page_impressions,page_engaged_users,page_fans,page_views_total,page_negative_feedback",
+        "access_token": access_token
+    }
+    
+    response = requests.get(url, params=params)
+    page_insights=response.json()
+    return {
+            'page_name':profile_info.get("name"),
+            'page_username':profile_info.get("username"),
+            'fan_count':profile_info.get("username"),
+            'p_picture':profile_info.get("picture", {}).get("data", {}).get("url"),
+            'page_impressions':page_insights.get('page_impressions'),
+            'page_engaged_users':page_insights.get('page_engaged_users'),
+            'page_fans':page_insights.get('page_fans'),
+            'page_views_total':page_insights.get('page_fans'),
+            'page_negative_feedback':page_insights.get('page_negative_feedback')
+            }
+    
+    
 def get_facebook_user_pages(access_token):
-    pages_url = f"https://graph.facebook.com/v12.0/me/accounts?access_token={access_token}"
+    pages_url = f"https://graph.facebook.com/v21.0/me/accounts?access_token={access_token}"
     response = requests.get(pages_url)
     return response.json()  # This will return a list of pages the user manages
 
+
 def facebook_create_post(page_id, message, access_token):
-    post_url = f"https://graph.facebook.com/v12.0/{page_id}/feed"
+    post_url = f"https://graph.facebook.com/v21.0/{page_id}/feed"
     data = {
         'message': message,
         'access_token': access_token
@@ -979,24 +1063,60 @@ def facebook_create_post(page_id, message, access_token):
     response = requests.post(post_url, data=data)
     return response.json()  # This will return the result of the post creation
 
-def generate_facebook_login_url():
-    scope = "pages_show_list,pages_read_engagement,pages_manage_posts,pages_manage_engagement"
-    auth_url = f"https://www.facebook.com/v21.0/dialog/oauth?client_id={settings.FACEBOOK_APP_ID}&redirect_uri={settings.FACEBOOK_REDIRECT_URI}&scope={scope}&response_type=code"
-    return auth_url
 
-def instagram_callback(request):
+def facebook_callback(request):
     code = request.GET.get('code')
-    token_url = f"https://graph.facebook.com/v12.0/oauth/access_token?client_id={settings.FACEBOOK_APP_ID}&redirect_uri={settings.FACEBOOK_REDIRECT_URI}&client_secret={settings.FACEBOOK_APP_SECRET}&code={code}"
-    
+    state = request.GET.get("state")  # Retrieve the state parameter
+    company_id = urllib.parse.unquote_plus(state)  # Decode the state to get the original user_id
+    token_url = f"https://graph.facebook.com/v21.0/oauth/access_token?client_id={settings.FACEBOOK_APP_ID}&redirect_uri={settings.FACEBOOK_REDIRECT_URI}&client_secret={settings.FACEBOOK_APP_SECRET}&code={code}"
     response = requests.get(token_url)
-    access_token_info = response.json()
-    
-    # Now you can use the access token to call Facebook API
-    access_token = access_token_info.get('access_token')
-    
-    # Use access_token to interact with Facebook API
-    request.session['access_token'] = access_token
-    return redirect('landing')  # Redirect to a page where users can manage their Facebook Page
+    data = response.json()
+    print(data)
+    access_token = data.get('access_token') 
+    cm=Company.objects.filter(company_id = company_id).first()
+    if not cm:
+        return redirect('dashboard')
+    pg_id=get_facebook_ig_page_id(access_token)
+    l_lived_token=get_long_lived_token(access_token)
+    cf=CompanyFacebook.objects.filter(company=cm).first()
+    insgts=get_facebook_page_insights(access_token,pg_id)
+    if cf:
+        cf.short_lived_token=access_token
+        cf.account_id=pg_id
+        cf.long_lived_token=l_lived_token
+        cf.linked=True
+        cf.active=True
+        cf.page_id=pg_id
+        cf.account_name=insgts['page_name']
+        cf.profile_url=insgts['p_picture']
+        cf.followers_trend.add(insgts['fan_count'])
+        cf.impressions.add(insgts['page_impressions'])
+        cf.page_negative_feedback.add(insgts['page_negative_feedback'])
+        cf.profile_views.add(insgts['page_views_total'])
+        cf.page_engaged_users.add(insgts['page_engaged_users'])
+        cf.page_fans.add(insgts['page_fans'])
+        cf.save()
+    else:
+        cf = CompanyFacebook(
+            short_lived_token=access_token,
+            account_id=pg_id,
+            long_lived_token=l_lived_token,
+            linked=True,
+            active=True,
+            page_id=pg_id,
+            account_name=insgts['page_name'],
+            profile_url=insgts['p_picture'],
+        )
+        cf.followers_trend.add(insgts['fan_count'])
+        cf.impressions.add(insgts['page_impressions'])
+        cf.page_negative_feedback.add(insgts['page_negative_feedback'])
+        cf.profile_views.add(insgts['page_views_total'])
+        cf.page_engaged_users.add(insgts['page_engaged_users'])
+        cf.page_fans.add(insgts['page_fans'])
+        cf.save()
+
+    return redirect('dashboard')
+
 
 def tiktok_auth_link():
     """Generates the TikTok OAuth authorization link."""
@@ -1009,6 +1129,7 @@ def tiktok_auth_link():
         f"&scope={scope_param}"
     )
     return auth_url
+
 
 def tiktok_callback(request):
     """Handles the TikTok callback and exchanges code for an access token."""
@@ -1031,6 +1152,7 @@ def tiktok_callback(request):
     request.session["tiktok_access_token"] = access_token
     print(access_token)
     return HttpResponse("Authenticated with TikTok!")
+
 
 def tiktok_upload_video(request):
     """Uploads a video to TikTok."""
