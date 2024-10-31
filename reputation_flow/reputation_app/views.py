@@ -282,7 +282,7 @@ def dashboard(request,company_id):
             # 'profile':get_instagram_user_info().get('profile_picture_url',None),
             # 'username':get_instagram_user_info().get('username',None),
             'date_linked':'',
-            'link_url':get_instagram_auth_url(company_id),
+            'link_url':'https://www.instagram.com/oauth/authorize?enable_fb_login=0&force_authentication=1&client_id=2109173302812544&redirect_uri=https://interstatemovers.pythonanywhere.com/facebook-callback&response_type=code&scope=instagram_business_basic%2Cinstagram_business_manage_messages%2Cinstagram_business_manage_comments%2Cinstagram_business_content_publish',
             'linked':False,
             'active':False
         },
