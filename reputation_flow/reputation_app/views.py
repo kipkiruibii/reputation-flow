@@ -136,7 +136,7 @@ def loginUser(request):
                     return redirect('landing')
                 user_comp=cm.company.company_id
                 print(user_comp)
-                next_url=f'/business/id/{user_comp}/dashboard'
+                next_url=f'/b/{user_comp}/dashboard'
                 return Response({'result': True, 'message': 'success', 'redirect': next_url},
                                 status.HTTP_200_OK)
             return Response({'result': False, 'message': 'Invalid credentials'},
@@ -775,11 +775,12 @@ def get_instagram_auth_url(user_id):
     """
     # Encode the user_id or other identifying data in the state parameter
     state = urllib.parse.quote_plus(str(user_id))  # Ensure URL encoding for special characters
+
     oauth_url = (
         f"https://api.instagram.com/oauth/authorize"
         f"?client_id={settings.FACEBOOK_APP_ID}"
         f"&redirect_uri={settings.FACEBOOK_REDIRECT_URI}"
-        f"&scope=instagram_basic,instagram_manage_comments,instagram_content_publish,instagram_manage_insights"
+        f"&scope=instagram_business_basic,instagram_business_content_publish,instagram_business_manage_comments,instagram_business_manage_messages"
         f"&state={state}"
         )
     return oauth_url
