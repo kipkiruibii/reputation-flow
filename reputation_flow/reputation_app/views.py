@@ -765,15 +765,15 @@ def instagram_upload_content(request):
 
     return render(request, 'upload_content.html')
 
-def get_instagram_auth_url(user_id):
+def get_instagram_auth_url(company_id):
     """
     Generates the Instagram OAuth URL with a state parameter for session integrity.
 
-    :param user_id: Unique identifier for the user, such as a database user ID.
+    :param company_id: Unique identifier for the Company, such as a database Company ID.
     :return: OAuth URL with state parameter for user identification.
     """
     # Encode the user_id or other identifying data in the state parameter
-    state = urllib.parse.quote_plus(str(user_id))  # Ensure URL encoding for special characters
+    state = urllib.parse.quote_plus(str(company_id))  # Ensure URL encoding for special characters
     oauth_url = (
         f"https://www.facebook.com/v21.0/dialog/oauth"
         f"?client_id={settings.FACEBOOK_APP_ID}"
