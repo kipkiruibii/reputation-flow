@@ -793,7 +793,6 @@ def facebook_callback(request):
     data = response.json()
     print('datahyhyh',data)
     access_token = data.get('access_token') 
-    print(access_token,'token')
     print('access token received') 
     cm=Company.objects.filter(company_id = company_id).first()
     if not cm:
