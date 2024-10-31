@@ -136,7 +136,7 @@ def loginUser(request):
                     return redirect('landing')
                 user_comp=cm.company.company_id
                 print(user_comp)
-                next_url=f'/b/{user_comp}/dashboard'
+                next_url=f'/business/id/{user_comp}/dashboard'
                 return Response({'result': True, 'message': 'success', 'redirect': next_url},
                                 status.HTTP_200_OK)
             return Response({'result': False, 'message': 'Invalid credentials'},
@@ -282,7 +282,7 @@ def dashboard(request,company_id):
             # 'profile':get_instagram_user_info().get('profile_picture_url',None),
             # 'username':get_instagram_user_info().get('username',None),
             'date_linked':'',
-            'link_url':'https://www.instagram.com/oauth/authorize?enable_fb_login=0&force_authentication=1&client_id=2109173302812544&redirect_uri=https://interstatemovers.pythonanywhere.com/facebook-callback&response_type=code&scope=instagram_business_basic%2Cinstagram_business_manage_messages%2Cinstagram_business_manage_comments%2Cinstagram_business_content_publish',
+            'link_url':get_instagram_auth_url(company_id),
             'linked':False,
             'active':False
         },
@@ -765,7 +765,6 @@ def instagram_upload_content(request):
 
     return render(request, 'upload_content.html')
 
-   
 def get_instagram_auth_url(user_id):
     """
     Generates the Instagram OAuth URL with a state parameter for session integrity.
@@ -775,12 +774,11 @@ def get_instagram_auth_url(user_id):
     """
     # Encode the user_id or other identifying data in the state parameter
     state = urllib.parse.quote_plus(str(user_id))  # Ensure URL encoding for special characters
-
     oauth_url = (
-        f"https://www.instagram.com/oauth/authorize"
+        f"https://www.facebook.com/v21.0/dialog/oauth"
         f"?client_id={settings.FACEBOOK_APP_ID}"
         f"&redirect_uri={settings.FACEBOOK_REDIRECT_URI}"
-        f"&scope=instagram_business_basic,instagram_business_content_publish,instagram_business_manage_comments,instagram_business_manage_messages"
+        f"&scope=instagram_basic,instagram_content_publish,pages_show_list,pages_manage_posts,pages_read_engagement"
         f"&state={state}"
         )
     return oauth_url
@@ -793,9 +791,7 @@ def facebook_callback(request):
     token_url = f"https://graph.facebook.com/v21.0/oauth/access_token?client_id={settings.FACEBOOK_APP_ID}&redirect_uri={settings.FACEBOOK_REDIRECT_URI}&client_secret={settings.FACEBOOK_APP_SECRET}&code={code}"
     response = requests.get(token_url)
     data = response.json()
-    print('datahyhyh',data)
     access_token = data.get('access_token') 
-    print('access token received') 
     cm=Company.objects.filter(company_id = company_id).first()
     if not cm:
         return redirect('dashboard')
@@ -839,9 +835,9 @@ def facebook_callback(request):
     
 
 def get_instagram_account_id(page_access_token):
-    page_url = "https://graph.facebook.com/v21.0/me/accounts"
+    page_url = f"https://graph.facebook.com/v21.0/me/accounts?access_token={page_access_token}"
     params = {"access_token": page_access_token}
-    response = requests.get(page_url, params=params)
+    response = requests.get(page_url)
     page_data = response.json()
     print('@page data')
     print(page_data)
