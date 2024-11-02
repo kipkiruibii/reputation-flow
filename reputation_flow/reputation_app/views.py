@@ -939,6 +939,7 @@ def get_long_lived_token(short_lived_token):
     data = response.json()
     return data.get("access_token")
 
+
 def refresh_long_lived_token(current_long_lived_token):
     """
     Refreshes the Facebook long-lived access token, extending its validity by 60 days.
@@ -1118,7 +1119,7 @@ def facebook_callback(request):
     return redirect('dashboard')
 
 
-def tiktok_auth_link():
+def get_tiktok_auth_link():
     """Generates the TikTok OAuth authorization link."""
     scope_param = " ".join(settings.TIKTOK_SCOPES)
     auth_url = (
@@ -1131,8 +1132,27 @@ def tiktok_auth_link():
     return auth_url
 
 
+def tiktok_auth_link():
+    client_id = settings.TIKTOK_CLIENT_ID # Replace with your TikTok app's client ID
+    redirect_uri = settings.TIKTOK_REDIRECT_URI  # Replace with your redirect URI
+    scope = "user.info.basic,user.posts,video.list,video.upload"  # Adjust scopes as needed
+    state = "YOUR_UNIQUE_STATE"  # Replace with a unique state parameter for security
+    
+    auth_url = (
+        f"https://www.tiktok.com/auth/authorize/"
+        f"?client_key={client_id}"
+        f"&redirect_uri={urllib.parse.quote_plus(redirect_uri)}"
+        f"&response_type=code"
+        f"&scope={scope}"
+        f"&state={state}"
+    )
+    
+    return auth_url
+
+@csrf_exempt
 def tiktok_callback(request):
     """Handles the TikTok callback and exchanges code for an access token."""
+    print('tiktok called back')
     code = request.GET.get('code')
     token_url = "https://open.tiktokapis.com/v2/oauth/token/"
     data = {
@@ -1150,8 +1170,8 @@ def tiktok_callback(request):
 
     # Store access token in session or database for later use
     request.session["tiktok_access_token"] = access_token
-    print(access_token)
-    return HttpResponse("Authenticated with TikTok!")
+    print(f' access token received {access_token}')
+    return HttpResponse(f"Authenticated with TikTok! {access_token}")
 
 
 def tiktok_upload_video(request):
