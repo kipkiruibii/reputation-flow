@@ -145,7 +145,8 @@ FACEBOOK_REDIRECT_URI = config.get('FACEBOOK_REDIRECT_URI')
 TIKTOK_CLIENT_ID = config.get('TIKTOK_CLIENT_ID')
 TIKTOK_CLIENT_SECRET = config.get('TIKTOK_CLIENT_SECRET')
 TIKTOK_REDIRECT_URI = config.get('TIKTOK_REDIRECT_URI')  
-TIKTOK_SCOPES = ["video.publish", "user.info.basic", "comment.list"]
+# TIKTOK_SCOPES = ["video.publish", "user.info.basic", "comment.list"]
+TIKTOK_SCOPES = ["user.info.basic"]
 
 # twitter.py
 TWITTER_CLIENT_ID = config.get('TWITTER_CLIENT_ID')

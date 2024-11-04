@@ -46,7 +46,9 @@
     <link href="{% static 'css/styles.css' %}" rel="stylesheet">
 
     <!-- Favicon  -->
-    <link rel="icon" href="{% static 'images/favicon.ico' %}">
+    <!-- Favicon -->
+    <link rel="apple-touch-icon" sizes="180x180" href="{% static 'images/fav_icon.png' %}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'images/fav_icon.png' %}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="{% static  'css/main.css' %}">
@@ -1521,7 +1523,11 @@
                 <div class="bg-dark-left" style="width:100%;">
                     <div class="conversation bx-shadow bg-dark-left"
                         style="position:fixed;top:0;padding:10px;z-index:5;width:100%;margin:0;display: flex;gap: 5px;">
-                        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#ff9900"><path d="M120-120v-80l80-80v160h-80Zm160 0v-240l80-80v320h-80Zm160 0v-320l80 81v239h-80Zm160 0v-239l80-80v319h-80Zm160 0v-400l80-80v480h-80ZM120-327v-113l280-280 160 160 280-280v113L560-447 400-607 120-327Z"/></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"
+                            fill="#ff9900">
+                            <path
+                                d="M120-120v-80l80-80v160h-80Zm160 0v-240l80-80v320h-80Zm160 0v-320l80 81v239h-80Zm160 0v-239l80-80v319h-80Zm160 0v-400l80-80v480h-80ZM120-327v-113l280-280 160 160 280-280v113L560-447 400-607 120-327Z" />
+                        </svg>
 
                         <p class="conversation-text">
                             <span style="font-size:18px;text-align:center;color: #ffffff;">Insightlyze</span>
@@ -1871,565 +1877,732 @@
                                 </div>
                             </div>
                             <div class="right-details" style="width:65%;height: 70vh;padding: 20px;overflow-y: scroll;">
-                                <div class="linked-accounts">
-                                    <h6>Linked Accounts</h6>
-                                    <div class="grid-container"  >
-                                        <div class="grid-item">
-                                            <div style="height:30px;display: flex;gap: 10px;">
-                                                <img src="{% static 'images/instagram_logo.png' %}"
-                                                    style="height: 20px;width: 20px;border-radius: 10px;" alt="">
-                                                <p style="font-size: 12px;">Instagram</p>
+                                <div class="specific-account" style="display: none;">
+                                    <div class="instagram-accounts">
+                                        <div style="display: flex; justify-content: space-between;">
+                                            <img src="{% static 'images/instagram_logo.png' %}"
+                                                style="height: 30px;width: 30px;border-radius: 10px;" alt="">
+
+                                            <div style="display: flex;gap: 15px;">
+                                                <p class="hover-active"> <i class="fa fa-plus"> </i> Add</p>
+                                                <p class="hover-active"><i class="fa fa-caret-left"></i> Back</p>
                                             </div>
-                                            <hr style="margin: 2px;padding: 0;">
-                                            <div >
-                                                {% if instagram.linked %}
-
-                                                <img src="{{ instagram.profile }}"
-                                                    style="height: 50px;width: 50px;border-radius: 10px;" alt="">
-                                                <p>{{ instagram.username }}</p>
-                                                {% else %}
-                                                <p style="display: flex;justify-content: center;align-items: center;">No
-                                                    linked account</p>
-                                                    <p class="font-12 zero-padding-margin">Account must be linked to a Facebook page <a href="#">Learn more</a> </p>
-                                                {% endif %}
-
-                                            </div>
-                                            <div style="height:40px;display: flex;justify-content: space-between;">
-
-                                                {% if instagram.linked %}
-                                                <div>
-                                                    <span
-                                                        style="background-color: rgb(216, 251, 239);color: rgb(8, 192, 131);padding: 5px;border-radius:5px ;font-size:10px;margin-left:5px;margin-right: 15px;">
-                                                        Linked
-                                                    </span>
+                                        </div>
+                                        <hr class="zero-padding-margin">
+                                        <p>Instagram Accounts</p>
+                                    </div>
+                                </div>
+                                <div class="business-info" style="display: block;">
+                                    <div class="linked-accounts">
+                                        <h6>Social Channels</h6>
+                                        <div class="grid-container">
+                                            <div class="grid-item">
+                                                <div style="height:30px;display: flex;gap: 10px;">
+                                                    <img src="{% static 'images/instagram_logo.png' %}"
+                                                        style="height: 20px;width: 20px;border-radius: 10px;" alt="">
+                                                    <p style="font-size: 12px;">Instagram</p>
                                                 </div>
-                                                {% if user_permissions.can_link_unlink_account %}
-                                                <button type="button" class="btn btn-primary"
-                                                    style="font-size: 12px;">Change</button>
-                                                {% else %}
-                                                <a style="margin-right: 10px;" href="{{ instagram.link_url }}"><button
-                                                        type="button" class="btn btn-primary"
+                                                <hr style="margin: 2px;padding: 0;">
+                                                <div>
+                                                    {% if instagram.linked %}
+
+                                                    <img src="{{ instagram.profile }}"
+                                                        style="height: 50px;width: 50px;border-radius: 10px;" alt="">
+                                                    <p>{{ instagram.username }}</p>
+                                                    {% else %}
+                                                    <p
+                                                        style="display: flex;justify-content: center;align-items: center;">
+                                                        0 of 1
+                                                        linked account</p>
+                                                    <p class="font-12 zero-padding-margin">Account must be linked to a
+                                                        Facebook page <a href="#">Learn more</a> </p>
+                                                    {% endif %}
+
+                                                </div>
+                                                <div style="height:40px;display: flex;justify-content: space-between;">
+
+                                                    {% if instagram.linked %}
+                                                    <div>
+                                                        <span
+                                                            style="background-color: rgb(216, 251, 239);color: rgb(8, 192, 131);padding: 5px;border-radius:5px ;font-size:10px;margin-left:5px;margin-right: 15px;">
+                                                            Linked
+                                                        </span>
+                                                    </div>
+                                                    {% if user_permissions.can_link_unlink_account %}
+                                                    <button type="button" class="btn btn-primary"
+                                                        style="font-size: 12px;">Change</button>
+                                                    {% else %}
+                                                    <a style="margin-right: 10px;"
+                                                        href="{{ instagram.link_url }}"><button type="button"
+                                                            class="btn btn-primary" tooltip="Forbidden. Contact admin"
+                                                            flow="down"
+                                                            style="cursor: not-allowed;font-size: 12px;">Change</button></a>
+                                                    {% endif %}
+                                                    {% else %}
+                                                    <div>
+                                                        <span
+                                                            style="background-color: rgb(251, 216, 216);color: rgb(192, 8, 8);padding: 5px;border-radius:5px ;font-size:10px;margin-left:5px;margin-right: 15px;">
+                                                            Not Linked
+                                                        </span>
+                                                    </div>
+                                                    {% if user_permissions.can_link_unlink_account %}
+                                                    <a style="margin-right: 10px;"
+                                                        href="{{ instagram.link_url }}"><button type="button"
+                                                            class="btn btn-primary"
+                                                            style="font-size: 12px;">Link</button></a>
+                                                    {% else %}
+                                                    <button type="button" class="btn btn-primary"
                                                         tooltip="Forbidden. Contact admin" flow="down"
-                                                        style="cursor: not-allowed;font-size: 12px;">Change</button></a>
-                                                {% endif %}
-                                                {% else %}
-                                                <div>
-                                                    <span
-                                                        style="background-color: rgb(251, 216, 216);color: rgb(192, 8, 8);padding: 5px;border-radius:5px ;font-size:10px;margin-left:5px;margin-right: 15px;">
-                                                        Not Linked
-                                                    </span>
+                                                        style="cursor: not-allowed;font-size: 12px;">Link</button>
+                                                    {% endif %}
+                                                    {% endif %}
                                                 </div>
-                                                {% if user_permissions.can_link_unlink_account %}
-                                                <a style="margin-right: 10px;" href="{{ instagram.link_url }}"><button
-                                                        type="button" class="btn btn-primary"
-                                                        style="font-size: 12px;">Link</button></a>
-                                                {% else %}
-                                                <button type="button" class="btn btn-primary"
-                                                    tooltip="Forbidden. Contact admin" flow="down"
-                                                    style="cursor: not-allowed;font-size: 12px;">Link</button>
-                                                {% endif %}
-                                                {% endif %}
-                                            </div>
 
+                                            </div>
+                                            <div class="grid-item">
+                                                <div style="height:30px;display: flex;gap: 10px;">
+                                                    <img src="{% static 'images/facebook_logo.png' %}"
+                                                        style="height: 20px;width: 20px;border-radius: 10px;" alt="">
+                                                    <p style="font-size: 12px;">Facebook</p>
+                                                </div>
+                                                <hr style="margin: 2px;padding: 0;">
+                                                <div>
+                                                    {% if facebook.linked %}
+
+                                                    <img src="{% static 'images/instagram_logo.png' %}"
+                                                        style="height: 50px;width: 50px;border-radius: 10px;" alt="">
+                                                    <p>Username</p>
+                                                    {% else %}
+                                                    <p
+                                                        style="display: flex;justify-content: center;align-items: center;">
+                                                        0 of 1
+                                                        linked account</p>
+                                                    <p class="font-12">Link to a Facebook page. <a href="#">Learn
+                                                            More</a> </p>
+                                                    {% endif %}
+
+                                                </div>
+                                                <div style="height:30px;display: flex;justify-content: space-between;">
+
+                                                    {% if facebook.linked %}
+                                                    <div>
+                                                        <span
+                                                            style="background-color: rgb(216, 251, 239);color: rgb(8, 192, 131);padding: 5px;border-radius:5px ;font-size:10px;margin-left:5px;margin-right: 15px;">
+                                                            Linked
+                                                        </span>
+                                                    </div>
+                                                    {% if user_permissions.can_link_unlink_account %}
+                                                    <a style="margin-right: 10px;"
+                                                        href="{{ facebook.link_url }}"><button type="button"
+                                                            class="btn btn-primary"
+                                                            style="font-size: 12px;">Change</button></a>
+                                                    {% else %}
+                                                    <button type="button" class="btn btn-primary"
+                                                        tooltip="Forbidden. Contact admin" flow="down"
+                                                        style="cursor: not-allowed;font-size: 12px;">Change</button>
+                                                    {% endif %}
+
+                                                    {% else %}
+                                                    <div>
+                                                        <span
+                                                            style="background-color: rgb(251, 216, 216);color: rgb(192, 8, 8);padding: 5px;border-radius:5px ;font-size:10px;margin-left:5px;margin-right: 15px;">
+                                                            Not Linked
+                                                        </span>
+                                                    </div>
+                                                    {% if user_permissions.can_link_unlink_account %}
+                                                    <a style="margin-right: 10px;"
+                                                        href="{{ facebook.link_url }}"><button type="button"
+                                                            class="btn btn-primary"
+                                                            style="font-size: 12px;">Link</button></a>
+                                                    {% else %}
+                                                    <button type="button" class="btn btn-primary"
+                                                        tooltip="Forbidden. Contact admin" flow="down"
+                                                        style="cursor: not-allowed;font-size: 12px;">Link</button>
+                                                    {% endif %}
+                                                    {% endif %}
+                                                </div>
+
+                                            </div>
+                                            <div class="grid-item">
+                                                <div style="height:30px;display: flex;gap: 10px;">
+                                                    <img src="{% static 'images/x_logo.svg' %}"
+                                                        style="height: 20px;width: 20px;border-radius: 10px;" alt="">
+                                                    <p style="font-size: 12px;">X</p>
+                                                </div>
+                                                <hr style="margin: 2px;padding: 0;">
+                                                <div>
+                                                    {% if twitter.linked %}
+
+                                                    <img src="{% static 'images/instagram_logo.png' %}"
+                                                        style="height: 50px;width: 50px;border-radius: 10px;" alt="">
+                                                    <p>Username</p>
+                                                    {% else %}
+                                                    <p
+                                                        style="display: flex;justify-content: center;align-items: center;">
+                                                        No
+                                                        linked account</p>
+                                                    <p class="font-12 zero-padding-margin">Link to your X Professional
+                                                        Account. <a href="#">Learn More</a> </p>
+
+                                                    {% endif %}
+
+                                                </div>
+                                                <div style="height:30px;display: flex;justify-content: space-between;">
+
+                                                    {% if twitter.linked %}
+                                                    <div>
+                                                        <span
+                                                            style="background-color: rgb(216, 251, 239);color: rgb(8, 192, 131);padding: 5px;border-radius:5px ;font-size:10px;margin-left:5px;margin-right: 15px;">
+                                                            Linked
+                                                        </span>
+                                                    </div>
+                                                    {% if user_permissions.can_link_unlink_account %}
+                                                    <a style="margin-right: 10px;" href="{{ twitter.link_url }}"><button
+                                                            type="button" class="btn btn-primary"
+                                                            style="font-size: 12px;">Change</button></a>
+                                                    {% else %}
+                                                    <button type="button" class="btn btn-primary"
+                                                        tooltip="Forbidden. Contact admin" flow="down"
+                                                        style="cursor: not-allowed;font-size: 12px;">Change</button>
+                                                    {% endif %}
+
+                                                    {% else %}
+                                                    <div>
+                                                        <span
+                                                            style="background-color: rgb(251, 216, 216);color: rgb(192, 8, 8);padding: 5px;border-radius:5px ;font-size:10px;margin-left:5px;margin-right: 15px;">
+                                                            Not Linked
+                                                        </span>
+                                                    </div>
+                                                    {% if user_permissions.can_link_unlink_account %}
+                                                    <a style="margin-right: 10px;" href="{{ twitter.link_url }}"><button
+                                                            type="button" class="btn btn-primary"
+                                                            style="font-size: 12px;">Link</button></a>
+                                                    {% else %}
+                                                    <button type="button" class="btn btn-primary"
+                                                        tooltip="Forbidden. Contact admin" flow="down"
+                                                        style="cursor: not-allowed;font-size: 12px;">Link</button>
+                                                    {% endif %}
+                                                    {% endif %}
+                                                </div>
+
+                                            </div>
+                                            <div class="grid-item">
+                                                <div style="height:30px;display: flex;gap: 10px;">
+                                                    <img src="{% static 'images/tiktok_logo.png' %}"
+                                                        style="height: 20px;width: 20px;border-radius: 10px;" alt="">
+                                                    <p style="font-size: 12px;">Tiktok</p>
+                                                </div>
+                                                <hr style="margin: 2px;padding: 0;">
+                                                <div>
+                                                    {% if tiktok.linked %}
+
+                                                    <img src="{% static 'images/instagram_logo.png' %}"
+                                                        style="height: 50px;width: 50px;border-radius: 10px;" alt="">
+                                                    <p>Username</p>
+                                                    {% else %}
+                                                    <p
+                                                        style="display: flex;justify-content: center;align-items: center;">
+                                                        No
+                                                        linked account</p>
+                                                    <p class="font-12 zero-padding-margin">Link to your TikTok Business
+                                                        Account. <a href="#">Learn More</a> </p>
+
+                                                    {% endif %}
+
+                                                </div>
+                                                <div style="height:30px;display: flex;justify-content: space-between;">
+
+                                                    {% if tiktok.linked %}
+                                                    <div>
+                                                        <span
+                                                            style="background-color: rgb(216, 251, 239);color: rgb(8, 192, 131);padding: 5px;border-radius:5px ;font-size:10px;margin-left:5px;margin-right: 15px;">
+                                                            Linked
+                                                        </span>
+                                                    </div>
+                                                    {% if user_permissions.can_link_unlink_account %}
+                                                    <a style="margin-right: 10px;" href="{{ tiktok.link_url }}"><button
+                                                            type="button" class="btn btn-primary"
+                                                            style="font-size: 12px;">Change</button></a>
+                                                    {% else %}
+                                                    <button type="button" class="btn btn-primary"
+                                                        tooltip="Forbidden. Contact admin" flow="down"
+                                                        style="cursor: not-allowed;font-size: 12px;">Change</button>
+                                                    {% endif %}
+
+                                                    {% else %}
+                                                    <div>
+                                                        <span
+                                                            style="background-color: rgb(251, 216, 216);color: rgb(192, 8, 8);padding: 5px;border-radius:5px ;font-size:10px;margin-left:5px;margin-right: 15px;">
+                                                            Not Linked
+                                                        </span>
+                                                    </div>
+                                                    {% if user_permissions.can_link_unlink_account %}
+                                                    <a style="margin-right: 10px;" href="{{ tiktok.link_url }}"><button
+                                                            type="button" class="btn btn-primary"
+                                                            style="font-size: 12px;">Link</button></a>
+                                                    {% else %}
+                                                    <button type="button" class="btn btn-primary"
+                                                        tooltip="Forbidden. Contact admin" flow="down"
+                                                        style="cursor: not-allowed;font-size: 12px;">Link</button>
+                                                    {% endif %}
+                                                    {% endif %}
+                                                </div>
+
+                                            </div>
+                                            <div class="grid-item">
+                                                <div style="height:30px;display: flex;gap: 10px;">
+                                                    <img src="{% static 'images/youtube_logo.png' %}"
+                                                        style="height: 20px;width: 20px;border-radius: 10px;"
+                                                        alt="youtube_logo">
+                                                    <p style="font-size: 12px;">Youtube</p>
+                                                </div>
+                                                <hr style="margin: 2px;padding: 0;">
+                                                <div>
+                                                    {% if youtube.linked %}
+
+                                                    <img src="{% static 'images/youtube_logo.png' %}"
+                                                        style="height: 50px;width: 50px;border-radius: 10px;"
+                                                        alt="youtube_logo">
+                                                    <p>Username</p>
+                                                    {% else %}
+                                                    <p
+                                                        style="display: flex;justify-content: center;align-items: center;">
+                                                        No
+                                                        linked account</p>
+                                                    <p class="font-12 ">Link to a Youtube Channel. <a href="#">Learn
+                                                            More</a> </p>
+
+                                                    {% endif %}
+
+                                                </div>
+                                                <div style="height:30px;display: flex;justify-content: space-between;">
+
+                                                    {% if youtube.linked %}
+                                                    <div>
+                                                        <span
+                                                            style="background-color: rgb(216, 251, 239);color: rgb(8, 192, 131);padding: 5px;border-radius:5px ;font-size:10px;margin-left:5px;margin-right: 15px;">
+                                                            Linked
+                                                        </span>
+                                                    </div>
+                                                    {% if user_permissions.can_link_unlink_account %}
+                                                    <button type="button" class="btn btn-primary"
+                                                        style="font-size: 12px;">Change</button>
+                                                    {% else %}
+                                                    <button type="button" class="btn btn-primary"
+                                                        tooltip="Forbidden. Contact admin" flow="up"
+                                                        style="cursor: not-allowed;font-size: 12px;">Change</button>
+                                                    {% endif %}
+
+                                                    {% else %}
+                                                    <div>
+                                                        <span
+                                                            style="background-color: rgb(251, 216, 216);color: rgb(192, 8, 8);padding: 5px;border-radius:5px ;font-size:10px;margin-left:5px;margin-right: 15px;">
+                                                            Not Linked
+                                                        </span>
+                                                    </div>
+                                                    {% if user_permissions.can_link_unlink_account %}
+                                                    <button type="button" class="btn btn-primary"
+                                                        style="font-size: 12px;">Link</button>
+                                                    {% else %}
+                                                    <button type="button" class="btn btn-primary"
+                                                        tooltip="Forbidden. Contact admin" flow="up"
+                                                        style="cursor: not-allowed;font-size: 12px;">Link</button>
+                                                    {% endif %}
+                                                    {% endif %}
+                                                </div>
+
+                                            </div>
+                                            <div class="grid-item">
+                                                <div style="height:30px;display: flex;gap: 10px;">
+                                                    <img src="{% static 'images/reddit_logo.png' %}"
+                                                        style="height: 20px;width: 20px;border-radius: 10px;" alt="">
+                                                    <p style="font-size: 12px;">Reddit </p>
+                                                </div>
+                                                <hr style="margin: 2px;padding: 0;">
+                                                <div>
+                                                    {% if reddit.linked %}
+
+                                                    <img src="{% static 'images/reddit_logo.png' %}"
+                                                        style="height: 50px;width: 50px;border-radius: 10px;" alt="">
+                                                    <p>Username</p>
+                                                    {% else %}
+                                                    <p
+                                                        style="display: flex;justify-content: center;align-items: center;">
+                                                        No
+                                                        linked account</p>
+                                                    <p class="font-12 ">Link to a Reddit account. <a href="#">Learn
+                                                            More</a> </p>
+
+                                                    {% endif %}
+
+                                                </div>
+                                                <div style="height:30px;display: flex;justify-content: space-between;">
+
+                                                    {% if google.linked %}
+                                                    <div>
+                                                        <span
+                                                            style="background-color: rgb(216, 251, 239);color: rgb(8, 192, 131);padding: 5px;border-radius:5px ;font-size:10px;margin-left:5px;margin-right: 15px;">
+                                                            Linked
+                                                        </span>
+                                                    </div>
+                                                    {% if user_permissions.can_link_unlink_account %}
+                                                    <button type="button" class="btn btn-primary"
+                                                        style="font-size: 12px;">Change</button>
+                                                    {% else %}
+                                                    <button type="button" class="btn btn-primary"
+                                                        tooltip="Forbidden. Contact admin" flow="up"
+                                                        style="cursor: not-allowed;font-size: 12px;">Change</button>
+                                                    {% endif %}
+
+                                                    {% else %}
+                                                    <div>
+                                                        <span
+                                                            style="background-color: rgb(251, 216, 216);color: rgb(192, 8, 8);padding: 5px;border-radius:5px ;font-size:10px;margin-left:5px;margin-right: 15px;">
+                                                            Not Linked
+                                                        </span>
+                                                    </div>
+                                                    {% if user_permissions.can_link_unlink_account %}
+                                                    <button type="button" class="btn btn-primary"
+                                                        style="font-size: 12px;">Link</button>
+                                                    {% else %}
+                                                    <button type="button" class="btn btn-primary"
+                                                        tooltip="Forbidden. Contact admin" flow="up"
+                                                        style="cursor: not-allowed;font-size: 12px;">Link</button>
+                                                    {% endif %}
+                                                    {% endif %}
+                                                </div>
+
+                                            </div>
+                                            <div class="grid-item">
+                                                <div style="height:30px;display: flex;gap: 10px;">
+                                                    <img src="{% static 'images/linkedin_logo.png' %}"
+                                                        style="height: 20px;width: 20px;border-radius: 10px;" alt="">
+                                                    <p style="font-size: 12px;">LinkedIn </p>
+                                                </div>
+                                                <hr style="margin: 2px;padding: 0;">
+                                                <div>
+                                                    {% if linkedin.linked %}
+
+                                                    <img src="{% static 'images/reddit_logo.png' %}"
+                                                        style="height: 50px;width: 50px;border-radius: 10px;" alt="">
+                                                    <p>Username</p>
+                                                    {% else %}
+                                                    <p
+                                                        style="display: flex;justify-content: center;align-items: center;">
+                                                        No
+                                                        linked account</p>
+                                                    <p class="font-12 ">Link to a LinkedIn account. <a href="#">Learn
+                                                            More</a> </p>
+
+                                                    {% endif %}
+
+                                                </div>
+                                                <div style="height:30px;display: flex;justify-content: space-between;">
+
+                                                    {% if linkedin.linked %}
+                                                    <div>
+                                                        <span
+                                                            style="background-color: rgb(216, 251, 239);color: rgb(8, 192, 131);padding: 5px;border-radius:5px ;font-size:10px;margin-left:5px;margin-right: 15px;">
+                                                            Linked
+                                                        </span>
+                                                    </div>
+                                                    {% if user_permissions.can_link_unlink_account %}
+                                                    <button type="button" class="btn btn-primary"
+                                                        style="font-size: 12px;">Change</button>
+                                                    {% else %}
+                                                    <button type="button" class="btn btn-primary"
+                                                        tooltip="Forbidden. Contact admin" flow="up"
+                                                        style="cursor: not-allowed;font-size: 12px;">Change</button>
+                                                    {% endif %}
+
+                                                    {% else %}
+                                                    <div>
+                                                        <span
+                                                            style="background-color: rgb(251, 216, 216);color: rgb(192, 8, 8);padding: 5px;border-radius:5px ;font-size:10px;margin-left:5px;margin-right: 15px;">
+                                                            Not Linked
+                                                        </span>
+                                                    </div>
+                                                    {% if user_permissions.can_link_unlink_account %}
+                                                    <button type="button" class="btn btn-primary"
+                                                        style="font-size: 12px;">Link</button>
+                                                    {% else %}
+                                                    <button type="button" class="btn btn-primary"
+                                                        tooltip="Forbidden. Contact admin" flow="up"
+                                                        style="cursor: not-allowed;font-size: 12px;">Link</button>
+                                                    {% endif %}
+                                                    {% endif %}
+                                                </div>
+
+                                            </div>
+                                            <div class="grid-item">
+                                                <div style="height:30px;display: flex;gap: 10px;">
+                                                    <img src="{% static 'images/pinterest_logo.png' %}"
+                                                        style="height: 20px;width: 20px;border-radius: 10px;" alt="">
+                                                    <p style="font-size: 12px;">Pinterest </p>
+                                                </div>
+                                                <hr style="margin: 2px;padding: 0;">
+                                                <div>
+                                                    {% if pinterest.linked %}
+
+                                                    <img src="{% static 'images/reddit_logo.png' %}"
+                                                        style="height: 50px;width: 50px;border-radius: 10px;" alt="">
+                                                    <p>Username</p>
+                                                    {% else %}
+                                                    <p
+                                                        style="display: flex;justify-content: center;align-items: center;">
+                                                        1
+                                                        linked account</p>
+                                                    <p class="font-12 ">Link to a Pinterest account. <a href="#">Learn
+                                                            More</a> </p>
+
+                                                    {% endif %}
+
+                                                </div>
+                                                <div style="height:30px;display: flex;justify-content: space-between;">
+
+                                                    {% if linkedin.linked %}
+                                                    <div>
+                                                        <span
+                                                            style="background-color: rgb(216, 251, 239);color: rgb(8, 192, 131);padding: 5px;border-radius:5px ;font-size:10px;margin-left:5px;margin-right: 15px;">
+                                                            Linked
+                                                        </span>
+                                                    </div>
+                                                    {% if user_permissions.can_link_unlink_account %}
+                                                    <button type="button" class="btn btn-primary"
+                                                        style="font-size: 12px;">Change</button>
+                                                    {% else %}
+                                                    <button type="button" class="btn btn-primary"
+                                                        tooltip="Forbidden. Contact admin" flow="up"
+                                                        style="cursor: not-allowed;font-size: 12px;">Change</button>
+                                                    {% endif %}
+
+                                                    {% else %}
+                                                    <div>
+                                                        <span
+                                                            style="background-color: rgb(251, 216, 216);color: rgb(192, 8, 8);padding: 5px;border-radius:5px ;font-size:10px;margin-left:5px;margin-right: 15px;">
+                                                            0 Active
+                                                        </span>
+                                                    </div>
+                                                    {% if user_permissions.can_link_unlink_account %}
+                                                    <button type="button" class="btn btn-primary"
+                                                        style="font-size: 12px;">View</button>
+                                                    {% else %}
+                                                    <button type="button" class="btn btn-primary"
+                                                        tooltip="Forbidden. Contact admin" flow="up"
+                                                        style="cursor: not-allowed;font-size: 12px;">Link</button>
+                                                    {% endif %}
+                                                    {% endif %}
+                                                </div>
+
+                                            </div>
                                         </div>
-                                        <div class="grid-item">
-                                            <div style="height:30px;display: flex;gap: 10px;">
-                                                <img src="{% static 'images/facebook_logo.png' %}"
-                                                    style="height: 20px;width: 20px;border-radius: 10px;" alt="">
-                                                <p style="font-size: 12px;">Facebook</p>
-                                            </div>
-                                            <hr style="margin: 2px;padding: 0;">
-                                            <div >
-                                                {% if facebook.linked %}
 
-                                                <img src="{% static 'images/instagram_logo.png' %}"
-                                                    style="height: 50px;width: 50px;border-radius: 10px;" alt="">
-                                                <p>Username</p>
-                                                {% else %}
-                                                <p style="display: flex;justify-content: center;align-items: center;">No
-                                                    linked account</p>
-                                                    <p class="font-12">Link to a Facebook page. <a href="#">Learn More</a> </p>
-                                                {% endif %}
 
-                                            </div>
-                                            <div style="height:30px;display: flex;justify-content: space-between;">
+                                        <div style="display: none;">
+                                            <span id="instagram_profile"></span>
+                                            <span id="instagram_username"></span>
+                                            <span id="instagram_"></span>
 
-                                                {% if facebook.linked %}
-                                                <div>
-                                                    <span
-                                                        style="background-color: rgb(216, 251, 239);color: rgb(8, 192, 131);padding: 5px;border-radius:5px ;font-size:10px;margin-left:5px;margin-right: 15px;">
-                                                        Linked
-                                                    </span>
-                                                </div>
-                                                {% if user_permissions.can_link_unlink_account %}
-                                                <a style="margin-right: 10px;" href="{{ facebook.link_url }}"><button
-                                                        type="button" class="btn btn-primary"
-                                                        style="font-size: 12px;">Change</button></a>
-                                                {% else %}
-                                                <button type="button" class="btn btn-primary"
-                                                    tooltip="Forbidden. Contact admin" flow="down"
-                                                    style="cursor: not-allowed;font-size: 12px;">Change</button>
-                                                {% endif %}
-
-                                                {% else %}
-                                                <div>
-                                                    <span
-                                                        style="background-color: rgb(251, 216, 216);color: rgb(192, 8, 8);padding: 5px;border-radius:5px ;font-size:10px;margin-left:5px;margin-right: 15px;">
-                                                        Not Linked
-                                                    </span>
-                                                </div>
-                                                {% if user_permissions.can_link_unlink_account %}
-                                                <a style="margin-right: 10px;" href="{{ facebook.link_url }}"><button
-                                                        type="button" class="btn btn-primary"
-                                                        style="font-size: 12px;">Link</button></a>
-                                                {% else %}
-                                                <button type="button" class="btn btn-primary"
-                                                    tooltip="Forbidden. Contact admin" flow="down"
-                                                    style="cursor: not-allowed;font-size: 12px;">Link</button>
-                                                {% endif %}
-                                                {% endif %}
-                                            </div>
-
-                                        </div>
-                                        <div class="grid-item">
-                                            <div style="height:30px;display: flex;gap: 10px;">
-                                                <img src="{% static 'images/x_logo.svg' %}"
-                                                    style="height: 20px;width: 20px;border-radius: 10px;" alt="">
-                                                <p style="font-size: 12px;">X</p>
-                                            </div>
-                                            <hr style="margin: 2px;padding: 0;">
-                                            <div >
-                                                {% if twitter.linked %}
-
-                                                <img src="{% static 'images/instagram_logo.png' %}"
-                                                    style="height: 50px;width: 50px;border-radius: 10px;" alt="">
-                                                <p>Username</p>
-                                                {% else %}
-                                                <p style="display: flex;justify-content: center;align-items: center;">No
-                                                    linked account</p>
-                                                    <p class="font-12 zero-padding-margin">Link to your X Professional Account. <a href="#">Learn More</a> </p>
-
-                                                {% endif %}
-
-                                            </div>
-                                            <div style="height:30px;display: flex;justify-content: space-between;">
-
-                                                {% if twitter.linked %}
-                                                <div>
-                                                    <span
-                                                        style="background-color: rgb(216, 251, 239);color: rgb(8, 192, 131);padding: 5px;border-radius:5px ;font-size:10px;margin-left:5px;margin-right: 15px;">
-                                                        Linked
-                                                    </span>
-                                                </div>
-                                                {% if user_permissions.can_link_unlink_account %}
-                                                <a style="margin-right: 10px;" href="{{ twitter.link_url }}"><button
-                                                        type="button" class="btn btn-primary"
-                                                        style="font-size: 12px;">Change</button></a>
-                                                {% else %}
-                                                <button type="button" class="btn btn-primary"
-                                                    tooltip="Forbidden. Contact admin" flow="down"
-                                                    style="cursor: not-allowed;font-size: 12px;">Change</button>
-                                                {% endif %}
-
-                                                {% else %}
-                                                <div>
-                                                    <span
-                                                        style="background-color: rgb(251, 216, 216);color: rgb(192, 8, 8);padding: 5px;border-radius:5px ;font-size:10px;margin-left:5px;margin-right: 15px;">
-                                                        Not Linked
-                                                    </span>
-                                                </div>
-                                                {% if user_permissions.can_link_unlink_account %}
-                                                <a style="margin-right: 10px;" href="{{ twitter.link_url }}"><button
-                                                        type="button" class="btn btn-primary"
-                                                        style="font-size: 12px;">Link</button></a>
-                                                {% else %}
-                                                <button type="button" class="btn btn-primary"
-                                                    tooltip="Forbidden. Contact admin" flow="down"
-                                                    style="cursor: not-allowed;font-size: 12px;">Link</button>
-                                                {% endif %}
-                                                {% endif %}
-                                            </div>
-
-                                        </div>
-                                        <div class="grid-item">
-                                            <div style="height:30px;display: flex;gap: 10px;">
-                                                <img src="{% static 'images/tiktok_logo.png' %}"
-                                                    style="height: 20px;width: 20px;border-radius: 10px;" alt="">
-                                                <p style="font-size: 12px;">Tiktok</p>
-                                            </div>
-                                            <hr style="margin: 2px;padding: 0;">
-                                            <div >
-                                                {% if tiktok.linked %}
-
-                                                <img src="{% static 'images/instagram_logo.png' %}"
-                                                    style="height: 50px;width: 50px;border-radius: 10px;" alt="">
-                                                <p>Username</p>
-                                                {% else %}
-                                                <p style="display: flex;justify-content: center;align-items: center;">No
-                                                    linked account</p>
-                                                    <p class="font-12 zero-padding-margin">Link to your TikTok Business Account. <a href="#">Learn More</a> </p>
-
-                                                {% endif %}
-
-                                            </div>
-                                            <div style="height:30px;display: flex;justify-content: space-between;">
-
-                                                {% if tiktok.linked %}
-                                                <div>
-                                                    <span
-                                                        style="background-color: rgb(216, 251, 239);color: rgb(8, 192, 131);padding: 5px;border-radius:5px ;font-size:10px;margin-left:5px;margin-right: 15px;">
-                                                        Linked
-                                                    </span>
-                                                </div>
-                                                {% if user_permissions.can_link_unlink_account %}
-                                                <a style="margin-right: 10px;" href="{{ tiktok.link_url }}"><button
-                                                        type="button" class="btn btn-primary"
-                                                        style="font-size: 12px;">Change</button></a>
-                                                {% else %}
-                                                <button type="button" class="btn btn-primary"
-                                                    tooltip="Forbidden. Contact admin" flow="down"
-                                                    style="cursor: not-allowed;font-size: 12px;">Change</button>
-                                                {% endif %}
-
-                                                {% else %}
-                                                <div>
-                                                    <span
-                                                        style="background-color: rgb(251, 216, 216);color: rgb(192, 8, 8);padding: 5px;border-radius:5px ;font-size:10px;margin-left:5px;margin-right: 15px;">
-                                                        Not Linked
-                                                    </span>
-                                                </div>
-                                                {% if user_permissions.can_link_unlink_account %}
-                                                <a style="margin-right: 10px;" href="{{ tiktok.link_url }}"><button
-                                                        type="button" class="btn btn-primary"
-                                                        style="font-size: 12px;">Link</button></a>
-                                                {% else %}
-                                                <button type="button" class="btn btn-primary"
-                                                    tooltip="Forbidden. Contact admin" flow="down"
-                                                    style="cursor: not-allowed;font-size: 12px;">Link</button>
-                                                {% endif %}
-                                                {% endif %}
-                                            </div>
-
-                                        </div>
-                                        <div class="grid-item">
-                                            <div style="height:30px;display: flex;gap: 10px;">
-                                                <img src="{% static 'images/youtube_logo.png' %}"
-                                                    style="height: 20px;width: 20px;border-radius: 10px;" alt="youtube_logo">
-                                                <p style="font-size: 12px;">Youtube</p>
-                                            </div>
-                                            <hr style="margin: 2px;padding: 0;">
-                                            <div >
-                                                {% if youtube.linked %}
-
-                                                <img src="{% static 'images/youtube_logo.png' %}"
-                                                    style="height: 50px;width: 50px;border-radius: 10px;" alt="youtube_logo">
-                                                <p>Username</p>
-                                                {% else %}
-                                                <p style="display: flex;justify-content: center;align-items: center;">No
-                                                    linked account</p>
-                                                    <p class="font-12 ">Link to a Youtube Channel. <a href="#">Learn More</a> </p>
-
-                                                {% endif %}
-
-                                            </div>
-                                            <div style="height:30px;display: flex;justify-content: space-between;">
-
-                                                {% if youtube.linked %}
-                                                <div>
-                                                    <span
-                                                        style="background-color: rgb(216, 251, 239);color: rgb(8, 192, 131);padding: 5px;border-radius:5px ;font-size:10px;margin-left:5px;margin-right: 15px;">
-                                                        Linked
-                                                    </span>
-                                                </div>
-                                                {% if user_permissions.can_link_unlink_account %}
-                                                <button type="button" class="btn btn-primary"
-                                                    style="font-size: 12px;">Change</button>
-                                                {% else %}
-                                                <button type="button" class="btn btn-primary"
-                                                    tooltip="Forbidden. Contact admin" flow="up"
-                                                    style="cursor: not-allowed;font-size: 12px;">Change</button>
-                                                {% endif %}
-
-                                                {% else %}
-                                                <div>
-                                                    <span
-                                                        style="background-color: rgb(251, 216, 216);color: rgb(192, 8, 8);padding: 5px;border-radius:5px ;font-size:10px;margin-left:5px;margin-right: 15px;">
-                                                        Not Linked
-                                                    </span>
-                                                </div>
-                                                {% if user_permissions.can_link_unlink_account %}
-                                                <button type="button" class="btn btn-primary"
-                                                    style="font-size: 12px;">Link</button>
-                                                {% else %}
-                                                <button type="button" class="btn btn-primary"
-                                                    tooltip="Forbidden. Contact admin" flow="up"
-                                                    style="cursor: not-allowed;font-size: 12px;">Link</button>
-                                                {% endif %}
-                                                {% endif %}
-                                            </div>
-
-                                        </div>
-                                        <div class="grid-item">
-                                            <div style="height:30px;display: flex;gap: 10px;">
-                                                <img src="{% static 'images/google-business.png' %}"
-                                                    style="height: 20px;width: 20px;border-radius: 10px;" alt="">
-                                                <p style="font-size: 12px;">Google Business Profile </p>
-                                            </div>
-                                            <hr style="margin: 2px;padding: 0;">
-                                            <div>
-                                                {% if google.linked %}
-
-                                                <img src="{% static 'images/instagram_logo.png' %}"
-                                                    style="height: 50px;width: 50px;border-radius: 10px;" alt="">
-                                                <p>Username</p>
-                                                {% else %}
-                                                <p style="display: flex;justify-content: center;align-items: center;">No
-                                                    linked account</p>
-                                                    <p class="font-12 ">Link to a Google Business Profile. <a href="#">Learn More</a> </p>
-
-                                                {% endif %}
-
-                                            </div>
-                                            <div style="height:30px;display: flex;justify-content: space-between;">
-
-                                                {% if google.linked %}
-                                                <div>
-                                                    <span
-                                                        style="background-color: rgb(216, 251, 239);color: rgb(8, 192, 131);padding: 5px;border-radius:5px ;font-size:10px;margin-left:5px;margin-right: 15px;">
-                                                        Linked
-                                                    </span>
-                                                </div>
-                                                {% if user_permissions.can_link_unlink_account %}
-                                                <button type="button" class="btn btn-primary"
-                                                    style="font-size: 12px;">Change</button>
-                                                {% else %}
-                                                <button type="button" class="btn btn-primary"
-                                                    tooltip="Forbidden. Contact admin" flow="up"
-                                                    style="cursor: not-allowed;font-size: 12px;">Change</button>
-                                                {% endif %}
-
-                                                {% else %}
-                                                <div>
-                                                    <span
-                                                        style="background-color: rgb(251, 216, 216);color: rgb(192, 8, 8);padding: 5px;border-radius:5px ;font-size:10px;margin-left:5px;margin-right: 15px;">
-                                                        Not Linked
-                                                    </span>
-                                                </div>
-                                                {% if user_permissions.can_link_unlink_account %}
-                                                <button type="button" class="btn btn-primary"
-                                                    style="font-size: 12px;">Link</button>
-                                                {% else %}
-                                                <button type="button" class="btn btn-primary"
-                                                    tooltip="Forbidden. Contact admin" flow="up"
-                                                    style="cursor: not-allowed;font-size: 12px;">Link</button>
-                                                {% endif %}
-                                                {% endif %}
-                                            </div>
 
                                         </div>
                                     </div>
+                                    <hr>
+                                    <div class="business-about">
+                                        <h6>About </h6>
+                                        {% if company_about %}
+                                        <p id="company_about" style="padding: 10px; white-space: pre-wrap;">
+                                            {{ company_about|safe }}
+                                        </p>
+                                        {% else %}
+                                        <p style="cursor: default;align-items: center;padding: 10px;">Click the edit
+                                            icon to
+                                            edit
+                                            about </p>
+                                        {% endif %}
 
+                                    </div>
+                                    <hr>
+                                    <div class="business-about">
+                                        <h6>Settings <i class="fa fa-cog " style="margin-left: 20px;"></i></h6>
+                                        <ul style="list-style-type: none;">
+                                            <li>
+                                                <div class="form-check form-switch" style="margin-left: 20px;">
+                                                    <input class="form-check-input" type="checkbox" role="switch"
+                                                        id="flexSwitchCheckChecked" checked>
+                                                    <label class="form-check-label" for="flexSwitchCheckChecked">Auto
+                                                        publish positive reviews</label>
+                                                </div>
+                                            </li>
+                                            <li>
+                                                <div class="form-check form-switch" style="margin-left: 20px;">
+                                                    <input class="form-check-input" type="checkbox" role="switch"
+                                                        id="flexSwitchCheckChecked" checked>
+                                                    <label class="form-check-label" for="flexSwitchCheckChecked"
+                                                        tooltip="Respond to comments using your AI Knowledgebase"
+                                                        flow="down">Auto respond to queries</label>
+                                                </div>
+                                            </li>
+                                            <li>
+                                                <div class="form-check form-switch" style="margin-left: 20px;">
+                                                    <input class="form-check-input" type="checkbox" role="switch"
+                                                        id="flexSwitchCheckChecked" checked>
+                                                    <label class="form-check-label" for="flexSwitchCheckChecked"
+                                                        tooltip="Show your customers that you appreciate their comments"
+                                                        flow="down">Auto like positive comments</label>
+                                                </div>
+                                            </li>
 
-                                    <div style="display: none;">
-                                        <span id="instagram_profile"></span>
-                                        <span id="instagram_username"></span>
-                                        <span id="instagram_"></span>
+                                            <li style="margin-top: 10px;">
+                                                <p tooltip="Add this link to your bio to showcase your customers reviews"
+                                                    flow="down">Review Wall Link:</p>
+                                            </li>
+                                        </ul>
 
 
                                     </div>
-                                </div>
-                                <hr>
-                                <div class="business-about">
-                                    <h6>About </h6>
-                                    {% if company_about %}
-                                    <p id="company_about" style="padding: 10px; white-space: pre-wrap;">
-                                        {{ company_about|safe }}
-                                    </p>
-                                    {% else %}
-                                    <p style="cursor: default;align-items: center;padding: 10px;">Click the edit icon to
-                                        edit
-                                        about </p>
-                                    {% endif %}
+                                    <hr>
+                                    <div class="business-about ">
+                                        <!-- can modify the AI Assistant -->
+                                        {% if user_permissions.can_modify_ai_assistant %}
+                                        <h6>AI Assistant </h6>
+                                        <div style="margin-left: 15px;">
+                                            <div style="display: flex;justify-content: space-between;">
+                                                <div class="form-check form-switch" style="margin-left: 20px;">
+                                                    <input class="form-check-input" type="checkbox" role="switch"
+                                                        id="flexSwitchCheckChecked" checked>
+                                                    <label class="form-check-label"
+                                                        for="flexSwitchCheckChecked">Enabled</label>
+                                                </div>
+                                                <div class="form-group" onclick="openChatBox()"
+                                                    style="text-align:center;font-size:20px;align-items:center;margin-top:10px;margin-bottom:20px">
+                                                    <a class=" btn-solid-sm" style="cursor:pointer" id="test-chatbot"
+                                                        href="#">Test
 
-                                </div>
-                                <hr>
-                                <div class="business-about">
-                                    <h6>Settings <i class="fa fa-cog " style="margin-left: 20px;"></i></h6>
-                                    <ul style="list-style-type: none;">
-                                        <li>
-                                            <div class="form-check form-switch" style="margin-left: 20px;">
-                                                <input class="form-check-input" type="checkbox" role="switch"
-                                                    id="flexSwitchCheckChecked" checked>
-                                                <label class="form-check-label" for="flexSwitchCheckChecked">Auto
-                                                    publish positive reviews</label>
+                                                    </a>
+                                                </div>
+
+
                                             </div>
-                                        </li>
-                                        <li>
-                                            <div class="form-check form-switch" style="margin-left: 20px;">
-                                                <input class="form-check-input" type="checkbox" role="switch"
-                                                    id="flexSwitchCheckChecked" checked>
-                                                <label class="form-check-label" for="flexSwitchCheckChecked"
-                                                    tooltip="Respond to comments using your AI Knowledgebase"
-                                                    flow="down">Auto respond to queries</label>
+                                            <div style="padding-left: 10px;">
+                                                <p style="font-size: 12px;padding: 0;margin: 0;"> Upload your business
+                                                    documents below (Knowledge base) to
+                                                    train the AI Assistant, enabling it to understand and respond
+                                                    effectively to
+                                                    inquiries related to your business.</p>
+                                                <a style="font-size: 12px;color: blue;" href="">Learn more</a>
+                                                <div class="input-group mb-3">
+
+                                                    <div class="custom-file" style="padding: 0;">
+                                                        <input type="file" class="custom-file-input"
+                                                            id="inputGroupFile01" multiple>
+                                                        <label class="custom-file-label" for="inputGroupFile01">Choose
+                                                            files</label>
+                                                    </div>
+                                                </div>
                                             </div>
-                                        </li>
-                                        <li>
-                                            <div class="form-check form-switch" style="margin-left: 20px;">
-                                                <input class="form-check-input" type="checkbox" role="switch"
-                                                    id="flexSwitchCheckChecked" checked>
-                                                <label class="form-check-label" for="flexSwitchCheckChecked"
-                                                    tooltip="Show your customers that you appreciate their comments"
-                                                    flow="down">Auto like positive comments</label>
-                                            </div>
-                                        </li>
-
-                                        <li style="margin-top: 10px;">
-                                            <p tooltip="Add this link to your bio to showcase your customers reviews"
-                                                flow="down">Review Wall Link:</p>
-                                        </li>
-                                    </ul>
-
-
-                                </div>
-                                <hr>
-                                <div class="business-about ">
-                                    <!-- can modify the AI Assistant -->
-                                    {% if user_permissions.can_modify_ai_assistant %}
-                                    <h6>AI Assistant </h6>
-                                    <div style="margin-left: 15px;">
-                                        <div style="display: flex;justify-content: space-between;">
-                                            <div class="form-check form-switch" style="margin-left: 20px;">
-                                                <input class="form-check-input" type="checkbox" role="switch"
-                                                    id="flexSwitchCheckChecked" checked>
-                                                <label class="form-check-label"
-                                                    for="flexSwitchCheckChecked">Enabled</label>
-                                            </div>
-                                            <div class="form-group" onclick="openChatBox()"
-                                                style="text-align:center;font-size:20px;align-items:center;margin-top:10px;margin-bottom:20px">
-                                                <a class=" btn-solid-sm" style="cursor:pointer" id="test-chatbot"
-                                                    href="#">Test
-
+                                            <div class="form-group"
+                                                style="text-align:center;font-size:20px;align-items:center;margin-top:30px;margin-bottom:20px">
+                                                <a class=" btn-solid-sm" style="cursor:pointer" id="upload-train"
+                                                    href="">Upload
+                                                    &
+                                                    Train
                                                 </a>
                                             </div>
-
-
                                         </div>
-                                        <div style="padding-left: 10px;">
-                                            <p style="font-size: 12px;padding: 0;margin: 0;">Please upload your business
-                                                documents below (Knowledge base) to
-                                                train the AI Assistant, enabling it to understand and respond
-                                                effectively to
-                                                inquiries related to your business.</p>
-                                            <a style="font-size: 12px;color: blue;" href="">Learn more</a>
-                                            <div class="input-group mb-3">
+                                        <!-- cannot modify the AI Assistant -->
+                                        {% else %}
+                                        <h6 style="color: rgba(128, 128, 128, 0.712);">AI Assistant </h6>
+                                        <div style="margin-left: 15px;">
+                                            <div style="display: flex;justify-content: space-between;">
+                                                <div class="form-check form-switch" style="margin-left: 20px;">
+                                                    <input class="form-check-input" type="checkbox" role="switch"
+                                                        id="flexSwitchCheckChecked" checked disabled>
+                                                    <label class="form-check-label"
+                                                        for="flexSwitchCheckChecked">Enabled</label>
+                                                </div>
+                                                <div class="form-group" onclick="openChatBox()"
+                                                    style="text-align:center;font-size:20px;align-items:center;margin-top:10px;margin-bottom:20px">
+                                                    <a class=" btn-solid-sm" style="cursor:pointer" id="test-chatbot"
+                                                        href="#">Test
 
-                                                <div class="custom-file" style="padding: 0;">
-                                                    <input type="file" class="custom-file-input" id="inputGroupFile01"
-                                                        multiple>
-                                                    <label class="custom-file-label" for="inputGroupFile01">Choose
-                                                        files</label>
+                                                    </a>
                                                 </div>
                                             </div>
-                                        </div>
-                                        <div class="form-group"
-                                            style="text-align:center;font-size:20px;align-items:center;margin-top:30px;margin-bottom:20px">
-                                            <a class=" btn-solid-sm" style="cursor:pointer" id="upload-train"
-                                                href="">Upload
-                                                &
-                                                Train
-                                            </a>
-                                        </div>
-                                    </div>
-                                    <!-- cannot modify the AI Assistant -->
-                                    {% else %}
-                                    <h6 style="color: rgba(128, 128, 128, 0.712);">AI Assistant </h6>
-                                    <div style="margin-left: 15px;">
-                                        <div style="display: flex;justify-content: space-between;">
-                                            <div class="form-check form-switch" style="margin-left: 20px;">
-                                                <input class="form-check-input" type="checkbox" role="switch"
-                                                    id="flexSwitchCheckChecked" checked disabled>
-                                                <label class="form-check-label"
-                                                    for="flexSwitchCheckChecked">Enabled</label>
-                                            </div>
-                                            <div class="form-group" onclick="openChatBox()"
-                                                style="text-align:center;font-size:20px;align-items:center;margin-top:10px;margin-bottom:20px">
-                                                <a class=" btn-solid-sm" style="cursor:pointer" id="test-chatbot"
-                                                    href="#">Test
-
-                                                </a>
-                                            </div>
-                                        </div>
-                                        <p style="color:  rgba(128, 128, 128, 0.712);"> last Updated :12-oct-2024</p>
-                                        <div style="padding-left: 10px;">
-                                            <p
-                                                style="font-size: 12px;padding: 0;margin: 0;color: rgba(128, 128, 128, 0.712);;">
-                                                Please upload your business
-                                                documents below (Knowledge base) to
-                                                train the AI Assistant, enabling it to understand and respond
-                                                effectively to
-                                                inquiries related to your business.</p>
-                                            <a style="font-size: 12px;color: rgba(0, 0, 255, 0.308);">Learn
-                                                more</a>
-                                            <div class="input-group mb-3">
-
-                                                <div class="custom-file" style="padding: 0;">
-                                                    <input type="file" class="custom-file-input" id="inputGroupFile01"
-                                                        multiple disabled>
-                                                    <label class="custom-file-label" for="inputGroupFile01"
-                                                        style="color: rgba(128, 128, 128, 0.712);">Choose
-                                                        files</label>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="form-group"
-                                            style="text-align:center;font-size:20px;align-items:center;margin-top:30px;margin-bottom:20px;">
-                                            <a class=" btn-solid-sm"
-                                                style="cursor:not-allowed;background-color:  rgba(128, 128, 128, 0.712);border: none;">Upload
-                                                &
-                                                Train
-                                            </a>
-                                        </div>
-                                        <p style="font-size: 12px;color: rgb(252, 100, 100);align-items: center;">Note:
-                                            You do not have permission to modify the AI Assistant. Contact your
-                                            administrator for help</p>
-                                    </div>
-                                    {% endif %}
-
-
-                                    <!-- chat container -->
-                                    <div id="chatPage" class="chat_page" style="background-color: black;">
-                                        <!-- <button onclick="openChatBox()" class="chat_button">
-                                            <i id="chatOpen" class="fas fa-comments"></i>
-                                        </button> -->
-
-
-                                        <div id="chatbar" class="chat_box animated fadeInUp">
-                                            <div class="chat_box_header"
-                                                style="display: flex;justify-content: space-between;padding: 10;">
-                                                <p style="padding: 0;margin: 0;">Test the AI Assistant</p>
-                                                <i class="fa fa-times " onclick="openChatBox()"></i>
-                                            </div>
-                                            <div id="chatBody" class="chat_box_body">
-
-                                            </div>
-                                            <div style="align-items: center;background-color: rgb(201, 201, 201);">
-
-                                                <div style="display: flex;margin: 0;padding: 0;">
-
-                                                    <input type="text" id="MsgInput" placeholder="Enter Message">
-                                                    <button class="btn btn-primary" onclick="send()" id="send-btn"><i
-                                                            class="fab fa-telegram-plane"></i></button>
-                                                </div>
-                                                <hr style="padding: 0;margin: 0;">
+                                            <p style="color:  rgba(128, 128, 128, 0.712);"> last Updated :12-oct-2024
+                                            </p>
+                                            <div style="padding-left: 10px;">
                                                 <p
-                                                    style="font-size: 12px;margin: 0;display: flex;justify-content: center;">
-                                                    Powered by Insightlyze</p>
+                                                    style="font-size: 12px;padding: 0;margin: 0;color: rgba(128, 128, 128, 0.712);;">
+                                                    Please upload your business
+                                                    documents below (Knowledge base) to
+                                                    train the AI Assistant, enabling it to understand and respond
+                                                    effectively to
+                                                    inquiries related to your business.</p>
+                                                <a style="font-size: 12px;color: rgba(0, 0, 255, 0.308);">Learn
+                                                    more</a>
+                                                <div class="input-group mb-3">
 
+                                                    <div class="custom-file" style="padding: 0;">
+                                                        <input type="file" class="custom-file-input"
+                                                            id="inputGroupFile01" multiple disabled>
+                                                        <label class="custom-file-label" for="inputGroupFile01"
+                                                            style="color: rgba(128, 128, 128, 0.712);">Choose
+                                                            files</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group"
+                                                style="text-align:center;font-size:20px;align-items:center;margin-top:30px;margin-bottom:20px;">
+                                                <a class=" btn-solid-sm"
+                                                    style="cursor:not-allowed;background-color:  rgba(128, 128, 128, 0.712);border: none;">Upload
+                                                    &
+                                                    Train
+                                                </a>
+                                            </div>
+                                            <p style="font-size: 12px;color: rgb(252, 100, 100);align-items: center;">
+                                                Note:
+                                                You do not have permission to modify the AI Assistant. Contact your
+                                                administrator for help</p>
+                                        </div>
+                                        {% endif %}
+
+
+                                        <!-- chat container -->
+                                        <div id="chatPage" class="chat_page" style="background-color: black;">
+                                            <!-- <button onclick="openChatBox()" class="chat_button">
+                                                <i id="chatOpen" class="fas fa-comments"></i>
+                                            </button> -->
+
+
+                                            <div id="chatbar" class="chat_box animated fadeInUp">
+                                                <div class="chat_box_header"
+                                                    style="display: flex;justify-content: space-between;padding: 10;">
+                                                    <p style="padding: 0;margin: 0;">Test the AI Assistant</p>
+                                                    <i class="fa fa-times " onclick="openChatBox()"></i>
+                                                </div>
+                                                <div id="chatBody" class="chat_box_body">
+
+                                                </div>
+                                                <div style="align-items: center;background-color: rgb(201, 201, 201);">
+
+                                                    <div style="display: flex;margin: 0;padding: 0;">
+
+                                                        <input type="text" id="MsgInput" placeholder="Enter Message">
+                                                        <button class="btn btn-primary" onclick="send()"
+                                                            id="send-btn"><i class="fab fa-telegram-plane"></i></button>
+                                                    </div>
+                                                    <hr style="padding: 0;margin: 0;">
+                                                    <p
+                                                        style="font-size: 12px;margin: 0;display: flex;justify-content: center;">
+                                                        Powered by Insightlyze</p>
+
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
 
+                                    </div>
                                 </div>
+
                             </div>
                         </div>
                     </div>

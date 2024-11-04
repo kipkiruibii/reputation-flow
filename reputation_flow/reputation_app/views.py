@@ -237,7 +237,7 @@ def dashboard(request,company_id):
         'company_category':cm.company_category,
         'company_link':cm.company_link,
         # 'company_profile':cpp.p_pic.url if cpp else 'https://pic.onlinewebfonts.com/thumbnails/icons_358304.svg' ,
-        'company_profile': 'https://pic.onlinewebfonts.com/thumbnails/icons_358304.svg' ,
+        'company_profile': 'https://img.freepik.com/premium-vector/vector-logo-dance-club-that-says-dance-club_1107171-3823.jpg' ,
         'company_about':cm.company_about,
         'company_subs':{
             'subscription_active':cm.company_active_subscription,
@@ -310,7 +310,7 @@ def dashboard(request,company_id):
             'linked':False,
             'active':False
         },
-        'google':{
+        'reddit':{
             'profile':'',
             'username':'',
             'date_linked':'',
@@ -319,6 +319,22 @@ def dashboard(request,company_id):
             'active':False
         },
         'tiktok':{
+            'profile':'',
+            'username':'',
+            'date_linked':'',
+            'link_url':tiktok_auth_link(),
+            'linked':False,
+            'active':False
+        },
+        'snapchat':{
+            'profile':'',
+            'username':'',
+            'date_linked':'',
+            'link_url':tiktok_auth_link(),
+            'linked':False,
+            'active':False
+        },
+        'linkedin':{
             'profile':'',
             'username':'',
             'date_linked':'',
@@ -1123,7 +1139,7 @@ def get_tiktok_auth_link():
     """Generates the TikTok OAuth authorization link."""
     scope_param = " ".join(settings.TIKTOK_SCOPES)
     auth_url = (
-        f"https://www.tiktok.com/auth/authorize/"
+        f"https://www.tiktok.com/v2/auth/authorize/"
         f"?client_key={settings.TIKTOK_CLIENT_ID}"
         f"&redirect_uri={settings.TIKTOK_REDIRECT_URI}"
         f"&response_type=code"
@@ -1139,7 +1155,7 @@ def tiktok_auth_link():
     state = "YOUR_UNIQUE_STATE"  # Replace with a unique state parameter for security
     
     auth_url = (
-        f"https://www.tiktok.com/auth/authorize/"
+        f"https://www.tiktok.com/v2/auth/authorize/"
         f"?client_key={client_id}"
         f"&redirect_uri={urllib.parse.quote_plus(redirect_uri)}"
         f"&response_type=code"

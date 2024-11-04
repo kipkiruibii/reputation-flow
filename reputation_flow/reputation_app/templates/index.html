@@ -23,12 +23,11 @@
         content="Easily collect and display reviews and FAQs from social media. Let your customers' voices amplify your business success." />
 
     <!-- Webpage Title -->
-    <title>Turn Reviews Into Revenue</title>
+    <title>Turn Reviews Into Revenue - Insightlyze  </title>
 
     <!-- Favicon -->
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="{% static 'images/fav_icon.png' %}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'images/fav_icon.png' %}">
     <!-- <link rel="manifest" href="/site.webmanifest"> -->
     <meta name="msapplication-TileColor" content="#da532c">
     <meta name="theme-color" content="#ffffff">
@@ -50,8 +49,8 @@
                 <div class="flex items-center lg:order-2">
                     <!-- <a href="#" class="text-gray-800 dark:text-white hover:bg-gray-50 focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-4 lg:px-5 py-2 lg:py-2.5 sm:mr-2 dark:hover:bg-gray-700 focus:outline-none dark:focus:ring-gray-800">Log in</a> -->
                     <a href="{% url 'login' %}"
-                        class="text-white bg-purple-700 hover:bg-purple-800 focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-sm px-4 lg:px-5 py-2 lg:py-2.5 sm:mr-2 lg:mr-0 dark:bg-purple-600 dark:hover:bg-purple-700 focus:outline-none dark:focus:ring-purple-800">Get
-                        Started</a>
+                        class="text-white bg-purple-700 hover:bg-purple-800 focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-sm px-4 lg:px-5 py-2 lg:py-2.5 sm:mr-2 lg:mr-0 dark:bg-purple-600 dark:hover:bg-purple-700 focus:outline-none dark:focus:ring-purple-800">7 Day Free
+                        Trial</a>
                     <button data-collapse-toggle="mobile-menu-2" type="button"
                         class="inline-flex items-center p-2 ml-1 text-sm text-gray-500 rounded-lg lg:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600"
                         aria-controls="mobile-menu-2" aria-expanded="false">
@@ -131,19 +130,23 @@
                         style="width:30px;height: 30px;">
                     <p style="font-size: 18px;">Instagram</p>
                 </div>
-                <!-- <div style="display: flex;height: 30px;gap:10px;align-items: center;">
+                <div style="display: flex;height: 30px;gap:10px;align-items: center;">
                     <img src="{% static 'images/x_logo.svg' %}" alt="twitter"
                         style="width:30px;height: 30px;">
                     <p style="font-size: 18px;">X (Twitter)</p>
-                </div> -->
+                </div>
                 <div style="display: flex;height: 30px;gap:10px;align-items: center;">
                     <img src="https://upload.wikimedia.org/wikipedia/commons/c/ca/LinkedIn_logo_initials.png"
                         alt="twitter" style="width:30px;height: 30px;">
                     <p style="font-size: 18px;">LinkedIn</p>
                 </div>
                 <div style="display: flex;height: 30px;gap:10px;align-items: center;">
-                    <img src="{% static 'images/google-business.png' %}" alt="google" style="width:30px;height: 30px;">
-                    <p style="font-size: 18px;">Google Business</p>
+                    <img src="{% static 'images/reddit_logo.png' %}" alt="google" style="width:30px;height: 30px;">
+                    <p style="font-size: 18px;">Reddit</p>
+                </div>
+                <div style="display: flex;height: 30px;gap:10px;align-items: center;">
+                    <img src="{% static 'images/pinterest_logo.png' %}" alt="google" style="width:30px;height: 30px;">
+                    <p style="font-size: 18px;">Pinterest</p>
                 </div>
                 <div style="display: flex;height: 30px;gap:10px;align-items: center;">
                     <img src="{% static 'images/youtube_logo.png' %}" alt="youtube" style="width:30px;height: 30px;">
@@ -494,7 +497,7 @@
                                     d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
                                     clip-rule="evenodd"></path>
                             </svg>
-                            <span>Individual configuration</span>
+                            <span>Custom Page Link</span>
                         </li>
                         <li class="flex items-center space-x-3">
                             <!-- Icon -->
@@ -504,7 +507,7 @@
                                     d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
                                     clip-rule="evenodd"></path>
                             </svg>
-                            <span>No setup, or hidden fees</span>
+                            <span>All supported platforms</span>
                         </li>
                         <li class="flex items-center space-x-3">
                             <!-- Icon -->
@@ -514,7 +517,7 @@
                                     d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
                                     clip-rule="evenodd"></path>
                             </svg>
-                            <span>Team size: <span class="font-semibold">1 developer</span></span>
+                            <span>Team size: <span class="font-semibold">1 seat</span></span>
                         </li>
                         <li class="flex items-center space-x-3">
                             <!-- Icon -->
@@ -524,7 +527,7 @@
                                     d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
                                     clip-rule="evenodd"></path>
                             </svg>
-                            <span>Premium support: <span class="font-semibold">6 months</span></span>
+                            <span>A/C: <span class="font-semibold">1 account per platform</span></span>
                         </li>
                         <li class="flex items-center space-x-3">
                             <!-- Icon -->
@@ -534,8 +537,30 @@
                                     d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
                                     clip-rule="evenodd"></path>
                             </svg>
-                            <span>Free updates: <span class="font-semibold">6 months</span></span>
+                            <span>Schedule Period: <span class="font-semibold">Upto 5 days</span></span>
                         </li>
+                        <li class="flex items-center space-x-3">
+                            <!-- Icon -->
+                            <svg class="flex-shrink-0 w-5 h-5 text-green-500 dark:text-green-400" fill="currentColor"
+                                viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd"
+                                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                    clip-rule="evenodd"></path>
+                            </svg>
+                            <span>Schedule Disk Space: <span class="font-semibold">Upto 1GB</span></span>
+                        </li>
+                        <li class="flex items-center space-x-3">
+                            <!-- Icon -->
+                            <svg class="flex-shrink-0 w-5 h-5 text-green-500 dark:text-green-400" fill="currentColor"
+                                viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd"
+                                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                    clip-rule="evenodd"></path>
+                            </svg>
+                            <span>Custom AI Chatbot: <span class="font-semibold">10000 tokens</span></span>
+                        </li>
+
+
                     </ul>
                     <a href="#"
                         class="text-white bg-purple-600 hover:bg-purple-700 focus:ring-4 focus:ring-purple-200 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:text-white  dark:focus:ring-purple-900">Get
@@ -548,7 +573,7 @@
                     <p class="font-light text-gray-500 sm:text-lg dark:text-gray-400">Relevant for multiple users,
                         extended & premium support.</p>
                     <div class="flex items-baseline justify-center my-8">
-                        <span class="mr-2 text-5xl font-extrabold">$99</span>
+                        <span class="mr-2 text-5xl font-extrabold">$49</span>
                         <span class="text-gray-500 dark:text-gray-400" dark:text-gray-400>/month</span>
                     </div>
                     <!-- List -->
@@ -561,7 +586,7 @@
                                     d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
                                     clip-rule="evenodd"></path>
                             </svg>
-                            <span>Individual configuration</span>
+                            <span>Custom Page Link</span>
                         </li>
                         <li class="flex items-center space-x-3">
                             <!-- Icon -->
@@ -571,7 +596,7 @@
                                     d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
                                     clip-rule="evenodd"></path>
                             </svg>
-                            <span>No setup, or hidden fees</span>
+                            <span>All supported platforms</span>
                         </li>
                         <li class="flex items-center space-x-3">
                             <!-- Icon -->
@@ -581,7 +606,7 @@
                                     d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
                                     clip-rule="evenodd"></path>
                             </svg>
-                            <span>Team size: <span class="font-semibold">10 developers</span></span>
+                            <span>Team size: <span class="font-semibold">20 seats</span></span>
                         </li>
                         <li class="flex items-center space-x-3">
                             <!-- Icon -->
@@ -591,7 +616,7 @@
                                     d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
                                     clip-rule="evenodd"></path>
                             </svg>
-                            <span>Premium support: <span class="font-semibold">24 months</span></span>
+                            <span>A/C: <span class="font-semibold">5 accounts per platform</span></span>
                         </li>
                         <li class="flex items-center space-x-3">
                             <!-- Icon -->
@@ -601,8 +626,30 @@
                                     d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
                                     clip-rule="evenodd"></path>
                             </svg>
-                            <span>Free updates: <span class="font-semibold">24 months</span></span>
+                            <span>Schedule Period: <span class="font-semibold">Upto 15 days</span></span>
                         </li>
+                        <li class="flex items-center space-x-3">
+                            <!-- Icon -->
+                            <svg class="flex-shrink-0 w-5 h-5 text-green-500 dark:text-green-400" fill="currentColor"
+                                viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd"
+                                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                    clip-rule="evenodd"></path>
+                            </svg>
+                            <span>Schedule Disk Space: <span class="font-semibold">Upto 10GB</span></span>
+                        </li>
+                        <li class="flex items-center space-x-3">
+                            <!-- Icon -->
+                            <svg class="flex-shrink-0 w-5 h-5 text-green-500 dark:text-green-400" fill="currentColor"
+                                viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd"
+                                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                    clip-rule="evenodd"></path>
+                            </svg>
+                            <span>Custom AI Chatbot: <span class="font-semibold">50000 tokens</span></span>
+                        </li>
+
+
                     </ul>
                     <a href="#"
                         class="text-white bg-purple-600 hover:bg-purple-700 focus:ring-4 focus:ring-purple-200 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:text-white  dark:focus:ring-purple-900">Get
@@ -615,7 +662,7 @@
                     <p class="font-light text-gray-500 sm:text-lg dark:text-gray-400">Best for large scale uses and
                         extended redistribution rights.</p>
                     <div class="flex items-baseline justify-center my-8">
-                        <span class="mr-2 text-5xl font-extrabold">$499</span>
+                        <span class="mr-2 text-5xl font-extrabold">$99</span>
                         <span class="text-gray-500 dark:text-gray-400">/month</span>
                     </div>
                     <!-- List -->
@@ -628,7 +675,7 @@
                                     d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
                                     clip-rule="evenodd"></path>
                             </svg>
-                            <span>Individual configuration</span>
+                            <span>Custom Page Link</span>
                         </li>
                         <li class="flex items-center space-x-3">
                             <!-- Icon -->
@@ -638,7 +685,7 @@
                                     d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
                                     clip-rule="evenodd"></path>
                             </svg>
-                            <span>No setup, or hidden fees</span>
+                            <span>All supported platforms</span>
                         </li>
                         <li class="flex items-center space-x-3">
                             <!-- Icon -->
@@ -648,7 +695,7 @@
                                     d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
                                     clip-rule="evenodd"></path>
                             </svg>
-                            <span>Team size: <span class="font-semibold">100+ developers</span></span>
+                            <span>Team size: <span class="font-semibold">Unlimited seats</span></span>
                         </li>
                         <li class="flex items-center space-x-3">
                             <!-- Icon -->
@@ -658,7 +705,7 @@
                                     d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
                                     clip-rule="evenodd"></path>
                             </svg>
-                            <span>Premium support: <span class="font-semibold">36 months</span></span>
+                            <span>A/C: <span class="font-semibold">unlimited accounts per platform</span></span>
                         </li>
                         <li class="flex items-center space-x-3">
                             <!-- Icon -->
@@ -668,8 +715,30 @@
                                     d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
                                     clip-rule="evenodd"></path>
                             </svg>
-                            <span>Free updates: <span class="font-semibold">36 months</span></span>
+                            <span>Schedule Period: <span class="font-semibold">Upto 30 days</span></span>
                         </li>
+                        <li class="flex items-center space-x-3">
+                            <!-- Icon -->
+                            <svg class="flex-shrink-0 w-5 h-5 text-green-500 dark:text-green-400" fill="currentColor"
+                                viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd"
+                                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                    clip-rule="evenodd"></path>
+                            </svg>
+                            <span>Schedule Disk Space: <span class="font-semibold">Upto 100GB</span></span>
+                        </li>
+                        <li class="flex items-center space-x-3">
+                            <!-- Icon -->
+                            <svg class="flex-shrink-0 w-5 h-5 text-green-500 dark:text-green-400" fill="currentColor"
+                                viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd"
+                                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                    clip-rule="evenodd"></path>
+                            </svg>
+                            <span>Custom AI Chatbot: <span class="font-semibold">200000 tokens</span></span>
+                        </li>
+
+
                     </ul>
                     <a href="#"
                         class="text-white bg-purple-600 hover:bg-purple-700 focus:ring-4 focus:ring-purple-200 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:text-white  dark:focus:ring-purple-900">Get

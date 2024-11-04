@@ -28,9 +28,8 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
     <!-- Favicon -->
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="{% static 'images/fav_icon.png' %}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'images/fav_icon.png' %}">
     <!-- <link rel="manifest" href="/site.webmanifest"> -->
     <meta name="msapplication-TileColor" content="#da532c">
     <meta name="theme-color" content="#ffffff">
@@ -58,21 +57,31 @@
         src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
 
     <style>
-
+        .bx-shadow {
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1), 0px 2px 4px rgba(0, 0, 0, 0.06);
+        }
     </style>
     <!-- <script async defer src="https://buttons.github.io/buttons.js"></script> -->
 </head>
 
 <body style="margin:0;padding: 0;">
     <header class="fixed w-full" style="z-index: 5;padding: 0;margin: 0;">
-        <nav class="bg-white">
+        <nav class="bg-white bx-shadow" style="padding: 0;margin: 0;">
             <div class="flex flex-wrap items-center justify-between max-w-screen-xl px-4 mx-auto"
                 style="margin: 0;padding:0;">
-                <a href="{% url 'landing' %}" class="flex items-center" style="text-decoration: none;color: black;margin: 0;padding: 0;">
+                <!-- <a  href="{% url 'landing' %}" class="flex items-center" style="text-decoration: none;color: black;margin: 0;padding: 0;">
                     <img src="./images/logo.svg" class="h-6 mr-3 sm:h-9" alt="Insightlyze  Logo" />
                     <span
                         class="self-center text-xl font-semibold whitespace-nowrap dark:text-white">Insightlyze</span>
+                </a> -->
+                <a href="{% url 'landing' %}" class="flex items-center" style="text-decoration: none;color: black;margin: 0;padding: 0;" >
+                    <!-- <img src="{% static 'images/Insightlyze_logo.png' %}"  style="border-radius: 100px;width: 40px;height: 40px;" alt="Insightlyze Logo" /> -->
+                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#ff9900"><path d="M120-120v-80l80-80v160h-80Zm160 0v-240l80-80v320h-80Zm160 0v-320l80 81v239h-80Zm160 0v-239l80-80v319h-80Zm160 0v-400l80-80v480h-80ZM120-327v-113l280-280 160 160 280-280v113L560-447 400-607 120-327Z"/></svg>
+                    
+                    <span style="font-weight: bold;"
+                        class="self-center text-xl font-semibold whitespace-nowrap dark:text-white">Insightlyze</span>
                 </a>
+
                 <div class="flex items-center lg:order-2">
                     <!-- <a href="#" class="text-gray-800 dark:text-white hover:bg-gray-50 focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-4 lg:px-5 py-2 lg:py-2.5 sm:mr-2 dark:hover:bg-gray-700 focus:outline-none dark:focus:ring-gray-800">Log in</a> -->
                     <button data-collapse-toggle="mobile-menu-2" type="button"
