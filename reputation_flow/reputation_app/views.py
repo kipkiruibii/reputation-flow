@@ -1135,23 +1135,10 @@ def facebook_callback(request):
     return redirect('dashboard')
 
 
-def get_tiktok_auth_link():
-    """Generates the TikTok OAuth authorization link."""
-    scope_param = " ".join(settings.TIKTOK_SCOPES)
-    auth_url = (
-        f"https://www.tiktok.com/v2/auth/authorize/"
-        f"?client_key={settings.TIKTOK_CLIENT_ID}"
-        f"&redirect_uri={settings.TIKTOK_REDIRECT_URI}"
-        f"&response_type=code"
-        f"&scope={scope_param}"
-    )
-    return auth_url
-
-
 def tiktok_auth_link():
     client_id = settings.TIKTOK_CLIENT_ID # Replace with your TikTok app's client ID
     redirect_uri = settings.TIKTOK_REDIRECT_URI  # Replace with your redirect URI
-    scope = "user.info.basic,user.posts,video.list,video.upload"  # Adjust scopes as needed
+    scope = "user.info.basic,user.info.profile,user.info.stats,video.list,video.upload,video.publish"  # Adjust scopes as needed
     state = "YOUR_UNIQUE_STATE"  # Replace with a unique state parameter for security
     
     auth_url = (
