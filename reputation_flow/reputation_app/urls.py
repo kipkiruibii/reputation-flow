@@ -30,12 +30,12 @@ urlpatterns=[
     path('facebook-callback/',views.facebook_callback,name='facebook_callback'),
     # tiktok 
     path('tiktok-callback/',views.tiktok_callback,name='tiktok_callback'),
-    # twitter
-    path('twitter-callback/',views.twitter_callback,name='twitter_callback'),
     # youtube
     path('youtube-callback/',views.youtube_callback,name='youtube_callback'),
-    # google
-    path('google-callback/',views.google_business_callback,name='google_business_callback'),
+    # reddit
+    path('reddit-callback/',views.reddit_callback,name='reddit_callback'),
+    # pinterest
+    path('pinterest-callback/',views.pinterest_callback,name='pinterest_callback'),
 
 ]
 # Serve media files during development

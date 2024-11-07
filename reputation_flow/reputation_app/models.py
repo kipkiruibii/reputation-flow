@@ -148,14 +148,14 @@ class CompanyInstagram(models.Model):
     account_name=models.TextField(default='')
     profile_url=models.TextField(default='')
     account_id=models.TextField(default='')
-    account_type=models.TextField(default='')
-    followers_trend=models.JSONField(default=dict())
-    impressions=models.JSONField(default=dict())
-    profile_views=models.JSONField(default=dict())
-    reach=models.JSONField(default=dict())
+    followers_trend=models.JSONField(default=list())
+    impressions=models.JSONField(default=list())
+    reach=models.JSONField(default=list())
     last_update_time=models.DateTimeField(default=timezone.now)
+    date_linked= models.DateTimeField(default=timezone.now)
+
     def __str__(self):
-        return self.company.company_name+ ' '+self.account_name
+        return self.company.company_name+ ' ' + self.account_name
 
 class CompanyFacebook(models.Model):
     company=models.ForeignKey(Company,on_delete=models.CASCADE,null=True,blank=True)
@@ -168,16 +168,57 @@ class CompanyFacebook(models.Model):
     account_name=models.TextField(default='')
     profile_url=models.TextField(default='')
     account_id=models.TextField(default='')
-    account_type=models.TextField(default='')
-    followers_trend=models.JSONField(default=dict())
-    impressions=models.JSONField(default=dict())
-    profile_views=models.JSONField(default=dict())
-    reach=models.JSONField(default=dict())
+    followers_trend=models.JSONField(default=list())
+    impressions=models.JSONField(default=list())
+    profile_views=models.JSONField(default=list())
+    reach=models.JSONField(default=list())
+    page_engaged_users=models.JSONField(default=list())
+    page_fans=models.JSONField(default=list())
+    page_views_total=models.JSONField(default=list())
+    page_negative_feedback=models.JSONField(default=list())
+    
     last_update_time=models.DateTimeField(default=timezone.now)
+    date_linked= models.DateTimeField(default=timezone.now)
+
     def __str__(self):
         return self.company.company_name+ ' '+self.account_name
 
-     
+class CompanyTiktok(models.Model):
+    company=models.ForeignKey(Company,on_delete=models.CASCADE,null=True,blank=True)
+    active=models.BooleanField(default=False)
+    linked=models.BooleanField(default=False)
+    access_token=models.TextField(default='')
+    refresh_token=models.TextField(default='')# update the access token every 1 day
+    token_expiry=models.DateField(default=timezone.now() + timezone.timedelta(days=60))
+    account_name=models.TextField(default='')
+    account_username=models.TextField(default='')
+    profile_url=models.TextField(default='')
+    account_id=models.TextField(default='')
+    account_type=models.TextField(default='')
+    followers_count=models.JSONField(default=list())
+    likes_count=models.JSONField(default=list())
+    profile_views=models.JSONField(default=list())
+    reach=models.JSONField(default=list())
+    last_update_time=models.DateTimeField(default=timezone.now)
+    date_linked= models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return self.company.company_name + ' ' + self.account_name
+    
+    
+class CompanyReddit(models.Model):
+    company=models.ForeignKey(Company,on_delete=models.CASCADE,null=True,blank=True)
+    active=models.BooleanField(default=False)
+    linked=models.BooleanField(default=False)
+    access_token=models.TextField(default='')
+    refresh_token=models.TextField(default='')# update the access token every 1 day
+    account_username=models.TextField(default='')
+    profile_url=models.TextField(default='')
+    comment_karma=models.TextField(default='')
+    link_karma=models.TextField(default='')
+    def __str__(self):
+        return self.company.company_name + ' ' + self.account_username
+    
 class CompanyPosts(models.Model):
     company=models.ForeignKey(Company,on_delete=models.CASCADE,null=True,blank=True)
     platforms=models.JSONField(default=list())
@@ -198,7 +239,6 @@ class CompanyPostsComments(models.Model):
 class UploadedMedia(models.Model):
     post=models.ForeignKey(CompanyPosts,on_delete=models.CASCADE)
     media=models.ImageField(upload_to='scheduled_media/')
-
 
 class CompanyReviews(models.Model):
     content=models.TextField(default='')

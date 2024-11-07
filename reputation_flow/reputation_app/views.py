@@ -32,6 +32,8 @@ import secrets
 import hashlib
 import base64
 import urllib.parse
+import praw
+
 # 1. Generate a State Token for CSRF protection
 def generate_state_token():
     return secrets.token_urlsafe(16)  # Generates a random URL-safe token
@@ -61,6 +63,13 @@ ALLOWED_ATTRIBUTES = {
     'img': ['src', 'alt'],
 }
 ALLOWED_STYLES = ['color', 'font-weight', 'text-decoration', 'font-style']  # Allowed CSS styles
+
+reddit = praw.Reddit(
+    client_id=settings.REDDIT_CLIENT_ID,
+    client_secret=settings.REDDIT_CLIENT_SECRET,
+    user_agent=settings.REDDIT_USER_AGENT,
+    redirect_uri=settings.REDDIT_REDIRECT_URI  # This is required for OAuth2 flows.
+)
 
 def clean_html(input_html):
     # Sanitize the input HTML using Bleach
@@ -222,6 +231,8 @@ def dashboard(request,company_id):
     company_id=company_id
     if not company_id:
         return render(request,'404error.html')
+    request.session['company_id'] = company_id
+
     cm=Company.objects.filter(company_id = company_id).first()
     if not cm:
         return render(request,'404error.html')
@@ -230,8 +241,11 @@ def dashboard(request,company_id):
     exp_dif=(cm.company_free_trial_expiry - timezone.now()).days
     cpp=CompanyProfilePicture.objects.filter(company=cm).first()
     sc=CompanyContacts.objects.filter(company=cm).first()
+    ctk=CompanyTiktok.objects.filter(company=cm).first()
+    cfb=CompanyFacebook.objects.filter(company=cm).first()
+    cig=CompanyInstagram.objects.filter(company=cm).first()
+    cr=CompanyReddit.objects.filter(company=cm).first()
     
-
     context={
         'company_name':cm.company_name,
         'company_category':cm.company_category,
@@ -271,6 +285,7 @@ def dashboard(request,company_id):
             'can_modify_ai_assistant':False if not cmp.permissions else cmp.permissions.get('can_modify_ai_assistant',False),
             'can_update_profile':False if not cmp.permissions else cmp.permissions.get('can_update_profile',False),
             'can_link_unlink_account':False if not cmp.permissions else cmp.permissions.get('can_link_unlink_account',False),
+            # 'can_link_unlink_account':False,
             'can_reply_to_reviews':False if not cmp.permissions else cmp.permissions.get('can_reply_to_reviews',False),
             'can_assign_member_review':False if not cmp.permissions else cmp.permissions.get('can_assign_member_review',False),
             'can_post':False if not cmp.permissions else cmp.permissions.get('can_post',False),
@@ -279,29 +294,21 @@ def dashboard(request,company_id):
             'can_report_issues_to_Rflow':False if not cmp.permissions else cmp.permissions.get('can_report_issues_to_Rflow',False)
         },
         'instagram':{
-            # 'profile':get_instagram_user_info().get('profile_picture_url',None),
-            # 'username':get_instagram_user_info().get('username',None),
-            'date_linked':'',
+            'profile':cig.profile_url if cig else '',
+            'username':cig.account_name if cig else '',
+            'date_linked':cig.date_linked if cig else '',
             'link_url':get_instagram_auth_url(company_id),
-            'linked':False,
-            'active':False
+            'linked':cig.linked if cig else False ,
+            'active':cig.active if cig else False 
         },
         'facebook':{
-            'profile':'',
-            'username':'',
-            'date_linked':'',
+            'profile':cfb.profile_url if cfb else '',
+            'username':cfb.account_name if cfb else '',
+            'date_linked':cfb.date_linked if cfb else '',
             'link_url':get_facebook_auth_url(company_id),
-            'linked':False,
-            'active':True
+            'linked':cfb.linked if cfb else False ,
+            'active':cfb.active if cfb else False 
         },
-        'twitter':{
-            'profile':'',
-            'username':'',
-            'date_linked':'',
-            'link_url':twitter_auth_link(),
-            'linked':False,
-            'active':True
-            },
         'youtube':{
             'profile':'',
             'username':'',
@@ -311,26 +318,31 @@ def dashboard(request,company_id):
             'active':False
         },
         'reddit':{
-            'profile':'',
-            'username':'',
-            'date_linked':'',
-            # 'link_url':google_business_auth_link(),
-            'linked':False,
-            'active':False
+            'profile':cr.profile_url if cr else '',
+            'username':cr.account_username if cr else '',
+            'date_linked': '',
+            'link_url':reddit_auth_link(company_id),
+            'linked':cr.linked if cr else '',
+            'active':cr.active if cr else '',
+            'comment_karma':cr.comment_karma if cr else '',
         },
         'tiktok':{
-            'profile':'',
-            'username':'',
-            'date_linked':'',
-            'link_url':tiktok_auth_link(),
-            'linked':False,
-            'active':False
+            'profile':ctk.profile_url if ctk else '',
+            'username':ctk.account_username if ctk else '',
+            'display_name':ctk.account_name if ctk else '',
+            'follower_count':ctk.followers_count[-1] if ctk else '-',
+            'like_count':ctk.likes_count[-1] if ctk else '-',
+            'growth':(ctk.followers_count[-1]-ctk.followers_count[-2]) if ctk and len(ctk.followers_count)>1 else '-',
+            'date_linked':ctk.date_linked if ctk else '',
+            'link_url':tiktok_auth_link(company_id),
+            'linked':ctk.linked if ctk else False ,
+            'active':ctk.active if ctk else False 
         },
         'snapchat':{
             'profile':'',
             'username':'',
             'date_linked':'',
-            'link_url':tiktok_auth_link(),
+            # 'link_url':tiktok_auth_link(),
             'linked':False,
             'active':False
         },
@@ -338,7 +350,7 @@ def dashboard(request,company_id):
             'profile':'',
             'username':'',
             'date_linked':'',
-            'link_url':tiktok_auth_link(),
+            # 'link_url':tiktok_auth_link(company_id),
             'linked':False,
             'active':False
         },
@@ -460,7 +472,6 @@ def createTeam(request):
         'invite_links':CompanyTeamInviteLinks.objects.filter(team=ct).order_by('-pk')
     }
     return render(request,'dashboard.html',context=context)
-
 
 # delete team 
 @api_view(['POST'])
@@ -788,11 +799,13 @@ def get_instagram_auth_url(company_id):
     """
     # Encode the user_id or other identifying data in the state parameter
     state = urllib.parse.quote_plus(str(company_id))  # Ensure URL encoding for special characters
+    # pages_show_list,pages_manage_posts,pages_read_engagement,pages_manage_engagement,
+
     oauth_url = (
         f"https://www.facebook.com/v21.0/dialog/oauth"
         f"?client_id={settings.INSTAGRAM_CLIENT_ID}"
         f"&redirect_uri={settings.INSTAGRAM_REDIRECT_URI}"
-        f"&scope=instagram_basic,instagram_content_publish,instagram_manage_insights,pages_show_list,pages_manage_posts,pages_read_engagement,pages_manage_engagement"
+        f"&scope=read_insights,business_management,instagram_basic,instagram_manage_comments,instagram_manage_insights,instagram_content_publish,instagram_manage_messages,pages_read_engagement,pages_manage_engagement"
         f"&state={state}"
         )
     return oauth_url
@@ -810,27 +823,25 @@ def get_facebook_auth_url(company_id):
         f"https://www.facebook.com/v21.0/dialog/oauth"
         f"?client_id={settings.FACEBOOK_APP_ID}"
         f"&redirect_uri={settings.FACEBOOK_REDIRECT_URI}"
-        f"&scope=pages_show_list,pages_manage_posts,pages_read_engagement,pages_manage_engagement"
+        f"&scope=pages_show_list,pages_manage_posts,pages_read_engagement,pages_manage_engagement,business_management,pages_manage_metadata,pages_messaging,pages_read_user_content,read_insights"
         f"&state={state}"
         )
     return oauth_url
-
 
 @api_view(['GET'])  
 def instagram_callback(request):
     code = request.GET.get('code')
     state = request.GET.get("state")  # Retrieve the state parameter
     company_id = urllib.parse.unquote_plus(state)  # Decode the state to get the original user_id
-    token_url = f"https://graph.facebook.com/v21.0/oauth/access_token?client_id={settings.FACEBOOK_APP_ID}&redirect_uri={settings.FACEBOOK_REDIRECT_URI}&client_secret={settings.FACEBOOK_APP_SECRET}&code={code}"
+    token_url = f"https://graph.facebook.com/v21.0/oauth/access_token?client_id={settings.FACEBOOK_APP_ID}&redirect_uri={settings.INSTAGRAM_REDIRECT_URI}&client_secret={settings.FACEBOOK_APP_SECRET}&code={code}"
     response = requests.get(token_url)
     data = response.json()
-    print(data)
     access_token = data.get('access_token') 
-    cm=Company.objects.filter(company_id = company_id).first()
+    cm = Company.objects.filter(company_id = company_id).first()
     if not cm:
-        return redirect('dashboard')
-    ci=CompanyInstagram.objects.filter(company=cm).first()
+        return redirect('dashboard',company_id=company_id)
     pg_id=get_facebook_ig_page_id(access_token)
+    ci=CompanyInstagram.objects.filter(company=cm).first()
     inst_id = get_instagram_account_id(access_token,pg_id)
     insgts=get_instagram_account_insights(access_token,inst_id)
     l_lived_token=get_long_lived_token(access_token)
@@ -841,71 +852,33 @@ def instagram_callback(request):
         ci.linked=True
         ci.active=True
         ci.account_name=insgts['username']
-        ci.account_type=insgts['account_type']
         ci.profile_url=insgts['profile_picture_url']
-        ci.followers_trend.add(insgts['followers_count'])
-        ci.impressions.add(insgts['impressions'])
-        ci.reach.add(insgts['reach'])
-        ci.profile_views.add(insgts['profile_views'])
+        ci.followers_trend.append(insgts['followers_count'])
+        ci.impressions.append(insgts['impressions'])
+        ci.reach.append(insgts['reach'])
         ci.save()
         
     else:
         ci = CompanyInstagram(
+            company=cm,
             short_lived_token=access_token,
             account_id=inst_id,
             long_lived_token=l_lived_token,
             linked=True,
             active=True,
             account_name=insgts['username'],
-            account_type=insgts['account_type'],
             profile_url=insgts['profile_picture_url']
         )
-        ci.followers_trend.add(insgts['followers_count'])
-        ci.impressions.add(insgts['impressions'])
-        ci.reach.add(insgts['reach'])
-        ci.profile_views.add(insgts['profile_views'])
+        ci.followers_trend.append(insgts['followers_count'])
+        ci.impressions.append(insgts['impressions'])
+        ci.reach.append(insgts['reach'])
         ci.save()
         
-    cf=CompanyFacebook.objects.filter(company=cm).first()
-    insgts=get_facebook_page_insights(access_token,pg_id)
-    if cf:
-        cf.short_lived_token=access_token
-        cf.account_id=pg_id
-        cf.long_lived_token=l_lived_token
-        cf.linked=True
-        cf.active=True
-        cf.page_id=pg_id
-        cf.account_name=insgts['page_name']
-        cf.profile_url=insgts['p_picture']
-        cf.followers_trend.add(insgts['fan_count'])
-        cf.impressions.add(insgts['page_impressions'])
-        cf.page_negative_feedback.add(insgts['page_negative_feedback'])
-        cf.profile_views.add(insgts['page_views_total'])
-        cf.page_engaged_users.add(insgts['page_engaged_users'])
-        cf.page_fans.add(insgts['page_fans'])
-        cf.save()
-    else:
-        cf = CompanyFacebook(
-            short_lived_token=access_token,
-            account_id=pg_id,
-            long_lived_token=l_lived_token,
-            linked=True,
-            active=True,
-            page_id=pg_id,
-            account_name=insgts['page_name'],
-            profile_url=insgts['p_picture'],
-        )
-        cf.followers_trend.add(insgts['fan_count'])
-        cf.impressions.add(insgts['page_impressions'])
-        cf.page_negative_feedback.add(insgts['page_negative_feedback'])
-        cf.profile_views.add(insgts['page_views_total'])
-        cf.page_engaged_users.add(insgts['page_engaged_users'])
-        cf.page_fans.add(insgts['page_fans'])
-        cf.save()
 
-    return redirect('dashboard')
+    return redirect('dashboard',company_id=company_id)
     
 def get_facebook_ig_page_id(page_access_token):
+    # page_access_token='EAAXHx5IkuqcBOxJORLpQ4QZCdRoZCfiAIohsqeyoJStcjTncSkfqnMPxpVPDAc0N2JWv9kXEbZBU2pNkBZB55PEqmhCvLSM8W2l9ndtiYZBnZBYytMyhOLKM1cC18o4un8YqFnE1LG5iZB8EgLqvJg4ZAF5RuMR8AYM3Ge2P3ypZClHyU3usO459tGye73PfzuDrdYX6jC6fTfx2IQdaoYQZDZD'
     page_url = f"https://graph.facebook.com/v21.0/me/accounts"
     params = {"access_token": page_access_token}
     response = requests.get(page_url,params=params)
@@ -955,7 +928,6 @@ def get_long_lived_token(short_lived_token):
     data = response.json()
     return data.get("access_token")
 
-
 def refresh_long_lived_token(current_long_lived_token):
     """
     Refreshes the Facebook long-lived access token, extending its validity by 60 days.
@@ -993,9 +965,9 @@ def get_instagram_account_insights(access_token, instagram_account_id):
     :param instagram_account_id: The ID of the Instagram Business account.
     :return: A dictionary containing basic account metrics, username, and profile picture.
     """
-    url = f"https://graph.facebook.com/v14.0/{instagram_account_id}"
+    url = f"https://graph.facebook.com/v21.0/{instagram_account_id}"
     params = {
-        "fields": "followers_count,media_count,account_type,username,profile_picture_url",
+        "fields": "follows_count,followers_count,media_count,username,profile_picture_url",
         "access_token": access_token
     }
     
@@ -1007,9 +979,9 @@ def get_instagram_account_insights(access_token, instagram_account_id):
         raise Exception(f"Error fetching insights: {data['error']['message']}")
     
     # Additional insights (optional)
-    insights_url = f"https://graph.facebook.com/v14.0/{instagram_account_id}/insights"
+    insights_url = f"https://graph.facebook.com/v21.0/{instagram_account_id}/insights"
     insights_params = {
-        "metric": "impressions,reach,profile_views",
+        "metric": "impressions,reach",
         "period": "day",
         "access_token": access_token
     }
@@ -1029,7 +1001,6 @@ def get_instagram_account_insights(access_token, instagram_account_id):
         "profile_picture_url": data.get("profile_picture_url"),
         "impressions": insights_data["data"][0]["values"] if "data" in insights_data else None,
         "reach": insights_data["data"][1]["values"] if "data" in insights_data else None,
-        "profile_views": insights_data["data"][2]["values"] if "data" in insights_data else None,
     }
 
     return account_data
@@ -1043,6 +1014,7 @@ def get_facebook_page_insights(access_token,page_id):
     
     response = requests.get(url, params=params)   
     profile_info=response.json()
+    print('profile info',profile_info)
     
     url = f"https://graph.facebook.com/v21.0/{page_id}/insights"
     params = {
@@ -1088,11 +1060,10 @@ def facebook_callback(request):
     token_url = f"https://graph.facebook.com/v21.0/oauth/access_token?client_id={settings.FACEBOOK_APP_ID}&redirect_uri={settings.FACEBOOK_REDIRECT_URI}&client_secret={settings.FACEBOOK_APP_SECRET}&code={code}"
     response = requests.get(token_url)
     data = response.json()
-    print(data)
     access_token = data.get('access_token') 
-    cm=Company.objects.filter(company_id = company_id).first()
+    cm = Company.objects.filter(company_id = company_id).first()
     if not cm:
-        return redirect('dashboard')
+        return redirect('dashboard',company_id=company_id)
     pg_id=get_facebook_ig_page_id(access_token)
     l_lived_token=get_long_lived_token(access_token)
     cf=CompanyFacebook.objects.filter(company=cm).first()
@@ -1106,15 +1077,16 @@ def facebook_callback(request):
         cf.page_id=pg_id
         cf.account_name=insgts['page_name']
         cf.profile_url=insgts['p_picture']
-        cf.followers_trend.add(insgts['fan_count'])
-        cf.impressions.add(insgts['page_impressions'])
-        cf.page_negative_feedback.add(insgts['page_negative_feedback'])
-        cf.profile_views.add(insgts['page_views_total'])
-        cf.page_engaged_users.add(insgts['page_engaged_users'])
-        cf.page_fans.add(insgts['page_fans'])
+        cf.followers_trend.append(insgts['fan_count'])
+        cf.impressions.append(insgts['page_impressions'])
+        cf.page_negative_feedback.append(insgts['page_negative_feedback'])
+        cf.profile_views.append(insgts['page_views_total'])
+        cf.page_engaged_users.append(insgts['page_engaged_users'])
+        cf.page_fans.append(insgts['page_fans'])
         cf.save()
     else:
         cf = CompanyFacebook(
+            company=cm,
             short_lived_token=access_token,
             account_id=pg_id,
             long_lived_token=l_lived_token,
@@ -1124,27 +1096,27 @@ def facebook_callback(request):
             account_name=insgts['page_name'],
             profile_url=insgts['p_picture'],
         )
-        cf.followers_trend.add(insgts['fan_count'])
-        cf.impressions.add(insgts['page_impressions'])
-        cf.page_negative_feedback.add(insgts['page_negative_feedback'])
-        cf.profile_views.add(insgts['page_views_total'])
-        cf.page_engaged_users.add(insgts['page_engaged_users'])
-        cf.page_fans.add(insgts['page_fans'])
+        cf.followers_trend.append(insgts['fan_count'])
+        cf.impressions.append(insgts['page_impressions'])
+        cf.page_negative_feedback.append(insgts['page_negative_feedback'])
+        cf.profile_views.append(insgts['page_views_total'])
+        cf.page_engaged_users.append(insgts['page_engaged_users'])
+        cf.page_fans.append(insgts['page_fans'])
         cf.save()
 
-    return redirect('dashboard')
+    return redirect('dashboard',company_id=company_id)
 
 
-def tiktok_auth_link():
+def tiktok_auth_link(company_id):
     client_id = settings.TIKTOK_CLIENT_ID # Replace with your TikTok app's client ID
     redirect_uri = settings.TIKTOK_REDIRECT_URI  # Replace with your redirect URI
-    scope = "user.info.basic,user.info.profile,user.info.stats,video.list,video.upload,video.publish"  # Adjust scopes as needed
-    state = "YOUR_UNIQUE_STATE"  # Replace with a unique state parameter for security
-    
+    scope = "user.info.basic,user.info.profile,user.info.stats,video.list,video.publish"  # Adjust scopes as needed
+    state = urllib.parse.quote_plus(str(company_id))  # Ensure URL encoding for special characters
+
     auth_url = (
         f"https://www.tiktok.com/v2/auth/authorize/"
         f"?client_key={client_id}"
-        f"&redirect_uri={urllib.parse.quote_plus(redirect_uri)}"
+        f"&redirect_uri={redirect_uri}"
         f"&response_type=code"
         f"&scope={scope}"
         f"&state={state}"
@@ -1155,8 +1127,11 @@ def tiktok_auth_link():
 @csrf_exempt
 def tiktok_callback(request):
     """Handles the TikTok callback and exchanges code for an access token."""
-    print('tiktok called back')
+    
     code = request.GET.get('code')
+    state = request.GET.get("state")  # Retrieve the state parameter
+    company_id = urllib.parse.unquote_plus(state)  # Decode the state to get the original user_id
+
     token_url = "https://open.tiktokapis.com/v2/oauth/token/"
     data = {
         "client_key": settings.TIKTOK_CLIENT_ID,
@@ -1167,16 +1142,67 @@ def tiktok_callback(request):
     }
     response = requests.post(token_url, data=data)
     access_token = response.json().get("access_token")
+    refresh_token= response.json().get("refresh_token")
 
     if not access_token:
-        return HttpResponse("Failed to get access token", status=400)
+        return redirect('dashboard',company_id=company_id)
+    cm=Company.objects.filter(company_id = company_id).first()
+    if not cm:
+        return redirect('dashboard',company_id=company_id)
 
     # Store access token in session or database for later use
-    request.session["tiktok_access_token"] = access_token
+    ctk=CompanyTiktok.objects.filter(company=cm).first()
+    data=tiktok_profile_stat(access_token)
+    if not ctk:
+        ctk=CompanyTiktok(
+            company=cm,
+            active=True,
+            linked=True,
+            access_token=access_token,
+            refresh_token=refresh_token,
+            account_name=data['disp_name'],
+            account_username=data['u_name'],
+            profile_url=data['ppic'],
+            account_id=data['user_id'],
+        )
+        ctk.followers_count.append(data['f_count'])
+        ctk.likes_count.append(data['l_count'])
+        ctk.save()
+    else:
+        ctk.company=cm
+        ctk.active=True
+        ctk.linked=True
+        ctk.access_token=access_token
+        ctk.refresh_token=refresh_token
+        ctk.account_name=data['disp_name']
+        ctk.account_username=data['u_name']
+        ctk.profile_url=data['ppic']
+        ctk.account_id=data['user_id']
+        ctk.followers_count.append(data['f_count'])
+        ctk.likes_count.append(data['l_count'])
+        ctk.save()
+
     print(f' access token received {access_token}')
-    return HttpResponse(f"Authenticated with TikTok! {access_token}")
+    return redirect('dashboard',company_id=company_id)
 
+def tiktok_profile_stat(access_token):
+    url = 'https://open.tiktokapis.com/v2/user/info/?fields=open_id,union_id,avatar_url,display_name,username,follower_count,likes_count'
+    headers = {
+        'Authorization': f'Bearer {access_token}'
+    }
 
+    response = requests.get(url, headers=headers) 
+    dta=response.json().get('data',{}).get('user')
+    return {
+        'user_id':dta.get('union_id'),
+        'ppic':dta.get('avatar_url'),
+        'disp_name':dta.get('display_name'),
+        'u_name':dta.get('username'),
+        'f_count':dta.get('follower_count'),
+        'l_count':dta.get('likes_count')
+    }   
+    
+    
 def tiktok_upload_video(request):
     """Uploads a video to TikTok."""
     access_token = request.session.get("tiktok_access_token")
@@ -1222,81 +1248,6 @@ def get_tiktok_comments(request, video_id):
 
     if response.status_code != 200:
         return JsonResponse({"error": "Failed to fetch comments"})
-
-    return JsonResponse(response.json())
-
-def twitter_auth_link():
-    """Generates the Twitter OAuth 2.0 authorization link."""
-    state_token = generate_state_token()
-    code_verifier, code_challenge = generate_pkce_challenge()
-    auth_url = (
-        f"https://twitter.com/i/oauth2/authorize?response_type=code"
-        f"&client_id={settings.TWITTER_CLIENT_ID}"
-        f"&redirect_uri={settings.TWITTER_REDIRECT_URI}"
-        f"&scope=tweet.read%20tweet.write%20users.read%20offline.access"
-        f"&state={state_token}"  # Replace with a generated state token for security
-        f"&code_challenge={code_challenge}"  # Replace with generated PKCE challenge token
-        f"&code_challenge_method=plain"
-    )
-    return auth_url
-
-def twitter_callback(request):
-    """Handles the Twitter callback and exchanges code for an access token."""
-    code = request.GET.get('code')
-    token_url = "https://api.twitter.com/2/oauth2/token"
-    data = {
-        "client_id": settings.TWITTER_CLIENT_ID,
-        "redirect_uri": settings.TWITTER_REDIRECT_URI,
-        "grant_type": "authorization_code",
-        "code": code,
-        "code_verifier": "challenge_token",  # Should match the code challenge sent earlier
-    }
-    response = requests.post(token_url, data=data)
-    access_token = response.json().get("access_token")
-
-    if not access_token:
-        return JsonResponse({"error": "Failed to get access token"}, status=400)
-
-    request.session["twitter_access_token"] = access_token
-    return JsonResponse({"message": "Authenticated with Twitter!"})
-
-def twitter_post_tweet(request):
-    """Posts a tweet to Twitter on behalf of the user."""
-    access_token = request.session.get("twitter_access_token")
-    tweet_text = "Hello Twitter from Django!"  # Change to dynamic text as needed
-
-    if not access_token:
-        return JsonResponse({"error": "User is not authenticated"}, status=403)
-
-    headers = {
-        "Authorization": f"Bearer {access_token}",
-        "Content-Type": "application/json"
-    }
-    tweet_url = "https://api.twitter.com/2/tweets"
-    data = {
-        "text": tweet_text
-    }
-
-    response = requests.post(tweet_url, headers=headers, json=data)
-
-    if response.status_code != 201:
-        return JsonResponse({"error": "Failed to post tweet"}, status=response.status_code)
-
-    return JsonResponse(response.json())
-
-def twitter_get_replies(request, tweet_id):
-    """Retrieves replies to a specific tweet."""
-    access_token = request.session.get("twitter_access_token")
-
-    if not access_token:
-        return JsonResponse({"error": "User is not authenticated"}, status=403)
-
-    headers = {"Authorization": f"Bearer {access_token}"}
-    replies_url = f"https://api.twitter.com/2/tweets/{tweet_id}/conversation"
-    response = requests.get(replies_url, headers=headers)
-
-    if response.status_code != 200:
-        return JsonResponse({"error": "Failed to fetch replies"}, status=response.status_code)
 
     return JsonResponse(response.json())
 
@@ -1377,72 +1328,51 @@ def youtube_get_comments(request, video_id):
     response = request.execute()
     return JsonResponse(response)
 
-def google_business_auth_link():
-    """Generates the Google Business Profile OAuth 2.0 authorization link."""
-    flow = google_auth_oauthlib.flow.Flow.from_client_secrets_file(
-        "client_secret.json", scopes=settings.GOOGLE_SCOPES
-    )
-    flow.redirect_uri = settings.GOOGLE_REDIRECT_URI
-
-    authorization_url, state = flow.authorization_url(
-        access_type="offline",  # For refresh token
-        include_granted_scopes="true"
-    )
-
-    # request.session["state"] = state
+def reddit_auth_link(company_id):
+    state = urllib.parse.quote_plus(str(company_id))  # Ensure URL encoding for special characters
+    authorization_url = reddit.auth.url(['identity', 'submit', 'read'],  state=state, duration='permanent',)
     return authorization_url
 
-def google_business_callback(request):
-    """Handles the Google callback to exchange the code for an access token."""
-    state = request.session["state"]
-    flow = google_auth_oauthlib.flow.Flow.from_client_secrets_file(
-        "client_secret.json", scopes=settings.GOOGLE_SCOPES, state=state
-    )
-    flow.redirect_uri = settings.GOOGLE_REDIRECT_URI
+def reddit_callback(request):
+    code = request.GET.get('code')
+    state = request.GET.get('state')  
+    company_id = urllib.parse.unquote_plus(state)  # Decode the state to get the original user_id
 
-    authorization_response = request.build_absolute_uri()
-    flow.fetch_token(authorization_response=authorization_response)
+    if code:
+        refresh_token = reddit.auth.authorize(code)
+        # access_token = reddit.auth.access_token
+        cm=Company.objects.filter(company_id=company_id).first()
+        if not cm:
+            return redirect('dashboard',company_id=company_id)
+        
+        cr=CompanyReddit.objects.filter(company=cm).first()
+        red_user = reddit.user.me()  # Get the authenticated user
+        if not cr:
+            cr=CompanyReddit(
+                company=cm,
+                active=True,
+                linked=True,
+                # access_token=access_token,
+                refresh_token=refresh_token,# update the access token every 1 day
+                account_username=red_user.name,
+                profile_url=red_user.icon_img,
+                comment_karma=red_user.comment_karma,
+                link_karma=red_user.link_karma
+                )
+            cr.save()
+        else:
+            cr.active=True,
+            cr.linked=True,
+            # cr.access_token=access_token,
+            refresh_token=refresh_token,# update the access token every 1 day
+            cr.account_username=red_user.name,
+            cr.profile_url=red_user.icon_img,
+            cr.comment_karma=red_user.comment_karma,
+            cr.link_karma=red_user.link_karma
+            cr.save()
+    return redirect('dashboard',company_id=company_id)
 
-    credentials = flow.credentials
-    request.session["google_access_token"] = credentials.token
-    request.session["google_refresh_token"] = credentials.refresh_token
-    return JsonResponse({"message": "Authenticated with Google Business Profile!"})
-
-def google_business_info(request):
-    """Fetches the business profile information."""
-    access_token = request.session.get("google_access_token")
-    credentials = Credentials(token=access_token)
-    service = build("mybusinessbusinessinformation", "v1", credentials=credentials)
-
-    account = "accounts/YOUR_ACCOUNT_ID"  # Replace with your Account ID
-    response = service.accounts().list().execute()
-    return JsonResponse(response)
-
-def create_google_business_post(request):
-    """Creates a new post on the business profile."""
-    access_token = request.session.get("google_access_token")
-    credentials = Credentials(token=access_token)
-    service = build("mybusiness", "v4", credentials=credentials)
-
-    # Define the post content
-    post_content = {
-        "summary": "Check out our new product!",
-        "callToAction": {
-            "actionType": "LEARN_MORE",
-            "url": "https://yourbusiness.com/new-product"
-        },
-        "media": [
-            {
-                "mediaFormat": "PHOTO",
-                "sourceUrl": "https://yourbusiness.com/image.jpg"
-            }
-        ]
-    }
-
-    location = "locations/YOUR_LOCATION_ID"  # Replace with your Location ID
-    response = service.accounts().locations().localPosts().create(
-        parent=location,
-        body=post_content
-    ).execute()
-
-    return JsonResponse(response)
+def pinterest_auth_link(company_id):
+    pass
+def pinterest_callback(request):
+    pass

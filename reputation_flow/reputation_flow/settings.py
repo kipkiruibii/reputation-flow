@@ -28,7 +28,7 @@ SECRET_KEY = config.get('DJANGO_SECURITY_KEY')
 DEBUG = True
 CSRF_TRUSTED_ORIGINS = ['https://tiktok.com']
 
-ALLOWED_HOSTS = ['interstatemovers.pythonanywhere.com','127.0.0.1','e428-41-80-118-216.ngrok-free.app']
+ALLOWED_HOSTS = ['interstatemovers.pythonanywhere.com','127.0.0.1','0116-197-237-137-81.ngrok-free.app']
 
 # Application definition
 INSTALLED_APPS = [
@@ -148,11 +148,6 @@ TIKTOK_REDIRECT_URI = config.get('TIKTOK_REDIRECT_URI')
 # TIKTOK_SCOPES = ["video.publish", "user.info.basic", "comment.list"]
 TIKTOK_SCOPES = ["user.info.basic"]
 
-# twitter.py
-TWITTER_CLIENT_ID = config.get('TWITTER_CLIENT_ID')
-TWITTER_CLIENT_SECRET = config.get('TWITTER_CLIENT_SECRET')
-TWITTER_REDIRECT_URI = config.get('TWITTER_REDIRECT_URI')  
-
 # youtube 
 YOUTUBE_CLIENT_ID = config.get('YOUTUBE_CLIENT_ID')
 YOUTUBE_CLIENT_SECRET = config.get('YOUTUBE_CLIENT_SECRET')
@@ -160,8 +155,13 @@ YOUTUBE_REDIRECT_URI = config.get('YOUTUBE_REDIRECT_URI')
 YOUTUBE_SCOPES = ["https://www.googleapis.com/auth/youtube.upload", "https://www.googleapis.com/auth/youtube.force-ssl"]
 
 # google
-# settings.py
 GOOGLE_CLIENT_ID = config.get('GOOGLE_CLIENT_ID')
 GOOGLE_CLIENT_SECRET = config.get('GOOGLE_CLIENT_SECRET')
 GOOGLE_REDIRECT_URI = config.get('GOOGLE_REDIRECT_URI')
 GOOGLE_SCOPES = ["https://www.googleapis.com/auth/business.manage"]
+
+# reddit
+REDDIT_CLIENT_ID = config.get('REDDIT_CLIENT_ID')
+REDDIT_CLIENT_SECRET = config.get('REDDIT_CLIENT_SECRET')
+REDDIT_REDIRECT_URI = config.get('REDDIT_REDIRECT_URI')
+REDDIT_USER_AGENT = config.get('REDDIT_USER_AGENT')

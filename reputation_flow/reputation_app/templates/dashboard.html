@@ -1896,6 +1896,7 @@
                                     <div class="linked-accounts">
                                         <h6>Social Channels</h6>
                                         <div class="grid-container">
+                                            <!-- INSTAGRAM -->
                                             <div class="grid-item">
                                                 <div style="height:30px;display: flex;gap: 10px;">
                                                     <img src="{% static 'images/instagram_logo.png' %}"
@@ -1906,13 +1907,42 @@
                                                 <div>
                                                     {% if instagram.linked %}
 
-                                                    <img src="{{ instagram.profile }}"
-                                                        style="height: 50px;width: 50px;border-radius: 10px;" alt="">
-                                                    <p>{{ instagram.username }}</p>
+                                                    <div style="display: flex;gap: 30px;">
+                                                        <div style="width: 30%;">
+                                                            <p class="zero-padding-margin font-12 ">
+                                                                {{ facebook.display_name }}</p>
+
+                                                            <img src="{{ instagram.profile }}"
+                                                                style="height: 40px;width: 40px;border-radius: 10px;"
+                                                                alt="">
+                                                            <p class="zero-padding-margin font-12">
+                                                                {{ instagram.username }}</p>
+                                                        </div>
+                                                        <div>
+                                                            <p class="font-12 zero-padding-margin"
+                                                                style="text-align: start;">
+                                                                Followers: {{ instagram.follower_count }}</p>
+                                                            <p class="font-12 zero-padding-margin"
+                                                                style="text-align: start;">Growth:
+                                                                {% if growth > 0 %}
+                                                                <span class="success-flair">{{ instagram.growth
+                                                                    }}</span>
+                                                                {% elif growth < 0 %} <span class="warning-flair">
+                                                                    {{ facebook.growth }}</span>
+                                                                    {% else %}
+                                                                    <span class="not-sent-flair">
+                                                                        {{ facebook.growth}}</span>
+                                                                    {% endif %}
+                                                            </p>
+                                                            <p class="font-12 zero-padding-margin"
+                                                                style="text-align: start;">Likes:
+                                                                {{ instagram.like_count }}</span> </p>
+                                                        </div>
+                                                    </div>
                                                     {% else %}
                                                     <p
                                                         style="display: flex;justify-content: center;align-items: center;">
-                                                        0 of 1
+                                                        No
                                                         linked account</p>
                                                     <p class="font-12 zero-padding-margin">Account must be linked to a
                                                         Facebook page <a href="#">Learn more</a> </p>
@@ -1929,14 +1959,17 @@
                                                         </span>
                                                     </div>
                                                     {% if user_permissions.can_link_unlink_account %}
-                                                    <button type="button" class="btn btn-primary"
-                                                        style="font-size: 12px;">Change</button>
-                                                    {% else %}
                                                     <a style="margin-right: 10px;"
                                                         href="{{ instagram.link_url }}"><button type="button"
+                                                            class="btn btn-primary"
+                                                            style="font-size: 12px;">Change</button></a>
+
+                                                    {% else %}
+                                                    <a style="margin-right: 10px;"><button type="button"
                                                             class="btn btn-primary" tooltip="Forbidden. Contact admin"
                                                             flow="down"
                                                             style="cursor: not-allowed;font-size: 12px;">Change</button></a>
+
                                                     {% endif %}
                                                     {% else %}
                                                     <div>
@@ -1959,6 +1992,7 @@
                                                 </div>
 
                                             </div>
+                                            <!-- FACEBOOK -->
                                             <div class="grid-item">
                                                 <div style="height:30px;display: flex;gap: 10px;">
                                                     <img src="{% static 'images/facebook_logo.png' %}"
@@ -1968,14 +2002,42 @@
                                                 <hr style="margin: 2px;padding: 0;">
                                                 <div>
                                                     {% if facebook.linked %}
+                                                    <div style="display: flex;gap: 30px;">
+                                                        <div style="width: 30%;">
+                                                            <p class="zero-padding-margin font-12 ">
+                                                                {{ facebook.display_name }}</p>
 
-                                                    <img src="{% static 'images/instagram_logo.png' %}"
-                                                        style="height: 50px;width: 50px;border-radius: 10px;" alt="">
-                                                    <p>Username</p>
+                                                            <img src="{{ facebook.profile }}"
+                                                                style="height: 40px;width: 40px;border-radius: 10px;"
+                                                                alt="">
+                                                            <p class="zero-padding-margin font-12">
+                                                                {{ facebook.username }}</p>
+                                                        </div>
+                                                        <div>
+                                                            <p class="font-12 zero-padding-margin"
+                                                                style="text-align: start;">
+                                                                Followers: {{ facebook.follower_count }}</p>
+                                                            <p class="font-12 zero-padding-margin"
+                                                                style="text-align: start;">Growth:
+                                                                {% if growth > 0 %}
+                                                                <span class="success-flair">{{ facebook.growth }}</span>
+                                                                {% elif growth < 0 %} <span class="warning-flair">
+                                                                    {{ facebook.growth }}</span>
+                                                                    {% else %}
+                                                                    <span class="not-sent-flair">
+                                                                        {{ facebook.growth}}</span>
+                                                                    {% endif %}
+                                                            </p>
+                                                            <p class="font-12 zero-padding-margin"
+                                                                style="text-align: start;">Likes:
+                                                                {{ facebook.like_count }}</span> </p>
+                                                        </div>
+                                                    </div>
+
                                                     {% else %}
                                                     <p
                                                         style="display: flex;justify-content: center;align-items: center;">
-                                                        0 of 1
+                                                        No
                                                         linked account</p>
                                                     <p class="font-12">Link to a Facebook page. <a href="#">Learn
                                                             More</a> </p>
@@ -2023,69 +2085,7 @@
                                                 </div>
 
                                             </div>
-                                            <div class="grid-item">
-                                                <div style="height:30px;display: flex;gap: 10px;">
-                                                    <img src="{% static 'images/x_logo.svg' %}"
-                                                        style="height: 20px;width: 20px;border-radius: 10px;" alt="">
-                                                    <p style="font-size: 12px;">X</p>
-                                                </div>
-                                                <hr style="margin: 2px;padding: 0;">
-                                                <div>
-                                                    {% if twitter.linked %}
-
-                                                    <img src="{% static 'images/instagram_logo.png' %}"
-                                                        style="height: 50px;width: 50px;border-radius: 10px;" alt="">
-                                                    <p>Username</p>
-                                                    {% else %}
-                                                    <p
-                                                        style="display: flex;justify-content: center;align-items: center;">
-                                                        No
-                                                        linked account</p>
-                                                    <p class="font-12 zero-padding-margin">Link to your X Professional
-                                                        Account. <a href="#">Learn More</a> </p>
-
-                                                    {% endif %}
-
-                                                </div>
-                                                <div style="height:30px;display: flex;justify-content: space-between;">
-
-                                                    {% if twitter.linked %}
-                                                    <div>
-                                                        <span
-                                                            style="background-color: rgb(216, 251, 239);color: rgb(8, 192, 131);padding: 5px;border-radius:5px ;font-size:10px;margin-left:5px;margin-right: 15px;">
-                                                            Linked
-                                                        </span>
-                                                    </div>
-                                                    {% if user_permissions.can_link_unlink_account %}
-                                                    <a style="margin-right: 10px;" href="{{ twitter.link_url }}"><button
-                                                            type="button" class="btn btn-primary"
-                                                            style="font-size: 12px;">Change</button></a>
-                                                    {% else %}
-                                                    <button type="button" class="btn btn-primary"
-                                                        tooltip="Forbidden. Contact admin" flow="down"
-                                                        style="cursor: not-allowed;font-size: 12px;">Change</button>
-                                                    {% endif %}
-
-                                                    {% else %}
-                                                    <div>
-                                                        <span
-                                                            style="background-color: rgb(251, 216, 216);color: rgb(192, 8, 8);padding: 5px;border-radius:5px ;font-size:10px;margin-left:5px;margin-right: 15px;">
-                                                            Not Linked
-                                                        </span>
-                                                    </div>
-                                                    {% if user_permissions.can_link_unlink_account %}
-                                                    <a style="margin-right: 10px;" href="{{ twitter.link_url }}"><button
-                                                            type="button" class="btn btn-primary"
-                                                            style="font-size: 12px;">Link</button></a>
-                                                    {% else %}
-                                                    <button type="button" class="btn btn-primary"
-                                                        tooltip="Forbidden. Contact admin" flow="down"
-                                                        style="cursor: not-allowed;font-size: 12px;">Link</button>
-                                                    {% endif %}
-                                                    {% endif %}
-                                                </div>
-
-                                            </div>
+                                            <!-- TIKTOK -->
                                             <div class="grid-item">
                                                 <div style="height:30px;display: flex;gap: 10px;">
                                                     <img src="{% static 'images/tiktok_logo.png' %}"
@@ -2095,10 +2095,35 @@
                                                 <hr style="margin: 2px;padding: 0;">
                                                 <div>
                                                     {% if tiktok.linked %}
-
-                                                    <img src="{% static 'images/instagram_logo.png' %}"
-                                                        style="height: 50px;width: 50px;border-radius: 10px;" alt="">
-                                                    <p>Username</p>
+                                                    <div style="display: flex;gap: 30px;">
+                                                        <div style="width: 30%;">
+                                                            <img src="{{ tiktok.profile }}"
+                                                                style="height: 40px;width: 40px;border-radius: 10px;"
+                                                                alt="">
+                                                            <p class="zero-padding-margin font-12">
+                                                                {{ tiktok.display_name }}
+                                                            </p>
+                                                        </div>
+                                                        <div>
+                                                            <p class="font-12 zero-padding-margin"
+                                                                style="text-align: start;">
+                                                                Followers: {{ tiktok.follower_count }}</p>
+                                                            <p class="font-12 zero-padding-margin"
+                                                                style="text-align: start;">Growth:
+                                                                {% if growth > 0 %}
+                                                                <span class="success-flair">{{ tiktok.growth }}</span>
+                                                                {% elif growth < 0 %} <span class="warning-flair">
+                                                                    {{ tiktok.growth }}</span>
+                                                                    {% else %}
+                                                                    <span class="not-sent-flair">
+                                                                        {{ tiktok.growth }}</span>
+                                                                    {% endif %}
+                                                            </p>
+                                                            <p class="font-12 zero-padding-margin"
+                                                                style="text-align: start;">
+                                                                Likes: {{ tiktok.like_count }}</span> </p>
+                                                        </div>
+                                                    </div>
                                                     {% else %}
                                                     <p
                                                         style="display: flex;justify-content: center;align-items: center;">
@@ -2147,71 +2172,9 @@
                                                     {% endif %}
                                                     {% endif %}
                                                 </div>
-
                                             </div>
-                                            <div class="grid-item">
-                                                <div style="height:30px;display: flex;gap: 10px;">
-                                                    <img src="{% static 'images/youtube_logo.png' %}"
-                                                        style="height: 20px;width: 20px;border-radius: 10px;"
-                                                        alt="youtube_logo">
-                                                    <p style="font-size: 12px;">Youtube</p>
-                                                </div>
-                                                <hr style="margin: 2px;padding: 0;">
-                                                <div>
-                                                    {% if youtube.linked %}
 
-                                                    <img src="{% static 'images/youtube_logo.png' %}"
-                                                        style="height: 50px;width: 50px;border-radius: 10px;"
-                                                        alt="youtube_logo">
-                                                    <p>Username</p>
-                                                    {% else %}
-                                                    <p
-                                                        style="display: flex;justify-content: center;align-items: center;">
-                                                        No
-                                                        linked account</p>
-                                                    <p class="font-12 ">Link to a Youtube Channel. <a href="#">Learn
-                                                            More</a> </p>
-
-                                                    {% endif %}
-
-                                                </div>
-                                                <div style="height:30px;display: flex;justify-content: space-between;">
-
-                                                    {% if youtube.linked %}
-                                                    <div>
-                                                        <span
-                                                            style="background-color: rgb(216, 251, 239);color: rgb(8, 192, 131);padding: 5px;border-radius:5px ;font-size:10px;margin-left:5px;margin-right: 15px;">
-                                                            Linked
-                                                        </span>
-                                                    </div>
-                                                    {% if user_permissions.can_link_unlink_account %}
-                                                    <button type="button" class="btn btn-primary"
-                                                        style="font-size: 12px;">Change</button>
-                                                    {% else %}
-                                                    <button type="button" class="btn btn-primary"
-                                                        tooltip="Forbidden. Contact admin" flow="up"
-                                                        style="cursor: not-allowed;font-size: 12px;">Change</button>
-                                                    {% endif %}
-
-                                                    {% else %}
-                                                    <div>
-                                                        <span
-                                                            style="background-color: rgb(251, 216, 216);color: rgb(192, 8, 8);padding: 5px;border-radius:5px ;font-size:10px;margin-left:5px;margin-right: 15px;">
-                                                            Not Linked
-                                                        </span>
-                                                    </div>
-                                                    {% if user_permissions.can_link_unlink_account %}
-                                                    <button type="button" class="btn btn-primary"
-                                                        style="font-size: 12px;">Link</button>
-                                                    {% else %}
-                                                    <button type="button" class="btn btn-primary"
-                                                        tooltip="Forbidden. Contact admin" flow="up"
-                                                        style="cursor: not-allowed;font-size: 12px;">Link</button>
-                                                    {% endif %}
-                                                    {% endif %}
-                                                </div>
-
-                                            </div>
+                                            <!-- REDDIT  -->
                                             <div class="grid-item">
                                                 <div style="height:30px;display: flex;gap: 10px;">
                                                     <img src="{% static 'images/reddit_logo.png' %}"
@@ -2221,10 +2184,38 @@
                                                 <hr style="margin: 2px;padding: 0;">
                                                 <div>
                                                     {% if reddit.linked %}
+                                                    <div style="display: flex;gap: 30px;">
+                                                        <div style="width: 30%;">
+                                                            <p class="zero-padding-margin font-12 ">
+                                                                {{ facebook.display_name }}</p>
 
-                                                    <img src="{% static 'images/reddit_logo.png' %}"
-                                                        style="height: 50px;width: 50px;border-radius: 10px;" alt="">
-                                                    <p>Username</p>
+                                                            <img src="{{ reddit.profile }}"
+                                                                style="height: 40px;width: 40px;border-radius: 10px;"
+                                                                alt="">
+                                                            <p class="zero-padding-margin font-12">
+                                                                {{ reddit.username }}</p>
+                                                        </div>
+                                                        <div>
+                                                            <p class="font-12 zero-padding-margin"
+                                                                style="text-align: start;">
+                                                                Comment Karma: {{ reddit.comment_karma }}</p>
+                                                            <p class="font-12 zero-padding-margin"
+                                                                style="text-align: start;">Growth:
+                                                                {% if growth > 0 %}
+                                                                <span class="success-flair">
+                                                                    {{ instagram.growth }}</span>
+                                                                {% elif growth < 0 %} <span class="warning-flair">
+                                                                    {{ facebook.growth }}</span>
+                                                                    {% else %}
+                                                                    <span class="not-sent-flair">
+                                                                        {{ facebook.growth}}</span>
+                                                                    {% endif %}
+                                                            </p>
+                                                            <p class="font-12 zero-padding-margin"
+                                                                style="text-align: start;">Links Karma:
+                                                                {{ reddit.link_karma }}</span> </p>
+                                                        </div>
+                                                    </div>
                                                     {% else %}
                                                     <p
                                                         style="display: flex;justify-content: center;align-items: center;">
@@ -2238,7 +2229,7 @@
                                                 </div>
                                                 <div style="height:30px;display: flex;justify-content: space-between;">
 
-                                                    {% if google.linked %}
+                                                    {% if reddit.linked %}
                                                     <div>
                                                         <span
                                                             style="background-color: rgb(216, 251, 239);color: rgb(8, 192, 131);padding: 5px;border-radius:5px ;font-size:10px;margin-left:5px;margin-right: 15px;">
@@ -2246,8 +2237,10 @@
                                                         </span>
                                                     </div>
                                                     {% if user_permissions.can_link_unlink_account %}
-                                                    <button type="button" class="btn btn-primary"
-                                                        style="font-size: 12px;">Change</button>
+                                                    <a style="margin-right: 10px;" href="{{ reddit.link_url }}"><button
+                                                            type="button" class="btn btn-primary"
+                                                            style="font-size: 12px;">Change</button></a>
+
                                                     {% else %}
                                                     <button type="button" class="btn btn-primary"
                                                         tooltip="Forbidden. Contact admin" flow="up"
@@ -2262,130 +2255,9 @@
                                                         </span>
                                                     </div>
                                                     {% if user_permissions.can_link_unlink_account %}
-                                                    <button type="button" class="btn btn-primary"
-                                                        style="font-size: 12px;">Link</button>
-                                                    {% else %}
-                                                    <button type="button" class="btn btn-primary"
-                                                        tooltip="Forbidden. Contact admin" flow="up"
-                                                        style="cursor: not-allowed;font-size: 12px;">Link</button>
-                                                    {% endif %}
-                                                    {% endif %}
-                                                </div>
-
-                                            </div>
-                                            <div class="grid-item">
-                                                <div style="height:30px;display: flex;gap: 10px;">
-                                                    <img src="{% static 'images/linkedin_logo.png' %}"
-                                                        style="height: 20px;width: 20px;border-radius: 10px;" alt="">
-                                                    <p style="font-size: 12px;">LinkedIn </p>
-                                                </div>
-                                                <hr style="margin: 2px;padding: 0;">
-                                                <div>
-                                                    {% if linkedin.linked %}
-
-                                                    <img src="{% static 'images/reddit_logo.png' %}"
-                                                        style="height: 50px;width: 50px;border-radius: 10px;" alt="">
-                                                    <p>Username</p>
-                                                    {% else %}
-                                                    <p
-                                                        style="display: flex;justify-content: center;align-items: center;">
-                                                        No
-                                                        linked account</p>
-                                                    <p class="font-12 ">Link to a LinkedIn account. <a href="#">Learn
-                                                            More</a> </p>
-
-                                                    {% endif %}
-
-                                                </div>
-                                                <div style="height:30px;display: flex;justify-content: space-between;">
-
-                                                    {% if linkedin.linked %}
-                                                    <div>
-                                                        <span
-                                                            style="background-color: rgb(216, 251, 239);color: rgb(8, 192, 131);padding: 5px;border-radius:5px ;font-size:10px;margin-left:5px;margin-right: 15px;">
-                                                            Linked
-                                                        </span>
-                                                    </div>
-                                                    {% if user_permissions.can_link_unlink_account %}
-                                                    <button type="button" class="btn btn-primary"
-                                                        style="font-size: 12px;">Change</button>
-                                                    {% else %}
-                                                    <button type="button" class="btn btn-primary"
-                                                        tooltip="Forbidden. Contact admin" flow="up"
-                                                        style="cursor: not-allowed;font-size: 12px;">Change</button>
-                                                    {% endif %}
-
-                                                    {% else %}
-                                                    <div>
-                                                        <span
-                                                            style="background-color: rgb(251, 216, 216);color: rgb(192, 8, 8);padding: 5px;border-radius:5px ;font-size:10px;margin-left:5px;margin-right: 15px;">
-                                                            Not Linked
-                                                        </span>
-                                                    </div>
-                                                    {% if user_permissions.can_link_unlink_account %}
-                                                    <button type="button" class="btn btn-primary"
-                                                        style="font-size: 12px;">Link</button>
-                                                    {% else %}
-                                                    <button type="button" class="btn btn-primary"
-                                                        tooltip="Forbidden. Contact admin" flow="up"
-                                                        style="cursor: not-allowed;font-size: 12px;">Link</button>
-                                                    {% endif %}
-                                                    {% endif %}
-                                                </div>
-
-                                            </div>
-                                            <div class="grid-item">
-                                                <div style="height:30px;display: flex;gap: 10px;">
-                                                    <img src="{% static 'images/pinterest_logo.png' %}"
-                                                        style="height: 20px;width: 20px;border-radius: 10px;" alt="">
-                                                    <p style="font-size: 12px;">Pinterest </p>
-                                                </div>
-                                                <hr style="margin: 2px;padding: 0;">
-                                                <div>
-                                                    {% if pinterest.linked %}
-
-                                                    <img src="{% static 'images/reddit_logo.png' %}"
-                                                        style="height: 50px;width: 50px;border-radius: 10px;" alt="">
-                                                    <p>Username</p>
-                                                    {% else %}
-                                                    <p
-                                                        style="display: flex;justify-content: center;align-items: center;">
-                                                        1
-                                                        linked account</p>
-                                                    <p class="font-12 ">Link to a Pinterest account. <a href="#">Learn
-                                                            More</a> </p>
-
-                                                    {% endif %}
-
-                                                </div>
-                                                <div style="height:30px;display: flex;justify-content: space-between;">
-
-                                                    {% if linkedin.linked %}
-                                                    <div>
-                                                        <span
-                                                            style="background-color: rgb(216, 251, 239);color: rgb(8, 192, 131);padding: 5px;border-radius:5px ;font-size:10px;margin-left:5px;margin-right: 15px;">
-                                                            Linked
-                                                        </span>
-                                                    </div>
-                                                    {% if user_permissions.can_link_unlink_account %}
-                                                    <button type="button" class="btn btn-primary"
-                                                        style="font-size: 12px;">Change</button>
-                                                    {% else %}
-                                                    <button type="button" class="btn btn-primary"
-                                                        tooltip="Forbidden. Contact admin" flow="up"
-                                                        style="cursor: not-allowed;font-size: 12px;">Change</button>
-                                                    {% endif %}
-
-                                                    {% else %}
-                                                    <div>
-                                                        <span
-                                                            style="background-color: rgb(251, 216, 216);color: rgb(192, 8, 8);padding: 5px;border-radius:5px ;font-size:10px;margin-left:5px;margin-right: 15px;">
-                                                            0 Active
-                                                        </span>
-                                                    </div>
-                                                    {% if user_permissions.can_link_unlink_account %}
-                                                    <button type="button" class="btn btn-primary"
-                                                        style="font-size: 12px;">View</button>
+                                                    <a style="margin-right: 10px;" href="{{ reddit.link_url }}"><button
+                                                            type="button" class="btn btn-primary"
+                                                            style="font-size: 12px;">Link</button></a>
                                                     {% else %}
                                                     <button type="button" class="btn btn-primary"
                                                         tooltip="Forbidden. Contact admin" flow="up"
