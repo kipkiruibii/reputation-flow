@@ -983,6 +983,70 @@
             margin-left: 20px;
             margin-right: 20px;
         }
+
+        /* General Container */
+        .step-container {
+            display: flex;
+            flex-direction: row;
+            gap: 1rem;
+            margin: 20px auto;
+            font-family: Arial, sans-serif;
+        }
+
+        /* Individual Steps */
+        .step {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        /* Step Number Circle */
+        .step-number {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            font-weight: bold;
+            color: #fff;
+        }
+
+        /* Step Text */
+        .step-text {
+            font-size: 16px;
+            margin: 0;
+        }
+
+        /* Step States */
+        .completed .step-number {
+            background-color: green;
+            /* Completed steps */
+        }
+
+        .current .step-number {
+            background-color: grey;
+            /* Current step */
+        }
+
+        .upcoming .step-number {
+            background-color: lightgrey;
+            /* Upcoming steps */
+        }
+
+        .post-btn-proceed-disabled {
+            background-color: grey;
+            cursor: default;
+            color: white;
+            border: none;
+        }
+
+        .post-btn-proceed-disabled:hover {
+            background-color: grey;
+            cursor: default;
+            color: white;
+            border: none;
+        }
     </style>
 
 </head>
@@ -3876,9 +3940,28 @@
                 <div class="chat-header container-right"
                     style="margin-top: 10px;margin-bottom: 10px;position: relative;">
                     <div class="logo-container">
-                        <h4>
-                            Create Post
-                        </h4>
+                        <div class="step-container">
+                            <div id="step1" class="step current">
+                                <span class="step-number">1</span>
+                                <p class="step-text">Add platforms</p>
+                            </div>
+
+                            <div id="step2" class="step upcoming">
+                                <span class="step-number">2</span>
+                                <p class="step-text">
+                                    Upload Content</p>
+                            </div>
+
+                            <div id="step3" class="step upcoming">
+                                <span class="step-number">3</span>
+                                <p class="step-text">Set Up</p>
+                            </div>
+
+                            <!-- <div id="step4" class="step upcoming">
+                                <span class="step-number">4</span>
+                                <p class="step-text">Review and submit</p>
+                            </div> -->
+                        </div>
                     </div>
                     <div class="user-details" tooltip="Me" flow="down">
 
@@ -3910,8 +3993,596 @@
                     </div>
 
                 </div>
-                <div class="company-account-info container-right">
-                    <div id="report-form"
+                <div class="company-account-info container-right" style="display: flex; justify-content: center;height: 100%;">
+                    <!-- SELECT PLATFORM -->
+                    <div id="platform_select" class="bx-shadow"
+                        style="margin-top: 20px;width: 500px;padding: 20px;display: block;height: 100%;">
+
+                        <p>Select the platforms to upload to </p>
+                        <div class="form-check" style="margin-left: 10px;">
+                            <input class="form-check-input platforms_select" type="checkbox" value="instagram"
+                                id="instagram_platform" {% if not instagram.linked %}disabled{% endif %}>
+                            <label class="form-check-label" for="instagram_platform">
+                                <p><img src="{% static 'images/instagram_logo.png' %}" style="width: 20px;height: 20px;"
+                                        alt="instagram"> Instagram {% if not instagram.linked %}(not linked){% endif %}
+                                </p>
+                            </label>
+                        </div>
+                        <div class="form-check" style="margin-left: 10px;">
+                            <input class="form-check-input platforms_select" type="checkbox" value="facebook"
+                                id="facebook_platform" {% if not facebook.linked %}disabled{% endif %}>
+                            <label class="form-check-label" for="facebook_platform">
+                                <p><img src="{% static 'images/facebook_logo.png' %}" style="width: 20px;height: 20px;"
+                                        alt="facebook"> Facebook {% if not facebook.linked %}(not linked){% endif %}</p>
+                            </label>
+                        </div>
+                        <div class="form-check" style="margin-left: 10px;">
+                            <input class="form-check-input platforms_select" type="checkbox" value="tiktok"
+                                id="tiktok_platform" {% if not tiktok.linked %}disabled{% endif %}>
+                            <label class="form-check-label" for="tiktok_platform">
+                                <p><img src="{% static 'images/tiktok_logo.png' %}" style="width: 20px;height: 20px;"
+                                        alt="tiktok"> Tiktok {% if not tiktok.linked %}(not linked){% endif %}</p>
+                            </label>
+                        </div>
+                        <div class="form-check" style="margin-left: 10px;">
+                            <input class="form-check-input platforms_select" type="checkbox" value="reddit"
+                                id="reddit_platform" {% if not reddit.linked %}disabled{% endif %}>
+                            <label class="form-check-label" for="reddit_platform">
+                                <p><img src="{% static 'images/reddit_logo.png' %}" style="width: 20px;height: 20px;"
+                                        alt="reddit"> Reddit {% if not reddit.linked %}(not linked){% endif %}</p>
+                            </label>
+                        </div>
+                        <div style="margin-top: 20px;">
+                            <a id="to_upload_content" class="btn-solid-sm post-btn-proceed-disabled" href="#">NEXT
+                                (Upload content) <i class="fa fa-caret-right"></i></a>
+                        </div>
+                    </div>
+
+                    <!-- UPLOAD CONTENT -->
+                    <div id="upload_content_view" style="display: none;width: 100%;justify-content: center;height: 100%;">
+                        <form style="width:100%;overflow-y:scroll;height:80%" id="report-input-form" method="post"
+                            enctype="multipart/form-data">
+                            <div id="preview"
+                                style="margin:10px;align-items: center;display: flex;width:95%;border: dashed;overflow-x: scroll;white-space: nowrap;border-radius: 15px;">
+                            </div>
+                            <div style="display: flex; justify-content: center;">
+                                <div>
+                                    <p style="font-size:12px;display:none" id="image-delete-instruction">Tap on media to
+                                        remove</p>
+                                    <div>
+                                        <input class="file-upload-input" type="file" id="myScreenshots" name="submitted"
+                                            multiple onchange="FileVerification(event)">
+                                    </div>
+                                    <div style="display: flex;gap:20px;margin-top: 20px;">
+                                        <div>
+                                            <a id="back_to_platforms" class="btn-solid-sm" href="#"><i
+                                                    class="fa fa-caret-left"></i> Back
+                                                (Platforms) </a>
+                                        </div>
+                                        <div>
+                                            <a id="to_set_up_content" class="btn-solid-sm post-btn-proceed-disabled"
+                                                href="#">NEXT
+                                                (set up) <i class="fa fa-caret-right"></i></a>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+
+                        </form>
+                    </div>
+
+                    <!-- SET UP CONTENT -->
+                    <div id="set_up_content"
+                        style="display: none;width: 100%;justify-content: center;padding-left: 10%;overflow-y: scroll;height: 80vh;margin-right: 10%;">
+                        <div class="form-group">
+                            <label for="post-textarea">
+                                <div style="display: flex;gap: 10px;height: 25px;">
+                                    <strong>Title</strong>
+                                    <img src="{% static 'images/facebook_logo.png' %}" alt=""
+                                        style="width: 15px;height: 15px;margin: auto;">
+                                    <img src="{% static 'images/instagram_logo.png' %}" alt=""
+                                        style="width: 15px;height: 15px;margin: auto;">
+                                    <img src="{% static 'images/tiktok_logo.png' %}" alt=""
+                                        style="width: 15px;height: 15px;margin: auto;">
+                                    <img src="{% static 'images/reddit_logo.png' %}" alt=""
+                                        style="width: 15px;height: 15px;margin: auto;">
+                                    <span style="font-size: 12px;"> *Required</span>
+
+                                </div>
+                            </label>
+                            <input type="text" class="form-control-input" placeholder="Title " id="content_title"
+                                style="border: 1px solid #ced4da;border-radius:4px;width: 100%;box-sizing: border-box;background-color: white;font-size: 15px;padding-left:15px">
+                        </div>
+                        <div class="form-group">
+                            <label for="post-textarea">
+
+                                <div style="display: flex;gap: 10px;">
+                                    <strong>Description</strong>
+                                    <img src="{% static 'images/facebook_logo.png' %}" alt=""
+                                        style="width: 15px;height: 15px;margin: auto;">
+                                    <img src="{% static 'images/instagram_logo.png' %}" alt=""
+                                        style="width: 15px;height: 15px;margin: auto;">
+                                    <img src="{% static 'images/tiktok_logo.png' %}" alt=""
+                                        style="width: 15px;height: 15px;margin: auto;">
+                                    <img src="{% static 'images/reddit_logo.png' %}" alt=""
+                                        style="width: 15px;height: 15px;margin: auto;">
+                                    <span style="font-size: 12px;"> *Required</span>
+                                </div>
+                            </label>
+                            <textarea class="form-control-textarea" placeholder="Content"
+                                style="border: 1px solid #ced4da;border-radius:4px;width:100%;box-sizing: border-box;background-color: white;font-size: 15px;padding-left:15px"
+                                id="content_description"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="post-textarea">
+                                <div style="display: flex;gap: 10px;height: 25px;">
+                                    <strong>(#) Tags</strong>
+                                    <img src="{% static 'images/facebook_logo.png' %}" alt=""
+                                        style="width: 15px;height: 15px;margin: auto;">
+                                    <img src="{% static 'images/instagram_logo.png' %}" alt=""
+                                        style="width: 15px;height: 15px;margin: auto;">
+                                    <img src="{% static 'images/tiktok_logo.png' %}" alt=""
+                                        style="width: 15px;height: 15px;margin: auto;">
+                                </div>
+                            </label>
+                            <input type="text" class="form-control-input" placeholder="Tags " id="announce-title"
+                                style="border: 1px solid #ced4da;border-radius:4px;width: 100%;box-sizing: border-box;background-color: white;font-size: 15px;padding-left:15px"
+                                required>
+                        </div>
+                        <div class="form-group">
+                            <strong>When to post</strong>
+                            <div style="display: flex;gap: 10px;margin-top: 20px;">
+                                <p style="cursor: pointer;color: black;" id="now-post">Now</p>
+                                <div class="form-check form-switch" style="margin-left: 20px;">
+                                    <input class="form-check-input" type="checkbox" role="switch" id="schedule_switch">
+                                </div>
+                                <p style="cursor: pointer;" id="schedule-post">Schedule</p>
+
+                            </div>
+                            <input class=" input-decor" placeholder="Pick time and date"
+                                style="border: 1px solid #ced4da;border-radius:4px;width:100%;box-sizing: border-box;background-color: white;display: none;"
+                                id="datePicker" required>
+                        </div>
+                        <hr>
+                        <div class="form-group">
+                            <strong>TIKTOK
+                                <img src="{% static 'images/tiktok_logo.png' %}" alt=""
+                                    style="width: 15px;height: 15px;margin: auto;">
+                            </strong>
+                            <div style="margin-left: 20px;margin-top: 15px;">
+                                <strong>Allow Users to</strong>
+                                <div style="display: flex;gap: 20px;">
+                                    <div style="display: flex;gap: 10px;">
+                                        <div class="form-check form-switch" style="margin-left: 20px;">
+                                            <input class="form-check-input" type="checkbox" id="to_comment">
+                                            <label for="to_comment">Comment</label>
+                                        </div>
+
+                                    </div>
+                                    <div style="display: flex;gap: 10px;">
+                                        <div class="form-check form-switch" style="margin-left: 20px;">
+                                            <input class="form-check-input" type="checkbox" id="to_duet">
+                                            <label for="to_duet">Duet</label>
+                                        </div>
+
+                                    </div>
+                                    <div style="display: flex;gap: 10px;">
+                                        <div class="form-check form-switch" style="margin-left: 20px;">
+                                            <input class="form-check-input" type="checkbox" id="to_stitch">
+                                            <label for="to_stitch">Stitch</label>
+                                        </div>
+
+                                    </div>
+                                </div>
+                                <div style="display: flex;gap: 10px;margin-top: 15px;">
+                                    <label for="ai_gen">AI generated content</label>
+
+                                    <div class="form-check form-switch" style="margin-left: 20px;">
+                                        <input class="form-check-input" type="checkbox" id="ai_gen">
+                                    </div>
+
+                                </div>
+                                <div style="margin-top: 15px;">
+                                    <strong>Who can watch this video</strong>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="flexRadioDefault"
+                                            id="everyone" checked>
+                                        <label class="form-check-label" for="everyone">
+                                            Everyone
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="flexRadioDefault"
+                                            id="friends">
+                                        <label class="form-check-label" for="friends">
+                                            Friends
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="flexRadioDefault"
+                                            id="only_me">
+                                        <label class="form-check-label" for="only_me">
+                                            Only me
+                                        </label>
+                                    </div>
+                                </div>
+                                <div style="margin-top: 15px;">
+                                    <strong>(@) Mentions</strong>
+                                    <input type="text" class="form-control-input" placeholder="Mentions "
+                                        id="announce-title"
+                                        style="border: 1px solid #ced4da;border-radius:4px;width: 100%;box-sizing: border-box;background-color: white;font-size: 15px;padding-left:15px;margin-top: 10px;"
+                                        required>
+                                </div>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="form-group">
+                            <strong>INSTAGRAM
+                                <img src="{% static 'images/instagram_logo.png' %}" alt=""
+                                    style="width: 15px;height: 15px;margin: auto;">
+                            </strong>
+                            <div style="margin-left: 20px;margin-top: 15px;">
+                                <strong>Upload to</strong>
+                                <div style="display: flex;gap: 20px;">
+                                    <div style="display: flex;gap: 10px;">
+                                        <div class="form-check form-switch" style="margin-left: 20px;">
+                                            <input class="form-check-input" type="checkbox" id="to_ig_stories">
+                                            <label for="to_ig_stories">Stories</label>
+                                        </div>
+
+                                    </div>
+                                    <div style="display: flex;gap: 10px;">
+                                        <div class="form-check form-switch" style="margin-left: 20px;">
+                                            <input class="form-check-input" type="checkbox" id="to_ig_posts" checked>
+                                            <label for="to_ig_posts">Posts</label>
+                                        </div>
+
+                                    </div>
+                                    <div style="display: flex;gap: 10px;">
+                                        <div class="form-check form-switch" style="margin-left: 20px;">
+                                            <input class="form-check-input" type="checkbox" id="to_ig_reels">
+                                            <label for="to_ig_reels">Reels</label>
+                                        </div>
+
+                                    </div>
+                                </div>
+                                <div style="display: flex;gap: 10px;margin-top: 15px;">
+                                    <label for="ai_gen">Run copyright check before publishing</label>
+
+                                    <div class="form-check form-switch" style="margin-left: 20px;">
+                                        <input class="form-check-input" type="checkbox" id="ig_copyright" checked>
+                                    </div>
+                                </div>
+                                <div style="margin-top: 15px;">
+                                    <strong>(@) User Tags</strong>
+                                    <input type="text" class="form-control-input" placeholder="Mentions "
+                                        id="announce-title"
+                                        style="border: 1px solid #ced4da;border-radius:4px;width: 100%;box-sizing: border-box;background-color: white;font-size: 15px;padding-left:15px;margin-top: 10px;"
+                                        required>
+                                </div>
+                                <div style="margin-top: 15px;">
+                                    <strong>Product Tags</strong>
+                                    <input type="text" class="form-control-input" placeholder="Product tags "
+                                        id="announce-title"
+                                        style="border: 1px solid #ced4da;border-radius:4px;width: 100%;box-sizing: border-box;background-color: white;font-size: 15px;padding-left:15px;margin-top: 10px;"
+                                        required>
+                                </div>
+                                <div style="margin-top: 15px;">
+                                    <strong>Location Tags</strong>
+                                    <input type="text" class="form-control-input" placeholder="Location tags "
+                                        id="announce-title"
+                                        style="border: 1px solid #ced4da;border-radius:4px;width: 100%;box-sizing: border-box;background-color: white;font-size: 15px;padding-left:15px;margin-top: 10px;"
+                                        required>
+                                </div>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="form-group">
+                            <strong>FACEBOOK
+                                <img src="{% static 'images/facebook_logo.png' %}" alt=""
+                                    style="width: 15px;height: 15px;margin: auto;">
+                            </strong>
+                            <div style="margin-left: 20px;margin-top: 15px;">
+                                <strong>Upload to</strong>
+                                <div style="display: flex;gap: 20px;">
+                                    <div style="display: flex;gap: 10px;">
+                                        <div class="form-check form-switch" style="margin-left: 20px;">
+                                            <input class="form-check-input" type="checkbox" id="to_ig_stories">
+                                            <label for="to_ig_stories">Stories</label>
+                                        </div>
+
+                                    </div>
+                                    <div style="display: flex;gap: 10px;">
+                                        <div class="form-check form-switch" style="margin-left: 20px;">
+                                            <input class="form-check-input" type="checkbox" id="to_ig_posts" checked>
+                                            <label for="to_ig_posts">Posts</label>
+                                        </div>
+
+                                    </div>
+                                    <div style="display: flex;gap: 10px;">
+                                        <div class="form-check form-switch" style="margin-left: 20px;">
+                                            <input class="form-check-input" type="checkbox" id="to_ig_reels">
+                                            <label for="to_ig_reels">Reels</label>
+                                        </div>
+
+                                    </div>
+                                </div>
+                                <div style="display: flex;gap: 10px;margin-top: 15px;">
+                                    <label for="ai_gen">Run copyright check before publishing</label>
+
+                                    <div class="form-check form-switch" style="margin-left: 20px;">
+                                        <input class="form-check-input" type="checkbox" id="ig_copyright" checked>
+                                    </div>
+                                </div>
+
+                                <div style="margin-top: 15px;">
+                                    <strong>Who can see this</strong>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="fb_public" id="fb_public"
+                                            checked>
+                                        <label class="form-check-label" for="fb_public">
+                                            Public
+                                        </label>
+                                    </div>
+                                </div>
+                                <div style="margin-top: 15px;">
+                                    <strong>(@) User Tags</strong>
+                                    <input type="text" class="form-control-input" placeholder="Mentions "
+                                        id="announce-title"
+                                        style="border: 1px solid #ced4da;border-radius:4px;width: 100%;box-sizing: border-box;background-color: white;font-size: 15px;padding-left:15px;margin-top: 10px;"
+                                        required>
+                                </div>
+                                <div style="margin-top: 15px;">
+                                    <strong>Location Tags</strong>
+                                    <input type="text" class="form-control-input" placeholder="Location tags "
+                                        id="announce-title"
+                                        style="border: 1px solid #ced4da;border-radius:4px;width: 100%;box-sizing: border-box;background-color: white;font-size: 15px;padding-left:15px;margin-top: 10px;"
+                                        required>
+                                </div>
+
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="form-group">
+                            <strong>REDDIT
+                                <img src="{% static 'images/reddit_logo.png' %}" alt=""
+                                    style="width: 15px;height: 15px;margin: auto;">
+                            </strong>
+                            <div style="margin-left: 20px;margin-top: 15px;">
+                                <div style="display: flex;gap: 10px;margin-top: 15px;">
+                                    <label for="nsfw_tag">NSFW Tag</label>
+
+                                    <div class="form-check form-switch" style="margin-left: 20px;">
+                                        <input class="form-check-input" type="checkbox" id="nsfw_tag">
+                                    </div>
+
+                                </div>
+                                <div style="display: flex;gap: 10px;margin-top: 10px;">
+                                    <label for="spoiler_tag">Spoiler Tag</label>
+
+                                    <div class="form-check form-switch" style="margin-left: 20px;">
+                                        <input class="form-check-input" type="checkbox" id="spoiler_tag">
+                                    </div>
+
+                                </div>
+                                <div style="margin-top: 15px;">
+                                    <strong>Select Subs</strong>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="flexRadioDefault"
+                                            id="everyone">
+                                        <label class="form-check-label" for="everyone">
+                                            r/Nairobi
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="flexRadioDefault"
+                                            id="friends">
+                                        <label class="form-check-label" for="friends">
+                                            r/Legal
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="flexRadioDefault"
+                                            id="only_me">
+                                        <label class="form-check-label" for="only_me">
+                                            r/Doctors
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div style="display: flex;gap:20px;margin-top: 20px;">
+                            <div>
+                                <a id="back_to_upload" class="btn-solid-sm" href="#"><i class="fa fa-caret-left"></i>
+                                    Back
+                                    (Upload Content) </a>
+                            </div>
+                            <div>
+                                <a id="submit_post" class="btn-solid-sm post-btn-proceed-disabled" href="#">POST
+                                    <i class="fa fa-upload"></i></a>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- REVIEW CONTENT -->
+                    <div id="review_content" style="display: none;width: 100%;">
+                        <div style="display: flex;gap: 10px;height: 100%;">
+                            <div style="width: 55%;height: 100%;margin-right: 30px;" class="bx-shadow">
+
+
+                            </div>
+                            <div style="width: 45%;height: 100%;overflow-y: scroll;">
+                                <div style="display: flex;gap: 10px;width:70%;margin-bottom: 15px;">
+                                    <p class="font-12 zero-padding-margin">Sharing to:</p>
+
+                                    <img src="{% static 'images/facebook_logo.png' %}" alt=""
+                                        style="width: 15px;height: 15px;margin: auto;">
+                                    <img src="{% static 'images/instagram_logo.png' %}" alt=""
+                                        style="width: 15px;height: 15px;margin: auto;">
+                                    <img src="{% static 'images/tiktok_logo.png' %}" alt=""
+                                        style="width: 15px;height: 15px;margin: auto;">
+                                    <img src="{% static 'images/reddit_logo.png' %}" alt=""
+                                        style="width: 15px;height: 15px;margin: auto;">
+
+
+                                </div>
+                                <div>
+                                    <p class="font-12 zero-padding-margin">Title</p>
+                                    <p style="margin-left: 10px;font-weight: bold" class="zero-padding-margin">The title
+                                    </p>
+                                    <p class="font-12 zero-padding-margin">Description</p>
+                                    <p style="margin-left: 10px;font-weight: bold" class="zero-padding-margin">The
+                                        description hbrfjv jfbhhjrv rvjrvhjrjv rjhvrjvhrv rjvhrjvhr</p>
+                                </div>
+                                <hr>
+                                <div>
+                                    <p class="font-12 zero-padding-margin">Tags</p>
+                                    <p style="margin-left: 10px;font-weight: bold" class="zero-padding-margin">The title
+                                    </p>
+                                    <p class="font-12 zero-padding-margin">When to post</p>
+                                    <p style="margin-left: 10px;font-weight: bold;" class="zero-padding-margin">
+                                        Now</p>
+                                </div>
+                                <hr>
+                                <div>
+                                    <p class="zero-padding-margin" style="color: #1d8ecd;">Facebook configuration <img
+                                            src="{% static 'images/facebook_logo.png' %}" alt=""
+                                            style="width: 15px;height: 15px;margin: auto;"></p>
+                                    <div style="margin-left: 20px;">
+                                        <p class="font-12 zero-padding-margin">Uploading to</p>
+                                        <p style="margin-left: 10px;font-weight: bold;" class="zero-padding-margin">
+                                            Reels</p>
+                                        <p style="margin-left: 10px;font-weight: bold;" class="zero-padding-margin">
+                                            Stories</p>
+                                        <p style="margin-left: 10px;font-weight: bold;" class="zero-padding-margin">
+                                            Posts</p>
+                                        <p class="font-12 zero-padding-margin">Who can see the post</p>
+                                        <p style="margin-left: 10px;font-weight: bold;" class="zero-padding-margin">
+                                            Public</p>
+
+                                        <p class="font-12 zero-padding-margin">User Tags</p>
+                                        <p style="margin-left: 10px;font-weight: bold;" class="zero-padding-margin">
+                                            @rteon</p>
+                                        <p class="font-12 zero-padding-margin">Location Tags</p>
+                                        <p style="margin-left: 10px;font-weight: bold;" class="zero-padding-margin">
+                                            None</p>
+                                        <p class="font-12 zero-padding-margin">Product Tags</p>
+                                        <p style="margin-left: 10px;font-weight: bold;" class="zero-padding-margin">
+                                            None</p>
+                                    </div>
+
+                                </div>
+
+                                <hr>
+                                <div>
+                                    <p class="zero-padding-margin" style="color: #1d8ecd;">Instagram configuration <img
+                                            src="{% static 'images/instagram_logo.png' %}" alt=""
+                                            style="width: 15px;height: 15px;margin: auto;"></p>
+                                    <div style="margin-left: 20px;">
+                                        <p class="font-12 zero-padding-margin">Uploading to</p>
+                                        <p style="margin-left: 10px;font-weight: bold;" class="zero-padding-margin">
+                                            Reels</p>
+                                        <p style="margin-left: 10px;font-weight: bold;" class="zero-padding-margin">
+                                            Stories</p>
+                                        <p style="margin-left: 10px;font-weight: bold;" class="zero-padding-margin">
+                                            Posts</p>
+                                        <p class="font-12 zero-padding-margin">Who can see the post</p>
+                                        <p style="margin-left: 10px;font-weight: bold;" class="zero-padding-margin">
+                                            Public</p>
+
+                                        <p class="font-12 zero-padding-margin">User Tags</p>
+                                        <p style="margin-left: 10px;font-weight: bold;" class="zero-padding-margin">
+                                            @rteon</p>
+                                        <p class="font-12 zero-padding-margin">Location Tags</p>
+                                        <p style="margin-left: 10px;font-weight: bold;" class="zero-padding-margin">
+                                            None</p>
+                                        <p class="font-12 zero-padding-margin">Product Tags</p>
+                                        <p style="margin-left: 10px;font-weight: bold;" class="zero-padding-margin">
+                                            None</p>
+                                    </div>
+
+                                </div>
+                                <hr>
+                                <div>
+                                    <p class="zero-padding-margin" style="color: #1d8ecd;">Tiktok configuration <img
+                                            src="{% static 'images/tiktok_logo.png' %}" alt=""
+                                            style="width: 15px;height: 15px;margin: auto;"></p>
+                                    <div style="margin-left: 20px;">
+                                        <p class="font-12 zero-padding-margin">Allow users to</p>
+                                        <p style="margin-left: 10px;font-weight: bold;" class="zero-padding-margin">
+                                            Comment</p>
+
+                                        <p style="margin-left: 10px;font-weight: bold;" class="zero-padding-margin">
+                                            Stitch</p>
+
+                                        <p style="margin-left: 10px;font-weight: bold;" class="zero-padding-margin">
+                                            Duet</p>
+
+                                    </div>
+
+                                </div>
+                                <hr>
+                                <div>
+                                    <p class="zero-padding-margin" style="color: #1d8ecd;">Reddit configuration <img
+                                            src="{% static 'images/reddit_logo.png' %}" alt=""
+                                            style="width: 15px;height: 15px;margin: auto;"></p>
+                                    <div style="margin-left: 20px;display: flex;gap: 30px;">
+                                        <div>
+                                            <p class="font-12 zero-padding-margin">NSFW</p>
+                                            <p style="margin-left: 10px;font-weight: bold" class="zero-padding-margin">
+                                                No</p>
+
+                                        </div>
+                                        <div>
+                                            <p class="font-12 zero-padding-margin">Spoiler</p>
+                                            <p style="margin-left: 10px;font-weight: bold" class="zero-padding-margin">
+                                                No</p>
+
+                                        </div>
+                                    </div>
+                                    <div style="margin-left: 20px;">
+                                        <p class="font-12 zero-padding-margin">Subs</p>
+                                        <p style="margin-left: 10px;font-weight: bold" class="zero-padding-margin">
+                                            r/Entrepreneur</p>
+
+                                        <p style="margin-left: 10px;font-weight: bold" class="zero-padding-margin">
+                                            r/Solana</p>
+
+                                        <p style="margin-left: 10px;font-weight: bold" class="zero-padding-margin">
+                                            r/Nairobi</p>
+
+                                        <p style="margin-left: 10px;font-weight: bold" class="zero-padding-margin">
+                                            r/France</p>
+
+                                        <p style="margin-left: 10px;font-weight: bold" class="zero-padding-margin">
+                                            r/cryptonews</p>
+
+
+                                    </div>
+
+                                </div>
+                                <div style="display: flex;gap:20px;margin-top: 20px;">
+                                    <div>
+                                        <a id="back_to_set_up" class="btn-solid-sm" href="#"><i
+                                                class="fa fa-caret-left"></i>
+                                            Back
+                                            (set_up) </a>
+                                    </div>
+                                    <div>
+                                        <!-- <a id="submit_post" class="btn-solid-sm post-btn-proceed-disabled"
+                                            href="#">SUBMIT <i class="fa fa-caret-right"></i></a> -->
+                                    </div>
+                                </div>
+
+
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- <div id="report-form"
                         style="display:flex;justify-content:center;width:100%;height:100%;margin-top:20px;overflow-y: scroll;">
                         <div style="width:60%">
                             <div style="display:flex;justify-content:space-between;">
@@ -3980,7 +4651,7 @@
                             </form>
 
                         </div>
-                    </div>
+                    </div> -->
                 </div>
 
             </div>
@@ -5000,6 +5671,7 @@
                 $('#confirmModalAction').addClass('btn btn-danger');
                 $('#confirmModalCenter').modal('show');
             });
+            
             // confirm delete
             $(document).on('click', '#confirmModalAction', function () {
                 var t_id = $(this).data('placeholder');
@@ -5761,6 +6433,176 @@
 
 
             });
+            
+            
+            // -----------------------------CREATE POST-------------------------------------
+            
+            $(document).on('click', '.form-check-input.platforms_select', function () {
+                var isChecked = false;
+                $('.form-check-input.platforms_select').each(function () {
+                    var ch = $(this).prop('checked');
+                    if (ch) {
+                        isChecked = true;
+                        if ($('#to_upload_content').hasClass('post-btn-proceed-disabled')) {
+                            $('#to_upload_content').toggleClass('post-btn-proceed-disabled');
+                            return;
+                        };
+                        return;
+                    }
+                });
+                if (!isChecked) {
+                    $('#to_upload_content').toggleClass('post-btn-proceed-disabled');
+                };
+
+
+            });
+            $(document).on('click', '#to_upload_content', function () {
+                if (!$('#to_upload_content').hasClass('post-btn-proceed-disabled')) {
+                    $('#platform_select').css('display', 'none');
+                    $('#step1').removeClass('current');
+                    $('#step1').addClass('completed');
+                    $('#step2').removeClass('upcoming');
+                    $('#step2').addClass('current');
+
+                    $('#upload_content_view').css('display', 'block');
+
+                    return;
+                };
+            });
+            $(document).on('click', '#back_to_platforms', function () {
+                $('#platform_select').css('display', 'block');
+                $('#upload_content_view').css('display', 'none');
+
+            });
+            $(document).on('click', '#to_set_up_content', function () {
+                // check if user has uploaded a file
+                var iml = $('#preview').children().length;
+                if (iml == 0) {
+                    return;
+                };
+                // upload the file and check content of file, filetype file length,etc 
+                $('#upload_content_view').css('display', 'none');
+                $('#step2').removeClass('current');
+                $('#step2').addClass('completed');
+                $('#step3').removeClass('upcoming');
+                $('#step3').addClass('current');
+                $('#set_up_content').css('display', 'block');
+
+            });
+            $(document).on('click', '#back_to_upload', function () {
+                $('#set_up_content').css('display', 'none');
+                $('#upload_content_view').css('display', 'block');
+            });
+            $(document).on('click', '#to_review', function () {
+                var descript = $('#content_description').val();
+                var title = $('#content_title').val();
+                // ensure the content has a title and description
+                if (!descript || !title) { return; }
+                $('#step3').removeClass('current');
+                $('#step3').addClass('completed');
+                $('#step4').removeClass('upcoming');
+                $('#step4').addClass('current');
+                $('#set_up_content').css('display', 'none');
+                $('#review_content').css('display', 'block');
+            });
+            $(document).on('keyup', '#content_title', function () {
+                var descript = $('#content_description').val();
+                var title = $('#content_title').val();
+                // ensure the content has a title and description
+                if (!descript || !title) {
+                    if (!$('#submit_post').hasClass('post-btn-proceed-disabled')) {
+                        $('#submit_post').addClass('post-btn-proceed-disabled');
+                        return;
+                    };
+                    return;
+                }
+                $('#submit_post').removeClass('post-btn-proceed-disabled');
+            });
+            $(document).on('keyup', '#content_description', function () {
+                var descript = $('#content_description').val();
+                var title = $('#content_title').val();
+                // ensure the content has a title and description
+                if (!descript || !title) {
+                    if (!$('#submit_post').hasClass('post-btn-proceed-disabled')) {
+                        $('#submit_post').addClass('post-btn-proceed-disabled');
+                        return;
+                    };
+                    return;
+                }
+                if ($('#submit_post').hasClass('post-btn-proceed-disabled')) {
+                    $('#submit_post').removeClass('post-btn-proceed-disabled');
+                    return;
+                };
+            });
+           
+            // upload modal
+            $(document).on('click', '#submit_post', function () {
+                var descript = $('#content_description').val();
+                var title = $('#content_title').val();
+                // ensure the content has a title and description
+                if (!descript || !title) { return; }
+                $('#confirmModalTitle').text('Upload Post');
+                var bdy = 'Confirm post upload';
+                $('#confirmModalBody').text(bdy);
+
+                $('#forbiddenModalAction').removeClass();
+                $('#forbiddenModalAction').text('Post');
+                $('#forbiddenModalAction').addClass('btn btn-primary');
+
+                $('#confirmModalAction').removeClass();
+                $('#confirmModalAction').text('Post');
+                $('#confirmModalAction').addClass('btn btn-primary');
+                $('#confirmModalCenter').modal('show');
+            });
+            
+            // confirm upload post
+            $(document).on('click', '#confirmModalAction', function () {
+                var t_id = $(this).data('placeholder');
+                // Create a new FormData object
+                var formData = new FormData();
+
+                // Append other input fields to FormData
+                var csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                formData.append('company_id', '{{ company_id }}');
+                formData.append('team_id', t_id);
+
+                // Send the form data via AJAX
+                $.ajax({
+                    url: '{% url "delete-team" %}', // Replace with your Django endpoint URL
+                    type: 'POST',
+                    headers: {
+                        'X-CSRFToken': csrfToken
+                    },
+                    data: formData,
+                    processData: false, // Prevent jQuery from processing the data
+                    contentType: false, // Prevent jQuery from setting the content type
+                    success: function (response) {
+                        if (response['error']) {
+                            toastr.error(response['error']);
+                            toastr.error('Failed to submit form.');
+                            $('#confirmModalCenter').modal('hide');
+                        } else {
+                            toastr.success('Team deleted successfully');
+                            // update html
+                            var tempDiv = $('<div>').html(response);
+
+                            // Extract the specific element from the new HTML
+                            var newElementContent = tempDiv.find('#teams-content').html();
+
+                            $('#teams-content').html(newElementContent);
+                            initializeMultiSelect();
+                            $('#confirmModalCenter').modal('hide');
+                            return;
+                        }
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        toastr.error('Failed to submit form.');
+                        $('#confirmModalCenter').modal('hide');
+                        console.error(textStatus, errorThrown);
+                    }
+                });
+            });
+
             function postContent(post_now) {
                 if (post_now) {
                     // post content now
@@ -5774,9 +6616,34 @@
             $(document).on('click', '#post-now', function () {
             });
 
+            //$
             // schedule post
             $(document).on('click', '#schedule-post', function () {
-                alert('schedule post');
+                $('#schedule-post').css('color', 'black');
+                $('#now-post').css('color', 'grey');
+                $('#schedule_switch').prop('checked', true);
+                $('#datePicker').css('display', 'block');
+            });
+            //post now
+            $(document).on('click', '#now-post', function () {
+                $('#schedule-post').css('color', 'grey');
+                $('#now-post').css('color', 'black');
+                $('#schedule_switch').prop('checked', false);
+                $('#datePicker').css('display', 'none');
+            });
+            // prop check
+            $(document).on('click', '#schedule_switch', function () {
+                if ($('#schedule_switch').prop('checked')) {
+                    $('#schedule-post').css('color', 'black');
+                    $('#now-post').css('color', 'grey');
+                    $('#datePicker').css('display', 'block');
+
+                } else {
+                    $('#schedule-post').css('color', 'grey');
+                    $('#now-post').css('color', 'black');
+                    $('#datePicker').css('display', 'none');
+
+                }
             });
             // fb_stories
             $(document).on('select', '#fb_stories', function () {
@@ -5976,7 +6843,6 @@
                 console.log('File already in array:', file.name);
             }
         }
-
         function FileVerification(event) {
             var validatedFiles = [];
 
@@ -6047,7 +6913,7 @@
                     // Create image or video element based on file type
                     if (file.type.startsWith("image/")) {
                         mediaElement = new Image();
-                        mediaElement.height = 200;
+                        mediaElement.height = 300;
                         mediaElement.style.borderRadius = "10px";
                         mediaElement.style.margin = "10px";
                         mediaElement.title = file.name;
@@ -6060,14 +6926,19 @@
                         mediaElement.style.margin = "10px";
                         mediaElement.title = file.name;
                         mediaElement.src = this.result;
-                        mediaElement.height = 200; // Set height for video
+                        mediaElement.height = 300; // Set height for video
                     }
 
                     // Event listener to remove the media element on click
                     var nMediaElement = $(mediaElement).on('click', function () {
+
                         $(this).fadeOut(500, function () {
                             // Remove media element from DOM
                             $(this).remove();
+                            var iml = $('#preview').children().length;
+                            if (iml == 0) {
+                                $('#to_set_up_content').addClass('post-btn-proceed-disabled');
+                            };
                             // Remove file from the array
                             files = files.filter(f => f.name !== file.name);
                             var mediaCount = $('#preview').children().length;
@@ -6077,8 +6948,12 @@
                             }
                         });
                     });
-
                     preview.appendChild(mediaElement);
+                    var iml = $('#preview').children().length;
+                    if (iml > 0) {
+                        $('#to_set_up_content').removeClass('post-btn-proceed-disabled');
+                    };
+
                     // Add file to the array if it’s not already there
                     if (!files.some(f => f.name === file.name)) {
                         files.push(file);
