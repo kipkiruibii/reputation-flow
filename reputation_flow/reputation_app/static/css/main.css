@@ -198,14 +198,7 @@ body {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 
 }
-.user-details{
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    margin:10px;
-    background-color: green;
 
-}
 .company-account-info{
     background-color: white;
     border-radius: 15px;

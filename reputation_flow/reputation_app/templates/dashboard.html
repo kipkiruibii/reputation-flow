@@ -1047,6 +1047,10 @@
             color: white;
             border: none;
         }
+
+        .unselectedPlatform {
+            display: none;
+        }
     </style>
 
 </head>
@@ -1076,6 +1080,72 @@
                         tooltip="Forbidden. Contact admin" flow="down" style="cursor: not-allowed;">Change
                         Account</button>
                     {% endif %}
+                    <!-- <button type="button" class="btn btn-danger">Temporary Disable</button> -->
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Modal -->
+    <div class="modal fade" id="confirmModalPostCenter" tabindex="-1" role="dialog"
+        aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="confirmModalPostTitle">Link account?</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p id="confirmModalPostBody"></p>
+                    <!-- You have not linked an Instagram account -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    {% if user_permissions.can_create_team_add_member %}
+                    <button type="button" id="confirmModalPostAction" class="btn btn-primary">Change Account</button>
+                    {% else %}
+                    <button type="button" id="forbiddenModalPostAction" class="btn btn-primary"
+                        tooltip="Forbidden. Contact admin" flow="down" style="cursor: not-allowed;">Change
+                        Account</button>
+                    {% endif %}
+                    <!-- <button type="button" class="btn btn-danger">Temporary Disable</button> -->
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- reddit flair modal -->
+    <div class="modal fade" id="confirmModalFlairCenter" tabindex="-1" role="dialog"
+        aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="confirmModalFlairTitle">Edit Flairs</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <!-- <p id="confirmModalFlairBody"> -->
+                    {% for fr in flair_results %}
+                    <div style="display: flex;gap: 20px;width: 100%;margin-bottom: 10px;">
+                        <strong>r/{{ fr.sub_r }}</strong>
+                        <select class="form-select" aria-label="Default select example" >
+                            <option selected>Select flair</option>
+                            {% for fl in fr.flairs_r %}
+                            <option value="{{ fl.name }}">{{ fl.name }}</option>
+                            {% endfor %}
+
+                        </select>
+                    </div>
+                    {% endfor %}
+                    <!-- You have not linked an Instagram account -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" id="confirmModalFlairAction" class="btn btn-primary">Save Flairs</button>
                     <!-- <button type="button" class="btn btn-danger">Temporary Disable</button> -->
 
                 </div>
@@ -3993,7 +4063,8 @@
                     </div>
 
                 </div>
-                <div class="company-account-info container-right" style="display: flex; justify-content: center;height: 100%;">
+                <div class="company-account-info container-right"
+                    style="display: flex; justify-content: center;height: 100%;">
                     <!-- SELECT PLATFORM -->
                     <div id="platform_select" class="bx-shadow"
                         style="margin-top: 20px;width: 500px;padding: 20px;display: block;height: 100%;">
@@ -4018,7 +4089,8 @@
                         </div>
                         <div class="form-check" style="margin-left: 10px;">
                             <input class="form-check-input platforms_select" type="checkbox" value="tiktok"
-                                id="tiktok_platform" {% if not tiktok.linked %}disabled{% endif %}>
+                                id="tiktok_platform" {% if not tiktok.linked %}disabled{% elif reddit.subs|length==0
+                                %}disabled{% endif %}>
                             <label class="form-check-label" for="tiktok_platform">
                                 <p><img src="{% static 'images/tiktok_logo.png' %}" style="width: 20px;height: 20px;"
                                         alt="tiktok"> Tiktok {% if not tiktok.linked %}(not linked){% endif %}</p>
@@ -4026,10 +4098,11 @@
                         </div>
                         <div class="form-check" style="margin-left: 10px;">
                             <input class="form-check-input platforms_select" type="checkbox" value="reddit"
-                                id="reddit_platform" {% if not reddit.linked %}disabled{% endif %}>
+                                id="reddit_platform" {% if not reddit.linked %}disabled {% endif %}>
                             <label class="form-check-label" for="reddit_platform">
                                 <p><img src="{% static 'images/reddit_logo.png' %}" style="width: 20px;height: 20px;"
-                                        alt="reddit"> Reddit {% if not reddit.linked %}(not linked){% endif %}</p>
+                                        alt="reddit"> Reddit {% if not reddit.linked %}(not linked) {% elif
+                                    reddit.subs|length == 0 %}( No subs) {% endif %}</p>
                             </label>
                         </div>
                         <div style="margin-top: 20px;">
@@ -4039,7 +4112,8 @@
                     </div>
 
                     <!-- UPLOAD CONTENT -->
-                    <div id="upload_content_view" style="display: none;width: 100%;justify-content: center;height: 100%;">
+                    <div id="upload_content_view"
+                        style="display: none;width: 100%;justify-content: center;height: 100%;">
                         <form style="width:100%;overflow-y:scroll;height:80%" id="report-input-form" method="post"
                             enctype="multipart/form-data">
                             <div id="preview"
@@ -4050,8 +4124,8 @@
                                     <p style="font-size:12px;display:none" id="image-delete-instruction">Tap on media to
                                         remove</p>
                                     <div>
-                                        <input class="file-upload-input" type="file" id="myScreenshots" name="submitted"
-                                            multiple onchange="FileVerification(event)">
+                                        <input class="file-upload-input" type="file" id="multiPostFiles"
+                                            name="submitted" multiple onchange="FileVerification(event)">
                                     </div>
                                     <div style="display: flex;gap:20px;margin-top: 20px;">
                                         <div>
@@ -4065,7 +4139,12 @@
                                                 (set up) <i class="fa fa-caret-right"></i></a>
                                         </div>
                                     </div>
-
+                                    <div style="display:flex;justify-content: center;margin-top: 20px;cursor: pointer;"
+                                        id="non_media_post">
+                                        <p style="color: #1d8ecd;">Proceed without media
+                                            <i class="fa fa-caret-right"></i>
+                                        </p>
+                                    </div>
                                 </div>
                             </div>
 
@@ -4080,13 +4159,17 @@
                                 <div style="display: flex;gap: 10px;height: 25px;">
                                     <strong>Title</strong>
                                     <img src="{% static 'images/facebook_logo.png' %}" alt=""
-                                        style="width: 15px;height: 15px;margin: auto;">
+                                        style="width: 15px;height: 15px;margin: auto;"
+                                        class="target_facebook unselectedPlatform">
                                     <img src="{% static 'images/instagram_logo.png' %}" alt=""
-                                        style="width: 15px;height: 15px;margin: auto;">
+                                        style="width: 15px;height: 15px;margin: auto;"
+                                        class="target_instagram unselectedPlatform">
                                     <img src="{% static 'images/tiktok_logo.png' %}" alt=""
-                                        style="width: 15px;height: 15px;margin: auto;">
+                                        style="width: 15px;height: 15px;margin: auto;"
+                                        class="target_tiktok unselectedPlatform">
                                     <img src="{% static 'images/reddit_logo.png' %}" alt=""
-                                        style="width: 15px;height: 15px;margin: auto;">
+                                        style="width: 15px;height: 15px;margin: auto;"
+                                        class="target_reddit unselectedPlatform">
                                     <span style="font-size: 12px;"> *Required</span>
 
                                 </div>
@@ -4100,13 +4183,17 @@
                                 <div style="display: flex;gap: 10px;">
                                     <strong>Description</strong>
                                     <img src="{% static 'images/facebook_logo.png' %}" alt=""
-                                        style="width: 15px;height: 15px;margin: auto;">
+                                        style="width: 15px;height: 15px;margin: auto;"
+                                        class="target_facebook unselectedPlatform">
                                     <img src="{% static 'images/instagram_logo.png' %}" alt=""
-                                        style="width: 15px;height: 15px;margin: auto;">
+                                        style="width: 15px;height: 15px;margin: auto;"
+                                        class="target_instagram unselectedPlatform">
                                     <img src="{% static 'images/tiktok_logo.png' %}" alt=""
-                                        style="width: 15px;height: 15px;margin: auto;">
+                                        style="width: 15px;height: 15px;margin: auto;"
+                                        class="target_tiktok unselectedPlatform">
                                     <img src="{% static 'images/reddit_logo.png' %}" alt=""
-                                        style="width: 15px;height: 15px;margin: auto;">
+                                        style="width: 15px;height: 15px;margin: auto;"
+                                        class="target_reddit unselectedPlatform">
                                     <span style="font-size: 12px;"> *Required</span>
                                 </div>
                             </label>
@@ -4119,14 +4206,17 @@
                                 <div style="display: flex;gap: 10px;height: 25px;">
                                     <strong>(#) Tags</strong>
                                     <img src="{% static 'images/facebook_logo.png' %}" alt=""
-                                        style="width: 15px;height: 15px;margin: auto;">
+                                        style="width: 15px;height: 15px;margin: auto;"
+                                        class="target_facebook unselectedPlatform">
                                     <img src="{% static 'images/instagram_logo.png' %}" alt=""
-                                        style="width: 15px;height: 15px;margin: auto;">
+                                        style="width: 15px;height: 15px;margin: auto;"
+                                        class="target_instagram unselectedPlatform">
                                     <img src="{% static 'images/tiktok_logo.png' %}" alt=""
-                                        style="width: 15px;height: 15px;margin: auto;">
+                                        style="width: 15px;height: 15px;margin: auto;"
+                                        class="target_tiktok unselectedPlatform">
                                 </div>
                             </label>
-                            <input type="text" class="form-control-input" placeholder="Tags " id="announce-title"
+                            <input type="text" class="form-control-input" placeholder="Tags " id="content_tags"
                                 style="border: 1px solid #ced4da;border-radius:4px;width: 100%;box-sizing: border-box;background-color: white;font-size: 15px;padding-left:15px"
                                 required>
                         </div>
@@ -4144,8 +4234,8 @@
                                 style="border: 1px solid #ced4da;border-radius:4px;width:100%;box-sizing: border-box;background-color: white;display: none;"
                                 id="datePicker" required>
                         </div>
-                        <hr>
-                        <div class="form-group">
+                        <div class="form-group target_tiktok unselectedPlatform">
+                            <hr>
                             <strong>TIKTOK
                                 <img src="{% static 'images/tiktok_logo.png' %}" alt=""
                                     style="width: 15px;height: 15px;margin: auto;">
@@ -4187,22 +4277,22 @@
                                     <strong>Who can watch this video</strong>
                                     <div class="form-check">
                                         <input class="form-check-input" type="radio" name="flexRadioDefault"
-                                            id="everyone" checked>
-                                        <label class="form-check-label" for="everyone">
+                                            id="to_everyone" checked>
+                                        <label class="form-check-label" for="to_everyone">
                                             Everyone
                                         </label>
                                     </div>
                                     <div class="form-check">
                                         <input class="form-check-input" type="radio" name="flexRadioDefault"
-                                            id="friends">
-                                        <label class="form-check-label" for="friends">
+                                            id="to_friends">
+                                        <label class="form-check-label" for="to_friends">
                                             Friends
                                         </label>
                                     </div>
                                     <div class="form-check">
                                         <input class="form-check-input" type="radio" name="flexRadioDefault"
-                                            id="only_me">
-                                        <label class="form-check-label" for="only_me">
+                                            id="to_only_me">
+                                        <label class="form-check-label" for="to_only_me">
                                             Only me
                                         </label>
                                     </div>
@@ -4210,14 +4300,14 @@
                                 <div style="margin-top: 15px;">
                                     <strong>(@) Mentions</strong>
                                     <input type="text" class="form-control-input" placeholder="Mentions "
-                                        id="announce-title"
+                                        id="tiktok_mentions"
                                         style="border: 1px solid #ced4da;border-radius:4px;width: 100%;box-sizing: border-box;background-color: white;font-size: 15px;padding-left:15px;margin-top: 10px;"
                                         required>
                                 </div>
                             </div>
                         </div>
-                        <hr>
-                        <div class="form-group">
+                        <div class="form-group target_instagram unselectedPlatform">
+                            <hr>
                             <strong>INSTAGRAM
                                 <img src="{% static 'images/instagram_logo.png' %}" alt=""
                                     style="width: 15px;height: 15px;margin: auto;">
@@ -4248,7 +4338,7 @@
                                     </div>
                                 </div>
                                 <div style="display: flex;gap: 10px;margin-top: 15px;">
-                                    <label for="ai_gen">Run copyright check before publishing</label>
+                                    <label for="ig_copyright">Run copyright check before publishing</label>
 
                                     <div class="form-check form-switch" style="margin-left: 20px;">
                                         <input class="form-check-input" type="checkbox" id="ig_copyright" checked>
@@ -4257,28 +4347,28 @@
                                 <div style="margin-top: 15px;">
                                     <strong>(@) User Tags</strong>
                                     <input type="text" class="form-control-input" placeholder="Mentions "
-                                        id="announce-title"
+                                        id="ig_mentions"
                                         style="border: 1px solid #ced4da;border-radius:4px;width: 100%;box-sizing: border-box;background-color: white;font-size: 15px;padding-left:15px;margin-top: 10px;"
                                         required>
                                 </div>
                                 <div style="margin-top: 15px;">
                                     <strong>Product Tags</strong>
                                     <input type="text" class="form-control-input" placeholder="Product tags "
-                                        id="announce-title"
+                                        id="ig_product_tags"
                                         style="border: 1px solid #ced4da;border-radius:4px;width: 100%;box-sizing: border-box;background-color: white;font-size: 15px;padding-left:15px;margin-top: 10px;"
                                         required>
                                 </div>
                                 <div style="margin-top: 15px;">
                                     <strong>Location Tags</strong>
                                     <input type="text" class="form-control-input" placeholder="Location tags "
-                                        id="announce-title"
+                                        id="ig_location_tags"
                                         style="border: 1px solid #ced4da;border-radius:4px;width: 100%;box-sizing: border-box;background-color: white;font-size: 15px;padding-left:15px;margin-top: 10px;"
                                         required>
                                 </div>
                             </div>
                         </div>
-                        <hr>
-                        <div class="form-group">
+                        <div class="form-group target_facebook unselectedPlatform">
+                            <hr>
                             <strong>FACEBOOK
                                 <img src="{% static 'images/facebook_logo.png' %}" alt=""
                                     style="width: 15px;height: 15px;margin: auto;">
@@ -4288,31 +4378,31 @@
                                 <div style="display: flex;gap: 20px;">
                                     <div style="display: flex;gap: 10px;">
                                         <div class="form-check form-switch" style="margin-left: 20px;">
-                                            <input class="form-check-input" type="checkbox" id="to_ig_stories">
-                                            <label for="to_ig_stories">Stories</label>
+                                            <input class="form-check-input" type="checkbox" id="to_fb_stories">
+                                            <label for="to_fb_stories">Stories</label>
                                         </div>
 
                                     </div>
                                     <div style="display: flex;gap: 10px;">
                                         <div class="form-check form-switch" style="margin-left: 20px;">
-                                            <input class="form-check-input" type="checkbox" id="to_ig_posts" checked>
-                                            <label for="to_ig_posts">Posts</label>
+                                            <input class="form-check-input" type="checkbox" id="to_fb_posts" checked>
+                                            <label for="to_fb_posts">Posts</label>
                                         </div>
 
                                     </div>
                                     <div style="display: flex;gap: 10px;">
                                         <div class="form-check form-switch" style="margin-left: 20px;">
-                                            <input class="form-check-input" type="checkbox" id="to_ig_reels">
-                                            <label for="to_ig_reels">Reels</label>
+                                            <input class="form-check-input" type="checkbox" id="to_fb_reels">
+                                            <label for="to_fb_reels">Reels</label>
                                         </div>
 
                                     </div>
                                 </div>
                                 <div style="display: flex;gap: 10px;margin-top: 15px;">
-                                    <label for="ai_gen">Run copyright check before publishing</label>
+                                    <label for="fb_copyright">Run copyright check before publishing</label>
 
                                     <div class="form-check form-switch" style="margin-left: 20px;">
-                                        <input class="form-check-input" type="checkbox" id="ig_copyright" checked>
+                                        <input class="form-check-input" type="checkbox" id="fb_copyright" checked>
                                     </div>
                                 </div>
 
@@ -4329,22 +4419,22 @@
                                 <div style="margin-top: 15px;">
                                     <strong>(@) User Tags</strong>
                                     <input type="text" class="form-control-input" placeholder="Mentions "
-                                        id="announce-title"
+                                        id="fb_mentions"
                                         style="border: 1px solid #ced4da;border-radius:4px;width: 100%;box-sizing: border-box;background-color: white;font-size: 15px;padding-left:15px;margin-top: 10px;"
                                         required>
                                 </div>
                                 <div style="margin-top: 15px;">
                                     <strong>Location Tags</strong>
                                     <input type="text" class="form-control-input" placeholder="Location tags "
-                                        id="announce-title"
+                                        id="fb_location_tags"
                                         style="border: 1px solid #ced4da;border-radius:4px;width: 100%;box-sizing: border-box;background-color: white;font-size: 15px;padding-left:15px;margin-top: 10px;"
                                         required>
                                 </div>
 
                             </div>
                         </div>
-                        <hr>
-                        <div class="form-group">
+                        <div class="form-group target_reddit unselectedPlatform">
+                            <hr>
                             <strong>REDDIT
                                 <img src="{% static 'images/reddit_logo.png' %}" alt=""
                                     style="width: 15px;height: 15px;margin: auto;">
@@ -4366,30 +4456,42 @@
                                     </div>
 
                                 </div>
+                                <div style="display: flex;gap: 10px;margin-top: 10px;">
+                                    <label for="brand_affiliate_tag">Brand Affiliate</label>
+
+                                    <div class="form-check form-switch" style="margin-left: 20px;">
+                                        <input class="form-check-input" type="checkbox" id="brand_affiliate_tag">
+                                    </div>
+
+                                </div>
                                 <div style="margin-top: 15px;">
                                     <strong>Select Subs</strong>
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="flexRadioDefault"
-                                            id="everyone">
-                                        <label class="form-check-label" for="everyone">
-                                            r/Nairobi
-                                        </label>
-                                    </div>
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="flexRadioDefault"
-                                            id="friends">
-                                        <label class="form-check-label" for="friends">
-                                            r/Legal
-                                        </label>
-                                    </div>
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="flexRadioDefault"
-                                            id="only_me">
-                                        <label class="form-check-label" for="only_me">
-                                            r/Doctors
-                                        </label>
+                                    <div style="margin-bottom: 20px;margin-top: 10px;">
+                                        <select id="red_subs" data-name="red_subs" data-placeholder="select subs"
+                                            multiple data-multi-select>
+                                            {% for s in reddit.subs %}
+                                            <option value="{{s}}">r/{{s}}</option>
+                                            {% endfor %}
+
+                                        </select>
                                     </div>
                                 </div>
+                                <div style="display: flex;gap: 10px;margin-top: 10px;color: grey;" id="flair-select">
+                                    <label for="spoiler_tag">Use Saved Flairs</label>
+
+                                    <div class="form-check form-switch" style="margin-left: 20px;">
+                                        <input class="form-check-input" type="checkbox" id="saved_flairs" disabled>
+                                    </div>
+                                    <p style="color: #1d8ecd;cursor: pointer;color: grey;" id=edit_flairs>edit my flairs
+                                    </p>
+
+                                </div>
+                                <div style="display: none;justify-content: center;margin-top: 10px;margin-bottom: 10px;"
+                                    id="wait-flair-spinner">
+                                    <i class="fa fa-spinner fa-spin"></i>
+                                </div>
+
+
                             </div>
                         </div>
                         <div style="display: flex;gap:20px;margin-top: 20px;">
@@ -4581,77 +4683,6 @@
                             </div>
                         </div>
                     </div>
-
-                    <!-- <div id="report-form"
-                        style="display:flex;justify-content:center;width:100%;height:100%;margin-top:20px;overflow-y: scroll;">
-                        <div style="width:60%">
-                            <div style="display:flex;justify-content:space-between;">
-                                <div class="section-fun-fact">
-                                    <p>Create a new post</p>
-                                    <hr>
-                                </div>
-                            </div>
-
-                            <form style="width:100%;overflow-y:scroll;height:80%" id="report-input-form" method="post"
-                                enctype="multipart/form-data">
-                                <div class="form-group">
-                                    <select id="platforms" name="platforms" data-placeholder="Select platform" multiple
-                                        data-multi-select>
-                                        <option id="fb_stories" value="facebook-stories">Facebook Stories</option>
-                                        <option value="facebook-reels" disabled>Facebook Reels</option>
-                                        <option value="facebook-post" disabled>Facebook Post</option>
-                                        <option value="instagram-stories">Instagram Stories</option>
-                                        <option value="instagram-reels">Instagram Reels</option>
-                                        <option value="instagram-post">Instagram Post</option>
-                                        <option value="youtube">Youtube Video</option>
-                                        <option value="youtube-shorts">Youtube Shorts</option>
-                                        <option value="twitter">X (Twitter)</option>
-                                        <option value="google">Google Business Profile</option>
-                                        <option value="tiktok">Tiktok</option>
-
-                                    </select>
-                                </div>
-                                <div class="form-group" style="font-size: 15px;">
-                                    <textarea class="form-control-textarea input-decor" placeholder="Create post"
-                                        style="border: 1px solid #ced4da;border-radius:4px;width:100%;box-sizing: border-box;background-color: white;"
-                                        id="post-textarea" required></textarea>
-                                </div>
-
-
-                                <div id="preview" style="margin:10px">
-                                </div>
-                                <p style="font-size:12px;display:none" id="image-delete-instruction">Tap on media to
-                                    remove</p>
-                                <p style="font-size:12px;display:block">Add MEDIA
-                                </p>
-                                <div>
-                                    <input class="file-upload-input" type="file" id="myScreenshots" name="submitted"
-                                        multiple onchange="FileVerification(event)">
-                                </div>
-                                <div style="text-align:center;font-size:12px;align-items:center">
-                                    <p id="error-mess-report" style="color:red"></p>
-                                    <p id="suc-mess-report" style="color:lime"></p>
-                                </div>
-                                <div class="form-group" style="font-size: 15px;">
-                                    <label class="" for="datePicker"
-                                        style="color: rgba(128, 128, 128, 0.712);">Schedule(Optional)</label>
-
-                                    <input class=" input-decor" placeholder="Pick date"
-                                        style="border: 1px solid #ced4da;border-radius:4px;width:100%;box-sizing: border-box;background-color: white;"
-                                        id="datePicker" required>
-                                </div>
-                                <div style="width:60%;display:flex;justify-content: space-between;">
-                                    <div class="form-group"
-                                        style="text-align:center;font-size:20px;align-items:center;margin-top:10px;margin-bottom:20px">
-                                        <a href="#" class=" btn-solid-sm" style="cursor:pointer" id="post-now">Submit
-                                        </a>
-                                    </div>
-
-                                </div>
-                            </form>
-
-                        </div>
-                    </div> -->
                 </div>
 
             </div>
@@ -4797,7 +4828,6 @@
                                 <!-- sub elements post info -->
                                 <div class="post-comment-box" style="padding: 10px; display: none;">
                                     <hr>
-
                                     <p>Comments</p>
                                     <div
                                         style="margin-left: 20px;border-radius: 10px;border: 1px solid rgb(219, 219, 219);padding: 10px;margin-bottom: 10px;">
@@ -5481,6 +5511,70 @@
 
             });
 
+            //reddit flairs
+            $(document).on('click', '#edit_flairs', function () {
+                const selectedSubsInstance = multiSelectInstances.find(instance => instance.selectElement.dataset.name === "red_subs");
+
+                if (!selectedSubsInstance) {
+                    // Get selected items
+                    toastr.error('Kindly select atleast one subreddit')
+                    return;
+
+                }
+                const selectedItems = selectedSubsInstance.selectedItems.map(item => item.text);
+                // getSelectedOptions();
+                if (selectedItems == '') {
+                    toastr.error('Kindly select atleast one subreddit')
+                    return;
+                }
+                // upload this to the server to get the flairs
+                $('#flair-select').css('display', 'none');
+                $('#wait-flair-spinner').css('display', 'flex');
+                //post to server
+                var formData = new FormData();
+
+                // Append other input fields to FormData
+                var csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                formData.append('company_id', '{{ company_id }}');
+                formData.append('subs', selectedItems);
+
+                // Send the form data via AJAX
+                $.ajax({
+                    url: '{% url "reddit_flairs" %}', // Replace with your Django endpoint URL
+                    type: 'POST',
+                    headers: {
+                        'X-CSRFToken': csrfToken
+                    },
+                    data: formData,
+                    processData: false, // Prevent jQuery from processing the data
+                    contentType: false, // Prevent jQuery from setting the content type
+                    success: function (response) {
+                        if (response['error']) {
+                            toastr.error(response['error']);
+
+                        } else {
+                            $('#flair-select').css('display', 'flex');
+                            $('#wait-flair-spinner').css('display', 'none');
+                            // update html
+                            var tempDiv = $('<div>').html(response);
+                            // Extract the specific element from the new HTML
+                            var newElementContent = tempDiv.find('#confirmModalFlairCenter').html();
+
+                            $('#confirmModalFlairCenter').html(newElementContent);
+                            // initializeMultiSelect();
+                            $('#confirmModalFlairCenter').modal('show');
+
+                            return;
+                        }
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        toastr.error('Failed retrieve flairs');
+                        console.error(textStatus, errorThrown);
+                    }
+                });
+
+
+            });
 
             $(document).on('click', '#create-team-btn', function () {
 
@@ -5671,7 +5765,7 @@
                 $('#confirmModalAction').addClass('btn btn-danger');
                 $('#confirmModalCenter').modal('show');
             });
-            
+
             // confirm delete
             $(document).on('click', '#confirmModalAction', function () {
                 var t_id = $(this).data('placeholder');
@@ -6315,7 +6409,7 @@
 
                 if (!linkPermissionsInstance) {
                     // Get selected items
-                    toastr.error('Kindly ')
+                    toastr.error('Kindly select atleast one permission')
                     return;
 
                 }
@@ -6433,10 +6527,10 @@
 
 
             });
-            
-            
+
+
             // -----------------------------CREATE POST-------------------------------------
-            
+
             $(document).on('click', '.form-check-input.platforms_select', function () {
                 var isChecked = false;
                 $('.form-check-input.platforms_select').each(function () {
@@ -6466,12 +6560,52 @@
 
                     $('#upload_content_view').css('display', 'block');
 
+                    if ($('#tiktok_platform').prop('checked')) {
+                        //titkok selected
+                        $('.target_tiktok').each(function () { $(this).removeClass('unselectedPlatform') });
+                        $('#non_media_post').css('display', 'none')
+                    } else {
+                        // tiktok unselected
+                        $('.target_tiktok').each(function () { $(this).addClass('unselectedPlatform') });
+                        $('#non_media_post').css('display', 'flex')
+                    }
+                    // Facebook
+                    if ($('#facebook_platform').prop('checked')) {
+                        // selected
+                        $('.target_facebook').each(function () { $(this).removeClass('unselectedPlatform') });
+                    } else {
+                        //  unselected
+                        $('.target_facebook').each(function () { $(this).addClass('unselectedPlatform') });
+
+                    }
+                    // Instagram
+                    if ($('#instagram_platform').prop('checked')) {
+                        // selected
+                        $('.target_instagram').each(function () { $(this).removeClass('unselectedPlatform') });
+                    } else {
+                        //  unselected
+                        $('.target_instagram').each(function () { $(this).addClass('unselectedPlatform') });
+
+                    }
+                    // Reddit
+                    if ($('#reddit_platform').prop('checked')) {
+                        // selected
+                        $('.target_reddit').each(function () { $(this).removeClass('unselectedPlatform') });
+                    } else {
+                        //  unselected
+                        $('.target_reddit').each(function () { $(this).addClass('unselectedPlatform') });
+
+                    }
+
                     return;
                 };
             });
             $(document).on('click', '#back_to_platforms', function () {
                 $('#platform_select').css('display', 'block');
                 $('#upload_content_view').css('display', 'none');
+                $('#preview').empty();
+                valideImages = [];
+                imageContainer = [];
 
             });
             $(document).on('click', '#to_set_up_content', function () {
@@ -6489,9 +6623,23 @@
                 $('#set_up_content').css('display', 'block');
 
             });
+
+            $(document).on('click', '#non_media_post', function () {
+                // upload the file and check content of file, filetype file length,etc 
+                $('#upload_content_view').css('display', 'none');
+                $('#step2').removeClass('current');
+                $('#step2').addClass('completed');
+                $('#step3').removeClass('upcoming');
+                $('#step3').addClass('current');
+                $('#set_up_content').css('display', 'block');
+
+            });
+
             $(document).on('click', '#back_to_upload', function () {
                 $('#set_up_content').css('display', 'none');
                 $('#upload_content_view').css('display', 'block');
+
+                // disable next btn
             });
             $(document).on('click', '#to_review', function () {
                 var descript = $('#content_description').val();
@@ -6534,41 +6682,118 @@
                     return;
                 };
             });
-           
+
             // upload modal
             $(document).on('click', '#submit_post', function () {
                 var descript = $('#content_description').val();
                 var title = $('#content_title').val();
                 // ensure the content has a title and description
                 if (!descript || !title) { return; }
-                $('#confirmModalTitle').text('Upload Post');
+                $('#confirmModalPostTitle').text('Upload Post');
                 var bdy = 'Confirm post upload';
-                $('#confirmModalBody').text(bdy);
+                $('#confirmModalPostBody').text(bdy);
 
-                $('#forbiddenModalAction').removeClass();
-                $('#forbiddenModalAction').text('Post');
-                $('#forbiddenModalAction').addClass('btn btn-primary');
+                $('#forbiddenModalPostAction').removeClass();
+                $('#forbiddenModalPostAction').text('Post');
+                $('#forbiddenModalPostAction').addClass('btn btn-primary');
 
-                $('#confirmModalAction').removeClass();
-                $('#confirmModalAction').text('Post');
-                $('#confirmModalAction').addClass('btn btn-primary');
-                $('#confirmModalCenter').modal('show');
+                $('#confirmModalPostAction').removeClass();
+                $('#confirmModalPostAction').text('Post');
+                $('#confirmModalPostAction').addClass('btn btn-primary');
+                $('#confirmModalPostCenter').modal('show');
             });
-            
-            // confirm upload post
-            $(document).on('click', '#confirmModalAction', function () {
-                var t_id = $(this).data('placeholder');
-                // Create a new FormData object
-                var formData = new FormData();
 
+            // confirm upload post
+            $(document).on('click', '#confirmModalPostAction', function () {
+                // Create a new FormData object
+                var title = $('#content_title').val();
+                var description = $('#content_description').val();
+                var hashTags = $('#content_tags').val();
+                var isScheduled = $('#schedule_switch').prop('checked');
+                var tiktokSelected = $('#tiktok_platform').prop('checked');
+                var instagramSelected = $('#instagram_platform').prop('checked');
+                var facebookSelected = $('#facebook_platform').prop('checked');
+                var redditSelected = $('#reddit_platform').prop('checked');
+
+                // tiktok
+                var tk_allow_comment = $('#to_comment').prop('checked');
+                var tk_allow_duet = $('#to_duet').prop('checked');
+                var tk_allow_stitch = $('#to_stitch').prop('checked');
+                var ai_generated = $('#ai_gen').prop('checked');
+                var tk_to_everyone = $('#to_everyone').prop('checked');
+                var tk_to_friends = $('#to_friends').prop('checked');
+                var tk_to_only_me = $('#to_only_me').prop('checked');
+                var tk_tiktok_mentions = $('#tiktok_mentions').val();
+
+                // Instagram
+                var to_ig_stories = $('#to_ig_stories').prop('checked');
+                var to_ig_posts = $('#to_ig_posts').prop('checked');
+                var to_ig_reels = $('#to_ig_reels').prop('checked');
+                var ig_copyright = $('#ig_copyright').prop('checked');
+                var ig_location_tags = $('#ig_location_tags').val();
+                var ig_product_tags = $('#ig_product_tags').val();
+
+                // Facebook
+                var to_fb_stories = $('#to_fb_stories').prop('checked');
+                var to_fb_posts = $('#to_fb_posts').prop('checked');
+                var to_fb_reels = $('#to_fb_reels').prop('checked');
+                var fb_copyright = $('#fb_copyright').prop('checked');
+                var fb_location_tags = $('#fb_location_tags').val();
+
+                // Reddit
+                var red_is_nsfw = $('#nsfw_tag').prop('checked');
+                var red_is_spoiler = $('#spoiler_tag').prop('checked');
+
+                var dateSched = $('#datePicker').val();
+
+                var formData = new FormData();
+                var iml = $('#preview').children().length;
+                var hasMedia = true;
+                if (iml == 0) {
+                    hasMedia = false;
+                } else {
+                    imageContainer.forEach((file, index) => {
+                        formData.append(`file${index}`, file);  // `file0`, `file1`, etc., as keys
+                    });
+                }
                 // Append other input fields to FormData
                 var csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
                 formData.append('company_id', '{{ company_id }}');
-                formData.append('team_id', t_id);
+                formData.append('title', title);
+                formData.append('description', description);
+                formData.append('hashTags', hashTags);
+                formData.append('hasMedia', hasMedia);
+                formData.append('isScheduled', isScheduled);
+                formData.append('tiktokSelected', tiktokSelected);
+                formData.append('instagramSelected', instagramSelected);
+                formData.append('facebookSelected', facebookSelected);
+                formData.append('redditSelected', redditSelected);
+                formData.append('tk_allow_comment', tk_allow_comment);
+                formData.append('tk_allow_duet', tk_allow_duet);
+                formData.append('tk_allow_stitch', tk_allow_stitch);
+                formData.append('ai_generated', ai_generated);
+                formData.append('tk_to_everyone', tk_to_everyone);
+                formData.append('tk_to_friends', tk_to_friends);
+                formData.append('tk_to_only_me', tk_to_only_me);
+                formData.append('tk_tiktok_mentions', tk_tiktok_mentions);
+                formData.append('to_ig_stories', to_ig_stories);
+                formData.append('to_ig_posts', to_ig_posts);
+                formData.append('to_ig_reels', to_ig_reels);
+                formData.append('ig_copyright', ig_copyright);
+                formData.append('ig_location_tags', ig_location_tags);
+                formData.append('ig_product_tags', ig_product_tags);
+                formData.append('to_fb_stories', to_fb_stories);
+                formData.append('to_fb_posts', to_fb_posts);
+                formData.append('to_fb_reels', to_fb_reels);
+                formData.append('fb_copyright', fb_copyright);
+                formData.append('fb_location_tags', fb_location_tags);
+                formData.append('red_is_nsfw', red_is_nsfw);
+                formData.append('red_is_spoiler', red_is_spoiler);
+                formData.append('date_scheduled', dateSched);
 
                 // Send the form data via AJAX
                 $.ajax({
-                    url: '{% url "delete-team" %}', // Replace with your Django endpoint URL
+                    url: '{% url "upload_post" %}', // Replace with your Django endpoint URL
                     type: 'POST',
                     headers: {
                         'X-CSRFToken': csrfToken
@@ -6580,24 +6805,17 @@
                         if (response['error']) {
                             toastr.error(response['error']);
                             toastr.error('Failed to submit form.');
-                            $('#confirmModalCenter').modal('hide');
+                            $('#confirmModalPostCenter').modal('hide');
                         } else {
-                            toastr.success('Team deleted successfully');
+                            toastr.success('Uploaded successfully');
+                            $('#confirmModalPostCenter').modal('hide');
                             // update html
-                            var tempDiv = $('<div>').html(response);
-
-                            // Extract the specific element from the new HTML
-                            var newElementContent = tempDiv.find('#teams-content').html();
-
-                            $('#teams-content').html(newElementContent);
-                            initializeMultiSelect();
-                            $('#confirmModalCenter').modal('hide');
                             return;
                         }
                     },
                     error: function (jqXHR, textStatus, errorThrown) {
                         toastr.error('Failed to submit form.');
-                        $('#confirmModalCenter').modal('hide');
+                        $('#confirmModalPostCenter').modal('hide');
                         console.error(textStatus, errorThrown);
                     }
                 });
@@ -6717,9 +6935,6 @@
             chatBody.append(divBot);
             chatBody.scrollTop = chatBody.scrollHeight;
         }
-
-
-
     </script>
     <script>
 
@@ -6749,7 +6964,6 @@
 
         var valideImages = [];
         var imageContainer = [];
-
 
         $(document).ready(function () {
             var homeUrl = window.DjangoURLs.home;
@@ -6834,6 +7048,119 @@
         function isFileInArray(file, fileArray) {
             return fileArray.some(f => f.name === file.name && f.size === file.size && f.type === file.type);
         }
+        function getVideoMetadata(videoElement) {
+            return new Promise((resolve, reject) => {
+                // Set up event to handle loaded metadata
+                videoElement.onloadedmetadata = () => {
+                    const videoWidth = videoElement.videoWidth;
+                    const videoHeight = videoElement.videoHeight;
+                    const videoDuration = videoElement.duration;
+
+                    // Resolve with video metadata
+                    resolve({ videoWidth, videoHeight, videoDuration });
+                };
+
+                // Handle potential errors loading the metadata
+                videoElement.onerror = () => {
+                    reject(new Error("Failed to load video metadata."));
+                };
+            });
+        }
+
+        // validate uploaded
+        async function validateAndAddFile(newFile) {
+            const fileType = newFile.type;
+            const fileName = newFile.name.toLowerCase();
+            const fileSizeMB = newFile.size / (1024 * 1024); // Convert bytes to MB
+            // Define valid formats
+            const validImageTypes = ["image/jpeg", "image/png", "image/gif"];
+            const validVideoType = "video/mp4";
+
+            // Check current contents for count of videos and images
+            const videoCount = imageContainer.filter(file => file.type === validVideoType).length;
+            const imageCount = imageContainer.filter(file => validImageTypes.includes(file.type)).length;
+
+            // Check if the file is a video and enforce video limit
+            if (fileType === validVideoType) {
+                if (videoCount >= 1) {
+                    toastr.error("Only one video can be added per post.");
+                    return false;
+                } else {
+                    // Add the video to imageContainer
+                    // Create a video element to validate resolution and duration
+                    const videoElement = document.createElement("video");
+                    videoElement.src = URL.createObjectURL(newFile);
+                    // Wait for video metadata to load to access resolution and duration
+                    try {
+                        const { videoWidth, videoHeight, videoDuration } = await getVideoMetadata(videoElement);
+                        var tiktokSelected = $('#tiktok_platform').prop('checked');
+                        var facebookSelected = $('#facebook_platform').prop('checked');
+                        var instagramSelected = $('#instagram_platform').prop('checked');
+                        var redditSelected = $('#reddit_platform').prop('checked');
+
+                        if (tiktokSelected) {
+                            //check maximum video
+                            if (videoDuration > 60) {
+                                toastr.error(`Video duration exceeds Tiktoks maximum allowed duration of 60 seconds (1 minute).`);
+                                return false;
+                            }
+
+                        }
+                        if (facebookSelected) {
+                            //check maximum video
+                            if (videoDuration > 60) {
+                                toastr.error(`Video duration exceeds Facebook maximum allowed duration of 90 seconds.`);
+                                return false;
+                            }
+
+                        }
+                        if (instagramSelected) {
+                            //check maximum video
+                            if (videoDuration > 60) {
+                                toastr.error(`Video duration exceeds Instagram maximum allowed duration of 90 seconds.`);
+                                return false;
+                            }
+
+                        }
+                        if (redditSelected) {
+                            //check maximum video
+                            if (videoDuration > 900) {
+                                toastr.error(`Video duration exceeds Reddit maximum allowed duration of 15 Minutes.`);
+                                return false;
+                            }
+
+                        }
+                        return true;
+                    } catch {
+                        toastr.error(`Error loading video metadata.`);
+                        return false;
+                    }
+
+                }
+            }
+
+            // Check if the file is an image and enforce image limit
+            if (validImageTypes.includes(fileType)) {
+                if (imageCount >= 5) {
+                    toastr.error("Only a maximum of 5 images can be added per post.");
+                    return false;
+                } else {
+                    // check if tiktok is selected
+                    var tiktokSelected = $('#tiktok_platform').prop('checked');
+                    if (tiktokSelected) {
+                        toastr.error("TikTok only support video files.");
+                        return false;
+                    }
+                    // Add the image to imageContainer
+                    return true;
+                }
+            }
+
+            // If the file format is not valid
+            toastr.error("Invalid file type. Only .jpg, .png .gif images and .mp4, .mov, .webm video are allowed.");
+            return false;
+        }
+
 
         function addFileToArray(file, fileArray) {
             if (!isFileInArray(file, fileArray)) {
@@ -6843,7 +7170,7 @@
                 console.log('File already in array:', file.name);
             }
         }
-        function FileVerification(event) {
+        async function FileVerification(event) {
             var validatedFiles = [];
 
             var errorStatement = "";
@@ -6852,7 +7179,6 @@
 
             var minImageWidth = 400;
             var minImageHeight = 400;
-
 
             for (var i = 0; i < files.length; i++) {
 
@@ -6876,20 +7202,18 @@
 
                 //verification de la qualit
                 else if ((ImageHeight < minImageHeight) && (ImageWidth > minImageWidth)) {
-
                     errorStatement += "Resolution too low";
 
                     //verifier le poids de toutes les images
                 } else {
-                    addFileToArray(files[i], imageContainer);
-                    validatedFiles.push(files[i]);
-
+                    if (await validateAndAddFile(files[i])) {
+                        addFileToArray(files[i], imageContainer);
+                        validatedFiles.push(files[i]);
+                    }
                 }
-
             }
 
             if (errorStatement != "") {
-
                 toastr.error(errorStatement);
 
             }
@@ -6901,7 +7225,6 @@
 
         function FileDisplayA(files) {
             var preview = document.querySelector('#preview');
-
             function readAndPreview(file) {
                 var reader = new FileReader();
                 reader.readAsDataURL(file);
@@ -6937,13 +7260,19 @@
                             $(this).remove();
                             var iml = $('#preview').children().length;
                             if (iml == 0) {
+                                if (!$('#tiktok_platform').prop('checked')) {
+                                    $('#non_media_post').css('display', 'flex');
+                                }
                                 $('#to_set_up_content').addClass('post-btn-proceed-disabled');
                             };
                             // Remove file from the array
                             files = files.filter(f => f.name !== file.name);
+                            imageContainer = imageContainer.filter(f => f.name !== file.name);
+                            valideImages = valideImages.filter(f => f.name !== file.name);
                             var mediaCount = $('#preview').children().length;
                             // Optional: Hide the delete instruction if there are no media items
                             if (mediaCount == 0) {
+                                $('#multiPostFiles').val('');
                                 $('#image-delete-instruction').css('display', 'none');
                             }
                         });
@@ -6951,6 +7280,7 @@
                     preview.appendChild(mediaElement);
                     var iml = $('#preview').children().length;
                     if (iml > 0) {
+                        $('#non_media_post').css('display', 'none');
                         $('#to_set_up_content').removeClass('post-btn-proceed-disabled');
                     };
 
@@ -6965,8 +7295,6 @@
                 [].forEach.call(files, readAndPreview);
             }
         }
-
-
 
         function create_zip(Images) {
             var zip = new JSZip();
@@ -6998,15 +7326,6 @@
 
             // Generate the zip file as a Blob (asynchronously)
             return zip.generateAsync({ type: "blob" });
-        }
-
-
-        function newVerify() {
-            var vc_res = document.querySelector('#vcontact-results');
-            var vc_inst = document.querySelector('#vcontact-instruction');
-            vc_res.style.display = 'none';
-            vc_inst.style.display = 'block';
-
         }
     </script>
 

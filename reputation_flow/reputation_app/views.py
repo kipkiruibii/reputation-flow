@@ -33,7 +33,7 @@ import hashlib
 import base64
 import urllib.parse
 import praw
-
+import threading
 # 1. Generate a State Token for CSRF protection
 def generate_state_token():
     return secrets.token_urlsafe(16)  # Generates a random URL-safe token
@@ -219,7 +219,21 @@ def loginUser(request):
         return render(request, 'login.html', {'next': next_url})
     return render(request, 'login.html', {'next': next_url})
 
-
+def getRedditSubFlairs(cid):
+    cm=Company.objects.filter(company_id = cid).first()
+    cr=CompanyReddit.objects.filter(company=cm).first()
+    reddit_subs=[]
+    if cr:
+        reddit = praw.Reddit(
+            client_id=settings.REDDIT_CLIENT_ID,
+            client_secret=settings.REDDIT_CLIENT_SECRET,
+            user_agent=settings.REDDIT_USER_AGENT,
+            refresh_token=cr.refresh_token,
+        )
+        for subreddit in reddit.user.subreddits(limit=None):  # Use limit=None to get all
+            reddit_subs.append(subreddit.display_name)
+            
+    print(reddit_subs)
 
 @login_required
 def dashboard(request,company_id):
@@ -245,7 +259,10 @@ def dashboard(request,company_id):
     cfb=CompanyFacebook.objects.filter(company=cm).first()
     cig=CompanyInstagram.objects.filter(company=cm).first()
     cr=CompanyReddit.objects.filter(company=cm).first()
-    
+    reddit_subs = []
+    if cr:
+        sub_f=threading.Thread(target=getRedditSubFlairs,daemon=True,kwargs={'cid':company_id})
+        sub_f.start()
     context={
         'company_name':cm.company_name,
         'company_category':cm.company_category,
@@ -325,6 +342,7 @@ def dashboard(request,company_id):
             'linked':cr.linked if cr else '',
             'active':cr.active if cr else '',
             'comment_karma':cr.comment_karma if cr else '',
+            'subs':reddit_subs
         },
         'tiktok':{
             'profile':ctk.profile_url if ctk else '',
@@ -379,8 +397,8 @@ def fetchPosts(request):
         
         all_posts.append({
             'platforms':p.platforms,
-            'content':p.content,
-            'is_uploaded':p.is_uploaded,
+            'content':p.description,
+            'is_uploaded':p.is_published,
             'is_scheduled':p.is_scheduled,
             'tags':p.tags,
             'has_media':p.has_media,
@@ -664,19 +682,122 @@ def sendChat(request):
     }
     return render(request,'dashboard.html',context=context)
 
+def postReddit():
+    pass
+
+def postInstagram():
+    pass
+
+def postFacebook():
+    pass
+
+def postTiktok():
+    pass
 @api_view(['POST'])
 def uploadPost(request):
-    company_id=request.POST.get('company_id', None)           
-    content=request.POST.get('content', None) 
-    platforms=request.POST.get('platforms', None)           
-    tags=request.POST.get('tags', None)           
-    media = request.FILES.get('media',None)
-    sheduled=request.POST.get('scheduled', False)  
-    if not all([company_id,content]):
+    company_id=request.POST.get('company_id', None)  
+             
+    title=request.POST.get('title', None) 
+    description=request.POST.get('description', None) 
+    
+    # Platform selected
+    instagramSelected=request.POST.get('instagramSelected', 'false').lower() == 'true' 
+    facebookSelected=request.POST.get('facebookSelected', 'false').lower() == 'true' 
+    tiktokSelected=request.POST.get('tiktokSelected', 'false').lower() == 'true' 
+    redditSelected=request.POST.get('redditSelected', 'false').lower() == 'true' 
+    
+    isScheduled=request.POST.get('isScheduled', 'false').lower() == 'true' 
+    hasMedia=request.POST.get('hasMedia','false').lower() == 'true' 
+    hashTags=request.POST.get('hashTags', None) 
+    
+    # Tiktok
+    tk_allow_comment=request.POST.get('tk_allow_comment', 'false').lower() == 'true' 
+    tk_allow_duet=request.POST.get('tk_allow_duet', 'false').lower() == 'true' 
+    tk_allow_stitch=request.POST.get('tk_allow_stitch', 'false').lower() == 'true' 
+    ai_generated=request.POST.get('ai_generated', 'false').lower() == 'true' 
+    tk_to_everyone=request.POST.get('tk_to_everyone', 'false').lower() == 'true' 
+    tk_to_friends=request.POST.get('tk_to_friends', 'false').lower() == 'true' 
+    tk_to_only_me=request.POST.get('tk_to_only_me', 'false').lower() == 'true' 
+    tk_tiktok_mentions=request.POST.get('tk_tiktok_mentions','false').lower() == 'true' 
+    
+    # Instagram
+    to_ig_stories=request.POST.get('to_ig_stories', 'false').lower() == 'true' 
+    to_ig_posts=request.POST.get('to_ig_posts', 'false').lower() == 'true' 
+    to_ig_reels=request.POST.get('to_ig_reels', 'false').lower() == 'true' 
+    ig_copyright=request.POST.get('ig_copyright', 'false').lower() == 'true' 
+    ig_location_tags=request.POST.get('ig_location_tags', 'false').lower() == 'true' 
+    ig_product_tags=request.POST.get('ig_product_tags', 'false').lower() == 'true' 
+    
+    # Facebook
+    to_fb_stories=request.POST.get('to_fb_stories', 'false').lower() == 'true' 
+    to_fb_posts=request.POST.get('to_fb_posts', 'false').lower() == 'true' 
+    to_fb_reels=request.POST.get('to_fb_reels', 'false').lower() == 'true' 
+    fb_copyright=request.POST.get('fb_copyright', 'false').lower() == 'true' 
+    fb_location_tags=request.POST.get('fb_location_tags', None) 
+
+    # Reddit
+    red_is_nsfw=request.POST.get('red_is_nsfw', 'false').lower() == 'true' 
+    red_is_spoiler=request.POST.get('red_is_spoiler', 'false').lower() == 'true' 
+    target_subs=request.POST.get('target_subs', None) 
+    date_scheduled=request.POST.get('date_scheduled', None) 
+ 
+    if not all([company_id,title,description]):
         return Response({'error':'Bad request'})
+    print(date_scheduled)
     cp=Company.objects.filter(company_id=company_id).first()
+    
+    files = request.FILES  # Access uploaded files
+    for key, file in files.items():
+        print(file.name)
+
+    platform=[]
     if not cp:
-        return Response({'error':'Bad request'}) 
+        return Response({'error':'Bad request'})
+    if tiktokSelected:
+        platform.append('tiktok')
+    if instagramSelected:
+        platform.append('instagram')
+    if facebookSelected:
+        platform.append('facebook')   
+    if redditSelected:
+        platform.append('reddit') 
+    post_id=uuid.uuid4()
+    cpst=CompanyPosts(
+        company=cp,
+        post_id= post_id,
+        platforms=platform,
+        tags=hashTags,
+        title=title,
+        description=description,
+        is_scheduled=isScheduled,
+        has_media=hasMedia,
+        # date_scheduled= date_scheduled if isScheduled else timezone.now
+        )
+    cpst.save()
+
+    if instagramSelected:
+        cigp=CompanyInstagramPosts(
+            post_id=post_id,
+            to_stories=to_ig_stories,
+            to_reels=to_ig_reels,
+            to_posts=to_ig_posts,
+            run_copyright=ig_copyright,
+            has_copyright=False,
+            is_published=False,
+            location_tags=ig_location_tags,
+            product_tags=ig_product_tags
+        )
+        cigp.save()
+    if redditSelected:
+        cred=CompanyRedditPosts(
+            post_id=post_id,
+            nsfw_tag=red_is_nsfw,
+            spoiler_flag=red_is_spoiler,
+            target_subs=target_subs
+        )
+        cred.save()
+    
+    return Response({'success':'success request'}) 
     
 def logoutUser(request):
     logout(request)
@@ -1328,9 +1449,52 @@ def youtube_get_comments(request, video_id):
     response = request.execute()
     return JsonResponse(response)
 
+@api_view(['POST'])
+def redditFlairs(request):
+    subs = request.POST.get('subs', None)
+    company_id=request.POST.get('company_id', None)
+
+    if not all([company_id,subs]):
+        return Response({'error':'Bad request'})
+    cp=Company.objects.filter(company_id=company_id).first()
+    if not cp:
+        return Response({'error':'Bad request'})
+    subs=subs.split(',')
+    subs=[r.split('r/')[-1] for r in subs ]
+    cr=CompanyReddit.objects.filter(company=cp).first()
+    rt=[]
+    if cr:
+        reddit = praw.Reddit(
+            client_id=settings.REDDIT_CLIENT_ID,
+            client_secret=settings.REDDIT_CLIENT_SECRET,
+            user_agent=settings.REDDIT_USER_AGENT,
+            refresh_token=cr.refresh_token,
+        )
+        # get flairs for each sub
+        for subreddit_name in subs:
+            try:
+                subreddit = reddit.subreddit(subreddit_name)
+                flair_options = list(subreddit.flair.link_templates)
+                vl=[]
+                for f in flair_options:
+                    if not f['mod_only']:
+                        vl.append({
+                            'name':f['text'],
+                            'id':f['id']
+                        })
+                rt.append({'sub_r':subreddit_name,
+                        'flairs_r':vl}) 
+            except:
+                continue
+            
+    context={
+        'flair_results':rt,
+    } 
+    return render(request,'dashboard.html',context=context)
+
 def reddit_auth_link(company_id):
     state = urllib.parse.quote_plus(str(company_id))  # Ensure URL encoding for special characters
-    authorization_url = reddit.auth.url(['identity', 'submit', 'read'],  state=state, duration='permanent',)
+    authorization_url = reddit.auth.url(['identity', 'submit', 'read','mysubreddits','flair'],  state=state, duration='permanent',)
     return authorization_url
 
 def reddit_callback(request):
@@ -1361,15 +1525,29 @@ def reddit_callback(request):
                 )
             cr.save()
         else:
-            cr.active=True,
-            cr.linked=True,
-            # cr.access_token=access_token,
-            refresh_token=refresh_token,# update the access token every 1 day
-            cr.account_username=red_user.name,
-            cr.profile_url=red_user.icon_img,
-            cr.comment_karma=red_user.comment_karma,
-            cr.link_karma=red_user.link_karma
+            cr.delete()
+            # cr.active=True,
+            # cr.linked=True,
+            # # cr.access_token=access_token,
+            # cr.refresh_token=refresh_token,# update the access token every 1 day
+            # cr.account_username=red_user.name,
+            # cr.profile_url=red_user.icon_img,
+            # cr.comment_karma=red_user.comment_karma,
+            # cr.link_karma=red_user.link_karma
+            # cr.save()
+            cr=CompanyReddit(
+                company=cm,
+                active=True,
+                linked=True,
+                # access_token=access_token,
+                refresh_token=refresh_token,# update the access token every 1 day
+                account_username=red_user.name,
+                profile_url=red_user.icon_img,
+                comment_karma=red_user.comment_karma,
+                link_karma=red_user.link_karma
+                )
             cr.save()
+
     return redirect('dashboard',company_id=company_id)
 
 def pinterest_auth_link(company_id):

@@ -28,7 +28,7 @@ SECRET_KEY = config.get('DJANGO_SECURITY_KEY')
 DEBUG = True
 CSRF_TRUSTED_ORIGINS = ['https://tiktok.com']
 
-ALLOWED_HOSTS = ['interstatemovers.pythonanywhere.com','127.0.0.1','0116-197-237-137-81.ngrok-free.app']
+ALLOWED_HOSTS = ['interstatemovers.pythonanywhere.com','127.0.0.1','d187-197-237-137-81.ngrok-free.app']
 
 # Application definition
 INSTALLED_APPS = [

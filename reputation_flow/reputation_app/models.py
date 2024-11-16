@@ -22,6 +22,7 @@ class Company(models.Model):
     company_link=models.CharField(max_length=255,default='link')
     company_link_name=models.CharField(max_length=255,default='link')
     company_category=models.TextField(default='')
+    company_storage=models.IntegerField(default=0)
     company_subscription=models.TextField(default='')
     company_free_trial=models.BooleanField(default=True)
     company_free_trial_expiry=models.DateTimeField(default=timezone.now() + timezone.timedelta(days=5))
@@ -59,7 +60,7 @@ class CompanyTeam(models.Model):
 class CompanyTeamInviteLinks(models.Model):
     team=models.ForeignKey(CompanyTeam,on_delete=models.CASCADE)
     link=models.CharField(max_length=255)
-    permissions=models.JSONField(default=list())
+    permissions=models.JSONField(default=list)
     active=models.BooleanField(default=True)
     num_members=models.IntegerField(default=0)
     max_members=models.IntegerField(default=0)
@@ -148,9 +149,9 @@ class CompanyInstagram(models.Model):
     account_name=models.TextField(default='')
     profile_url=models.TextField(default='')
     account_id=models.TextField(default='')
-    followers_trend=models.JSONField(default=list())
-    impressions=models.JSONField(default=list())
-    reach=models.JSONField(default=list())
+    followers_trend=models.JSONField(default=list)
+    impressions=models.JSONField(default=list)
+    reach=models.JSONField(default=list)
     last_update_time=models.DateTimeField(default=timezone.now)
     date_linked= models.DateTimeField(default=timezone.now)
 
@@ -168,14 +169,14 @@ class CompanyFacebook(models.Model):
     account_name=models.TextField(default='')
     profile_url=models.TextField(default='')
     account_id=models.TextField(default='')
-    followers_trend=models.JSONField(default=list())
-    impressions=models.JSONField(default=list())
-    profile_views=models.JSONField(default=list())
-    reach=models.JSONField(default=list())
-    page_engaged_users=models.JSONField(default=list())
-    page_fans=models.JSONField(default=list())
-    page_views_total=models.JSONField(default=list())
-    page_negative_feedback=models.JSONField(default=list())
+    followers_trend=models.JSONField(default=list)
+    impressions=models.JSONField(default=list)
+    profile_views=models.JSONField(default=list)
+    reach=models.JSONField(default=list)
+    page_engaged_users=models.JSONField(default=list)
+    page_fans=models.JSONField(default=list)
+    page_views_total=models.JSONField(default=list)
+    page_negative_feedback=models.JSONField(default=list)
     
     last_update_time=models.DateTimeField(default=timezone.now)
     date_linked= models.DateTimeField(default=timezone.now)
@@ -195,10 +196,10 @@ class CompanyTiktok(models.Model):
     profile_url=models.TextField(default='')
     account_id=models.TextField(default='')
     account_type=models.TextField(default='')
-    followers_count=models.JSONField(default=list())
-    likes_count=models.JSONField(default=list())
-    profile_views=models.JSONField(default=list())
-    reach=models.JSONField(default=list())
+    followers_count=models.JSONField(default=list)
+    likes_count=models.JSONField(default=list)
+    profile_views=models.JSONField(default=list)
+    reach=models.JSONField(default=list)
     last_update_time=models.DateTimeField(default=timezone.now)
     date_linked= models.DateTimeField(default=timezone.now)
 
@@ -214,27 +215,105 @@ class CompanyReddit(models.Model):
     refresh_token=models.TextField(default='')# update the access token every 1 day
     account_username=models.TextField(default='')
     profile_url=models.TextField(default='')
+    subs=models.JSONField(default=list) #[{'subreddit:string,'flairs':[{'name':string,'id':string,'selected':bool}]}]
     comment_karma=models.TextField(default='')
     link_karma=models.TextField(default='')
     def __str__(self):
         return self.company.company_name + ' ' + self.account_username
-    
+        
 class CompanyPosts(models.Model):
     company=models.ForeignKey(Company,on_delete=models.CASCADE,null=True,blank=True)
-    platforms=models.JSONField(default=list())
-    tags=models.JSONField(default=list())
-    content=models.TextField(default='')
+    post_id=models.CharField(max_length=255,null=True,blank=True)
+    platforms=models.JSONField(default=list)
+    tags=models.JSONField(default=list)
+    title=models.TextField(default='')
+    description=models.TextField(default='')
     comment_count=models.IntegerField(default=0)
     engagement_count=models.IntegerField(default=0)
     is_scheduled=models.BooleanField(default=False)
-    is_uploaded=models.BooleanField(default=True)
+    is_published=models.BooleanField(default=False)
     has_media=models.BooleanField(default=True)
     date_uploaded=models.DateTimeField(default=timezone.now)
+    date_scheduled=models.DateTimeField(default=timezone.now)
     def __str__(self):
-        return self.content
+        return self.title
+    
+class CompanyInstagramPosts(models.Model):
+    post_id=models.CharField(max_length=255)
+    to_stories=models.BooleanField(default=False)
+    to_reels=models.BooleanField(default=False)
+    to_posts=models.BooleanField(default=False)
+    run_copyright=models.BooleanField(default=True)
+    has_copyright=models.BooleanField(default=False)
+    is_published=models.BooleanField(default=False)
+    comment_count=models.IntegerField(default=0)
+    like_count=models.IntegerField(default=0)
+    impression_count=models.IntegerField(default=0)
+    engagement_count=models.IntegerField(default=0)
+    views_count=models.IntegerField(default=0)
+    location_tags=models.TextField(default='')
+    product_tags=models.TextField(default='')
+    post_link=models.TextField(default='')
 
+    def __str__(self):
+        return self.post_id
+    
+class CompanyFacebookPosts(models.Model):
+    post_id=models.CharField(max_length=255)
+    to_stories=models.BooleanField(default=False)
+    to_reels=models.BooleanField(default=False)
+    to_posts=models.BooleanField(default=False)
+    run_copyright=models.BooleanField(default=True)
+    has_copyright=models.BooleanField(default=False)
+    is_published=models.BooleanField(default=False)
+    comment_count=models.IntegerField(default=0)
+    like_count=models.IntegerField(default=0)
+    impression_count=models.IntegerField(default=0)
+    engagement_count=models.IntegerField(default=0)
+    views_count=models.IntegerField(default=0)
+    location_tags=models.TextField(default='')
+    product_tags=models.TextField(default='')
+    post_link=models.TextField(default='')
+    
+    def __str__(self):
+        return self.post_id
+    
+class CompanyRedditPosts(models.Model):
+    post_id=models.CharField(max_length=255)
+    nsfw_tag=models.BooleanField(default=False)
+    spoiler_flag=models.BooleanField(default=False)
+    subs = models.JSONField(default=dict)# {'sub':[{'name':str,'id':str,'link':str,'comments':int,'upvotes':int,'impressions':int}]}
+    target_subs=models.JSONField(default=list)
+    post_link=models.TextField(default='')
+    agg_comment_count = models.IntegerField(default=0)
+    agg_like_count = models.IntegerField(default=0)
+    agg_impression_count = models.IntegerField(default=0)
+    agg_engagement_count = models.IntegerField(default=0)
+    agg_views_count = models.IntegerField(default=0)
+    
+    def __str__(self):
+        return self.post_id
+
+class CompanyTiktokPosts(models.Model):
+    post_id=models.CharField(max_length=255)
+    to_stories=models.BooleanField(default=False)
+    to_reels=models.BooleanField(default=False)
+    to_posts=models.BooleanField(default=False)
+    run_copyright=models.BooleanField(default=True)
+    has_copyright=models.BooleanField(default=False)
+    is_published=models.BooleanField(default=False)
+    comment_count=models.IntegerField(default=0)
+    location_tags=models.TextField(default='')
+    product_tags=models.TextField(default='')
+    post_link=models.TextField(default='')
+    engagement_count=models.IntegerField(default=0)
+    
+    def __str__(self):
+        return self.post_id
+     
 class CompanyPostsComments(models.Model):
     post=models.ForeignKey(CompanyPosts,on_delete=models.CASCADE)
+    
 
 class UploadedMedia(models.Model):
     post=models.ForeignKey(CompanyPosts,on_delete=models.CASCADE)

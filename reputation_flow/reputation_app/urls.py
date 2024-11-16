@@ -36,6 +36,11 @@ urlpatterns=[
     path('reddit-callback/',views.reddit_callback,name='reddit_callback'),
     # pinterest
     path('pinterest-callback/',views.pinterest_callback,name='pinterest_callback'),
+    
+    # upload 
+    path('upload_post/',views.uploadPost,name='upload_post'),
+    # reddit flairs
+    path('reddit_flairs/',views.redditFlairs,name='reddit_flairs'),
 
 ]
 # Serve media files during development
