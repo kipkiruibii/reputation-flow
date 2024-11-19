@@ -282,6 +282,7 @@ class CompanyRedditPosts(models.Model):
     post_id=models.CharField(max_length=255)
     nsfw_tag=models.BooleanField(default=False)
     spoiler_flag=models.BooleanField(default=False)
+    brand_flag=models.BooleanField(default=False)
     subs = models.JSONField(default=dict)# {'sub':[{'name':str,'id':str,'link':str,'comments':int,'upvotes':int,'impressions':int}]}
     target_subs=models.JSONField(default=list)
     post_link=models.TextField(default='')
@@ -317,7 +318,9 @@ class CompanyPostsComments(models.Model):
 
 class UploadedMedia(models.Model):
     post=models.ForeignKey(CompanyPosts,on_delete=models.CASCADE)
-    media=models.ImageField(upload_to='scheduled_media/')
+    media=models.FileField(upload_to='scheduled_media/')
+    def __str__(self):
+        return self.post.title
 
 class CompanyReviews(models.Model):
     content=models.TextField(default='')

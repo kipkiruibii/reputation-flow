@@ -41,6 +41,9 @@ urlpatterns=[
     path('upload_post/',views.uploadPost,name='upload_post'),
     # reddit flairs
     path('reddit_flairs/',views.redditFlairs,name='reddit_flairs'),
+    # reddit update saved flairs
+    path('update_flairs/',views.updateFlairs,name='update_flairs'),
+
 
 ]
 # Serve media files during development

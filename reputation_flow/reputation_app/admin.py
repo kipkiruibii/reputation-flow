@@ -26,3 +26,5 @@ admin.site.register(CompanyRedditPosts)
 admin.site.register(CompanyInstagramPosts)
 admin.site.register(CompanyFacebookPosts)
 admin.site.register(CompanyTiktokPosts)
+admin.site.register(UploadedMedia)
+
