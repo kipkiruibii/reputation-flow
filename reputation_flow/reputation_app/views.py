@@ -858,15 +858,10 @@ def postReddit(title,description,subs,hasMedia,files,nsfw_tag,spoiler_tag,red_re
                                 'upvote_ratio':0,
                                 'crossposts':0
                             })
-                            
+                            default_storage.delete(files[0]['image_path'])
 
                         elif content_type.startswith("video/"):
                             print('submitting video')
-                            
-                            # # Retry logic
-                            # max_retries = 3
-                            # for attempt in range(max_retries):
-                            #     try:
                             submission = subreddit.submit_video(
                                 title=title,
                                 video_path=f,
@@ -876,23 +871,6 @@ def postReddit(title,description,subs,hasMedia,files,nsfw_tag,spoiler_tag,red_re
 
                             )
                             print(f"Video post created successfully: {submission.url}")
-                                #     return submission  # Exit on success
-                                # except ServerError as e:
-                                #     print(f"Server error during upload (attempt {attempt + 1}): {e}")
-                                #     if attempt < max_retries - 1:
-                                #         print("Retrying...")
-                                # except (RequestException, ResponseException) as e:
-                                #     print(f"Request/Response error: {e}")
-                                #     break  # No point retrying if there's an issue with the request
-                                # except Exception as e:
-                                #     print(f"Unexpected error: {e}")
-                                #     break
-                            
-                            # submission = subreddit.submit_video(
-                            #     title=title,
-                            #     video_path=f,
-                            #     flair_id=default_flair
-                            # )
                             sub_tr.append({
                                 'sub_name':sb,
                                 'id':submission.id,
@@ -903,11 +881,7 @@ def postReddit(title,description,subs,hasMedia,files,nsfw_tag,spoiler_tag,red_re
                                 'upvote_ratio':0,
                                 'crossposts':0
                             })
-                            # if nsfw_tag:
-                            #     submission.mod.nsfw()       # Mark as NSFW
-                            # if spoiler_tag:
-                            #     submission.mod.spoiler()    # Mark as Spoiler
-
+                            default_storage.delete(files[0]['image_path'])
                         else:
                             default_storage.delete(files[0]['image_path'])
                     else:
