@@ -34,6 +34,8 @@ import base64
 import urllib.parse
 import praw
 import threading
+from django.core.files.storage import default_storage
+from prawcore.exceptions import ServerError, RequestException, ResponseException
 
 
 # 1. Generate a State Token for CSRF protection
@@ -229,6 +231,10 @@ def getRedditSubFlairs(cid):
     cr = CompanyReddit.objects.filter(company=cm).first()
     reddit_subs = []
     if cr:
+        lu=cr.last_updated
+        tn=(timezone.now()-lu).total_seconds()
+        if tn<3600:
+            return
         reddit = praw.Reddit(
             client_id=settings.REDDIT_CLIENT_ID,
             client_secret=settings.REDDIT_CLIENT_SECRET,
@@ -264,6 +270,7 @@ def getRedditSubFlairs(cid):
                             break
                     if not pres:
                         sb['flairs'].append(vl)
+            cr.last_updated=timezone.now()
             cr.save()
             if not present:
                 cr.subs.append(
@@ -467,7 +474,35 @@ def fetchPosts(request):
     }
     return render(request, 'dashboard.html', context=context)
 
+# retrieve the stats of a given post
+@api_view(['POST'])
+def getStats(request):
+    post_id = request.POST.get('post_id', None)
+    if not post_id:
+        return Response({'error': 'Bad request'})
+    # get the ost from the post_id
+    pst=CompanyPosts.objects.filter(post_id=post_id).first()
+    if not pst:
+        return Response({'error': 'Bad request'})
+    
 
+    my_dict = {'Facebook': 270, 'Instagram':80, 'Tiktok': 30, 'Reddit': 830}
+    sorted_dict = dict(sorted(my_dict.items(), key=lambda item: item[1], reverse=True))
+    ptfrms=[]
+    ptfrms_en=[]
+    cr = CompanyRedditPosts.objects.filter(post_id=post_id).first()
+    print(cr.target_subs)
+    return Response({'result': 'success',
+                     'has_reddit':True,
+                     'reddit_total_engagement':'81%',
+                     'reddit_upvotes':[20,255,156,20,255,156,20,255,156,20,255,156,20,255,156][:2],
+                     'reddit_comments':[23,133,125,23,133,125,23,133,125,23,133,125,23,133,125][:2],
+                     'reddit_crossposts':[23,133,125,23,133,125,23,133,125,23,133,125,23,133,125][:2],
+                     'reddit_subs':['r/nairobi','r/apple','r/india','r/nairobi','r/apple','r/india','r/nairobi','r/apple','r/india','r/nairobi','r/apple','r/india','r/nairobi','r/apple','r/india'][:2],
+                     'platform_engagement':ptfrms_en,
+                     'pltfrms':ptfrms 
+                     })
+    
 @api_view(['POST'])
 def fetchTeams(request):
     company_id = request.POST.get('company_id', None)
@@ -775,14 +810,166 @@ def postFacebook():
     pass
 
 
-def postReddit(title,description,subs,hasMedia,files,nsfw_tag,spoiler_tag,brand_tag):
-    print(title,description,subs,hasMedia)
-    print(nsfw_tag,spoiler_tag,brand_tag)
-    if hasMedia:
-        for key,file in files:
-            print(file.name)
-    pass
+def postReddit(title,description,subs,hasMedia,files,nsfw_tag,spoiler_tag,red_refresh_token,post_id,company):
+    cr=CompanyReddit.objects.filter(company=company).first()
+    reddit = praw.Reddit(
+            client_id=settings.REDDIT_CLIENT_ID,
+            client_secret=settings.REDDIT_CLIENT_SECRET,
+            user_agent=settings.REDDIT_USER_AGENT,
+            refresh_token=red_refresh_token,
+        )
+    sub_tr=[]
+    for s in subs:
+        for cs in cr.subs:
+            sb=s.split('r/')[-1]
+            default_flair=''
+            if sb==cs['sub']:
+                for fl in cs['flairs']:
+                    if fl['selected']:
+                        default_flair=fl['id']
+                        break
+                # upload the post
+                subreddit = reddit.subreddit(sb)
+                if hasMedia:
+                    # upload with media
+                    if len(files)==1:
+                        # check if image or video and upload accoordingly
+                        print('single file',files[0]['content_type'])
+                        f=files[0]['image_path']
+                        content_type=files[0]['content_type']
+                        if content_type.startswith("image/"):
+                            print('submitting image')
+                            submission = subreddit.submit_image(
+                                title=title,
+                                image_path=f,
+                                flair_id=default_flair,
+                                timeout=30,
+                                nsfw=nsfw_tag,
+                                spoiler=spoiler_tag
 
+                            )
+                            sub_tr.append({
+                                'sub_name':sb,
+                                'id':submission.id,
+                                'link':submission.url,
+                                'comments':0,
+                                'upvotes':0,
+                                'upvote':0,
+                                'upvote_ratio':0,
+                                'crossposts':0
+                            })
+                            
+
+                        elif content_type.startswith("video/"):
+                            print('submitting video')
+                            
+                            # # Retry logic
+                            # max_retries = 3
+                            # for attempt in range(max_retries):
+                            #     try:
+                            submission = subreddit.submit_video(
+                                title=title,
+                                video_path=f,
+                                timeout=30,
+                                nsfw=nsfw_tag,
+                                spoiler=spoiler_tag
+
+                            )
+                            print(f"Video post created successfully: {submission.url}")
+                                #     return submission  # Exit on success
+                                # except ServerError as e:
+                                #     print(f"Server error during upload (attempt {attempt + 1}): {e}")
+                                #     if attempt < max_retries - 1:
+                                #         print("Retrying...")
+                                # except (RequestException, ResponseException) as e:
+                                #     print(f"Request/Response error: {e}")
+                                #     break  # No point retrying if there's an issue with the request
+                                # except Exception as e:
+                                #     print(f"Unexpected error: {e}")
+                                #     break
+                            
+                            # submission = subreddit.submit_video(
+                            #     title=title,
+                            #     video_path=f,
+                            #     flair_id=default_flair
+                            # )
+                            sub_tr.append({
+                                'sub_name':sb,
+                                'id':submission.id,
+                                'link':submission.url,
+                                'comments':0,
+                                'upvotes':0,
+                                'upvote':0,
+                                'upvote_ratio':0,
+                                'crossposts':0
+                            })
+                            # if nsfw_tag:
+                            #     submission.mod.nsfw()       # Mark as NSFW
+                            # if spoiler_tag:
+                            #     submission.mod.spoiler()    # Mark as Spoiler
+
+                        else:
+                            default_storage.delete(files[0]['image_path'])
+                    else:
+                        # # Submit a gallery post
+                        submission = subreddit.submit_gallery(
+                            title=title,
+                            images=files,
+                            flair_id=default_flair,
+                            timeout=30,
+                            nsfw=nsfw_tag,
+                            spoiler=spoiler_tag
+
+                        )
+                        # clear the respective temporary files
+                        sub_tr.append({
+                            'sub_name':sb,
+                            'id':submission.id,
+                            'link':submission.url,
+                            'comments':0,
+                            'upvotes':0,
+                            'upvote':0,
+                            'upvote_ratio':0,
+                            'crossposts':0
+                        })
+                        for f in files:
+                            default_storage.delete(f['image_path'])
+
+                else:
+                    submission = subreddit.submit(
+                        title, 
+                        selftext=description,
+                        flair_id=default_flair, 
+                        timeout=30,
+                        nsfw=nsfw_tag,
+                        spoiler=spoiler_tag)
+                    sub_tr.append({
+                        'sub_name':sb,
+                        'id':submission.id,
+                        'link':submission.url,
+                        'comments':0,
+                        'upvotes':0,
+                        'upvote':0,
+                        'upvote_ratio':0,
+                        'crossposts':0
+                    })
+    
+                break
+        # get the selected flairs
+
+        # subreddit = reddit.subreddit('test')
+        # # Submit the post to the chosen subreddit
+        # post = subreddit.submit(title, selftext=description)
+    cred = CompanyRedditPosts(
+        post_id=post_id,
+        nsfw_tag=nsfw_tag,
+        spoiler_flag=spoiler_tag,
+        target_subs=subs,
+        subs=sub_tr
+    )
+    cred.save()
+
+    print('post has been updated')
 
 @api_view(['POST'])
 def uploadPost(request):
@@ -828,7 +1015,6 @@ def uploadPost(request):
     # Reddit
     red_is_nsfw = request.POST.get('red_is_nsfw', 'false').lower() == 'true'
     red_is_spoiler = request.POST.get('red_is_spoiler', 'false').lower() == 'true'
-    red_is_brand = request.POST.get('red_is_brand', 'false').lower() == 'true'
     target_subs = request.POST.get('red_sub_selected', None)
     
     date_scheduled = request.POST.get('date_scheduled', None)
@@ -836,10 +1022,15 @@ def uploadPost(request):
     if not all([company_id, title, description]):
         return Response({'error': 'Bad request'})
     
+    tsbs=target_subs.split(',')
     cp = Company.objects.filter(company_id=company_id).first()
 
     files = request.FILES  # Access uploaded files
-
+    gallery_items = []
+    for field_name, file in files.items():
+        temp_file_path = default_storage.save(file.name, file)
+        absolute_file_path = default_storage.path(temp_file_path)
+        gallery_items.append({"image_path": absolute_file_path,'content_type':file.content_type})
     datetime_object= timezone.now()
     if isScheduled:
         time_format = "%A, %d %B %Y %I:%M %p"
@@ -858,22 +1049,6 @@ def uploadPost(request):
     if redditSelected:
         platform.append('reddit')
         
-    if not isScheduled:
-        # post to the respective platforms
-        if redditSelected:
-            redThread=threading.Thread(target=postReddit,daemon=True,kwargs={
-                'title':title,
-                'description':description,
-                'subs':target_subs,
-                'hasMedia':hasMedia,
-                'files':files.items(),
-                'nsfw_tag':red_is_nsfw,
-                'spoiler_tag':red_is_spoiler,
-                'brand_tag':red_is_brand
-                })
-            redThread.start()
-            
-            
     post_id = uuid.uuid4()
     cpst = CompanyPosts(
         company=cp,
@@ -887,15 +1062,35 @@ def uploadPost(request):
         date_scheduled= datetime_object
     )
     cpst.save()
-    if hasMedia:
-        for key,file in files.items():
-            up=UploadedMedia(
-                post=cpst,
-                media=file
-            )
-            up.save()
+  
+    if not isScheduled:
+        # post to the respective platforms
+        if redditSelected:
+            crp=CompanyReddit.objects.filter(company=cp).first()
+            redThread=threading.Thread(target=postReddit,daemon=True,kwargs={
+                'title':title,
+                'description':description,
+                'subs':tsbs,
+                'hasMedia':hasMedia,
+                'files':gallery_items,
+                'nsfw_tag':red_is_nsfw,
+                'spoiler_tag':red_is_spoiler,
+                'red_refresh_token':crp.refresh_token,
+                'post_id':post_id,
+                'company':cp
+                
+                })
+            redThread.start()
+    # else:
+        # if hasMedia:
+        #     for key,file in files.items():
+        #         up=UploadedMedia(
+        #             post=cpst,
+        #             media=file
+        #         )
+        #         up.save()
 
-        pass
+        #     pass
     # if instagramSelected:
     #     cigp = CompanyInstagramPosts(
     #         post_id=post_id,
@@ -909,15 +1104,15 @@ def uploadPost(request):
     #         product_tags=ig_product_tags
     #     )
     #     cigp.save()
-    if redditSelected:
-        cred = CompanyRedditPosts(
-            post_id=post_id,
-            nsfw_tag=red_is_nsfw,
-            spoiler_flag=red_is_spoiler,
-            brand_flag=red_is_brand,
-            target_subs=target_subs
-        )
-        cred.save()
+    # if redditSelected:
+        # cred = CompanyRedditPosts(
+        #     post_id=post_id,
+        #     nsfw_tag=red_is_nsfw,
+        #     spoiler_flag=red_is_spoiler,
+        #     brand_flag=red_is_brand,
+        #     target_subs=target_subs
+        # )
+        # cred.save()
 
     return Response({'success': 'success request'})
 
@@ -1592,7 +1787,103 @@ def youtube_get_comments(request, video_id):
     response = request.execute()
     return JsonResponse(response)
 
+def getRedditSubInfo(subs,reddit):
+    print('getting subs analytics ',subs)
+    for sub in subs:
+        crs=CompanyRedditSubs.objects.filter(sub_name=sub).first()
+        if crs:
+            # check the last time it was updated
+            lst_upd=crs.last_updated
+            dfr=(timezone.now()-lst_upd).total_seconds()
+            if dfr > 3600: # updated more than 1hr ago
+                sr=reddit.subreddit(sub)
+                crs.full_name=sr.name
+                crs.description=sr.description
+                crs.subscriber_count=sr.subscribers
+                crs.user_is_banned=sr.user_is_banned
+                pr=sr.rules() 
+                rules=pr['rules']
+                rls=[]
+                for r in rules:
+                    rls.append(
+                        {'rule':r['short_name'],'description':r['description']}
+                    )
+                crs.sub_rules=rls
+                crs.last_updated-timezone.now()
+                crs.save()
+        else:
+            sr=reddit.subreddit(sub)
+            pr=sr.rules() 
+            rules=pr['rules']
+            rls=[]
+            for r in rules:
+                rls.append(
+                    {'rule':r['short_name'],'description':r['description']}
+                )
 
+            crs=CompanyRedditSubs(
+                sub_name=sub,
+                full_name=sr.name,
+                description=sr.description,
+                subscriber_count=sr.subscribers,
+                user_is_banned=sr.user_is_banned,
+                sub_rules=rls
+            )
+            crs.save()
+
+@api_view(['POST'])
+def subRedInfo(request):
+    subs = request.POST.get('subs', None)
+    company_id = request.POST.get('company_id', None)
+    if not all([company_id, subs]):
+        return Response({'error': 'Bad request'})
+    cp = Company.objects.filter(company_id=company_id).first()
+    if not cp:
+        return Response({'error': 'Bad request'})
+    subs = subs.split(',')
+    subs = [r.split('r/')[-1] for r in subs]
+    dt=[]
+    for sub in subs:
+        crs=CompanyRedditSubs.objects.filter(sub_name=sub).first()
+        if crs:
+            dt.append({
+                    'name': crs.sub_name,
+                    'description': crs.description,
+                    'subscribers': crs.subscriber_count,
+                    'isBanned': crs.user_is_banned,
+                    'rules':crs.sub_rules
+                    })
+        else:
+            sr=reddit.subreddit(sub)
+            pr=sr.rules() 
+            rules=pr['rules']
+            rls=[]
+            for r in rules:
+                rls.append(
+                    {'rule':r['short_name'],'description':r['description']}
+                )
+
+            crs=CompanyRedditSubs(
+                sub_name=sub,
+                full_name=sr.name,
+                description=sr.description,
+                subscriber_count=sr.subscribers,
+                user_is_banned=sr.user_is_banned,
+                sub_rules=rls
+            )
+            crs.save()
+            dt.append({
+                    'name': crs.sub_name,
+                    'description': crs.description,
+                    'subscribers': crs.subscriber_count,
+                    'isBanned': crs.user_is_banned,
+                    'rules':crs.sub_rules
+                    })
+    context = {
+        'sub_info': dt,
+    }
+    return render(request, 'dashboard.html', context=context)
+    
 @api_view(['POST'])
 def redditFlairs(request):
     subs = request.POST.get('subs', None)
@@ -1606,6 +1897,8 @@ def redditFlairs(request):
     subs = subs.split(',')
     subs = [r.split('r/')[-1] for r in subs]
     cr = CompanyReddit.objects.filter(company=cp).first()
+    
+    
     rt = []
     if cr:
         reddit = praw.Reddit(
@@ -1614,6 +1907,9 @@ def redditFlairs(request):
             user_agent=settings.REDDIT_USER_AGENT,
             refresh_token=cr.refresh_token,
         )
+        # get sub trasssic analysis
+        sub_analyt_thrd=threading.Thread(target=getRedditSubInfo,daemon=True,kwargs={'subs':subs,'reddit':reddit})
+        sub_analyt_thrd.start()
 
         # check if we have the flairs already
         for subreddit_name in subs:
@@ -1679,7 +1975,7 @@ def updateFlairs(request):
 
 def reddit_auth_link(company_id):
     state = urllib.parse.quote_plus(str(company_id))  # Ensure URL encoding for special characters
-    authorization_url = reddit.auth.url(['identity', 'submit', 'read', 'mysubreddits', 'flair'], state=state,
+    authorization_url = reddit.auth.url(['identity', 'submit', 'read', 'mysubreddits', 'flair',"history",'modposts'], state=state,
                                         duration='permanent', )
     return authorization_url
 

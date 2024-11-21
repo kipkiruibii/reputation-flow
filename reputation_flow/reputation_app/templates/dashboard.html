@@ -1051,6 +1051,26 @@
         .unselectedPlatform {
             display: none;
         }
+
+        .custom-modal {
+            width: 70vw;
+            /* Set the desired width */
+            max-width: none;
+            /* Prevent Bootstrap's default max-width from overriding */
+        }
+
+        .custom-modal .modal-content {
+            /* Set the desired height */
+            display: flex;
+            flex-direction: column;
+        }
+
+        .custom-modal .modal-body {
+            flex: 1;
+            /* Allow the body to expand and take available space */
+            overflow-y: auto;
+            /* Enable scrolling for content overflow */
+        }
     </style>
 
 </head>
@@ -1089,7 +1109,7 @@
     <!-- Modal -->
     <div class="modal fade" id="confirmModalPostCenter" tabindex="-1" role="dialog"
         aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-dialog modal-dialog-centered " role="document">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="confirmModalPostTitle">Link account?</h5>
@@ -1102,6 +1122,8 @@
                     <!-- You have not linked an Instagram account -->
                 </div>
                 <div class="modal-footer">
+                    <span style="color: gray;" class="font-12">Ensure your content adheres to the rules of the platform
+                        and/or the respective community </span>
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                     {% if user_permissions.can_create_team_add_member %}
                     <button type="button" id="confirmModalPostAction" class="btn btn-primary">Change Account</button>
@@ -1152,6 +1174,42 @@
             </div>
         </div>
     </div>
+    <!-- subreddit info modal -->
+    <div class="modal fade" id="confirmModalSubInfoCenter" tabindex="-1" role="dialog"
+        aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+        <!-- modal-dialog modal-dialog-centered -->
+        <div class="modal-dialog modal-dialog-centered custom-modal " role="document" >
+            <div class="modal-content" style="width: 100%;">
+                <div class="modal-body">
+                    <!-- <p id="confirmModalFlairBody"> -->
+                    {% for si in sub_info %}
+                    <div style="display: flex;gap: 20px;width: 100%;margin-bottom: 10px;">
+                        <div style="width: 20%;">
+                            <h4>r/{{ si.name }}</h4>
+                            <p><span class="font-12">Subscribers:</span> <strong>{{ si.subscribers }}</strong></p>
+                            {% if si.isBanned %}<p>You are banned </p>{% endif %}
+                        </div>
+                        <div style="width: 80%;">
+                            <p>Rules</p>
+                            <ol style="max-height: 300px;overflow-y: auto;overflow-x: hidden;list-style-type: none;">
+                                {% for rl in si.rules %}
+                                <li ><strong>{{ rl.rule }}.</strong> {{ rl.description }}</li>
+                                {% endfor %}
+                            </ol>
+
+                        </div>
+                    </div>
+                    <hr>
+                    {% endfor %}
+                    <!-- You have not linked an Instagram account -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- instagram modal -->
     <div class="modal fade" id="instagramModalCenter" tabindex="-1" role="dialog" aria-labelledby="instagramModalCenter"
         aria-hidden="true">
@@ -4173,7 +4231,7 @@
 
                                 </div>
                             </label>
-                            <input type="text" class="form-control-input" placeholder="Title " id="content_title"
+                            <input type="text" class="form-control-input" placeholder="Title" id="content_title"
                                 style="border: 1px solid #ced4da;border-radius:4px;width: 100%;box-sizing: border-box;background-color: white;font-size: 15px;padding-left:15px">
                         </div>
                         <div class="form-group">
@@ -4455,14 +4513,6 @@
                                     </div>
 
                                 </div>
-                                <div style="display: flex;gap: 10px;margin-top: 10px;">
-                                    <label for="brand_affiliate_tag">Brand Affiliate</label>
-
-                                    <div class="form-check form-switch" style="margin-left: 20px;">
-                                        <input class="form-check-input" type="checkbox" id="brand_affiliate_tag">
-                                    </div>
-
-                                </div>
                                 <div style="margin-top: 15px;">
                                     <div style="display: flex;gap: 20px;">
                                         <strong>Select Subs</strong>
@@ -4478,10 +4528,13 @@
                                         </select>
                                     </div>
                                 </div>
-                                <p style="cursor: pointer;" id=edit_flairs><i class="fa fa-plus"></i> Add flairs
-                                    <i class="fa fa-check" style="color: limegreen;display: none;"></i>
-                                </p>
-
+                                <div id="flair-select">
+                                    <p style="cursor: pointer;" id="edit_flairs"><i class="fa fa-plus"></i> Add flairs
+                                    </p>
+                                    <p style="cursor: pointer;" id="check_sub_rules"><i class="fa fa-gavel"></i> Sub
+                                        Rules
+                                    </p>
+                                </div>
                                 <div style="display: none;justify-content: center;margin-top: 10px;margin-bottom: 10px;"
                                     id="wait-flair-spinner">
                                     <i class="fa fa-spinner fa-spin"></i>
@@ -4508,8 +4561,8 @@
                     <div id="content_upload_successful" style="display: none;">
                         <div style="display: flex;justify-content: center;">
                             <div>
-                                <img src="https://cdni.iconscout.com/illustration/premium/thumb/cloud-service-for-internet-storage-of-digital-data-files-organization-organizing-information-in-online-archive-illustration-download-svg-png-gif-file-formats--backup-science-technology-illustrations-3073625.png?f=webp"
-                                    alt="" style="width: 300px;height: 300px;">
+                                <img src="{% static 'images/success_post.webp' %}" alt=""
+                                    style="width: 300px;height: 300px;">
                                 <div style="display: flex;gap: 10px;margin: auto;">
                                     <i class="fa fa-check" style="color: #1dcd52;"></i>
                                     <p>Your post has been succesfully uploaded.</p>
@@ -4746,9 +4799,9 @@
 
                 </div>
                 <div style="display:block">
-                    <div class="company-account-info container-right" style="overflow-y: scroll;">
+                    <div class="company-account-info container-right" style="overflow-y: scroll;;">
                         {% if posts|length == 0 %}
-                        <div style="position: absolute;top: 50%;right: 25%;left: 25%;transform: translate(50%, 25%);">
+                        <div style="display: flex;justify-content: center;margin-top: 25%;">
                             <p>Posts you upload using Insightlyze will appear here</p>
                         </div>
                         {% else %}
@@ -4769,6 +4822,7 @@
 
                                         <p style="max-height: 200px;overflow-y: scroll;">{{ p.content }}
                                         </p>
+
                                         <div>
                                             <hr>
                                             {% if p.is_scheduled %}
@@ -5052,7 +5106,7 @@
                                 <!-- impression analytics -->
                                 <div class="impression-analysis" style="display: none;">
                                     <div class="card draggable">
-                                        <div class="card-body p-3" style="display:flex">
+                                        <div class="card-body p-3" style="display:flex;justify-content: space-between;">
                                             <div class="card mb-4 z-index-2 draggable">
                                                 <div class="card-header pb-0">
                                                     <h6 class="mb-1 title-box">Impression Distribution </h6>
@@ -5068,11 +5122,7 @@
                                                 </div>
                                             </div>
                                             <div>
-                                                
-                                                <h6 class="ms-2 mt-4 mb-0"> Active Users </h6>
-                                                <p class="text-sm ms-2"> (<span class="font-weight-bolder">+23%</span>)
-                                                    than
-                                                    previous post </p>
+
                                                 <div class="container border-radius-lg">
                                                     <div style="display: none;">
                                                         <div>
@@ -5109,8 +5159,9 @@
 
                                                         </div>
                                                         <div class="d-flex" style="gap: 10px;margin-left: 20px;">
-                                                            <p>Total:</p>
-                                                            <h5 class="font-weight-bolder">36K</h5>
+                                                            <p>Upvote Ratio:</p>
+                                                            <h5 class="font-weight-bolder" id="rte-{{p.post_id}}">36K
+                                                            </h5>
                                                         </div>
                                                         <div id="reddit-engagement-chart-{{p.post_id}}"></div>
 
@@ -5158,8 +5209,9 @@
                                             <p><i class="fa fa fa-thumbs-up"></i> <span
                                                     style="font-size: 12px;">155</span>
                                             </p>
-                                            <p><i class="fa fa fa-calendar"></i> <span style="font-size: 12px;">{{
-                                                    p.date_uploaded }}</span></p>
+                                            <p><i class="fa fa fa-calendar"></i>
+                                                <span style="font-size: 12px;">{{p.date_uploaded }}</span>
+                                            </p>
                                         </div>
                                         {% endif %}
 
@@ -5529,7 +5581,69 @@
                     // $('#all-links').toggleClass('inactive-gen-link');
 
                 });
+                // sub traffic analytics
+                $(document).on('click', '#check_sub_rules', function () {
+                    const selectedSubsInstance = multiSelectInstances.find(instance => instance.selectElement.dataset.name === "red_subs");
 
+                    if (!selectedSubsInstance) {
+                        // Get selected items
+                        toastr.error('Kindly select atleast one subreddit')
+                        return;
+
+                    }
+                    const selectedItems = selectedSubsInstance.selectedItems.map(item => item.text);
+                    // getSelectedOptions();
+                    if (selectedItems == '') {
+                        toastr.error('Kindly select atleast one subreddit')
+                        return;
+                    }
+                    var formData = new FormData();
+
+                    // Append other input fields to FormData
+                    var csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                    formData.append('company_id', '{{ company_id }}');
+                    formData.append('subs', selectedItems);
+                    $('#flair-select').css('display', 'none');
+                    $('#wait-flair-spinner').css('display', 'block');
+
+                    // Send the form data via AJAX
+                    $.ajax({
+                        url: '{% url "check_sub_rules" %}', // Replace with your Django endpoint URL
+                        type: 'POST',
+                        headers: {
+                            'X-CSRFToken': csrfToken
+                        },
+                        data: formData,
+                        processData: false, // Prevent jQuery from processing the data
+                        contentType: false, // Prevent jQuery from setting the content type
+                        success: function (response) {
+                            if (response['error']) {
+                                toastr.error(response['error']);
+
+                            } else {
+
+                                $('#flair-select').css('display', 'block');
+                                $('#wait-flair-spinner').css('display', 'none');
+                                // update html
+                                var tempDiv = $('<div>').html(response);
+                                // Extract the specific element from the new HTML
+                                var newElementContent = tempDiv.find('#confirmModalSubInfoCenter').html();
+
+                                $('#confirmModalSubInfoCenter').html(newElementContent);
+                                // initializeMultiSelect();
+                                $('#confirmModalSubInfoCenter').modal('show');
+                                return;
+                            }
+                        },
+                        error: function (jqXHR, textStatus, errorThrown) {
+                            toastr.error('Failed to get the sub information');
+                            $('#flair-select').css('display', 'block');
+                            $('#wait-flair-spinner').css('display', 'none');
+                            console.error(textStatus, errorThrown);
+                        }
+                    });
+
+                });
                 //reddit flairs
                 $(document).on('click', '#edit_flairs', function () {
                     const selectedSubsInstance = multiSelectInstances.find(instance => instance.selectElement.dataset.name === "red_subs");
@@ -5572,7 +5686,7 @@
                                 toastr.error(response['error']);
 
                             } else {
-                                $('#flair-select').css('display', 'flex');
+                                $('#flair-select').css('display', 'block');
                                 $('#wait-flair-spinner').css('display', 'none');
                                 // update html
                                 var tempDiv = $('<div>').html(response);
@@ -5588,6 +5702,8 @@
                         },
                         error: function (jqXHR, textStatus, errorThrown) {
                             toastr.error('Failed retrieve flairs');
+                            $('#flair-select').css('display', 'block');
+                            $('#wait-flair-spinner').css('display', 'none');
                             console.error(textStatus, errorThrown);
                         }
                     });
@@ -5611,13 +5727,11 @@
                         flairsSelected = true;
                         // Add a dictionary to the list
                         flairList.push({ name: text_f, id: selectedValue });
-                        $('#confirmModalFlairCenter').modal('hide');
-
-
                     });
                     if (!updated) {
                         return;
-                    }
+                    };
+                    $('#confirmModalFlairCenter').modal('hide');
                     // send these flairs to the database
                     var formData = new FormData();
 
@@ -6188,75 +6302,182 @@
                     $(this).closest('.action-bar').siblings('.post-comment-box').css('display', 'none');
                     $(this).closest('.action-bar').siblings('.impression-analysis').css('display', 'block');
 
-                    // engagement
-                    var options = {
-                        series: [{
-                            name: 'Views',
-                            data: [4400,]
-                        }, {
-                            name: 'Upvotes',
-                            data: [1334,]
-                        }, {
-                            name: 'Shares',
-                            data: [1145,]
-                        }, {
-                            name: 'Comments',
-                            data: [201,]
-                        }],
-                        dataLabels: {
-                            enabled: false // Disable data labels
+                    // get data from backend
+
+                    var formData = new FormData();
+                    // Append other input fields to FormData
+                    var csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                    formData.append('post_id', post_id);
+
+                    // Send the form data via AJAX
+                    $.ajax({
+                        url: '{% url "get_post_stats" %}', // Replace with your Django endpoint URL
+                        type: 'POST',
+                        headers: {
+                            'X-CSRFToken': csrfToken
                         },
-                        chart: {
-                            type: 'bar',
-                            width: 400,
-                            stacked: true,
-                            toolbar: {
-                                show: true
-                            },
-                            zoom: {
-                                enabled: true
-                            }
-                        },
-                        responsive: [{
-                            breakpoint: 480,
-                            options: {
-                                legend: {
-                                    position: 'bottom',
-                                    offsetX: -10,
-                                    offsetY: 0
-                                }
-                            }
-                        }],
-                        plotOptions: {
-                            bar: {
-                                horizontal: false,
-                                dataLabels: {
-                                    total: {
-                                        enabled: true,
-                                        style: {
-                                            fontSize: '10px',
-                                            fontWeight: 900
+                        data: formData,
+                        processData: false, // Prevent jQuery from processing the data
+                        contentType: false, // Prevent jQuery from setting the content type
+                        success: function (response) {
+                            if (response['error']) {
+
+                            } else {
+                                // update charts
+
+                                // reddit engagement
+                                if (response['has_reddit']) {
+                                    $(`#rte-${post_id}`).text(response['reddit_total_engagement']);
+                                    var options = {
+                                        series: [{
+                                            name: 'Upvotes',
+                                            data: response['reddit_upvotes']
+                                        }, {
+                                            name: 'Crossposts ',
+                                            data: response['reddit_crossposts']
+                                        }, {
+                                            name: 'Comments',
+                                            data: response['reddit_comments']
+                                        }],
+                                        dataLabels: {
+                                            enabled: false // Disable data labels
+                                        },
+                                        chart: {
+                                            type: 'bar',
+                                            width: 500,
+                                            stacked: true,
+                                            toolbar: {
+                                                show: true
+                                            },
+                                            zoom: {
+                                                enabled: true
+                                            }
+                                        },
+                                        responsive: [{
+                                            breakpoint: 480,
+                                            options: {
+                                                legend: {
+                                                    position: 'bottom',
+                                                    offsetX: -10,
+                                                    offsetY: 0
+                                                }
+                                            }
+                                        }],
+                                        plotOptions: {
+                                            bar: {
+                                                horizontal: false,
+                                                dataLabels: {
+                                                    total: {
+                                                        enabled: true,
+                                                        style: {
+                                                            fontSize: '10px',
+                                                            fontWeight: 900
+                                                        }
+                                                    }
+                                                }
+                                            },
+                                        },
+                                        xaxis: {
+                                            type: 'text',
+                                            categories: response['reddit_subs'],
+                                        },
+                                        legend: {
+                                            position: 'right',
+                                            offsetY: 40
+                                        },
+                                        fill: {
+                                            opacity: 1
                                         }
-                                    }
+                                    };
+                                    $(`#reddit-engagement-chart-${post_id}`).empty();
+                                    var engagementChart = new ApexCharts(document.querySelector(`#reddit-engagement-chart-${post_id}`), options);
+                                    engagementChart.render();
                                 }
-                            },
+
+                                // impression dist for facebook instagram reddit and tiktok
+                                $(`#chart-pie-${post_id}`).empty();
+                                var ctx = document.getElementById(`chart-pie-${post_id}`);
+                                var chartPie = new ApexCharts(ctx, {
+                                    chart: {
+                                        width: 380,
+                                        type: 'donut',
+                                    },
+                                    dataLabels: {
+                                        enabled: false
+                                    },
+                                    plotOptions: {
+                                        pie: {
+                                            customScale: 1,
+                                            expandOnClick: false,
+                                            donut: {
+                                                size: "80%",
+                                            }
+                                        },
+                                    },
+                                    legend: {
+                                        position: "right",
+                                        verticalAlign: "center",
+                                        containerMargin: {
+                                            left: 35,
+                                            right: 60
+                                        }
+                                    },
+                                    series: response['platform_engagement'],
+                                    labels: response['pltfrms'],
+                                    colors: ['#00ab55', '#00ab5599', '#00ab5550', '#00ab5535',],
+                                    donut: {
+                                        size: "100%"
+                                    },
+                                    responsive: [
+                                        {
+                                            breakpoint: 1550,
+                                            options: {
+                                                chart: {
+                                                    width: 340,
+                                                },
+                                                legend: {
+                                                    position: "bottom",
+                                                    verticalAlign: "bottom",
+                                                    containerMargin: {
+                                                        left: 'auto',
+                                                        right: 'auto'
+                                                    }
+                                                },
+                                            }
+                                        },
+                                        {
+                                            breakpoint: 1450,
+                                            options: {
+                                                chart: {
+                                                    width: 300,
+                                                },
+                                            }
+                                        }
+                                    ]
+                                });
+
+                                chartPie.render();
+
+                            }
                         },
-                        xaxis: {
-                            type: 'text',
-                            categories: ['r/Nairobi',
-                            ],
-                        },
-                        legend: {
-                            position: 'right',
-                            offsetY: 40
-                        },
-                        fill: {
-                            opacity: 1
+                        error: function (jqXHR, textStatus, errorThrown) {
+                            toastr.error('Failed to get the team.');
                         }
-                    };
-                    $(`#reddit-engagement-chart-${post_id}`).empty();
-                    var engagementChart = new ApexCharts(document.querySelector(`#reddit-engagement-chart-${post_id}`), options);
-                    engagementChart.render();
+                    });
+
+                    // scroll
+                    this.scrollIntoView({
+                        behavior: 'smooth', // Smooth scrolling
+                        block: 'start' // Align to the top of the viewport
+                    });
+                    setTimeout(() => {
+                        window.scrollBy({
+                            top: -800, // Move 800px upward
+                            behavior: 'smooth'
+                        });
+                    }, 500);
+                    return;
+
 
                     if ($('#chartContainer').is(':visible')) {
                         setTimeout(function () {
@@ -6264,7 +6485,6 @@
                         }, 300); // Adding a slight delay to ensure container is fully rendered
                     }
 
-                    // get all these values from database
                     // impressions
                     var options = {
                         chart: {
@@ -6317,80 +6537,6 @@
                     var chartrt = new ApexCharts(document.querySelector(`#impression-chart-${post_id}`), options);
                     chartrt.render();
 
-                    // impression dist
-                    $(`#chart-pie-${post_id}`).empty();
-                    var ctx = document.getElementById(`chart-pie-${post_id}`);
-                    var chartPie = new ApexCharts(ctx, {
-                        chart: {
-                            width: 380,
-                            type: 'donut',
-                        },
-                        dataLabels: {
-                            enabled: false
-                        },
-                        plotOptions: {
-                            pie: {
-                                customScale: 1,
-                                expandOnClick: false,
-                                donut: {
-                                    size: "80%",
-                                }
-                            },
-                        },
-                        legend: {
-                            position: "right",
-                            verticalAlign: "center",
-                            containerMargin: {
-                                left: 35,
-                                right: 60
-                            }
-                        },
-                        series: [55, 66, 13, 33],
-                        labels: ['Facebook', 'Tiktok', 'Reddit', 'Instagram'],
-                        colors: ['#00ab5599', '#00ab55', '#00ab5535', '#00ab5550'],
-                        donut: {
-                            size: "100%"
-                        },
-                        responsive: [
-                            {
-                                breakpoint: 1550,
-                                options: {
-                                    chart: {
-                                        width: 340,
-                                    },
-                                    legend: {
-                                        position: "bottom",
-                                        verticalAlign: "bottom",
-                                        containerMargin: {
-                                            left: 'auto',
-                                            right: 'auto'
-                                        }
-                                    },
-                                }
-                            },
-                            {
-                                breakpoint: 1450,
-                                options: {
-                                    chart: {
-                                        width: 300,
-                                    },
-                                }
-                            }
-                        ]
-                    });
-
-                    chartPie.render();
-                    // scroll
-                    this.scrollIntoView({
-                        behavior: 'smooth', // Smooth scrolling
-                        block: 'start' // Align to the top of the viewport
-                    });
-                    setTimeout(() => {
-                        window.scrollBy({
-                            top: -800, // Move 800px upward
-                            behavior: 'smooth'
-                        });
-                    }, 500);
                 });
 
 
@@ -6895,7 +7041,6 @@
                     // Reddit
                     var red_is_nsfw = $('#nsfw_tag').prop('checked');
                     var red_is_spoiler = $('#spoiler_tag').prop('checked');
-                    var red_is_brand = $('#brand_affiliate_tag').prop('checked');
 
                     var dateSched = $('#datePicker').val();
 
@@ -6942,7 +7087,6 @@
                     formData.append('fb_location_tags', fb_location_tags);
                     formData.append('red_is_nsfw', red_is_nsfw);
                     formData.append('red_is_spoiler', red_is_spoiler);
-                    formData.append('red_is_brand', red_is_brand);
                     formData.append('red_sub_selected', subsSelected);
                     formData.append('date_scheduled', dateSched);
 

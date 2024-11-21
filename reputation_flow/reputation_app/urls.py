@@ -41,8 +41,12 @@ urlpatterns=[
     path('upload_post/',views.uploadPost,name='upload_post'),
     # reddit flairs
     path('reddit_flairs/',views.redditFlairs,name='reddit_flairs'),
+    # subreddit info
+    path('check_sub_rules/',views.subRedInfo,name='check_sub_rules'),
     # reddit update saved flairs
     path('update_flairs/',views.updateFlairs,name='update_flairs'),
+    # get stats
+    path('get_post_stats/',views.getStats,name='get_post_stats'),
 
 
 ]

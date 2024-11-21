@@ -28,3 +28,6 @@ admin.site.register(CompanyFacebookPosts)
 admin.site.register(CompanyTiktokPosts)
 admin.site.register(UploadedMedia)
 
+# reddit models
+admin.site.register(CompanyRedditSubs)
+

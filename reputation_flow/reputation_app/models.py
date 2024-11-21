@@ -218,6 +218,7 @@ class CompanyReddit(models.Model):
     subs=models.JSONField(default=list) #[{'subreddit:string,'flairs':[{'name':string,'id':string,'selected':bool}]}]
     comment_karma=models.TextField(default='')
     link_karma=models.TextField(default='')
+    last_updated=models.DateTimeField(default=timezone.now)
     def __str__(self):
         return self.company.company_name + ' ' + self.account_username
         
@@ -283,14 +284,10 @@ class CompanyRedditPosts(models.Model):
     nsfw_tag=models.BooleanField(default=False)
     spoiler_flag=models.BooleanField(default=False)
     brand_flag=models.BooleanField(default=False)
-    subs = models.JSONField(default=dict)# {'sub':[{'name':str,'id':str,'link':str,'comments':int,'upvotes':int,'impressions':int}]}
+    subs = models.JSONField(default=dict)# [{'sub_name':str,'id':str,'link':str,'comments':int,'upvotes':int,'upvote_ratio':int,'crossposts':int}]
     target_subs=models.JSONField(default=list)
     post_link=models.TextField(default='')
-    agg_comment_count = models.IntegerField(default=0)
-    agg_like_count = models.IntegerField(default=0)
-    agg_impression_count = models.IntegerField(default=0)
     agg_engagement_count = models.IntegerField(default=0)
-    agg_views_count = models.IntegerField(default=0)
     
     def __str__(self):
         return self.post_id
@@ -311,7 +308,18 @@ class CompanyTiktokPosts(models.Model):
     
     def __str__(self):
         return self.post_id
-     
+
+class CompanyRedditSubs(models.Model):
+    sub_name=models.CharField(max_length=255)
+    full_name=models.CharField(max_length=255)
+    description=models.TextField(default='')
+    subscriber_count=models.TextField(default='')
+    user_is_banned=models.BooleanField(default=False,null=True)
+    sub_rules=models.JSONField(default=list)#[{'rule':str,'description':str}]
+    last_updated=models.DateTimeField(default=timezone.now)
+    def __str__(self):
+        return self.sub_name
+
 class CompanyPostsComments(models.Model):
     post=models.ForeignKey(CompanyPosts,on_delete=models.CASCADE)
     
