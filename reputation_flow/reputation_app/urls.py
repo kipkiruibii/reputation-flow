@@ -47,6 +47,8 @@ urlpatterns=[
     path('update_flairs/',views.updateFlairs,name='update_flairs'),
     # get stats
     path('get_post_stats/',views.getStats,name='get_post_stats'),
+    # get tiktok creator info
+    path('get_tiktok_creator/',views.gettiktokCreatorInfo,name='get_tiktok_creator'),
 
 
 ]

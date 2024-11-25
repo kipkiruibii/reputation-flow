@@ -19,6 +19,7 @@ from django.conf import settings
 import uuid
 from django.urls import reverse
 # firebase.py
+import time
 import firebase_admin
 from firebase_admin import credentials, auth
 import uuid
@@ -754,7 +755,6 @@ def generateInviteLink(request):
 
     return Response({'result': url_link})
 
-
 # get team 
 @api_view(['POST'])
 def sendChat(request):
@@ -797,17 +797,333 @@ def sendChat(request):
     }
     return render(request, 'dashboard.html', context=context)
 
+@api_view(['POST'])
+def gettiktokCreatorInfo(request):
+    company_id = request.POST.get('company_id', None)
+    if not all([company_id]):
+        return Response({'error': 'Tiktok Bad request '})
+    cp = Company.objects.filter(company_id=company_id).first()
+    if not cp:
+        return Response({'error': 'Tiktok Bad request'})
+    ctk=CompanyTiktok.objects.filter(company=cp).first()
+    if not ctk:
+        return Response({'error': 'TikTok Bad request.Try again or remove TikTok '})
+    sess = request.session.get('tiktok_creator_info', {})
+    if sess:
+        ldta=sess.get('time_updated')
+        ldt=datetime.fromisoformat(ldta)
+        df=(timezone.now()-ldt).total_seconds()
+        dur=sess.get('max_video_post_duration_sec')
+        if df < 86400 and dur != None: # update after 24 hr only
+            return Response({
+                'max_video_post_duration_sec':sess.get('max_video_post_duration_sec'),
+                'stitch_disabled':sess.get('stitch_disabled'),
+                'comment_disabled':sess.get('comment_disabled'),
+                'duet_disabled':sess.get('duet_disabled')
+            }) 
 
-def postTiktok():
-    pass
+        
+    try:
+        url = "https://open.tiktokapis.com/v2/post/publish/creator_info/query/"
+        headers = {
+            "Authorization": f"Bearer {ctk.access_token}",
+            "Content-Type": "application/json"
+        }
+
+        response = requests.post(url, headers=headers,verify=False)
+        res=response.json().get('data')
+        tk_data={
+            'max_video_post_duration_sec':res.get('max_video_post_duration_sec'),
+            'stitch_disabled':res.get('stitch_disabled'),
+            'comment_disabled':res.get('comment_disabled'),
+            'duet_disabled':res.get('duet_disabled'),
+            'time_updated':timezone.now().isoformat()
+        }
+        request.session['tiktok_creator_info'] = tk_data
+        return Response({
+            'max_video_post_duration_sec':res.get('max_video_post_duration_sec'),
+            'stitch_disabled':res.get('stitch_disabled'),
+            'comment_disabled':res.get('comment_disabled'),
+            'duet_disabled':res.get('duet_disabled')
+        }) 
+    except:
+        return Response({'error': 'TikTok Bad request.Try again or remove TikTok '})
+
+def postTiktok(company,description,video,duet,comment,stitch,audience,post_id,mentions):
+    """
+    Initialize a chunked video upload to TikTok.
+    """
+    ctk=CompanyTiktok.objects.filter(company=company).first()
+    if not ctk:
+        return 'No Company Tiktok'
+    access_token=ctk.access_token
+    video_size=video['file_size']
+    # Get the necessary data from the request
+    chunk_size = 20* 1024 * 1024  # 10 MB in bytes
+
+    # Adjust chunk size if the video is smaller than the chunk size
+    if video_size < chunk_size:
+        chunk_size = video_size  
+        total_chunk_count=1
+    if video_size > chunk_size:
+        total_chunk_count=4
+        chunk_size = int(video_size/4)
+         
+    
+    url = "https://open.tiktokapis.com/v2/post/publish/creator_info/query/"
+    headers = {
+        "Authorization": f"Bearer {access_token}",
+        "Content-Type": "application/json"
+    }
+
+    response = requests.post(url, headers=headers)
+    # API URL for the video upload initialization
+    url = "https://open.tiktokapis.com/v2/post/publish/video/init/"
+    # Prepare the headers with the access token
+    headers = {
+        "Authorization": f"Bearer {access_token}",
+        "Content-Type": "application/json"
+    }
+
+    # Prepare the JSON payload
+    payload = {
+        "post_info": {
+            "title": description,  
+            "privacy_level": audience,   
+            "disable_duet": not duet,
+            "disable_comment": not comment,
+            "disable_stitch": not stitch
+        },
+        "source_info": {
+            "source": "FILE_UPLOAD",
+            "video_size": video_size,     
+            "chunk_size": chunk_size,     
+            "total_chunk_count": total_chunk_count  
+        }
+    }
+
+    # Make the POST request
+    response = requests.post(url, headers=headers, json=payload)
+    # Check the response status and print the result
+    if response.status_code == 200:
+        print("Upload initialized successfully.")
+    else:
+        print(f"Error: {response.status_code}")
+        print(response.json())
+
+        return
+        
+
+    # Parse the response
+    upload_data = response.json()
+    publish_id = upload_data.get('data', {}).get('publish_id')
+    chunk_upload_url = upload_data.get('data', {}).get('upload_url')
+
+    if not all([publish_id, chunk_upload_url]):
+        return print({'error': 'Missing publish_id or upload_url in response'})
+
+    try:
+        with open(video['image_path'], "rb") as video_file:
+            video_data = video_file.read()
+            total_size = len(video_data)
+
+            upload_headers = {
+                "Content-Range": f"bytes 0-{total_size - 1}/{total_size}",
+                "Content-Type": "video/mp4"
+            }
+
+            upload_response = requests.put(chunk_upload_url, headers=upload_headers, data=video_data)
+
+            if upload_response.status_code == 201:
+                print("Video uploaded successfully!")
+
+            else:
+                print(f"Failed to upload video: {upload_response.status_code}")
+                print(upload_response.json())
+                return
+
+            #wait for the video to be published
+            published=False
+            # Define the API endpoint and access token
+            url = "https://open.tiktokapis.com/v2/post/publish/status/fetch/"
+
+            # Prepare the payload with the publish ID
+            data = {
+                "publish_id": publish_id  # Replace with your actual publish ID
+            }
+
+            # Send the request
+            content_status = "PROCESSING_UPLOAD"
+            while content_status == "PROCESSING_UPLOAD":
+                response = requests.post(url, headers=headers, json=data,verify=False)
+                if response.status_code == 200:
+                    status = response.json()
+                    content_status = status.get("data", {}).get("status", "Unknown")
+                    print('processing status',content_status)
+                    if content_status == "PUBLISH_COMPLETE":
+                        published=True
+                time.sleep(10)
+        
+            # get latest updated video
+            if published:
+                video_list_url = "https://open.tiktokapis.com/v2/video/list/?fields=id,cover_image_url,video_url"
+                payload = {
+                    "max_count": 5,
+                }
+
+                # Make the POST request
+                response = requests.post(video_list_url, headers=headers, data=json.dumps(payload),verify=False)
+                videos = response.json()['data']
+                print(videos)
+                # Display the list of videos
+                video_id=videos['videos'][0]['id']
+                video_cover=videos['videos'][0]['cover_image_url']
+                video_link=videos['videos'][0]['video_url']
+                # save the tiktok post
+                ctkp=CompanyTiktokPosts(
+                    post_id=post_id,
+                    video_id=video_id,
+                    is_published=published,
+                    mentions=mentions,
+                    cover_image_url=video_cover,
+                    post_link=video_link,
+                )
+                ctkp.save()
+                return print({
+                    'message': 'Video uploaded successfully',
+                })
+            else:
+                ctkp=CompanyTiktokPosts(
+                    post_id=post_id,
+                    is_published=published,
+                )
+                ctkp.save()
+            
+                
+    except Exception as e:
+        return print({'error': 'An unexpected error occurred', 'details': str(e)})
 
 
 def postInstagram():
     pass
 
 
-def postFacebook():
-    pass
+def postFacebook(page_id,media,access_token,title,description,is_video,has_media,post_id,to_stories,to_post):
+    # API endpoint for creating a post
+    url = f"https://graph.facebook.com/v21.0/{page_id}/feed"
+    # List of local photo paths
+    if is_video:
+        # API URL for video uploads
+        url = f"https://graph-video.facebook.com/v21.0/{page_id}/videos"
+        
+        # Payload for video upload
+        payload = {
+            "title": title,
+            "description": description,
+            "access_token": access_token
+        }
+
+        # Path to the video file
+        video_file_path = media[0]['image_path']
+        if to_post:
+            # Open the video file and send the POST request
+            with open(video_file_path, "rb") as video_file:
+                files = {
+                    "source": video_file
+                }
+                response = requests.post(url, data=payload, files=files)
+
+            # Handle the response
+            if response.status_code == 200:
+                print(response.json())
+                print("Video uploaded successfully!")
+                cfbp=CompanyFacebookPosts(
+                    
+                )
+            else:
+                print(f"Error uploading video: {response.status_code}")
+                print(response.json())
+        # check if uploading to stories
+        if to_stories:
+            print('attempting to upload video to stories')
+            url = f"https://graph.facebook.com/v21.0/{page_id}/video_stories"
+            # Open the video file and send the POST request
+            with open(video_file_path, "rb") as video_file:
+                files = {
+                    "source": video_file
+                }
+                response = requests.post(url, data=payload, files=files)
+
+            # Handle the response
+            if response.status_code == 200:
+                print("Video uploaded successfully!")
+                cfbp=CompanyFacebookPosts(
+                    
+                )
+            else:
+                print(f"Error uploading video: {response.status_code}")
+                print(response.json())
+        return
+
+    if has_media:
+        photo_paths = [md['image_path'] for md in media]
+
+        # Step 1: Upload photos to get attachment IDs
+        photo_ids = []
+        photo_upload_url = f"https://graph.facebook.com/v21.0/{page_id}/photos"
+        
+        # check pages managed by users
+        for photo_path in photo_paths:
+            with open(photo_path, "rb") as photo:
+                # Upload each photo to get an ID
+                payload = {"published": "false", "access_token": access_token}  # Set 'published' to false
+                files = {"source": photo}
+                response = requests.post(photo_upload_url, data=payload, files=files)
+
+                if response.status_code == 200:
+                    photo_id = response.json().get("id")
+                    photo_ids.append({"media_fbid": photo_id})
+                else:
+                    print(f"Error uploading {photo_path}: {response.json()}")
+        # Step 2: Create a post with all photo IDs
+        if photo_ids:
+            # Prepare the payload for the post
+            payload = {
+                "message": f'{description}',
+                "attached_media": photo_ids,
+                "access_token": access_token
+            }
+            # Make the POST request to create the post
+            if to_post:
+                response = requests.post(url,json=payload)
+
+                if response.status_code == 200:
+                    print("Post created successfully with multiple photos!")
+                    print(response.json())
+                else:
+                    print(f"Error creating post: {response.status_code}")
+                    print(response.json())
+
+            # check if user is uploading to stories
+            if to_stories:
+                print('attempting to upload photo(s) to stories')
+                for ph_id in photo_ids:
+                    url = f"https://graph.facebook.com/v21.0/{page_id}/photo_stories"
+                    payload = {
+                        "photo_id":ph_id['media_fbid'],
+                        "access_token": access_token
+                    }
+                # Make the POST request to create the post
+                    response = requests.post(url,json=payload)
+
+                if response.status_code == 200:
+                    print("stories created successfully with multiple photos!")
+                    print(response.json())
+                else:
+                    print(f"Error creating post: {response.status_code}")
+                    print(response.json())
+        else:
+            print("No photos were successfully uploaded.")
 
 
 def postReddit(title,description,subs,hasMedia,files,nsfw_tag,spoiler_tag,red_refresh_token,post_id,company):
@@ -969,8 +1285,15 @@ def uploadPost(request):
     tk_to_everyone = request.POST.get('tk_to_everyone', 'false').lower() == 'true'
     tk_to_friends = request.POST.get('tk_to_friends', 'false').lower() == 'true'
     tk_to_only_me = request.POST.get('tk_to_only_me', 'false').lower() == 'true'
-    tk_tiktok_mentions = request.POST.get('tk_tiktok_mentions', 'false').lower() == 'true'
+    tk_tiktok_mentions = request.POST.get('tk_tiktok_mentions',  None)
 
+    tk_audience='PUBLIC_TO_EVERYONE'
+    if tk_to_friends:
+        tk_audience='MUTUAL_FOLLOW_FRIENDS'
+    elif tk_to_only_me:
+        tk_audience='SELF_ONLY'
+    tk_description=f'{description} {hashTags} {tk_tiktok_mentions}'
+        
     # Instagram
     to_ig_stories = request.POST.get('to_ig_stories', 'false').lower() == 'true'
     to_ig_posts = request.POST.get('to_ig_posts', 'false').lower() == 'true'
@@ -985,7 +1308,8 @@ def uploadPost(request):
     to_fb_reels = request.POST.get('to_fb_reels', 'false').lower() == 'true'
     fb_copyright = request.POST.get('fb_copyright', 'false').lower() == 'true'
     fb_location_tags = request.POST.get('fb_location_tags', None)
-
+    
+    fb_descr=f'{description} {hashTags} '
     # Reddit
     red_is_nsfw = request.POST.get('red_is_nsfw', 'false').lower() == 'true'
     red_is_spoiler = request.POST.get('red_is_spoiler', 'false').lower() == 'true'
@@ -993,7 +1317,7 @@ def uploadPost(request):
     
     date_scheduled = request.POST.get('date_scheduled', None)
 
-    if not all([company_id, title, description]):
+    if not all([company_id,description]):
         return Response({'error': 'Bad request'})
     
     tsbs=target_subs.split(',')
@@ -1004,8 +1328,9 @@ def uploadPost(request):
     for field_name, file in files.items():
         temp_file_path = default_storage.save(file.name, file)
         absolute_file_path = default_storage.path(temp_file_path)
-        gallery_items.append({"image_path": absolute_file_path,'content_type':file.content_type})
+        gallery_items.append({"image_path": absolute_file_path,'content_type':file.content_type,"file_size": file.size })
     datetime_object= timezone.now()
+    
     if isScheduled:
         time_format = "%A, %d %B %Y %I:%M %p"
         # Convert to datetime object
@@ -1055,6 +1380,45 @@ def uploadPost(request):
                 
                 })
             redThread.start()
+        if tiktokSelected:
+            glctyp= gallery_items[0]['content_type']
+            if not glctyp.startswith("video/"):
+                return 'Non video'
+            tkThread=threading.Thread(target=postTiktok,daemon=True,kwargs={
+                'company':cp,
+                'description':tk_description,
+                'video':gallery_items[0],
+                'duet':tk_allow_duet,
+                'comment':tk_allow_comment,
+                'stitch':tk_allow_stitch,
+                'audience':tk_audience, 
+                'post_id':post_id,          
+                'mentions':tk_tiktok_mentions          
+            })
+            tkThread.start()
+        if facebookSelected:
+            cfb=CompanyFacebook.objects.filter(company=cp).first()
+            if not cfb:
+                return
+            isVideo= False
+            if hasMedia:
+                glctyp= gallery_items[0]['content_type']
+                if glctyp.startswith("video/"):
+                    isVideo=True
+            fbThread=threading.Thread(target=postFacebook,daemon=True,kwargs={
+               'media':gallery_items,
+               'page_id':cfb.page_id,
+               'post_id':post_id,
+               'access_token':cfb.page_access_token,
+               'is_video':isVideo,
+               'description':description,
+               'has_media':hasMedia,
+               'title':title,
+               'to_stories':to_fb_stories,
+               'to_post':to_fb_posts
+                
+            })
+            fbThread.start()
     # else:
         # if hasMedia:
         #     for key,file in files.items():
@@ -1262,6 +1626,8 @@ def instagram_callback(request):
     cm = Company.objects.filter(company_id=company_id).first()
     if not cm:
         return redirect('dashboard', company_id=company_id)
+    
+    
     pg_id = get_facebook_ig_page_id(access_token)
     ci = CompanyInstagram.objects.filter(company=cm).first()
     inst_id = get_instagram_account_id(access_token, pg_id)
@@ -1494,13 +1860,28 @@ def facebook_callback(request):
     l_lived_token = get_long_lived_token(access_token)
     cf = CompanyFacebook.objects.filter(company=cm).first()
     insgts = get_facebook_page_insights(access_token, pg_id)
+    
+    pages_url = f"https://graph.facebook.com/v21.0/me/accounts"
+    headers = {"Authorization": f"Bearer {access_token}"}
+    pages_response = requests.get(pages_url, headers=headers)
+    pages_data = pages_response.json()
+    if 'data' not in pages_data:
+        return 
+
+    # Extract Page ID and Page Access Token for the first Page
+    page = pages_data['data'][0]
+    page_id = page.get('id')
+    page_access_token = page.get('access_token')
+
+    
     if cf:
         cf.short_lived_token = access_token
         cf.account_id = pg_id
         cf.long_lived_token = l_lived_token
         cf.linked = True
         cf.active = True
-        cf.page_id = pg_id
+        cf.page_access_token=page_access_token
+        cf.page_id = page_id
         cf.account_name = insgts['page_name']
         cf.profile_url = insgts['p_picture']
         cf.followers_trend.append(insgts['fan_count'])
@@ -1516,9 +1897,10 @@ def facebook_callback(request):
             short_lived_token=access_token,
             account_id=pg_id,
             long_lived_token=l_lived_token,
+            page_access_token=page_access_token,
             linked=True,
             active=True,
-            page_id=pg_id,
+            page_id=page_id,
             account_name=insgts['page_name'],
             profile_url=insgts['p_picture'],
         )
@@ -1536,7 +1918,7 @@ def facebook_callback(request):
 def tiktok_auth_link(company_id):
     client_id = settings.TIKTOK_CLIENT_ID  # Replace with your TikTok app's client ID
     redirect_uri = settings.TIKTOK_REDIRECT_URI  # Replace with your redirect URI
-    scope = "user.info.basic,user.info.profile,user.info.stats,video.list,video.publish"  # Adjust scopes as needed
+    scope = "user.info.basic,user.info.profile,user.info.stats,video.list,video.publish,video.upload"  # Adjust scopes as needed
     state = urllib.parse.quote_plus(str(company_id))  # Ensure URL encoding for special characters
 
     auth_url = (
@@ -1609,7 +1991,6 @@ def tiktok_callback(request):
         ctk.likes_count.append(data['l_count'])
         ctk.save()
 
-    print(f' access token received {access_token}')
     return redirect('dashboard', company_id=company_id)
 
 

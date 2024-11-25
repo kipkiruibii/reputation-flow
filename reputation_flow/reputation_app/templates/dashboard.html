@@ -1178,7 +1178,7 @@
     <div class="modal fade" id="confirmModalSubInfoCenter" tabindex="-1" role="dialog"
         aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
         <!-- modal-dialog modal-dialog-centered -->
-        <div class="modal-dialog modal-dialog-centered custom-modal " role="document" >
+        <div class="modal-dialog modal-dialog-centered custom-modal " role="document">
             <div class="modal-content" style="width: 100%;">
                 <div class="modal-body">
                     <!-- <p id="confirmModalFlairBody"> -->
@@ -1193,7 +1193,7 @@
                             <p>Rules</p>
                             <ol style="max-height: 300px;overflow-y: auto;overflow-x: hidden;list-style-type: none;">
                                 {% for rl in si.rules %}
-                                <li ><strong>{{ rl.rule }}.</strong> {{ rl.description }}</li>
+                                <li><strong>{{ rl.rule }}.</strong> {{ rl.description }}</li>
                                 {% endfor %}
                             </ol>
 
@@ -1719,7 +1719,6 @@
                             <path
                                 d="M120-120v-80l80-80v160h-80Zm160 0v-240l80-80v320h-80Zm160 0v-320l80 81v239h-80Zm160 0v-239l80-80v319h-80Zm160 0v-400l80-80v480h-80ZM120-327v-113l280-280 160 160 280-280v113L560-447 400-607 120-327Z" />
                         </svg>
-
                         <p class="conversation-text">
                             <span style="font-size:18px;text-align:center;color: #ffffff;">Insightlyze</span>
                         </p>
@@ -4082,6 +4081,8 @@
                             <div id="step3" class="step upcoming">
                                 <span class="step-number">3</span>
                                 <p class="step-text">Set Up</p>
+                                <p style="display: none;" id="max-tiktok-duration"></p>
+
                             </div>
 
                             <!-- <div id="step4" class="step upcoming">
@@ -4165,7 +4166,13 @@
                         <div style="margin-top: 20px;">
                             <a id="to_upload_content" class="btn-solid-sm post-btn-proceed-disabled" href="#">NEXT
                                 (Upload content) <i class="fa fa-caret-right"></i></a>
+
                         </div>
+                        <div style="display: none;justify-content: center;margin-top: 10px;margin-bottom: 10px;"
+                            id="wait-upload-spinner">
+                            <i class="fa fa-spinner fa-spin"></i>
+                        </div>
+
                     </div>
 
                     <!-- UPLOAD CONTENT -->
@@ -4211,7 +4218,7 @@
                     <!-- SET UP CONTENT -->
                     <div id="set_up_content"
                         style="display: none;width: 100%;justify-content: center;padding-left: 10%;overflow-y: scroll;height: 80vh;margin-right: 10%;">
-                        <div class="form-group">
+                        <div class="form-group" id="title-set-up">
                             <label for="post-textarea">
                                 <div style="display: flex;gap: 10px;height: 25px;">
                                     <strong>Title</strong>
@@ -4221,9 +4228,6 @@
                                     <img src="{% static 'images/instagram_logo.png' %}" alt=""
                                         style="width: 15px;height: 15px;margin: auto;"
                                         class="target_instagram unselectedPlatform">
-                                    <img src="{% static 'images/tiktok_logo.png' %}" alt=""
-                                        style="width: 15px;height: 15px;margin: auto;"
-                                        class="target_tiktok unselectedPlatform">
                                     <img src="{% static 'images/reddit_logo.png' %}" alt=""
                                         style="width: 15px;height: 15px;margin: auto;"
                                         class="target_reddit unselectedPlatform">
@@ -5251,7 +5255,6 @@
                 </div>
             </div>
         </div>
-
         <script src="{% static 'js/main.js' %}"></script>
         <script src="{% static 'js/website-scan.js' %}"></script>
         <script src="{% static 'js/verify-contact.js' %}"></script>
@@ -5791,6 +5794,8 @@
 
         <!-- update business page -->
         <script>
+            var max_duration_tiktok = 0
+
             // Function to get selected values for each instance
             // Function to get selected values for each instance
             function getSelectedOptions() {
@@ -6773,31 +6778,25 @@
                             return;
                         }
                     });
+                    var fbSelected = $('#facebook_platform').prop('checked');
+                    var igSelected = $('#instagram_platform').prop('checked');
+                    var rdSelected = $('#reddit_platform').prop('checked');
+                    if (fbSelected || igSelected || rdSelected) {
+                        $('#title-set-up').css('display', 'block');
+                    } else {
+                        $('#title-set-up').css('display', 'none');
+                    }
+
                     if (!isChecked) {
                         $('#to_upload_content').toggleClass('post-btn-proceed-disabled');
                     };
 
 
+
                 });
                 $(document).on('click', '#to_upload_content', function () {
                     if (!$('#to_upload_content').hasClass('post-btn-proceed-disabled')) {
-                        $('#platform_select').css('display', 'none');
-                        $('#step1').removeClass('current');
-                        $('#step1').addClass('completed');
-                        $('#step2').removeClass('upcoming');
-                        $('#step2').addClass('current');
-
-                        $('#upload_content_view').css('display', 'block');
-
-                        if ($('#tiktok_platform').prop('checked')) {
-                            //titkok selected
-                            $('.target_tiktok').each(function () { $(this).removeClass('unselectedPlatform') });
-                            $('#non_media_post').css('display', 'none')
-                        } else {
-                            // tiktok unselected
-                            $('.target_tiktok').each(function () { $(this).addClass('unselectedPlatform') });
-                            $('#non_media_post').css('display', 'flex')
-                        }
+                        var success = true;
                         // Facebook
                         if ($('#facebook_platform').prop('checked')) {
                             // selected
@@ -6825,6 +6824,69 @@
                             $('.target_reddit').each(function () { $(this).addClass('unselectedPlatform') });
 
                         }
+                        if ($('#tiktok_platform').prop('checked')) {
+                            //titkok selected check the creator info
+                            $('.target_tiktok').each(function () { $(this).removeClass('unselectedPlatform') });
+                            $('#non_media_post').css('display', 'none')
+                            $('#wait-upload-spinner').css('display','flex');
+                            // grab creator info data from the server
+                            var formData = new FormData();
+                            // Append other input fields to FormData
+                            var csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                            formData.append('company_id', '{{ company_id }}');
+                            // Send the form data via AJAX
+                            $.ajax({
+                                url: '{% url "get_tiktok_creator" %}', // Replace with your Django endpoint URL
+                                type: 'POST',
+                                headers: {
+                                    'X-CSRFToken': csrfToken
+                                },
+                                data: formData,
+                                processData: false, // Prevent jQuery from processing the data
+                                contentType: false, // Prevent jQuery from setting the content type
+                                success: function (response) {
+                                    if (response['error']) {
+                                        success = false;
+                                        toastr.error(response['error']);
+                                        $('#wait-upload-spinner').css('display','none');
+
+                                    } else {
+                                        $('#max-tiktok-duration').text(response['max_video_post_duration_sec']);
+                                        if (response['stitch_disabled']) { $('#to_stitch').prop('checked', false) } else $('#to_stitch').prop('checked', true);
+                                        if (response['duet_disabled']) { $('#to_duet').prop('checked', false) } else $('#to_duet').prop('checked', true);
+                                        if (response['comment_disabled']) { $('#to_comment').prop('checked', false) } else $('#to_comment').prop('checked', true);
+
+                                        $('#platform_select').css('display', 'none');
+                                        $('#step1').removeClass('current');
+                                        $('#step1').addClass('completed');
+                                        $('#step2').removeClass('upcoming');
+                                        $('#step2').addClass('current');
+                                        $('#upload_content_view').css('display', 'block');
+                                        $('#wait-upload-spinner').css('display','none');
+
+                                    }
+                                },
+                                error: function (jqXHR, textStatus, errorThrown) {
+                                    success = false;
+                                    toastr.error('Failed to submit form.');
+                                    console.error(textStatus, errorThrown);
+                                    $('#wait-upload-spinner').css('display','none');
+
+                                }
+                            });
+
+                        } else {
+                            // tiktok unselected
+                            $('.target_tiktok').each(function () { $(this).addClass('unselectedPlatform') });
+                            $('#non_media_post').css('display', 'flex')
+                            $('#platform_select').css('display', 'none');
+                            $('#step1').removeClass('current');
+                            $('#step1').addClass('completed');
+                            $('#step2').removeClass('upcoming');
+                            $('#step2').addClass('current');
+                            $('#upload_content_view').css('display', 'block');
+                        }
+
 
                         return;
                     };
@@ -6920,20 +6982,37 @@
                     var descript = $('#content_description').val();
                     var title = $('#content_title').val();
                     var redditChecked = $('#reddit_platform').prop('checked');
-                    // ensure the content has a title and description
-                    if (!descript || !title) {
-                        if (!$('#submit_post').hasClass('post-btn-proceed-disabled')) {
-                            $('#submit_post').addClass('post-btn-proceed-disabled');
+                    var fbSelected = $('#facebook_platform').prop('checked');
+                    var igSelected = $('#instagram_platform').prop('checked');
+                    var rdSelected = $('#reddit_platform').prop('checked');
+                    if (fbSelected || igSelected || rdSelected) {
+                        if (!descript || !title) {
+                            if (!$('#submit_post').hasClass('post-btn-proceed-disabled')) {
+                                $('#submit_post').addClass('post-btn-proceed-disabled');
+                                return;
+                            };
+                            return;
+                        }
+                        if ($('#submit_post').hasClass('post-btn-proceed-disabled')) {
+                            $('#submit_post').removeClass('post-btn-proceed-disabled');
                             return;
                         };
-                        return;
-                    }
-                    if ($('#submit_post').hasClass('post-btn-proceed-disabled')) {
-                        $('#submit_post').removeClass('post-btn-proceed-disabled');
-                        return;
-                    };
-                });
+                    } else {
+                        if (!descript) {
+                            if (!$('#submit_post').hasClass('post-btn-proceed-disabled')) {
+                                $('#submit_post').addClass('post-btn-proceed-disabled');
+                                return;
+                            };
+                            return;
+                        }
+                        if ($('#submit_post').hasClass('post-btn-proceed-disabled')) {
+                            $('#submit_post').removeClass('post-btn-proceed-disabled');
+                            return;
+                        };
 
+                    }
+
+                });
                 // upload modal
                 $(document).on('click', '#submit_post', function () {
                     var descript = $('#content_description').val();
@@ -6941,7 +7020,14 @@
                     var subsSelected = null;
                     var redditChecked = $('#reddit_platform').prop('checked');
                     // ensure the content has a title and description
-                    if (!descript || !title) { return; }
+                    var fbSelected = $('#facebook_platform').prop('checked');
+                    var igSelected = $('#instagram_platform').prop('checked');
+                    var rdSelected = $('#reddit_platform').prop('checked');
+                    if (fbSelected || igSelected || rdSelected) {
+                        if (!descript || !title) { return; }
+                    } else {
+                        if (!descript) { return; }
+                    }
                     if (redditChecked) {
                         const selectedSubsInstance = multiSelectInstances.find(instance => instance.selectElement.dataset.name === "red_subs");
 
@@ -7315,10 +7401,10 @@
                             var facebookSelected = $('#facebook_platform').prop('checked');
                             var instagramSelected = $('#instagram_platform').prop('checked');
                             var redditSelected = $('#reddit_platform').prop('checked');
-
                             if (tiktokSelected) {
+                                var maxD=$('#max-tiktok-duration').text();
                                 //check maximum video
-                                if (videoDuration > 60) {
+                                if (videoDuration > maxD) {
                                     toastr.error(`Video duration exceeds Tiktoks maximum allowed duration of 60 seconds (1 minute).`);
                                     return false;
                                 }

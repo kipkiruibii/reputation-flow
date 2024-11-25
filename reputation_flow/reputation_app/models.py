@@ -163,12 +163,14 @@ class CompanyFacebook(models.Model):
     active=models.BooleanField(default=False)
     linked=models.BooleanField(default=False)
     page_id=models.TextField(default='')
+    page_access_token=models.TextField(default='')
     short_lived_token=models.TextField(default='')
     long_lived_token=models.TextField(default='')
     token_expiry=models.DateField(default=timezone.now() + timezone.timedelta(days=60))
     account_name=models.TextField(default='')
     profile_url=models.TextField(default='')
     account_id=models.TextField(default='')
+    pages=models.JSONField(default=list) # [{'name':str,'id':str,'access_token':str,'profile_url':str,'data':{'':}}]
     followers_trend=models.JSONField(default=list)
     impressions=models.JSONField(default=list)
     profile_views=models.JSONField(default=list)
@@ -177,7 +179,6 @@ class CompanyFacebook(models.Model):
     page_fans=models.JSONField(default=list)
     page_views_total=models.JSONField(default=list)
     page_negative_feedback=models.JSONField(default=list)
-    
     last_update_time=models.DateTimeField(default=timezone.now)
     date_linked= models.DateTimeField(default=timezone.now)
 
@@ -237,7 +238,7 @@ class CompanyPosts(models.Model):
     date_uploaded=models.DateTimeField(default=timezone.now)
     date_scheduled=models.DateTimeField(default=timezone.now)
     def __str__(self):
-        return self.title
+        return self.description
     
 class CompanyInstagramPosts(models.Model):
     post_id=models.CharField(max_length=255)
@@ -293,19 +294,26 @@ class CompanyRedditPosts(models.Model):
         return self.post_id
 
 class CompanyTiktokPosts(models.Model):
-    post_id=models.CharField(max_length=255)
-    to_stories=models.BooleanField(default=False)
-    to_reels=models.BooleanField(default=False)
-    to_posts=models.BooleanField(default=False)
-    run_copyright=models.BooleanField(default=True)
-    has_copyright=models.BooleanField(default=False)
-    is_published=models.BooleanField(default=False)
-    comment_count=models.IntegerField(default=0)
-    location_tags=models.TextField(default='')
-    product_tags=models.TextField(default='')
-    post_link=models.TextField(default='')
-    engagement_count=models.IntegerField(default=0)
-    
+    post_id=models.CharField(max_length=255,null=True,blank=True)
+    video_id=models.CharField(max_length=255,null=True,blank=True)
+    run_copyright=models.BooleanField(default=True,null=True,blank=True)
+    has_copyright=models.BooleanField(default=False,null=True,blank=True)
+    is_published=models.BooleanField(default=False,null=True,blank=True)
+    reasons=models.TextField(default='',null=True,blank=True)
+    mentions=models.TextField(default='',null=True,blank=True)
+    cover_image_url=models.TextField(default='',null=True,blank=True)
+    post_link=models.TextField(default='',null=True,blank=True)
+    engagement_count=models.IntegerField(default=0,null=True,blank=True)
+    comment_count=models.IntegerField(default=0,null=True,blank=True)
+    share_count=models.IntegerField(default=0,null=True,blank=True)
+    views_count=models.IntegerField(default=0,null=True,blank=True)
+    average_watch_time=models.IntegerField(default=0,null=True,blank=True)
+    reach=models.IntegerField(default=0,null=True,blank=True)
+    duet_count=models.IntegerField(default=0,null=True,blank=True)
+    stitch_count=models.IntegerField(default=0,null=True,blank=True)
+    completion_rate=models.IntegerField(default=0,null=True,blank=True)
+    click_through_rate=models.IntegerField(default=0,null=True,blank=True)
+    profile_visits=models.IntegerField(default=0,null=True,blank=True)
     def __str__(self):
         return self.post_id
 
