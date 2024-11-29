@@ -310,6 +310,40 @@ def dashboard(request, company_id):
     if cr:
         sub_f = threading.Thread(target=getRedditSubFlairs, daemon=True, kwargs={'cid': company_id})
         sub_f.start()
+    fb_ig = request.session.get('facebook_ig_data', {})
+    if fb_ig:
+        ldta=fb_ig.get('time_updated')
+        ldt=datetime.fromisoformat(ldta)
+        df=(timezone.now()-ldt).total_seconds()
+        if df > 18000: # update after 6 hrs only
+            if cig:
+                dt=get_instagram_account_insights(access_token=cig.long_lived_token,instagram_account_id=cig.account_id,company_id=company_id)  
+                cig.profile_url=dt['profile_picture_url']  
+                fb_ig['time_updated']=timezone.now().isoformat()
+                cig.save()
+            if cfb:
+                dt=get_facebook_page_insights(access_token=cfb.page_access_token,page_id=cfb.page_id,company_id=company_id)
+                cfb.profile_url=dt['p_picture']
+                fb_ig['time_updated']=timezone.now().isoformat()
+                cfb.save()
+
+    else:
+        tk_data={
+            'time_updated':timezone.now().isoformat()
+        }
+        if cig:
+            dt=get_instagram_account_insights(access_token=cig.long_lived_token,instagram_account_id=cig.account_id,company_id=company_id)  
+            cig.profile_url=dt['profile_picture_url']  
+            print('saving profile url')
+            cig.save()
+        if cfb:
+            dt=get_facebook_page_insights(access_token=cfb.page_access_token,page_id=cfb.page_id,company_id=company_id)
+            cfb.profile_url=dt['p_picture']
+            print('saving fb profile pic ')
+            cfb.save()
+        request.session['facebook_ig_data'] = tk_data
+        
+
     context = {
         'company_name': cm.company_name,
         'company_category': cm.company_category,
@@ -429,7 +463,6 @@ def dashboard(request, company_id):
     }
     return render(request, 'dashboard.html', context=context)
 
-
 @api_view(['POST'])
 def fetchPosts(request):
     company_id = request.POST.get('company_id', None)
@@ -449,15 +482,55 @@ def fetchPosts(request):
                 'media_url': m.media.url,
                 'is_video': False
             })
+        reds=[]
+        cover_image_link=''
         
+        if 'reddit' in p.platforms:
+            cr=CompanyRedditPosts.objects.filter(post_id=p.post_id)
+            if cr:
+                for c in cr:
+                    t_en=0
+                    t_com=0
+                    for k in c.subs:
+                        if k['published']:
+                            cover_image_link=k['link']
+                            p_id=k['id']
+                            submission = reddit.submission(id=p_id)
+                            k['upvote_ratio']=submission.upvote_ratio*100
+                            k['upvotes']=submission.score
+                            k['comments']=submission.num_comments
+                            k['crossposts']=submission.num_crossposts
+                            reds.append(k)
+                            
+                            vlx=submission.score+submission.num_comments+submission.num_crossposts
+                            t_en+=vlx
+                            t_com+=submission.num_comments
+                    p.comment_count=t_com
+                    p.engagement_count=t_en
+                    p.save()   
+                    c.save()    
+                            
+        eng_cnt=p.engagement_count
+        if eng_cnt>1000000:
+            eng_cnt=round(eng_cnt/1000000,1)
+        elif eng_cnt>1000:
+            eng_cnt=round(eng_cnt/1000,1)
+        cmt_cnt=p.comment_count
+        if cmt_cnt>1000:
+            cmt_cnt=round(cmt_cnt/1000,1)
+        elif cmt_cnt>1000:
+            cmt_cnt=round(cmt_cnt/1000,1)
         all_posts.append({
             'platforms': [pl.capitalize() for pl in p.platforms],
             'title': p.title,
             'content': p.description,
             'is_uploaded': p.is_published,
             'is_scheduled': p.is_scheduled,
+            'comment_count':cmt_cnt,
+            'engagement_count':eng_cnt,
             'tags': [] if not p.tags else p.tags.split(),
             'has_media': p.has_media,
+            'cover_image_link':cover_image_link,
             'media':None if not p.has_media else UploadedMedia.objects.filter(post=p).first(),
             'date_uploaded': p.date_uploaded,
             'date_scheduled':p.date_scheduled,
@@ -492,14 +565,41 @@ def getStats(request):
     ptfrms=[]
     ptfrms_en=[]
     cr = CompanyRedditPosts.objects.filter(post_id=post_id).first()
-    print(cr.target_subs)
+    red_up=[]
+    red_cmt=[]
+    red_cpst=[]
+    red_tteng=[]
+    red_subs=[]
+    for c in cr.subs:
+        k=c
+        if k['published']:
+            p_id=k['id']
+            submission = reddit.submission(id=p_id)
+            k['upvote_ratio']=submission.upvote_ratio*100
+            k['upvotes']=submission.score
+            k['comments']=submission.num_comments
+            k['crossposts']=submission.num_crossposts
+            red_subs.append(f"r/{k['sub_name']}")
+            
+            # vlx=submission.score+submission.num_comments+submission.num_crossposts
+            # t_en+=vlx
+            # t_com+=submission.num_comments
+        
+        red_up.append(c['upvotes'])
+        red_tteng.append(c['upvote_ratio'])
+        red_cmt.append(c['comments'])
+        red_cpst.append(c['crossposts'])
+    print(red_up)
+    red_te=0
+    if red_tteng:
+        red_te=sum(red_tteng)/len(red_tteng) 
     return Response({'result': 'success',
                      'has_reddit':True,
-                     'reddit_total_engagement':'81%',
-                     'reddit_upvotes':[20,255,156,20,255,156,20,255,156,20,255,156,20,255,156][:2],
-                     'reddit_comments':[23,133,125,23,133,125,23,133,125,23,133,125,23,133,125][:2],
-                     'reddit_crossposts':[23,133,125,23,133,125,23,133,125,23,133,125,23,133,125][:2],
-                     'reddit_subs':['r/nairobi','r/apple','r/india','r/nairobi','r/apple','r/india','r/nairobi','r/apple','r/india','r/nairobi','r/apple','r/india','r/nairobi','r/apple','r/india'][:2],
+                     'reddit_total_engagement':f'{red_te}%',
+                     'reddit_upvotes':red_up,
+                     'reddit_comments':red_cmt,
+                     'reddit_crossposts':red_cpst,
+                     'reddit_subs':red_subs,
                      'platform_engagement':ptfrms_en,
                      'pltfrms':ptfrms 
                      })
@@ -999,19 +1099,113 @@ def postTiktok(company,description,video,duet,comment,stitch,audience,post_id,me
                 )
                 ctkp.save()
             
-                
     except Exception as e:
         return print({'error': 'An unexpected error occurred', 'details': str(e)})
 
 
-def postInstagram():
-    pass
+def postInstagram(account_id,media,access_token,description,has_media,post_id,to_stories,to_post,to_reels):
+    if not has_media:
+        return
+    # upload the media to s3 bucket
+    for m in media:
+        pass
+    print('the ltc')
+    print(len(media))
+    print()
+    return
+    # retrieve the media urls
+    media_urls = [
+    "https://example.com/image1.jpg",
+    "https://example.com/image2.jpg",
+    "https://example.com/video1.mp4"
+        ]
+    # post the media to instagram
+    is_carousel=False
+    if len(media_urls)>1:
+        is_carousel=True    
+    if is_carousel:
+        # Step 1: Upload each media item individually and collect their media_ids
+        media_ids = []
+        for url in media_urls:
+            payload = {
+                "image_url" if url.endswith(".jpg") or url.endswith(".png") else "video_url": url,
+                "is_carousel_item": "true",
+                "access_token": access_token
+            }
+            response = requests.post(f"https://graph.facebook.com/v21.0/{account_id}/media", data=payload)
+            
+            if response.status_code == 200:
+                media_id = response.json().get("id")
+                media_ids.append(media_id)
+                print(f"Uploaded media successfully. Media ID: {media_id}")
+            else:
+                print(f"Error uploading media: {response.json()}")
+                exit()
 
+        # Step 2: Create the carousel container
+        carousel_payload = {
+            "children": ",".join(media_ids),  # Media IDs must be comma-separated
+            "caption": description,
+            "access_token": access_token
+        }
+        carousel_response = requests.post(f"https://graph.facebook.com/v21.0/{account_id}/media", data=carousel_payload)
 
+        if carousel_response.status_code == 200:
+            creation_id = carousel_response.json().get("id")
+            print(f"Carousel container created successfully. Creation ID: {creation_id}")
+        else:
+            print(f"Error creating carousel container: {carousel_response.json()}")
+            exit()
+    else:    
+        # delete the media from s3 bucket to free storage
+        url = f"https://graph.facebook.com/v21.0/{account_id}/media"
+        isImage=True 
+        if media[0]['content_type'].startswith("video/"):
+            isImage=False
+        payload = {
+            "image_url" if isImage else "video_url": media_urls[0],
+            "caption": description, 
+            "access_token": access_token,
+        }
+        if not isImage and to_reels:
+            payload['media_type']=='REELS'
+            response = requests.post(url, data=payload)
+
+        if to_stories:
+            payload['media_type']=='STORIES'
+        response = requests.post(url, data=payload)
+
+        if response.status_code == 200:
+            creation_id = response.json().get("id")
+            print(f"Media uploaded successfully! Media ID: {creation_id}")
+        else:
+            print(f"Error: {response.json()}")
+            return
+    # Step 3: Publish the carousel post
+    publish_payload = {
+        "creation_id": creation_id,
+        "access_token": access_token
+    }
+    publish_response = requests.post(f"https://graph.facebook.com/v16.0/{account_id}/media_publish", data=publish_payload)
+
+    if publish_response.status_code == 200:
+        post_id = publish_response.json().get("id")
+        print(f"post published successfully! Post ID: {post_id}")
+    else:
+        print(f"Error publishing carousel post: {publish_response.json()}")
+        
+        
 def postFacebook(page_id,media,access_token,title,description,is_video,has_media,post_id,to_stories,to_post):
     # API endpoint for creating a post
     url = f"https://graph.facebook.com/v21.0/{page_id}/feed"
-    # List of local photo paths
+    
+    # save video post
+    cfb_pst=CompanyFacebookPosts(
+        post_id=post_id,
+        to_stories=to_stories,
+        to_posts=to_post,
+    )
+    cfb_pst.save()
     if is_video:
         # API URL for video uploads
         url = f"https://graph-video.facebook.com/v21.0/{page_id}/videos"
@@ -1035,27 +1229,90 @@ def postFacebook(page_id,media,access_token,title,description,is_video,has_media
 
             # Handle the response
             if response.status_code == 200:
+                video_id=response.json().get('id')
+                cfb_pst.content_id=video_id
+                cfb_pst.is_published=True
+                cfb_pst.save()
                 print(response.json())
                 print("Video uploaded successfully!")
-                cfbp=CompanyFacebookPosts(
-                    
-                )
             else:
                 print(f"Error uploading video: {response.status_code}")
                 print(response.json())
         # check if uploading to stories
         if to_stories:
             print('attempting to upload video to stories')
+            # initialise upload 
             url = f"https://graph.facebook.com/v21.0/{page_id}/video_stories"
-            # Open the video file and send the POST request
-            with open(video_file_path, "rb") as video_file:
+            payload={
+                "upload_phase":"start",
+                "access_token": access_token
+            }
+            response = requests.post(url,data=payload)
+            if response.status_code == 200:
+                video_id=response.json().get('video_id')
+                upload_url=response.json().get('upload_url')
+                print('initialisation successful, ',upload_url)
+                
+            else:
+                print(f"Error uploading video: {response.status_code}")
+                print(response.json())
+                return
+            
+            # Open the video file in binary mode
+            with open(media[0]['image_path'], "rb") as video_file:
+                # Make the POST request
+                # Headers
+                headers = {
+                    "offset": "0",  # Start uploading from the beginning
+                    "Authorization": f"OAuth {access_token}",
+                    "file_size": str(media[0]['file_size']) , # File size in bytes
+                }
                 files = {
                     "source": video_file
                 }
-                response = requests.post(url, data=payload, files=files)
+
+                print('attempting to upload',upload_url)
+                response = requests.post(upload_url, headers=headers, data=files)
+                print(response.json())    
+                # response = requests.post(url, headers=headers, data=video_file)
 
             # Handle the response
             if response.status_code == 200:
+                # check upload status
+                p_phse = 'not_started'
+                while p_phse == 'not_started':
+                    status_url = f"https://graph.facebook.com/v21.0/{video_id}"
+                    status_payload = {
+                        "fields": "status",
+                        "access_token": access_token,
+                    }
+                    status_response = requests.get(status_url, params=status_payload)
+                    status_data = status_response.json()
+
+                    # Inspect status response
+                    p_phse=status_data.get('status').get('processing_phase').get('status')
+                    u_phse=status_data.get('status').get('publishing_phase').get('status')
+                    cright=status_data.get('status').get('copyright_check_status').get('status')
+                    if cright == 'error':
+                        print('Video did not pass copyright check')
+                        break
+                    print(status_data)
+                    print()
+                    time.sleep(10)
+                
+                # finish upload
+                url = f"https://graph.facebook.com/v21.0/{page_id}/video_stories"
+                payload = {
+                    "video_id": video_id,
+                    "upload_phase": "finish",
+                    "access_token": access_token,
+                }
+                response = requests.post(url, data=payload)
+                print(response.json())
+                content_id=response.json().get('id')
+                cfb_pst.content_id=content_id
+                cfb_pst.is_published=True
+                cfb_pst.save()
                 print("Video uploaded successfully!")
                 cfbp=CompanyFacebookPosts(
                     
@@ -1098,6 +1355,10 @@ def postFacebook(page_id,media,access_token,title,description,is_video,has_media
                 response = requests.post(url,json=payload)
 
                 if response.status_code == 200:
+                    content_id=response.json().get('id')
+                    cfb_pst.content_id=content_id
+                    cfb_pst.is_published=True
+                    cfb_pst.save()
                     print("Post created successfully with multiple photos!")
                     print(response.json())
                 else:
@@ -1117,6 +1378,10 @@ def postFacebook(page_id,media,access_token,title,description,is_video,has_media
                     response = requests.post(url,json=payload)
 
                 if response.status_code == 200:
+                    content_id=response.json().get('id')
+                    cfb_pst.content_id=content_id
+                    cfb_pst.is_published=True
+                    cfb_pst.save()
                     print("stories created successfully with multiple photos!")
                     print(response.json())
                 else:
@@ -1124,7 +1389,27 @@ def postFacebook(page_id,media,access_token,title,description,is_video,has_media
                     print(response.json())
         else:
             print("No photos were successfully uploaded.")
+    else:
+        if to_post:
+            url = f"https://graph.facebook.com/v21.0/{page_id}/feed"
 
+            payload = {
+                "message": description,
+                "access_token": access_token,
+            }
+
+            response = requests.post(url, data=payload)
+
+            if response.status_code == 200:
+                print("Link post created successfully!")
+                content_id=response.json().get('id')
+                cfb_pst.content_id=content_id
+                cfb_pst.is_published=True
+                cfb_pst.save()
+                print(response.json())
+            else:
+                print(f"Error creating post: {response.status_code}")
+                print(response.json())
 
 def postReddit(title,description,subs,hasMedia,files,nsfw_tag,spoiler_tag,red_refresh_token,post_id,company):
     cr=CompanyReddit.objects.filter(company=company).first()
@@ -1155,88 +1440,149 @@ def postReddit(title,description,subs,hasMedia,files,nsfw_tag,spoiler_tag,red_re
                         content_type=files[0]['content_type']
                         if content_type.startswith("image/"):
                             print('submitting image')
-                            submission = subreddit.submit_image(
+                            try:
+                                submission = subreddit.submit_image(
+                                    title=title,
+                                    image_path=f,
+                                    flair_id=default_flair,
+                                    timeout=30,
+                                    nsfw=nsfw_tag,
+                                    spoiler=spoiler_tag
+
+                                )
+                                sub_tr.append({
+                                    'sub_name':sb,
+                                    'id':submission.id,
+                                    'link':submission.url,
+                                    'permalink':f"https://www.reddit.com{submission.permalink}",
+                                    'published':True,
+                                    'result':'Submission was accepted',
+                                    'upvotes':0,
+                                    'comments':0,
+                                    'upvote_ratio':0,
+                                    'crossposts':0
+                                })
+                                default_storage.delete(files[0]['image_path'])
+                            except Exception as e:
+                                sub_tr.append({
+                                    'sub_name':sb,
+                                    'id':'',
+                                    'link':'',
+                                    'published':False,
+                                    'result':e,
+                                    'comments':0,
+                                    'upvotes':0,
+                                    'upvote_ratio':0,
+                                    'crossposts':0
+                                })
+                            cr.save()
+                        elif content_type.startswith("video/"):
+                            print('submitting video')
+                            try:
+                                submission = subreddit.submit_video(
+                                    title=title,
+                                    video_path=f,
+                                    timeout=30,
+                                    nsfw=nsfw_tag,
+                                    spoiler=spoiler_tag
+
+                                )
+                                print(f"Video post created successfully: {submission.url}")
+                                sub_tr.append({
+                                    'sub_name':sb,
+                                    'id':submission.id,
+                                    'link':submission.url,
+                                    'permalink':f"https://www.reddit.com{submission.permalink}",
+                                    'published':True,
+                                    'result':'Submission was accepted',
+                                    'comments':0,
+                                    'upvotes':0,
+                                    'upvote_ratio':0,
+                                    'crossposts':0
+                                })
+                                default_storage.delete(files[0]['image_path'])
+                            except Exception as e:
+                                sub_tr.append({
+                                    'sub_name':sb,
+                                    'id':'',
+                                    'link':'',
+                                    'published':False,
+                                    'result':e,
+                                    'comments':0,
+                                    'upvotes':0,
+                                    'upvote_ratio':0,
+                                    'crossposts':0
+                                })
+                            cr.save()
+                        else:
+                            sub_tr.append({
+                                    'sub_name':sb,
+                                    'id':'',
+                                    'link':'',
+                                    'published':False,
+                                    'result':'Unable to submit post',
+                                    'comments':0,
+                                    'upvotes':0,
+                                    'upvote_ratio':0,
+                                    'crossposts':0
+                                })
+                            cr.save()
+                            default_storage.delete(files[0]['image_path'])
+                    else:
+                        # # Submit a gallery post
+                        try:
+                            submission = subreddit.submit_gallery(
                                 title=title,
-                                image_path=f,
+                                images=files,
                                 flair_id=default_flair,
                                 timeout=30,
                                 nsfw=nsfw_tag,
                                 spoiler=spoiler_tag
 
                             )
+                            # clear the respective temporary files
                             sub_tr.append({
                                 'sub_name':sb,
                                 'id':submission.id,
                                 'link':submission.url,
+                                'permalink':f"https://www.reddit.com{submission.permalink}",
+                                'published':True,
+                                'result':'Submission was accepted',
                                 'comments':0,
                                 'upvotes':0,
-                                'upvote':0,
                                 'upvote_ratio':0,
                                 'crossposts':0
                             })
-                            default_storage.delete(files[0]['image_path'])
-
-                        elif content_type.startswith("video/"):
-                            print('submitting video')
-                            submission = subreddit.submit_video(
-                                title=title,
-                                video_path=f,
-                                timeout=30,
-                                nsfw=nsfw_tag,
-                                spoiler=spoiler_tag
-
-                            )
-                            print(f"Video post created successfully: {submission.url}")
+                            for f in files:
+                                default_storage.delete(f['image_path'])
+                        except Exception as e:
                             sub_tr.append({
                                 'sub_name':sb,
-                                'id':submission.id,
-                                'link':submission.url,
+                                'id':'',
+                                'link':'',
+                                'published':False,
+                                'result':e,
                                 'comments':0,
                                 'upvotes':0,
-                                'upvote':0,
                                 'upvote_ratio':0,
                                 'crossposts':0
                             })
-                            default_storage.delete(files[0]['image_path'])
-                        else:
-                            default_storage.delete(files[0]['image_path'])
-                    else:
-                        # # Submit a gallery post
-                        submission = subreddit.submit_gallery(
-                            title=title,
-                            images=files,
-                            flair_id=default_flair,
-                            timeout=30,
-                            nsfw=nsfw_tag,
-                            spoiler=spoiler_tag
-
-                        )
-                        # clear the respective temporary files
-                        sub_tr.append({
-                            'sub_name':sb,
-                            'id':submission.id,
-                            'link':submission.url,
-                            'comments':0,
-                            'upvotes':0,
-                            'upvote':0,
-                            'upvote_ratio':0,
-                            'crossposts':0
-                        })
-                        for f in files:
-                            default_storage.delete(f['image_path'])
+                        cr.save()
 
                 else:
                     submission = subreddit.submit(
                         title, 
                         selftext=description,
                         flair_id=default_flair, 
-                        timeout=30,
                         nsfw=nsfw_tag,
                         spoiler=spoiler_tag)
                     sub_tr.append({
                         'sub_name':sb,
                         'id':submission.id,
                         'link':submission.url,
+                        'permalink':f"https://www.reddit.com{submission.permalink}",
+                        'published':True,
+                        'result':'Submission was accepted',
                         'comments':0,
                         'upvotes':0,
                         'upvote':0,
@@ -1255,7 +1601,7 @@ def postReddit(title,description,subs,hasMedia,files,nsfw_tag,spoiler_tag,red_re
         nsfw_tag=nsfw_tag,
         spoiler_flag=spoiler_tag,
         target_subs=subs,
-        subs=sub_tr
+        subs=sub_tr,
     )
     cred.save()
 
@@ -1419,7 +1765,23 @@ def uploadPost(request):
                 
             })
             fbThread.start()
-    # else:
+        if instagramSelected:
+            cig=CompanyInstagram.objects.filter(company=cp).first()
+            igThread=threading.Thread(target=postInstagram,daemon=True,kwargs={
+                'account_id':cig.account_id,
+                'media':gallery_items,
+                'access_token':cig.long_lived_token,
+                'description':description,
+                'has_media':hasMedia,
+                'post_id':post_id,
+                'to_stories':to_ig_stories,
+                'to_post':to_ig_posts,
+                'to_reels':to_ig_reels                
+            })
+            igThread.start()
+    else:
+        # scheduled
+        pass
         # if hasMedia:
         #     for key,file in files.items():
         #         up=UploadedMedia(
@@ -1748,7 +2110,7 @@ def refresh_long_lived_token(current_long_lived_token):
     return new_long_lived_token, expires_in
 
 
-def get_instagram_account_insights(access_token, instagram_account_id):
+def get_instagram_account_insights(access_token, instagram_account_id,**kwargs):
     """
     Retrieves basic data, profile information, and analytics for an Instagram Business account.
 
@@ -1764,7 +2126,6 @@ def get_instagram_account_insights(access_token, instagram_account_id):
 
     response = requests.get(url, params=params)
     data = response.json()
-
     # Check for errors in the response
     if "error" in data:
         raise Exception(f"Error fetching insights: {data['error']['message']}")
@@ -1779,11 +2140,31 @@ def get_instagram_account_insights(access_token, instagram_account_id):
 
     insights_response = requests.get(insights_url, params=insights_params)
     insights_data = insights_response.json()
+    
 
     if "error" in insights_data:
         raise Exception(f"Error fetching insights data: {insights_data['error']['message']}")
 
     # Combine account data and insights for easier access
+    cp_id=kwargs.get('company_id',None)
+    if cp_id:
+        cp=Company.objects.filter(company_id=cp_id).first()
+        if cp:
+            cig=CompanyInstagram.objects.filter(company=cp).first()
+            if cig:
+                tnw=timezone.now()
+                tdiff=tnw-cig.last_update_time
+                if tdiff.total_seconds()>86400:
+                    # cig.followers_trend=[]
+                    # cig.impressions=[]
+                    # cig.reach=[]
+                    cig.last_update_time=timezone.now()
+                    cig.followers_trend.append(data.get("followers_count"))
+                    cig.impressions.append(insights_data["data"][0]["values"][-1]['value'])
+                    cig.reach.append(insights_data["data"][1]["values"][-1]['value'])
+                    # saving fpl 
+                    cig.save()
+
     account_data = {
         "followers_count": data.get("followers_count"),
         "media_count": data.get("media_count"),
@@ -1797,7 +2178,7 @@ def get_instagram_account_insights(access_token, instagram_account_id):
     return account_data
 
 
-def get_facebook_page_insights(access_token, page_id):
+def get_facebook_page_insights(access_token, page_id, **kwargs):
     url = f"https://graph.facebook.com/v21.0/{page_id}"
     params = {
         "fields": "name,username,picture,fan_count",
@@ -1806,26 +2187,65 @@ def get_facebook_page_insights(access_token, page_id):
 
     response = requests.get(url, params=params)
     profile_info = response.json()
-    print('profile info', profile_info)
 
-    url = f"https://graph.facebook.com/v21.0/{page_id}/insights"
-    params = {
-        "metric": "page_impressions,page_engaged_users,page_fans,page_views_total,page_negative_feedback",
-        "access_token": access_token
+    url2 = f"https://graph.facebook.com/v21.0/{page_id}/insights"
+    params2 = {
+        "metric": "page_impressions,page_fans,page_views_total",
+        "access_token": access_token,
+        'period':'day'
     }
 
-    response = requests.get(url, params=params)
+    response = requests.get(url2, params=params2)
     page_insights = response.json()
+    page_impress=0
+    page_fans=0
+    page_vws=0
+    for pg in page_insights.get('data'):
+        pim=pg.get('name')
+        if pim == 'page_impressions':
+            prd=pg.get('period')
+            vll=pg.get('values')[-1].get('value')
+            page_impress=vll
+            
+        if pim == 'page_views_total':
+            vll=pg.get('values')[-1].get('value')
+            page_vws=vll
+            
+        if pim == 'page_fans':
+            vll=pg.get('values')[-1].get('value')
+            page_fans=vll
+    
+    # print(page_insights.get('data').get('page_fans'))
+    vl_id=kwargs.get('company_id',None)
+    if vl_id:
+        cp=Company.objects.filter(company_id=vl_id).first()
+        if cp:
+            cmf=CompanyFacebook.objects.filter(company=cp).first()
+            
+            if cmf:
+                tnw=timezone.now()
+                tdiff=tnw-cmf.last_update_time
+                if tdiff.total_seconds()>86400:
+                # cmf.page_fans=[]
+                # cmf.page_views_total=[]
+                # cmf.impressions=[]
+
+                    cmf.page_fans.append(page_fans)
+                    cmf.page_views_total.append(page_vws)
+                    cmf.impressions.append(page_impress)
+                    cmf.last_update_time=timezone.now()
+                    # cmf.page_fans.append(i for i in page_fans)
+                    # cmf.page_views_total.append(i for i in page_vws)
+                    # cmf.impressions.append(i for i in page_impress)
+                    cmf.save()
     return {
         'page_name': profile_info.get("name"),
         'page_username': profile_info.get("username"),
         'fan_count': profile_info.get("username"),
         'p_picture': profile_info.get("picture", {}).get("data", {}).get("url"),
-        'page_impressions': page_insights.get('page_impressions'),
-        'page_engaged_users': page_insights.get('page_engaged_users'),
-        'page_fans': page_insights.get('page_fans'),
-        'page_views_total': page_insights.get('page_fans'),
-        'page_negative_feedback': page_insights.get('page_negative_feedback')
+        'page_impressions': page_impress,
+        'page_fans': page_fans,
+        'page_views_total': page_vws,
     }
 
 
@@ -1872,8 +2292,6 @@ def facebook_callback(request):
     page = pages_data['data'][0]
     page_id = page.get('id')
     page_access_token = page.get('access_token')
-
-    
     if cf:
         cf.short_lived_token = access_token
         cf.account_id = pg_id
@@ -1886,9 +2304,7 @@ def facebook_callback(request):
         cf.profile_url = insgts['p_picture']
         cf.followers_trend.append(insgts['fan_count'])
         cf.impressions.append(insgts['page_impressions'])
-        cf.page_negative_feedback.append(insgts['page_negative_feedback'])
         cf.profile_views.append(insgts['page_views_total'])
-        cf.page_engaged_users.append(insgts['page_engaged_users'])
         cf.page_fans.append(insgts['page_fans'])
         cf.save()
     else:

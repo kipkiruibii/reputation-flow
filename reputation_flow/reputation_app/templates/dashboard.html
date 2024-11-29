@@ -1787,9 +1787,15 @@
                     </div>
 
                     <div>
+                        {% if company_subs.free_trial_expired %}
+                        <p style="font-size:12px">Your free trial has ended. Upgrade now to continue using Insightlyze.
+                        </p>
+
+                        {% else %}
                         <p style="font-size:12px">Free trial <strong>ends in {{ company_subs.free_trial_expiry }}
                                 days</strong>
                         </p>
+                        {% endif %}
                     </div>
                     {% endif %}
                     <hr>
@@ -1840,10 +1846,10 @@
                     </div>
 
                 </div>
-                <div style="display:block">
-                    <div class="company-account-info">
-                        <div class="" id="feature-request-placeholder"
-                            style="width:90%;align-items:center;margin-left:2%;margin-right:2%;margin-top:20px;text-align:center">
+                <div style="display:block;">
+
+                    <div class="company-account-info container-right">
+                        <div id="feature-request-placeholder">
                             <div style="display:flex;justify-content:space-between;">
                                 <div class="section-fun-fact">
                                     <p>Help Us Improve – Suggest a Feature or Report an Issue!️</p>
@@ -4222,12 +4228,6 @@
                             <label for="post-textarea">
                                 <div style="display: flex;gap: 10px;height: 25px;">
                                     <strong>Title</strong>
-                                    <img src="{% static 'images/facebook_logo.png' %}" alt=""
-                                        style="width: 15px;height: 15px;margin: auto;"
-                                        class="target_facebook unselectedPlatform">
-                                    <img src="{% static 'images/instagram_logo.png' %}" alt=""
-                                        style="width: 15px;height: 15px;margin: auto;"
-                                        class="target_instagram unselectedPlatform">
                                     <img src="{% static 'images/reddit_logo.png' %}" alt=""
                                         style="width: 15px;height: 15px;margin: auto;"
                                         class="target_reddit unselectedPlatform">
@@ -4294,6 +4294,8 @@
                             <input class=" input-decor" placeholder="Pick time and date"
                                 style="border: 1px solid #ced4da;border-radius:4px;width:100%;box-sizing: border-box;background-color: white;display: none;"
                                 id="datePicker" required>
+                            <p class="font-12" style="display: none;" id="sch-desc">(Schedule at least 15 minutes from
+                                now)</p>
                         </div>
                         <div class="form-group target_tiktok unselectedPlatform">
                             <hr>
@@ -4402,7 +4404,8 @@
                                     <label for="ig_copyright">Run copyright check before publishing</label>
 
                                     <div class="form-check form-switch" style="margin-left: 20px;">
-                                        <input class="form-check-input" type="checkbox" id="ig_copyright" checked>
+                                        <input class="form-check-input" type="checkbox" id="ig_copyright" checked
+                                            disabled>
                                     </div>
                                 </div>
                                 <div style="margin-top: 15px;">
@@ -4412,13 +4415,13 @@
                                         style="border: 1px solid #ced4da;border-radius:4px;width: 100%;box-sizing: border-box;background-color: white;font-size: 15px;padding-left:15px;margin-top: 10px;"
                                         required>
                                 </div>
-                                <div style="margin-top: 15px;">
+                                <!-- <div style="margin-top: 15px;">
                                     <strong>Product Tags</strong>
                                     <input type="text" class="form-control-input" placeholder="Product tags "
                                         id="ig_product_tags"
                                         style="border: 1px solid #ced4da;border-radius:4px;width: 100%;box-sizing: border-box;background-color: white;font-size: 15px;padding-left:15px;margin-top: 10px;"
                                         required>
-                                </div>
+                                </div> -->
                                 <div style="margin-top: 15px;">
                                     <strong>Location Tags</strong>
                                     <input type="text" class="form-control-input" placeholder="Location tags "
@@ -4463,7 +4466,8 @@
                                     <label for="fb_copyright">Run copyright check before publishing</label>
 
                                     <div class="form-check form-switch" style="margin-left: 20px;">
-                                        <input class="form-check-input" type="checkbox" id="fb_copyright" checked>
+                                        <input class="form-check-input" type="checkbox" id="fb_copyright" checked
+                                            disabled>
                                     </div>
                                 </div>
 
@@ -4819,9 +4823,8 @@
                                 <div style="display: flex;gap:2px;" class="action-bar">
                                     <div style="width:80%;padding: 10px;" class="grandparent">
                                         <span style="font-size: 18px;padding: 10px;">
-                                            <strong>{{ p.title }}</strong></span>
-                                        <img src="https://images.ctfassets.net/az3stxsro5h5/NjZUwfga63k7mTZCeKhvH/2cbcc7fa1e907b0a9d37155077c253f8/Nov1-What_to_Post_on_Instagram_When_You_re_Fresh_Out_of_Ideas-Newsletter-Feature-FL"
-                                            alt=""
+                                            <strong>{{ p.title }} </strong></span>
+                                        <img src="{{ p.cover_image_link }}" alt=""
                                             style="height: 300px;width: 100%;margin-bottom: 20px;border-radius: 5px;">
 
                                         <p style="max-height: 200px;overflow-y: scroll;">{{ p.content }}
@@ -4841,11 +4844,11 @@
                                                 <p class="impression-container" style="cursor: pointer;"
                                                     id="{{p.post_id}}" tooltip="Click to see impression distribution"><i
                                                         class="fa fa fa-bar-chart" flow="down"></i> <span
-                                                        style="font-size: 12px;">211.8k</span></p>
+                                                        style="font-size: 12px;">{{ p.engagement_count }}</span></p>
                                                 <p class="comments-container" style="cursor: pointer;"
                                                     tooltip="Click to see comments" flow="down"><i
                                                         class="fa fa fa-comments-o"></i> <span
-                                                        style="font-size: 12px;">300</span>
+                                                        style="font-size: 12px;">{{ p.comment_count }}</span>
                                                 </p>
                                                 <p><i class="fa fa fa-calendar"></i>
                                                     <span style="font-size: 12px;">{{ p.date_uploaded }}</span>
@@ -4865,7 +4868,7 @@
                                                 {% else %}
                                                 <p
                                                     style="font-size: 12px;padding: 0;margin: 0;background-color: rgb(216, 251, 232);color: rgb(21, 164, 97);width: 80px;border-radius: 5px;padding-left: 5px;padding-right: 10px;align-items: center;margin-bottom: 10px;">
-                                                    <i class="fa fa-check" aria-hidden="true"></i> Uploaded
+                                                    <i class="fa fa-check" aria-hidden="true"></i> Published
                                                 </p>
 
                                                 {% endif %}
@@ -5182,72 +5185,364 @@
 
                         {% else %}
                         <!-- non media post -->
-                        <div
-                            style="width: 100%;display: flex;justify-content: center;margin-top: 10px;margin-bottom: 10px;">
+                        <div class="content-container"
+                            style="width: 100%;display: flex;justify-content: center;margin-top: 10px;margin-bottom: 20px;">
                             <div
-                                style="display: flex;gap:2px;border: 1px solid rgb(209, 209, 209);border-radius: 10px;box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1), 0px 2px 4px rgba(0, 0, 0, 0.06);width: 90%;">
-                                <div
-                                    style="width:60%;padding: 20px;display: flex;flex-direction: column;justify-content: space-between;">
-                                    <span style="font-size: 18px;"><strong>{{ p.title }}</strong></span>
-
-                                    <p class=".p-small" style="max-height: 300px;overflow-y: scroll;">{{ p.content }}
-                                    </p>
-                                    <div>
-                                        <hr>
-                                        {% if p.is_scheduled %}
-                                        <div style="display:flex;justify-content: center;">
-                                            <p class="font-12">This post will be published on
-                                                <strong>{{ p.date_scheduled }}</strong>
-                                            </p>
-                                        </div>
-                                        {% else %}
-                                        <div
-                                            style="display: flex;justify-content: space-between;font-size: 12px;width: 80%;gap: 10px">
-                                            <p><i class="fa fa fa-bar-chart"></i> <span
-                                                    style="font-size: 12px;">211.8k</span>
-                                            </p>
-                                            <p class="comments-container" style="cursor: pointer;"><i
-                                                    class="fa fa fa-comments-o"></i> <span
-                                                    style="font-size: 12px;">300</span>
-                                            </p>
-                                            <p><i class="fa fa fa-thumbs-up"></i> <span
-                                                    style="font-size: 12px;">155</span>
-                                            </p>
-                                            <p><i class="fa fa fa-calendar"></i>
-                                                <span style="font-size: 12px;">{{p.date_uploaded }}</span>
-                                            </p>
-                                        </div>
-                                        {% endif %}
-
-                                    </div>
-                                </div>
-                                <div style="width: 40%;">
-                                    <p
-                                        style="font-size: 12px;padding: 0;margin: 0;background-color: rgb(216, 251, 232);color: rgb(21, 164, 97);width: 80px;border-radius: 5px;padding-left: 5px;padding-right: 10px;align-items: center;margin-bottom: 10px;margin-top: 10px;">
-                                        <i class="fa fa-check" aria-hidden="true"></i> Uploaded
-                                    </p>
-
-                                    <div style="display: flex;gap: 5px;flex-wrap: wrap;padding: 10px;">
-                                        {% for t in p.tags %}
-                                        <p>#{{t}}</p>
-                                        {% endfor %}
-                                    </div>
-
-                                    <div style="display: flex;gap: 5px;flex-wrap: wrap;padding: 2px;">
-                                        {% for pl in p.platforms %}
+                                style="width: 90%;border: 1px solid rgb(209, 209, 209);border-radius: 10px;box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1), 0px 2px 4px rgba(0, 0, 0, 0.06);">
+                                <div style="display: flex;gap:2px;" class="action-bar">
+                                    <div style="width:80%;padding: 10px;" class="grandparent">
+                                        <span style="font-size: 18px;padding: 10px;margin-bottom: 20px;">
+                                            <strong>{{ p.title }} </strong></span>
+                                        <p style="max-height: 200px;overflow-y: scroll;">{{ p.content }}
+                                        </p>
                                         <div>
-                                            <p
-                                                style="background-color: #f5f5f5;padding-left:5px;padding-right: 5px;font-size: 12px;border-radius: 5px;">
-                                                {{ pl }}
-                                            </p>
+                                            <hr>
+                                            {% if p.is_scheduled %}
+                                            <div style="display:flex;justify-content: center;">
+                                                <p class="font-12">This post will be published on
+                                                    <strong>{{ p.date_scheduled }}</strong>
+                                                </p>
+                                            </div>
+                                            {% else %}
+                                            <div class="thisparent"
+                                                style="display: flex;justify-content: space-between;font-size: 12px;width: 80%;gap: 10px">
+                                                <p class="impression-container" style="cursor: pointer;"
+                                                    id="{{p.post_id}}" tooltip="Click to see impression distribution"><i
+                                                        class="fa fa fa-bar-chart" flow="down"></i> <span
+                                                        style="font-size: 12px;">{{ p.engagement_count }}</span></p>
+                                                <p class="comments-container" style="cursor: pointer;"
+                                                    tooltip="Click to see comments" flow="down"><i
+                                                        class="fa fa fa-comments-o"></i> <span
+                                                        style="font-size: 12px;">{{ p.comment_count }}</span>
+                                                </p>
+                                                <p><i class="fa fa fa-calendar"></i>
+                                                    <span style="font-size: 12px;">{{ p.date_uploaded }}</span>
+                                                </p>
+                                            </div>
+                                            {% endif %}
                                         </div>
-                                        {% endfor %}
+                                    </div>
+                                    <div style="width: 40%;padding-top: 20px;padding-bottom: 20px;">
+                                        <div style="display: flex;justify-content: space-between;padding: 10px;">
+                                            <div>
+                                                {% if p.is_scheduled %}
+                                                <p
+                                                    style="font-size: 12px;padding: 0;margin: 0;background-color: rgb(216, 230, 251);color: rgb(21, 121, 164);width: 80px;border-radius: 5px;padding-left: 5px;padding-right: 10px;align-items: center;margin-bottom: 10px;">
+                                                    <i class="fa fa-clock" aria-hidden="true"></i> Scheduled
+                                                </p>
+                                                {% else %}
+                                                <p
+                                                    style="font-size: 12px;padding: 0;margin: 0;background-color: rgb(216, 251, 232);color: rgb(21, 164, 97);width: 80px;border-radius: 5px;padding-left: 5px;padding-right: 10px;align-items: center;margin-bottom: 10px;">
+                                                    <i class="fa fa-check" aria-hidden="true"></i> Published
+                                                </p>
+
+                                                {% endif %}
+                                            </div>
+                                            <p style="padding-right: 12px;cursor: pointer;"
+                                                tooltip="Permanently delete post from all channels" flow="down"><i
+                                                    class="fa fa-trash"></i></p>
+                                        </div>
+                                        <div style="display: flex;gap: 5px;flex-wrap: wrap;padding: 0;">
+                                            {% for pl in p.platforms %}
+                                            <div>
+                                                <p
+                                                    style="background-color: #f5f5f5;padding-left:5px;padding-right: 5px;font-size: 12px;border-radius: 5px;">
+                                                    {{ pl }}
+                                                </p>
+                                            </div>
+                                            {% endfor %}
+                                        </div>
+                                        <hr>
+                                        <p>#Tags</p>
+                                        <div
+                                            style="display: flex;gap: 5px;flex-wrap: wrap;padding-top: 0px;padding-bottom:10px;">
+                                            {% for t in p.tags %}
+                                            <p>{{ p }}</p>
+
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+
+                                </div>
+                                <!-- sub elements post info -->
+
+                                <div class="post-comment-box" style="padding: 10px; display: none;">
+                                    <hr>
+                                    <p>Comments</p>
+                                    <div
+                                        style="margin-left: 20px;border-radius: 10px;border: 1px solid rgb(219, 219, 219);padding: 10px;margin-bottom: 10px;">
+                                        <div class="d-flex flex-start align-items-center">
+                                            <img class="rounded-circle shadow-1-strong me-3"
+                                                src="https://mdbcdn.b-cdn.net/img/Photos/Avatars/img%20(19).webp"
+                                                alt="avatar" width="60" height="60" />
+                                            <div>
+                                                <h6 class="fw-bold text-primary mb-1">Lily
+                                                    Coleman</h6>
+                                                <p class="text-muted small mb-0">
+                                                    Shared publicly - Jan 2020
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <p class="mt-3 mb-4 pb-2">
+                                            Lorem ipsum dolor sit amet, consectetur
+                                            adipiscing elit, sed do eiusmod
+                                            tempor incididunt ut labore et dolore magna
+                                            aliqua. Ut enim ad minim veniam,
+                                            quis nostrud exercitation ullamco laboris nisi
+                                            ut aliquip consequat.
+                                        </p>
+                                        <div class="thisparent"
+                                            style="display: flex;justify-content: space-between;font-size: 12px;width: 80%;gap: 10px">
+
+                                            <div>
+                                                <p
+                                                    style="font-size: 12px;padding: 0;margin: 0;background-color: rgb(251, 216, 243);color: rgb(164, 21, 154);border-radius: 5px;padding-left: 5px;padding-right: 10px;align-items: center;margin-bottom: 10px;">
+                                                    <i class="fa fa-instagram" aria-hidden="true"></i> Instagram
+                                                </p>
+                                            </div>
+                                            <p class="comments-reply-container" style="cursor: pointer;font-size: 12px;"
+                                                tooltip="Replies" flow="down">Replies(34)</span>
+                                            </p>
+                                            <p class="comment-likes-container" style="cursor: pointer;" tooltip="Likes"
+                                                flow="down"><i class="fa fa fa-heart-o"></i>
+                                                <span style="font-size: 12px;">155</span>
+                                            </p>
+                                            <p><i class="fa fa fa-star"></i> <span style="font-size: 12px;">Add to
+                                                    review wall</span></p>
+                                        </div>
+                                        <div class="comment-reply-container-box" style="display: none;">
+                                            <div class="comment-post-box">
+                                                <div data-mdb-input-init class="form-outline" style="width: 90%;">
+                                                    <textarea class="form-control" id="textAreaExample" rows="4"
+                                                        style="background: #fff;"
+                                                        placeholder="Type your response"></textarea>
+                                                    <button type="button" data-mdb-button-init data-mdb-ripple-init
+                                                        class="btn btn-primary btn-sm" style="margin: 10px;">Post
+                                                        comment</button>
+                                                </div>
+                                            </div>
+                                            <!-- replies -->
+                                            <div
+                                                style="margin-left: 20px;border-radius: 10px;border: 1px solid rgb(219, 219, 219);padding: 10px;margin-bottom: 10px;">
+                                                <div class="d-flex flex-start align-items-center">
+                                                    <img class="rounded-circle shadow-1-strong me-3"
+                                                        src="https://mdbcdn.b-cdn.net/img/Photos/Avatars/img%20(19).webp"
+                                                        alt="avatar" width="60" height="60" />
+                                                    <div>
+                                                        <h6 class="fw-bold text-primary mb-1">Lily
+                                                            Coleman</h6>
+                                                        <p class="text-muted small mb-0">
+                                                            Shared publicly - Jan 2020
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                                <p class="mt-3 mb-4 pb-2">
+                                                    Lorem ipsum dolor sit amet, consectetur
+                                                    adipiscing elit, sed do eiusmod
+                                                    tempor incididunt ut labore et dolore magna
+                                                    aliqua. Ut enim ad minim veniam,
+                                                    quis nostrud exercitation ullamco laboris nisi
+                                                    ut aliquip consequat.
+                                                </p>
+
+                                                <div class="thisparent"
+                                                    style="display: flex;gap:4px;font-size: 12px;width: 80%;gap: 10px">
+
+                                                    <p class="second-reply-comment"
+                                                        style="cursor: pointer;font-size: 12px;" tooltip="Replies"
+                                                        flow="down">Reply</span>
+                                                    </p>
+                                                    <p class="second-likes-comment" style="cursor: pointer;"
+                                                        tooltip="Likes" flow="down"><i class="fa fa fa-heart-o"></i>
+                                                        <span style="font-size: 12px;">155</span>
+                                                    </p>
+                                                </div>
+
+                                                <div class="second-replies-comment" style="display: none;">
+                                                    <div class="comment-reply-box">
+                                                        <div data-mdb-input-init class="form-outline"
+                                                            style="width: 90%;">
+                                                            <textarea class="form-control" id="textAreaExample" rows="4"
+                                                                style="background: #fff;"
+                                                                placeholder="Type your response"></textarea>
+                                                            <button type="button" data-mdb-button-init
+                                                                data-mdb-ripple-init class="btn btn-primary btn-sm"
+                                                                style="margin: 10px;">Post
+                                                                comment</button>
+                                                        </div>
+                                                    </div>
+                                                    <div
+                                                        style="margin-left: 20px;border-radius: 10px;border: 1px solid rgb(219, 219, 219);padding: 10px;margin-bottom: 10px;">
+                                                        <div class="d-flex flex-start align-items-center">
+                                                            <img class="rounded-circle shadow-1-strong me-3"
+                                                                src="https://mdbcdn.b-cdn.net/img/Photos/Avatars/img%20(19).webp"
+                                                                alt="avatar" width="60" height="60" />
+                                                            <div>
+                                                                <h6 class="fw-bold text-primary mb-1">Lily
+                                                                    Coleman</h6>
+                                                                <p class="text-muted small mb-0">
+                                                                    Shared publicly - Jan 2020
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                        <p class="mt-3 mb-4 pb-2">
+                                                            Lorem ipsum dolor sit amet, consectetur
+                                                            adipiscing elit, sed do eiusmod
+                                                            tempor incididunt ut labore et dolore magna
+                                                            aliqua. Ut enim ad minim veniam,
+                                                            quis nostrud exercitation ullamco laboris nisi
+                                                            ut aliquip consequat.
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div
+                                                style="margin-left: 20px;border-radius: 10px;border: 1px solid rgb(219, 219, 219);padding: 10px;margin-bottom: 10px;">
+                                                <div class="d-flex flex-start align-items-center">
+                                                    <img class="rounded-circle shadow-1-strong me-3"
+                                                        src="https://mdbcdn.b-cdn.net/img/Photos/Avatars/img%20(19).webp"
+                                                        alt="avatar" width="60" height="60" />
+                                                    <div>
+                                                        <h6 class="fw-bold text-primary mb-1">Lily
+                                                            Coleman</h6>
+                                                        <p class="text-muted small mb-0">
+                                                            Shared publicly - Jan 2020
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                                <p class="mt-3 mb-4 pb-2">
+                                                    Lorem ipsum dolor sit amet, consectetur
+                                                    adipiscing elit, sed do eiusmod
+                                                    tempor incididunt ut labore et dolore magna
+                                                    aliqua. Ut enim ad minim veniam,
+                                                    quis nostrud exercitation ullamco laboris nisi
+                                                    ut aliquip consequat.
+                                                </p>
+
+                                                <div class="thisparent"
+                                                    style="display: flex;gap:4px;font-size: 12px;width: 80%;gap: 10px">
+
+                                                    <p class="second-reply-comment"
+                                                        style="cursor: pointer;font-size: 12px;" tooltip="Replies"
+                                                        flow="down">Reply</span>
+                                                    </p>
+                                                    <p class="second-likes-comment" style="cursor: pointer;"
+                                                        tooltip="Likes" flow="down"><i class="fa fa fa-heart-o"></i>
+                                                        <span style="font-size: 12px;">155</span>
+                                                    </p>
+                                                </div>
+
+                                                <div class="second-replies-comment" style="display: none;">
+                                                    <div class="comment-reply-box">
+                                                        <div data-mdb-input-init class="form-outline"
+                                                            style="width: 90%;">
+                                                            <textarea class="form-control" id="textAreaExample" rows="4"
+                                                                style="background: #fff;"
+                                                                placeholder="Type your response"></textarea>
+                                                            <button type="button" data-mdb-button-init
+                                                                data-mdb-ripple-init class="btn btn-primary btn-sm"
+                                                                style="margin: 10px;">Post
+                                                                comment</button>
+                                                        </div>
+                                                    </div>
+                                                    <div
+                                                        style="margin-left: 20px;border-radius: 10px;border: 1px solid rgb(219, 219, 219);padding: 10px;margin-bottom: 10px;">
+                                                        <div class="d-flex flex-start align-items-center">
+                                                            <img class="rounded-circle shadow-1-strong me-3"
+                                                                src="https://mdbcdn.b-cdn.net/img/Photos/Avatars/img%20(19).webp"
+                                                                alt="avatar" width="60" height="60" />
+                                                            <div>
+                                                                <h6 class="fw-bold text-primary mb-1">Lily
+                                                                    Coleman</h6>
+                                                                <p class="text-muted small mb-0">
+                                                                    Shared publicly - Jan 2020
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                        <p class="mt-3 mb-4 pb-2">
+                                                            Lorem ipsum dolor sit amet, consectetur
+                                                            adipiscing elit, sed do eiusmod
+                                                            tempor incididunt ut labore et dolore magna
+                                                            aliqua. Ut enim ad minim veniam,
+                                                            quis nostrud exercitation ullamco laboris nisi
+                                                            ut aliquip consequat.
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                                <!-- impression analytics -->
+                                <div class="impression-analysis" style="display: none;">
+                                    <div class="card draggable">
+                                        <div class="card-body p-3" style="display:flex;justify-content: space-between;">
+                                            <div class="card mb-4 z-index-2 draggable">
+                                                <div class="card-header pb-0">
+                                                    <h6 class="mb-1 title-box">Impression Distribution </h6>
+                                                </div>
+                                                <div class="card-body card-body px-3 pt-lg-6 pb-lg-5">
+                                                    <div class="row h-100">
+                                                        <div
+                                                            class="col-lg-5 my-auto text-center d-lg-block d-flex justify-content-center">
+                                                            <div id="chart-pie-{{p.post_id}}" class="chart-pie">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div>
+
+                                                <div class="container border-radius-lg">
+                                                    <div style="display: none;">
+                                                        <div>
+                                                            <div class="d-flex mb-2">
+                                                                <p class="text-xs mt-1 mb-0 font-weight-bold"
+                                                                    style="cursor: default;"
+                                                                    tooltip="Number of times your content was displayed"
+                                                                    flow="up">
+                                                                    Impressions</p>
+                                                            </div>
+                                                            <div class="d-flex" style="gap: 10px;">
+                                                                <h5 class="font-weight-bolder">36K</h5>
+                                                                <div id="impression-chart-{{p.post_id}}"></div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    {% if p.has_reddit %}
+                                                    <div>
+                                                        <div class="d-flex mb-2">
+                                                            <p class="text-xs mt-1 mb-0 font-weight-bold"
+                                                                class="tooltip" style="cursor: default;"
+                                                                tooltip="likes, views (for videos), comments, saves, shares ,"
+                                                                flow="up">
+                                                                <img src="{% static 'images/reddit_logo.png '%}" alt=""
+                                                                    style="width:20px;height: 20px;">
+                                                                Reddit Engagement
+                                                            </p>
+
+                                                        </div>
+                                                        <div class="d-flex" style="gap: 10px;margin-left: 20px;">
+                                                            <p>Upvote Ratio:</p>
+                                                            <h5 class="font-weight-bolder" id="rte-{{p.post_id}}">36K
+                                                            </h5>
+                                                        </div>
+                                                        <div id="reddit-engagement-chart-{{p.post_id}}"></div>
+
+                                                    </div>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
-
                             </div>
+
                         </div>
 
+    
                         {% endif %}
                         {% endfor %}
                         {% endif %}
@@ -6329,7 +6624,6 @@
 
                             } else {
                                 // update charts
-
                                 // reddit engagement
                                 if (response['has_reddit']) {
                                     $(`#rte-${post_id}`).text(response['reddit_total_engagement']);
@@ -6761,6 +7055,18 @@
 
 
                 });
+                // ----------------------------------SUBMIT REQUEST----------------------------
+                // $(document).on('click', '#request-btn', function () {
+                //     alert('clicked req');
+                //     $('#request-form').css('display', 'flex');
+
+                //     $('#requests-section').css('display', 'none');
+                // });
+                // $(document).on('click', '#cancel-request-btn', function () {
+                //     $('#request-form').css('display', 'none');
+                //     $('#requests-section').css('display', 'flex');
+                // });
+
 
 
                 // -----------------------------CREATE POST-------------------------------------
@@ -6781,7 +7087,7 @@
                     var fbSelected = $('#facebook_platform').prop('checked');
                     var igSelected = $('#instagram_platform').prop('checked');
                     var rdSelected = $('#reddit_platform').prop('checked');
-                    if (fbSelected || igSelected || rdSelected) {
+                    if (rdSelected) {
                         $('#title-set-up').css('display', 'block');
                     } else {
                         $('#title-set-up').css('display', 'none');
@@ -6809,6 +7115,7 @@
                         // Instagram
                         if ($('#instagram_platform').prop('checked')) {
                             // selected
+                            $('#non_media_post').css('display', 'none');
                             $('.target_instagram').each(function () { $(this).removeClass('unselectedPlatform') });
                         } else {
                             //  unselected
@@ -6828,7 +7135,7 @@
                             //titkok selected check the creator info
                             $('.target_tiktok').each(function () { $(this).removeClass('unselectedPlatform') });
                             $('#non_media_post').css('display', 'none')
-                            $('#wait-upload-spinner').css('display','flex');
+                            $('#wait-upload-spinner').css('display', 'flex');
                             // grab creator info data from the server
                             var formData = new FormData();
                             // Append other input fields to FormData
@@ -6848,7 +7155,7 @@
                                     if (response['error']) {
                                         success = false;
                                         toastr.error(response['error']);
-                                        $('#wait-upload-spinner').css('display','none');
+                                        $('#wait-upload-spinner').css('display', 'none');
 
                                     } else {
                                         $('#max-tiktok-duration').text(response['max_video_post_duration_sec']);
@@ -6862,7 +7169,7 @@
                                         $('#step2').removeClass('upcoming');
                                         $('#step2').addClass('current');
                                         $('#upload_content_view').css('display', 'block');
-                                        $('#wait-upload-spinner').css('display','none');
+                                        $('#wait-upload-spinner').css('display', 'none');
 
                                     }
                                 },
@@ -6870,7 +7177,7 @@
                                     success = false;
                                     toastr.error('Failed to submit form.');
                                     console.error(textStatus, errorThrown);
-                                    $('#wait-upload-spinner').css('display','none');
+                                    $('#wait-upload-spinner').css('display', 'none');
 
                                 }
                             });
@@ -6878,7 +7185,6 @@
                         } else {
                             // tiktok unselected
                             $('.target_tiktok').each(function () { $(this).addClass('unselectedPlatform') });
-                            $('#non_media_post').css('display', 'flex')
                             $('#platform_select').css('display', 'none');
                             $('#step1').removeClass('current');
                             $('#step1').addClass('completed');
@@ -6886,8 +7192,11 @@
                             $('#step2').addClass('current');
                             $('#upload_content_view').css('display', 'block');
                         }
-
-
+                        var igSelected = $('#instagram_platform').prop('checked');
+                        var tkSelected = $('#tiktok_platform').prop('checked');
+                        if (!igSelected && !tkSelected) {
+                            $('#non_media_post').css('display', 'flex');
+                        }
                         return;
                     };
                 });
@@ -6985,7 +7294,7 @@
                     var fbSelected = $('#facebook_platform').prop('checked');
                     var igSelected = $('#instagram_platform').prop('checked');
                     var rdSelected = $('#reddit_platform').prop('checked');
-                    if (fbSelected || igSelected || rdSelected) {
+                    if (rdSelected) {
                         if (!descript || !title) {
                             if (!$('#submit_post').hasClass('post-btn-proceed-disabled')) {
                                 $('#submit_post').addClass('post-btn-proceed-disabled');
@@ -7023,7 +7332,7 @@
                     var fbSelected = $('#facebook_platform').prop('checked');
                     var igSelected = $('#instagram_platform').prop('checked');
                     var rdSelected = $('#reddit_platform').prop('checked');
-                    if (fbSelected || igSelected || rdSelected) {
+                    if (rdSelected) {
                         if (!descript || !title) { return; }
                     } else {
                         if (!descript) { return; }
@@ -7225,6 +7534,7 @@
                     $('#now-post').css('color', 'grey');
                     $('#schedule_switch').prop('checked', true);
                     $('#datePicker').css('display', 'block');
+                    $('#sch-desc').css('display', 'block');
                 });
                 //post now
                 $(document).on('click', '#now-post', function () {
@@ -7232,6 +7542,7 @@
                     $('#now-post').css('color', 'black');
                     $('#schedule_switch').prop('checked', false);
                     $('#datePicker').css('display', 'none');
+                    $('#sch-desc').css('display', 'none');
                 });
                 // prop check
                 $(document).on('click', '#schedule_switch', function () {
@@ -7239,12 +7550,12 @@
                         $('#schedule-post').css('color', 'black');
                         $('#now-post').css('color', 'grey');
                         $('#datePicker').css('display', 'block');
-
+                        $('#sch-desc').css('display', 'block');
                     } else {
                         $('#schedule-post').css('color', 'grey');
                         $('#now-post').css('color', 'black');
                         $('#datePicker').css('display', 'none');
-
+                        $('#sch-desc').css('display', 'none');
                     }
                 });
                 // fb_stories
@@ -7402,7 +7713,7 @@
                             var instagramSelected = $('#instagram_platform').prop('checked');
                             var redditSelected = $('#reddit_platform').prop('checked');
                             if (tiktokSelected) {
-                                var maxD=$('#max-tiktok-duration').text();
+                                var maxD = $('#max-tiktok-duration').text();
                                 //check maximum video
                                 if (videoDuration > maxD) {
                                     toastr.error(`Video duration exceeds Tiktoks maximum allowed duration of 60 seconds (1 minute).`);
@@ -7501,11 +7812,13 @@
 
                     // Check if the file is an image or video
                     if (!fileType.startsWith("image/") && !fileType.startsWith("video/")) {
+                        $('input[type="text"], input[type="email"],input[type="file"],   textarea').val('');
                         errorStatement += "File format not supported";
                     }
 
                     //verification de la qualit
                     else if ((ImageHeight < minImageHeight) && (ImageWidth > minImageWidth)) {
+                        $('input[type="text"], input[type="email"],input[type="file"],   textarea').val('');
                         errorStatement += "Resolution too low";
 
                         //verifier le poids de toutes les images
@@ -7518,6 +7831,7 @@
                 }
 
                 if (errorStatement != "") {
+                    $('input[type="text"], input[type="email"],input[type="file"],   textarea').val('');
                     toastr.error(errorStatement);
 
                 }
@@ -7565,6 +7879,9 @@
                                 var iml = $('#preview').children().length;
                                 if (iml == 0) {
                                     if (!$('#tiktok_platform').prop('checked')) {
+                                        $('#non_media_post').css('display', 'flex');
+                                    }
+                                    if (!$('#instagram_platform').prop('checked')) {
                                         $('#non_media_post').css('display', 'flex');
                                     }
                                     $('#to_set_up_content').addClass('post-btn-proceed-disabled');

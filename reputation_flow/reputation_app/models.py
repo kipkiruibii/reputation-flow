@@ -175,10 +175,8 @@ class CompanyFacebook(models.Model):
     impressions=models.JSONField(default=list)
     profile_views=models.JSONField(default=list)
     reach=models.JSONField(default=list)
-    page_engaged_users=models.JSONField(default=list)
     page_fans=models.JSONField(default=list)
     page_views_total=models.JSONField(default=list)
-    page_negative_feedback=models.JSONField(default=list)
     last_update_time=models.DateTimeField(default=timezone.now)
     date_linked= models.DateTimeField(default=timezone.now)
 
@@ -276,6 +274,7 @@ class CompanyFacebookPosts(models.Model):
     location_tags=models.TextField(default='')
     product_tags=models.TextField(default='')
     post_link=models.TextField(default='')
+    content_id=models.TextField(default='')
     
     def __str__(self):
         return self.post_id
