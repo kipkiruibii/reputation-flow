@@ -287,6 +287,7 @@ class CompanyRedditPosts(models.Model):
     subs = models.JSONField(default=dict)# [{'sub_name':str,'id':str,'link':str,'comments':int,'upvotes':int,'upvote_ratio':int,'crossposts':int}]
     target_subs=models.JSONField(default=list)
     post_link=models.TextField(default='')
+    
     agg_engagement_count = models.IntegerField(default=0)
     
     def __str__(self):
@@ -329,7 +330,32 @@ class CompanyRedditSubs(models.Model):
 
 class CompanyPostsComments(models.Model):
     post=models.ForeignKey(CompanyPosts,on_delete=models.CASCADE)
+    comment_id=models.CharField(max_length=255,null=True,blank=True)
+    platform=models.CharField(max_length=255,null=True,blank=True)
+    author=models.CharField(max_length=255,null=True,blank=True)
+    author_profile=models.TextField(default='',null=True,blank=True)
+    message=models.TextField(default='',null=True,blank=True)
+    is_op=models.BooleanField(default=False,null=True,blank=True)
+    like_count=models.IntegerField(default=0,null=True,blank=True)
+    reply_count=models.IntegerField(default=0,null=True,blank=True)
+    is_published=models.BooleanField(default=False,null=True,blank=True)
+    date_updated=models.DateTimeField(default=timezone.now)
+    def __str__(self):
+        return self.comment_id
     
+class CompanyPostsCommentsReplies(models.Model):
+    parent_comment_id=models.CharField(max_length=255,null=True,blank=True)
+    comment_id=models.CharField(max_length=255,null=True,blank=True)
+    author=models.CharField(max_length=255,null=True,blank=True)
+    author_profile=models.TextField(default='',null=True,blank=True)
+    message=models.TextField(default='',null=True,blank=True)
+    is_op=models.BooleanField(default=False,null=True,blank=True)
+    like_count=models.IntegerField(default=0,null=True,blank=True)
+    reply_count=models.IntegerField(default=0,null=True,blank=True)
+    is_published=models.BooleanField(default=False,null=True,blank=True)
+    date_updated=models.DateTimeField(default=timezone.now)
+    def __str__(self):
+        return f'{self.comment_id} - REPLY TO {self.parent_comment_id}'
 
 class UploadedMedia(models.Model):
     post=models.ForeignKey(CompanyPosts,on_delete=models.CASCADE)

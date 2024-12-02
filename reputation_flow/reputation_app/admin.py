@@ -22,6 +22,7 @@ admin.site.register(CompanyReddit)
 # posts
 admin.site.register(CompanyPosts)
 admin.site.register(CompanyPostsComments)
+admin.site.register(CompanyPostsCommentsReplies)
 admin.site.register(CompanyRedditPosts)
 admin.site.register(CompanyInstagramPosts)
 admin.site.register(CompanyFacebookPosts)
@@ -30,4 +31,3 @@ admin.site.register(UploadedMedia)
 
 # reddit models
 admin.site.register(CompanyRedditSubs)
-

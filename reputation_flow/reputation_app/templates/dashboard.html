@@ -1153,10 +1153,16 @@
                     <!-- <p id="confirmModalFlairBody"> -->
                     {% for fr in flair_results %}
                     <div style="display: flex;gap: 20px;width: 100%;margin-bottom: 10px;">
-                        <strong>r/{{ fr.sub_r }}</strong>
+                        <div>
+                            <strong>r/{{ fr.sub_r }}</strong>
+                            <p style="font-size: 11px;">
+                                {% if fr.optional %}Optional{% else %} Required {% endif %}
+                            </p>
+                        </div>
                         <select class="form-select subreddit-flairs" aria-label="Default select example"
                             id="{{ fr.sub_r }}">
-                            <option selected value="none">Select flair</option>
+
+                            <option selected value="none" data-id="{{ fr.optional }}">Select flair</option>
                             {% for fl in fr.flairs_r %}
                             <option value="{{ fl.id }}" {% if fl.selected %} selected {% endif %}>{{ fl.name }}</option>
                             {% endfor %}
@@ -3136,7 +3142,7 @@
                                             unpublish
                                         </p>
                                     </div>
-                                    <div class="comment-reply-container-box" style="display: none;">
+                                    <div class="comment-repl-container-box" style="display: none;">
                                         <div class="comment-post-box">
                                             <div data-mdb-input-init class="form-outline" style="width: 90%;">
                                                 <textarea class="form-control" id="textAreaExample" rows="4"
@@ -3202,7 +3208,7 @@
                                             Publish
                                         </p>
                                     </div>
-                                    <div class="comment-reply-container-box" style="display: none;">
+                                    <div id="comment-reply-container-bo" style="display: none;">
                                         <div class="comment-post-box">
                                             <div data-mdb-input-init class="form-outline" style="width: 90%;">
                                                 <textarea class="form-control" id="textAreaExample" rows="4"
@@ -4806,7 +4812,7 @@
                     </div>
 
                 </div>
-                <div style="display:block">
+                <div style="display:block" id="post-container">
                     <div class="company-account-info container-right" style="overflow-y: scroll;;">
                         {% if posts|length == 0 %}
                         <div style="display: flex;justify-content: center;margin-top: 25%;">
@@ -4822,8 +4828,9 @@
                                 style="width: 90%;border: 1px solid rgb(209, 209, 209);border-radius: 10px;box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1), 0px 2px 4px rgba(0, 0, 0, 0.06);">
                                 <div style="display: flex;gap:2px;" class="action-bar">
                                     <div style="width:80%;padding: 10px;" class="grandparent">
-                                        <span style="font-size: 18px;padding: 10px;">
-                                            <strong>{{ p.title }} </strong></span>
+                                        <p style="font-size: 18px;margin-top: 10px;margin-bottom: 10px;color: black;">
+                                            <strong>{{ p.title }} </strong>
+                                        </p>
                                         <img src="{{ p.cover_image_link }}" alt=""
                                             style="height: 300px;width: 100%;margin-bottom: 20px;border-radius: 5px;">
 
@@ -4846,8 +4853,8 @@
                                                         class="fa fa fa-bar-chart" flow="down"></i> <span
                                                         style="font-size: 12px;">{{ p.engagement_count }}</span></p>
                                                 <p class="comments-container" style="cursor: pointer;"
-                                                    tooltip="Click to see comments" flow="down"><i
-                                                        class="fa fa fa-comments-o"></i> <span
+                                                    tooltip="Click to see comments" flow="down"
+                                                    data-id="{{ p.post_id }}"><i class="fa fa fa-comments-o"></i> <span
                                                         style="font-size: 12px;">{{ p.comment_count }}</span>
                                                 </p>
                                                 <p><i class="fa fa fa-calendar"></i>
@@ -4901,51 +4908,72 @@
                                 </div>
                                 <!-- sub elements post info -->
 
-                                <div class="post-comment-box" style="padding: 10px; display: none;">
+                                <div id="post-comment-box-{{ p.post_id }}" style="padding: 10px; display: none;">
                                     <hr>
                                     <p>Comments</p>
+                                    {% if comments_data|length > 0 %}
+                                    {% for comment in comments_data %}
                                     <div
                                         style="margin-left: 20px;border-radius: 10px;border: 1px solid rgb(219, 219, 219);padding: 10px;margin-bottom: 10px;">
                                         <div class="d-flex flex-start align-items-center">
                                             <img class="rounded-circle shadow-1-strong me-3"
-                                                src="https://mdbcdn.b-cdn.net/img/Photos/Avatars/img%20(19).webp"
-                                                alt="avatar" width="60" height="60" />
+                                                src="{{ comment.author_profile }}" alt="avatar" width="60"
+                                                height="60" />
                                             <div>
-                                                <h6 class="fw-bold text-primary mb-1">Lily
-                                                    Coleman</h6>
+                                                <h6 class="fw-bold text-primary mb-1">
+                                                    {{ comment.author }}
+                                                    {% if comment.isOP %}<span class="font-12"
+                                                        style="color: #03696e;">(You)</span> {% endif %}
+                                                </h6>
                                                 <p class="text-muted small mb-0">
-                                                    Shared publicly - Jan 2020
+                                                    {{ comment.date_updated }}
+                                                    <!-- Shared publicly - Jan 2020 -->
                                                 </p>
                                             </div>
                                         </div>
                                         <p class="mt-3 mb-4 pb-2">
-                                            Lorem ipsum dolor sit amet, consectetur
-                                            adipiscing elit, sed do eiusmod
-                                            tempor incididunt ut labore et dolore magna
-                                            aliqua. Ut enim ad minim veniam,
-                                            quis nostrud exercitation ullamco laboris nisi
-                                            ut aliquip consequat.
+                                            {{ comment.message_body }}
                                         </p>
                                         <div class="thisparent"
                                             style="display: flex;justify-content: space-between;font-size: 12px;width: 80%;gap: 10px">
 
                                             <div>
+                                                {% if isInstagram %}
                                                 <p
                                                     style="font-size: 12px;padding: 0;margin: 0;background-color: rgb(251, 216, 243);color: rgb(164, 21, 154);border-radius: 5px;padding-left: 5px;padding-right: 10px;align-items: center;margin-bottom: 10px;">
                                                     <i class="fa fa-instagram" aria-hidden="true"></i> Instagram
                                                 </p>
+                                                {% elif isReddit %}
+                                                <p
+                                                    style="font-size: 12px;padding: 0;margin: 0;background-color: rgb(246, 251, 216);color: rgb(164, 159, 21);border-radius: 5px;padding-left: 5px;padding-right: 10px;align-items: center;margin-bottom: 10px;">
+                                                    <i class="fa fa-reddit" aria-hidden="true"></i> Reddit
+                                                </p>
+                                                {% elif isFacebook %}
+                                                <p
+                                                    style="font-size: 12px;padding: 0;margin: 0;background-color: rgb(216, 251, 237);color: rgb(21, 164, 97);border-radius: 5px;padding-left: 5px;padding-right: 10px;align-items: center;margin-bottom: 10px;">
+                                                    <i class="fa fa-tiktok" aria-hidden="true"></i> Tiktok
+                                                </p>
+                                                {% elif isTiktok %}
+                                                <p
+                                                    style="font-size: 12px;padding: 0;margin: 0;background-color: rgb(216, 227, 251);color: rgb(21, 21, 164);border-radius: 5px;padding-left: 5px;padding-right: 10px;align-items: center;margin-bottom: 10px;">
+                                                    <i class="fa fa-facebook" aria-hidden="true"></i> Facebook
+                                                </p>
+                                                {% endif %}
+
                                             </div>
                                             <p class="comments-reply-container" style="cursor: pointer;font-size: 12px;"
-                                                tooltip="Replies" flow="down">Replies(34)</span>
+                                                tooltip="Replies" flow="down" data-id="{{ comment.id }}"
+                                                data-count="{{ comment.reply_count }}" data-post="{{ p.post_id }}">
+                                                Replies({{ comment.reply_count}})</span>
                                             </p>
                                             <p class="comment-likes-container" style="cursor: pointer;" tooltip="Likes"
                                                 flow="down"><i class="fa fa fa-heart-o"></i>
-                                                <span style="font-size: 12px;">155</span>
+                                                <span style="font-size: 12px;">{{ comment.like_count }}</span>
                                             </p>
                                             <p><i class="fa fa fa-star"></i> <span style="font-size: 12px;">Add to
                                                     review wall</span></p>
                                         </div>
-                                        <div class="comment-reply-container-box" style="display: none;">
+                                        <div id="comment-reply-container-box-{{ comment.id }}" style="display: none;">
                                             <div class="comment-post-box">
                                                 <div data-mdb-input-init class="form-outline" style="width: 90%;">
                                                     <textarea class="form-control" id="textAreaExample" rows="4"
@@ -4957,27 +4985,27 @@
                                                 </div>
                                             </div>
                                             <!-- replies -->
+                                            {% if comments_replies|length > 0 %}
+                                            {% for cr in comments_replies %}
                                             <div
                                                 style="margin-left: 20px;border-radius: 10px;border: 1px solid rgb(219, 219, 219);padding: 10px;margin-bottom: 10px;">
                                                 <div class="d-flex flex-start align-items-center">
                                                     <img class="rounded-circle shadow-1-strong me-3"
-                                                        src="https://mdbcdn.b-cdn.net/img/Photos/Avatars/img%20(19).webp"
-                                                        alt="avatar" width="60" height="60" />
+                                                        src="{{ cr.author_profile }}" alt="avatar" width="60"
+                                                        height="60" />
                                                     <div>
-                                                        <h6 class="fw-bold text-primary mb-1">Lily
-                                                            Coleman</h6>
+                                                        <h6 class="fw-bold text-primary mb-1">
+                                                            {{ cr.author }}
+                                                            {% if cr.isOP %}<span class="font-12"
+                                                                style="color: #03696e;">(You)</span> {% endif %}
+                                                        </h6>
                                                         <p class="text-muted small mb-0">
-                                                            Shared publicly - Jan 2020
+                                                            {{ cr.date_updated }}
                                                         </p>
                                                     </div>
                                                 </div>
                                                 <p class="mt-3 mb-4 pb-2">
-                                                    Lorem ipsum dolor sit amet, consectetur
-                                                    adipiscing elit, sed do eiusmod
-                                                    tempor incididunt ut labore et dolore magna
-                                                    aliqua. Ut enim ad minim veniam,
-                                                    quis nostrud exercitation ullamco laboris nisi
-                                                    ut aliquip consequat.
+                                                    {{ cr.message_body }}
                                                 </p>
 
                                                 <div class="thisparent"
@@ -4985,14 +5013,13 @@
 
                                                     <p class="second-reply-comment"
                                                         style="cursor: pointer;font-size: 12px;" tooltip="Replies"
-                                                        flow="down">Reply</span>
+                                                        flow="down">Reply ({{ cr.reply_count }})</span>
                                                     </p>
                                                     <p class="second-likes-comment" style="cursor: pointer;"
                                                         tooltip="Likes" flow="down"><i class="fa fa fa-heart-o"></i>
-                                                        <span style="font-size: 12px;">155</span>
+                                                        <span style="font-size: 12px;">{{ cr.like_count }}</span>
                                                     </p>
                                                 </div>
-
                                                 <div class="second-replies-comment" style="display: none;">
                                                     <div class="comment-reply-box">
                                                         <div data-mdb-input-init class="form-outline"
@@ -5006,112 +5033,46 @@
                                                                 comment</button>
                                                         </div>
                                                     </div>
+                                                    {% for cpl in cr.replies %}
                                                     <div
                                                         style="margin-left: 20px;border-radius: 10px;border: 1px solid rgb(219, 219, 219);padding: 10px;margin-bottom: 10px;">
                                                         <div class="d-flex flex-start align-items-center">
                                                             <img class="rounded-circle shadow-1-strong me-3"
-                                                                src="https://mdbcdn.b-cdn.net/img/Photos/Avatars/img%20(19).webp"
-                                                                alt="avatar" width="60" height="60" />
+                                                                src="{{ cpl.author_profile }}" alt="avatar" width="60"
+                                                                height="60" />
                                                             <div>
-                                                                <h6 class="fw-bold text-primary mb-1">Lily
-                                                                    Coleman</h6>
+                                                                <h6 class="fw-bold text-primary mb-1">
+                                                                    {{ cpl.author }}
+                                                                    {% if cpl.isOP %}<span class="font-12"
+                                                                        style="color: #03696e;">(You)</span> {% endif %}
+                                                                </h6>
                                                                 <p class="text-muted small mb-0">
-                                                                    Shared publicly - Jan 2020
+                                                                    {{ cpl.date_updated }}
                                                                 </p>
                                                             </div>
                                                         </div>
                                                         <p class="mt-3 mb-4 pb-2">
-                                                            Lorem ipsum dolor sit amet, consectetur
-                                                            adipiscing elit, sed do eiusmod
-                                                            tempor incididunt ut labore et dolore magna
-                                                            aliqua. Ut enim ad minim veniam,
-                                                            quis nostrud exercitation ullamco laboris nisi
-                                                            ut aliquip consequat.
+                                                            {{ cpl.message_body }}
                                                         </p>
                                                     </div>
+                                                    {% endfor %}
                                                 </div>
                                             </div>
-
-                                            <div
-                                                style="margin-left: 20px;border-radius: 10px;border: 1px solid rgb(219, 219, 219);padding: 10px;margin-bottom: 10px;">
-                                                <div class="d-flex flex-start align-items-center">
-                                                    <img class="rounded-circle shadow-1-strong me-3"
-                                                        src="https://mdbcdn.b-cdn.net/img/Photos/Avatars/img%20(19).webp"
-                                                        alt="avatar" width="60" height="60" />
-                                                    <div>
-                                                        <h6 class="fw-bold text-primary mb-1">Lily
-                                                            Coleman</h6>
-                                                        <p class="text-muted small mb-0">
-                                                            Shared publicly - Jan 2020
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                                <p class="mt-3 mb-4 pb-2">
-                                                    Lorem ipsum dolor sit amet, consectetur
-                                                    adipiscing elit, sed do eiusmod
-                                                    tempor incididunt ut labore et dolore magna
-                                                    aliqua. Ut enim ad minim veniam,
-                                                    quis nostrud exercitation ullamco laboris nisi
-                                                    ut aliquip consequat.
-                                                </p>
-
-                                                <div class="thisparent"
-                                                    style="display: flex;gap:4px;font-size: 12px;width: 80%;gap: 10px">
-
-                                                    <p class="second-reply-comment"
-                                                        style="cursor: pointer;font-size: 12px;" tooltip="Replies"
-                                                        flow="down">Reply</span>
-                                                    </p>
-                                                    <p class="second-likes-comment" style="cursor: pointer;"
-                                                        tooltip="Likes" flow="down"><i class="fa fa fa-heart-o"></i>
-                                                        <span style="font-size: 12px;">155</span>
-                                                    </p>
-                                                </div>
-
-                                                <div class="second-replies-comment" style="display: none;">
-                                                    <div class="comment-reply-box">
-                                                        <div data-mdb-input-init class="form-outline"
-                                                            style="width: 90%;">
-                                                            <textarea class="form-control" id="textAreaExample" rows="4"
-                                                                style="background: #fff;"
-                                                                placeholder="Type your response"></textarea>
-                                                            <button type="button" data-mdb-button-init
-                                                                data-mdb-ripple-init class="btn btn-primary btn-sm"
-                                                                style="margin: 10px;">Post
-                                                                comment</button>
-                                                        </div>
-                                                    </div>
-                                                    <div
-                                                        style="margin-left: 20px;border-radius: 10px;border: 1px solid rgb(219, 219, 219);padding: 10px;margin-bottom: 10px;">
-                                                        <div class="d-flex flex-start align-items-center">
-                                                            <img class="rounded-circle shadow-1-strong me-3"
-                                                                src="https://mdbcdn.b-cdn.net/img/Photos/Avatars/img%20(19).webp"
-                                                                alt="avatar" width="60" height="60" />
-                                                            <div>
-                                                                <h6 class="fw-bold text-primary mb-1">Lily
-                                                                    Coleman</h6>
-                                                                <p class="text-muted small mb-0">
-                                                                    Shared publicly - Jan 2020
-                                                                </p>
-                                                            </div>
-                                                        </div>
-                                                        <p class="mt-3 mb-4 pb-2">
-                                                            Lorem ipsum dolor sit amet, consectetur
-                                                            adipiscing elit, sed do eiusmod
-                                                            tempor incididunt ut labore et dolore magna
-                                                            aliqua. Ut enim ad minim veniam,
-                                                            quis nostrud exercitation ullamco laboris nisi
-                                                            ut aliquip consequat.
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                            </div>
+                                            {% endfor %}
+                                            {% endif %}
                                         </div>
                                     </div>
+                                    {% endfor %}
+                                    {% else %}
+                                    <div
+                                        style="display: flex;justify-content: center;margin: auto;padding-top: 15px;padding-bottom: 15px; ">
+                                        <p>No comments</p>
+                                    </div>
+                                    {% endif %}
 
                                 </div>
                                 <!-- impression analytics -->
-                                <div class="impression-analysis" style="display: none;">
+                                <div id="impression-analysis-{{ p.post_id }}" style="display: none;">
                                     <div class="card draggable">
                                         <div class="card-body p-3" style="display:flex;justify-content: space-between;">
                                             <div class="card mb-4 z-index-2 draggable">
@@ -5179,6 +5140,12 @@
                                         </div>
                                     </div>
                                 </div>
+                                <!-- spin -->
+                                <div id="spin-{{ p.post_id }}"
+                                    style="display: none;justify-content: center;margin-top: 10px;margin-bottom: 10px;">
+                                    <i class="fa fa-spinner fa-spin"></i>
+                                </div>
+
                             </div>
 
                         </div>
@@ -5190,9 +5157,10 @@
                             <div
                                 style="width: 90%;border: 1px solid rgb(209, 209, 209);border-radius: 10px;box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1), 0px 2px 4px rgba(0, 0, 0, 0.06);">
                                 <div style="display: flex;gap:2px;" class="action-bar">
-                                    <div style="width:80%;padding: 10px;" class="grandparent">
-                                        <span style="font-size: 18px;padding: 10px;margin-bottom: 20px;">
-                                            <strong>{{ p.title }} </strong></span>
+                                    <div style="width:80%;padding: 15px;" class="grandparent">
+                                        <p style="font-size: 18px;margin-top: 10px;margin-bottom: 10px;color: black;">
+                                            <strong>{{ p.title }} </strong>
+                                        </p>
                                         <p style="max-height: 200px;overflow-y: scroll;">{{ p.content }}
                                         </p>
                                         <div>
@@ -5211,8 +5179,8 @@
                                                         class="fa fa fa-bar-chart" flow="down"></i> <span
                                                         style="font-size: 12px;">{{ p.engagement_count }}</span></p>
                                                 <p class="comments-container" style="cursor: pointer;"
-                                                    tooltip="Click to see comments" flow="down"><i
-                                                        class="fa fa fa-comments-o"></i> <span
+                                                    data-id="{{ p.post_id }}" tooltip="Click to see comments"
+                                                    flow="down"><i class="fa fa fa-comments-o"></i> <span
                                                         style="font-size: 12px;">{{ p.comment_count }}</span>
                                                 </p>
                                                 <p><i class="fa fa fa-calendar"></i>
@@ -5266,51 +5234,72 @@
                                 </div>
                                 <!-- sub elements post info -->
 
-                                <div class="post-comment-box" style="padding: 10px; display: none;">
+                                <div id="post-comment-box-{{ p.post_id }}" style="padding: 10px; display: none;">
                                     <hr>
                                     <p>Comments</p>
+                                    {% if comments_data|length > 0 %}
+                                    {% for comment in comments_data %}
                                     <div
                                         style="margin-left: 20px;border-radius: 10px;border: 1px solid rgb(219, 219, 219);padding: 10px;margin-bottom: 10px;">
                                         <div class="d-flex flex-start align-items-center">
                                             <img class="rounded-circle shadow-1-strong me-3"
-                                                src="https://mdbcdn.b-cdn.net/img/Photos/Avatars/img%20(19).webp"
-                                                alt="avatar" width="60" height="60" />
+                                                src="{{ comment.author_profile }}" alt="avatar" width="60"
+                                                height="60" />
                                             <div>
-                                                <h6 class="fw-bold text-primary mb-1">Lily
-                                                    Coleman</h6>
+                                                <h6 class="fw-bold text-primary mb-1">
+                                                    {{ comment.author }}
+                                                    {% if comment.isOP %}<span class="font-12"
+                                                        style="color: #03696e;">(You)</span> {% endif %}
+                                                </h6>
                                                 <p class="text-muted small mb-0">
-                                                    Shared publicly - Jan 2020
+                                                    {{ comment.date_updated }}
+                                                    <!-- Shared publicly - Jan 2020 -->
                                                 </p>
                                             </div>
                                         </div>
                                         <p class="mt-3 mb-4 pb-2">
-                                            Lorem ipsum dolor sit amet, consectetur
-                                            adipiscing elit, sed do eiusmod
-                                            tempor incididunt ut labore et dolore magna
-                                            aliqua. Ut enim ad minim veniam,
-                                            quis nostrud exercitation ullamco laboris nisi
-                                            ut aliquip consequat.
+                                            {{ comment.message_body }}
                                         </p>
                                         <div class="thisparent"
                                             style="display: flex;justify-content: space-between;font-size: 12px;width: 80%;gap: 10px">
 
                                             <div>
+                                                {% if isInstagram %}
                                                 <p
                                                     style="font-size: 12px;padding: 0;margin: 0;background-color: rgb(251, 216, 243);color: rgb(164, 21, 154);border-radius: 5px;padding-left: 5px;padding-right: 10px;align-items: center;margin-bottom: 10px;">
                                                     <i class="fa fa-instagram" aria-hidden="true"></i> Instagram
                                                 </p>
+                                                {% elif isReddit %}
+                                                <p
+                                                    style="font-size: 12px;padding: 0;margin: 0;background-color: rgb(246, 251, 216);color: rgb(164, 159, 21);border-radius: 5px;padding-left: 5px;padding-right: 10px;align-items: center;margin-bottom: 10px;">
+                                                    <i class="fa fa-reddit" aria-hidden="true"></i> Reddit
+                                                </p>
+                                                {% elif isFacebook %}
+                                                <p
+                                                    style="font-size: 12px;padding: 0;margin: 0;background-color: rgb(216, 251, 237);color: rgb(21, 164, 97);border-radius: 5px;padding-left: 5px;padding-right: 10px;align-items: center;margin-bottom: 10px;">
+                                                    <i class="fa fa-tiktok" aria-hidden="true"></i> Tiktok
+                                                </p>
+                                                {% elif isTiktok %}
+                                                <p
+                                                    style="font-size: 12px;padding: 0;margin: 0;background-color: rgb(216, 227, 251);color: rgb(21, 21, 164);border-radius: 5px;padding-left: 5px;padding-right: 10px;align-items: center;margin-bottom: 10px;">
+                                                    <i class="fa fa-facebook" aria-hidden="true"></i> Facebook
+                                                </p>
+                                                {% endif %}
+
                                             </div>
                                             <p class="comments-reply-container" style="cursor: pointer;font-size: 12px;"
-                                                tooltip="Replies" flow="down">Replies(34)</span>
+                                                tooltip="Replies" flow="down" data-id="{{ comment.id }}"
+                                                data-count="{{ comment.reply_count }}" data-post="{{ p.post_id }}">
+                                                Replies({{ comment.reply_count}})</span>
                                             </p>
                                             <p class="comment-likes-container" style="cursor: pointer;" tooltip="Likes"
                                                 flow="down"><i class="fa fa fa-heart-o"></i>
-                                                <span style="font-size: 12px;">155</span>
+                                                <span style="font-size: 12px;">{{ comment.like_count }}</span>
                                             </p>
                                             <p><i class="fa fa fa-star"></i> <span style="font-size: 12px;">Add to
                                                     review wall</span></p>
                                         </div>
-                                        <div class="comment-reply-container-box" style="display: none;">
+                                        <div id="comment-reply-container-box-{{ comment.id }}" style="display: none;">
                                             <div class="comment-post-box">
                                                 <div data-mdb-input-init class="form-outline" style="width: 90%;">
                                                     <textarea class="form-control" id="textAreaExample" rows="4"
@@ -5322,27 +5311,27 @@
                                                 </div>
                                             </div>
                                             <!-- replies -->
+                                            {% if comments_replies|length > 0 %}
+                                            {% for cr in comments_replies %}
                                             <div
                                                 style="margin-left: 20px;border-radius: 10px;border: 1px solid rgb(219, 219, 219);padding: 10px;margin-bottom: 10px;">
                                                 <div class="d-flex flex-start align-items-center">
                                                     <img class="rounded-circle shadow-1-strong me-3"
-                                                        src="https://mdbcdn.b-cdn.net/img/Photos/Avatars/img%20(19).webp"
-                                                        alt="avatar" width="60" height="60" />
+                                                        src="{{ cr.author_profile }}" alt="avatar" width="60"
+                                                        height="60" />
                                                     <div>
-                                                        <h6 class="fw-bold text-primary mb-1">Lily
-                                                            Coleman</h6>
+                                                        <h6 class="fw-bold text-primary mb-1">
+                                                            {{ cr.author }}
+                                                            {% if comment.isOP %}<span class="font-12"
+                                                                style="color: #03696e;">(You)</span> {% endif %}
+                                                        </h6>
                                                         <p class="text-muted small mb-0">
-                                                            Shared publicly - Jan 2020
+                                                            {{ cr.date_updated }}
                                                         </p>
                                                     </div>
                                                 </div>
                                                 <p class="mt-3 mb-4 pb-2">
-                                                    Lorem ipsum dolor sit amet, consectetur
-                                                    adipiscing elit, sed do eiusmod
-                                                    tempor incididunt ut labore et dolore magna
-                                                    aliqua. Ut enim ad minim veniam,
-                                                    quis nostrud exercitation ullamco laboris nisi
-                                                    ut aliquip consequat.
+                                                    {{ cr.message_body }}
                                                 </p>
 
                                                 <div class="thisparent"
@@ -5350,14 +5339,14 @@
 
                                                     <p class="second-reply-comment"
                                                         style="cursor: pointer;font-size: 12px;" tooltip="Replies"
-                                                        flow="down">Reply</span>
+                                                        flow="down">Reply ({{ cr.reply_count }})</span>
                                                     </p>
                                                     <p class="second-likes-comment" style="cursor: pointer;"
                                                         tooltip="Likes" flow="down"><i class="fa fa fa-heart-o"></i>
-                                                        <span style="font-size: 12px;">155</span>
+                                                        <span style="font-size: 12px;">{{ cr.like_count }}</span>
                                                     </p>
                                                 </div>
-
+                                                <!-- second replies -->
                                                 <div class="second-replies-comment" style="display: none;">
                                                     <div class="comment-reply-box">
                                                         <div data-mdb-input-init class="form-outline"
@@ -5371,112 +5360,47 @@
                                                                 comment</button>
                                                         </div>
                                                     </div>
+                                                    {% for cpl in cr.replies %}
                                                     <div
                                                         style="margin-left: 20px;border-radius: 10px;border: 1px solid rgb(219, 219, 219);padding: 10px;margin-bottom: 10px;">
                                                         <div class="d-flex flex-start align-items-center">
                                                             <img class="rounded-circle shadow-1-strong me-3"
-                                                                src="https://mdbcdn.b-cdn.net/img/Photos/Avatars/img%20(19).webp"
-                                                                alt="avatar" width="60" height="60" />
+                                                                src="{{ cpl.author_profile }}" alt="avatar" width="60"
+                                                                height="60" />
                                                             <div>
-                                                                <h6 class="fw-bold text-primary mb-1">Lily
-                                                                    Coleman</h6>
+                                                                <h6 class="fw-bold text-primary mb-1">
+                                                                    {{ cpl.author }}
+                                                                    {% if cpl.isOP %}<span class="font-12"
+                                                                        style="color: #03696e;">(You)</span> {% endif %}
+                                                                </h6>
                                                                 <p class="text-muted small mb-0">
-                                                                    Shared publicly - Jan 2020
+                                                                    {{ cpl.date_updated }}
                                                                 </p>
                                                             </div>
                                                         </div>
                                                         <p class="mt-3 mb-4 pb-2">
-                                                            Lorem ipsum dolor sit amet, consectetur
-                                                            adipiscing elit, sed do eiusmod
-                                                            tempor incididunt ut labore et dolore magna
-                                                            aliqua. Ut enim ad minim veniam,
-                                                            quis nostrud exercitation ullamco laboris nisi
-                                                            ut aliquip consequat.
+                                                            {{ cpl.message_body }}
                                                         </p>
                                                     </div>
+                                                    {% endfor %}
                                                 </div>
+
                                             </div>
-
-                                            <div
-                                                style="margin-left: 20px;border-radius: 10px;border: 1px solid rgb(219, 219, 219);padding: 10px;margin-bottom: 10px;">
-                                                <div class="d-flex flex-start align-items-center">
-                                                    <img class="rounded-circle shadow-1-strong me-3"
-                                                        src="https://mdbcdn.b-cdn.net/img/Photos/Avatars/img%20(19).webp"
-                                                        alt="avatar" width="60" height="60" />
-                                                    <div>
-                                                        <h6 class="fw-bold text-primary mb-1">Lily
-                                                            Coleman</h6>
-                                                        <p class="text-muted small mb-0">
-                                                            Shared publicly - Jan 2020
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                                <p class="mt-3 mb-4 pb-2">
-                                                    Lorem ipsum dolor sit amet, consectetur
-                                                    adipiscing elit, sed do eiusmod
-                                                    tempor incididunt ut labore et dolore magna
-                                                    aliqua. Ut enim ad minim veniam,
-                                                    quis nostrud exercitation ullamco laboris nisi
-                                                    ut aliquip consequat.
-                                                </p>
-
-                                                <div class="thisparent"
-                                                    style="display: flex;gap:4px;font-size: 12px;width: 80%;gap: 10px">
-
-                                                    <p class="second-reply-comment"
-                                                        style="cursor: pointer;font-size: 12px;" tooltip="Replies"
-                                                        flow="down">Reply</span>
-                                                    </p>
-                                                    <p class="second-likes-comment" style="cursor: pointer;"
-                                                        tooltip="Likes" flow="down"><i class="fa fa fa-heart-o"></i>
-                                                        <span style="font-size: 12px;">155</span>
-                                                    </p>
-                                                </div>
-
-                                                <div class="second-replies-comment" style="display: none;">
-                                                    <div class="comment-reply-box">
-                                                        <div data-mdb-input-init class="form-outline"
-                                                            style="width: 90%;">
-                                                            <textarea class="form-control" id="textAreaExample" rows="4"
-                                                                style="background: #fff;"
-                                                                placeholder="Type your response"></textarea>
-                                                            <button type="button" data-mdb-button-init
-                                                                data-mdb-ripple-init class="btn btn-primary btn-sm"
-                                                                style="margin: 10px;">Post
-                                                                comment</button>
-                                                        </div>
-                                                    </div>
-                                                    <div
-                                                        style="margin-left: 20px;border-radius: 10px;border: 1px solid rgb(219, 219, 219);padding: 10px;margin-bottom: 10px;">
-                                                        <div class="d-flex flex-start align-items-center">
-                                                            <img class="rounded-circle shadow-1-strong me-3"
-                                                                src="https://mdbcdn.b-cdn.net/img/Photos/Avatars/img%20(19).webp"
-                                                                alt="avatar" width="60" height="60" />
-                                                            <div>
-                                                                <h6 class="fw-bold text-primary mb-1">Lily
-                                                                    Coleman</h6>
-                                                                <p class="text-muted small mb-0">
-                                                                    Shared publicly - Jan 2020
-                                                                </p>
-                                                            </div>
-                                                        </div>
-                                                        <p class="mt-3 mb-4 pb-2">
-                                                            Lorem ipsum dolor sit amet, consectetur
-                                                            adipiscing elit, sed do eiusmod
-                                                            tempor incididunt ut labore et dolore magna
-                                                            aliqua. Ut enim ad minim veniam,
-                                                            quis nostrud exercitation ullamco laboris nisi
-                                                            ut aliquip consequat.
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                            </div>
+                                            {% endfor %}
+                                            {% endif %}
                                         </div>
                                     </div>
+                                    {% endfor %}
+                                    {% else %}
+                                    <div
+                                        style="display: flex;justify-content: center;margin: auto;padding-top: 15px;padding-bottom: 15px; ">
+                                        <p>No comments</p>
+                                    </div>
+                                    {% endif %}
 
                                 </div>
                                 <!-- impression analytics -->
-                                <div class="impression-analysis" style="display: none;">
+                                <div id="impression-analysis-{{ p.post_id }}" style="display: none;">
                                     <div class="card draggable">
                                         <div class="card-body p-3" style="display:flex;justify-content: space-between;">
                                             <div class="card mb-4 z-index-2 draggable">
@@ -5506,7 +5430,7 @@
                                                                     Impressions</p>
                                                             </div>
                                                             <div class="d-flex" style="gap: 10px;">
-                                                                <h5 class="font-weight-bolder">36K</h5>
+                                                                <h5 class="font-weight-bolder"></h5>
                                                                 <div id="impression-chart-{{p.post_id}}"></div>
                                                             </div>
                                                         </div>
@@ -5538,11 +5462,17 @@
                                         </div>
                                     </div>
                                 </div>
+                                <!-- spin -->
+                                <div id="spin-{{ p.post_id }}"
+                                    style="display: none;justify-content: center;margin-top: 20px;margin-bottom: 20px;padding: 30px;">
+                                    <i class="fa fa-spinner fa-spin"></i>
+                                </div>
+
                             </div>
 
                         </div>
 
-    
+
                         {% endif %}
                         {% endfor %}
                         {% endif %}
@@ -6018,9 +5948,12 @@
                         const selectedValue = $(this).val();
                         var text_f = $(this).attr('id');
                         if (selectedValue == 'none') {
-                            toastr.error(`r/${text_f} misssing flair`);
-                            updated = false;
-                            return
+                            var d_id = $(this).find("option:selected").data('id');
+                            if (!d_id) {
+                                toastr.error(`r/${text_f} misssing flair`);
+                                updated = false;
+                                return
+                            }
                         }
                         flairsSelected = true;
                         // Add a dictionary to the list
@@ -6553,9 +6486,58 @@
                     $('#add-files-btn').show();
                 });
                 $(document).on('click', '.comments-container', function () {
+                    var post_id = $(this).data('id');
+                    $(`#spin-${post_id}`).css('display', 'flex');
+                    $(`#impression-analysis-${post_id}`).css('display', 'none');
+                    var comments_displayed=$(`#post-comment-box-${post_id}`).css('display');
+                    if(comments_displayed=='block'){
+                        // close comment box 
+                        $(`#spin-${post_id}`).css('display', 'none');
+                        $(`#post-comment-box-${post_id}`).css('display', 'none');
+                        return;
 
-                    $(this).closest('.action-bar').siblings('.post-comment-box').css('display', 'block');
-                    $(this).closest('.action-bar').siblings('.impression-analysis').css('display', 'none');
+                    } 
+
+                    $(`#post-comment-box-${post_id}`).css('display', 'none');
+
+                    var formData = new FormData();
+                    // Append other input fields to FormData
+                    var csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                    formData.append('post_id', post_id);
+
+                    // Send the form data via AJAX
+                    $.ajax({
+                        url: '{% url "get_post_comments" %}', // Replace with your Django endpoint URL
+                        type: 'POST',
+                        headers: {
+                            'X-CSRFToken': csrfToken
+                        },
+                        data: formData,
+                        processData: false, // Prevent jQuery from processing the data
+                        contentType: false, // Prevent jQuery from setting the content type
+                        success: function (response) {
+                            if (response['error']) {
+
+                            } else {
+                                // update charts
+                                var tempDiv = $('<div>').html(response);
+                                // Extract the specific element from the new HTML
+                                var newElementContent = tempDiv.find(`#post-comment-box-${post_id}`).html();
+
+                                $(`#post-comment-box-${post_id}`).html(newElementContent);
+                                $(`#spin-${post_id}`).css('display', 'none');
+                                $(`#impression-analysis-${post_id}`).css('display', 'none');
+                                $(`#post-comment-box-${post_id}`).css('display', 'block');
+                                initializeMultiSelect();
+                            }
+                        },
+                        error: function (jqXHR, textStatus, errorThrown) {
+                            $(`#spin-${post_id}`).css('display', 'none');
+                            toastr.error('Failed to get the stats');
+                        }
+                    });
+
+
                     this.scrollIntoView({
                         behavior: 'smooth', // Smooth scrolling
                         block: 'start' // Align to the top of the viewport
@@ -6570,13 +6552,57 @@
 
                 // open comment reply box - fetch replies
                 $(document).on('click', '.comments-reply-container', function () {
-                    var repdisp = $(this).parent().siblings('.comment-reply-container-box').css('display');
-                    if (repdisp == 'block') {
-                        $(this).parent().siblings('.comment-reply-container-box').css('display', 'none');
-                    }
-                    else {
-                        $(this).parent().siblings('.comment-reply-container-box').css('display', 'block');
-                    }
+                    var comment_id = $(this).data('id');
+                    var reply_count = $(this).data('count');
+                    var post_id = $(this).data('post');
+                    $(`#spin-${comment_id}`).css('display', 'flex');
+                    $(`#comment-reply-container-box-${comment_id}`).css('display', 'none');
+
+                    // get comments from the server
+                    var formData = new FormData();
+                    // Append other input fields to FormData
+                    var csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                    formData.append('comment_id', comment_id);
+                    formData.append('company_id', '{{ company_id }}');
+
+                    // Send the form data via AJAX
+                    $.ajax({
+                        url: '{% url "get_comment_replies" %}', // Replace with your Django endpoint URL
+                        type: 'POST',
+                        headers: {
+                            'X-CSRFToken': csrfToken
+                        },
+                        data: formData,
+                        processData: false, // Prevent jQuery from processing the data
+                        contentType: false, // Prevent jQuery from setting the content type
+                        success: function (response) {
+                            if (response['error']) {
+
+                            } else {
+                                // update charts
+                                var tempDiv = $('<div>').html(response);
+                                // Extract the specific element from the new HTML
+
+                                var newElementContent = tempDiv.find(`#comment-reply-container-box-${comment_id}`).html();
+                                $(`#comment-reply-container-box-${comment_id}`).html(newElementContent);
+                                initializeMultiSelect();
+                                $(`#spin-${comment_id}`).css('display', 'none');
+                                var repdisp = $(`#comment-reply-container-box-${comment_id}`).css('display');
+                                if (repdisp == 'block') {
+                                    $(`#comment-reply-container-box-${comment_id}`).css('display', 'none');
+                                }
+                                else {
+                                    $(`#comment-reply-container-box-${comment_id}`).css('display', 'block');
+                                }
+                            }
+                        },
+                        error: function (jqXHR, textStatus, errorThrown) {
+                            $(`#spin-${comment_id}`).css('display', 'none');
+                            toastr.error('Failed to get the stats');
+                        }
+                    });
+
+
 
                 });
 
@@ -6594,13 +6620,17 @@
 
                 // get analyitics
                 $(document).on('click', '.impression-container', function () {
-                    var disp = $(this).closest('.action-bar').siblings('.impression-analysis').css('display');
+                    var post_id = $(this).attr('id');
+                    var disp = $(`#impression-analysis-${post_id}`).css('display');
+                    // var disp = $(this).closest('.action-bar').siblings('.impression-analysis').css('display');
                     if (disp == 'block') {
                         return;
                     }
-                    var post_id = $(this).attr('id');
-                    $(this).closest('.action-bar').siblings('.post-comment-box').css('display', 'none');
-                    $(this).closest('.action-bar').siblings('.impression-analysis').css('display', 'block');
+                    $(`#spin-${post_id}`).css('display', 'flex');
+                    $(`#impression-analysis-${post_id}`).css('display', 'none');
+                    $(`#post-comment-box-${post_id}`).css('display', 'none');
+                    // $(this).closest('.action-bar').siblings('.post-comment-box').css('display', 'none');
+                    // $(this).closest('.action-bar').siblings('.impression-analysis').css('display', 'none');
 
                     // get data from backend
 
@@ -6624,6 +6654,10 @@
 
                             } else {
                                 // update charts
+                                $(`#spin-${post_id}`).css('display', 'none');
+                                $(`#impression-analysis-${post_id}`).css('display', 'block');
+                                $(`#post-comment-box-${post_id}`).css('display', 'none');
+
                                 // reddit engagement
                                 if (response['has_reddit']) {
                                     $(`#rte-${post_id}`).text(response['reddit_total_engagement']);
@@ -6760,7 +6794,8 @@
                             }
                         },
                         error: function (jqXHR, textStatus, errorThrown) {
-                            toastr.error('Failed to get the team.');
+                            $(`#spin-${post_id}`).css('display', 'none');
+                            toastr.error('Failed to get the stats');
                         }
                     });
 

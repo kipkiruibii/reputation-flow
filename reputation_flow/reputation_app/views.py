@@ -230,12 +230,14 @@ def loginUser(request):
 def getRedditSubFlairs(cid):
     cm = Company.objects.filter(company_id=cid).first()
     cr = CompanyReddit.objects.filter(company=cm).first()
-    reddit_subs = []
+    
     if cr:
+        reddit_subs = [s['sub'] for s in cr.subs]
         lu=cr.last_updated
         tn=(timezone.now()-lu).total_seconds()
-        if tn<3600:
-            return
+        # check if there is a new sub,
+        # if no new sub wait 1hour before updating the flairs 
+        # if new sub update the flairs of the new sub
         reddit = praw.Reddit(
             client_id=settings.REDDIT_CLIENT_ID,
             client_secret=settings.REDDIT_CLIENT_SECRET,
@@ -243,21 +245,27 @@ def getRedditSubFlairs(cid):
             refresh_token=cr.refresh_token,
         )
         for subreddit_name in reddit.user.subreddits(limit=None):
+            if tn<3600 and subreddit_name.display_name in reddit_subs:
+                continue
             flair_options = []
+            vl = []
             try:
                 subreddit = reddit.subreddit(subreddit_name.display_name)
                 flair_options = list(subreddit.flair.link_templates)
-            except:
-                continue
-            vl = []
-            for f in flair_options:
-                if not f['mod_only']:
-                    vl.append({
-                        'name': f['text'],
-                        'id': f['id'],
-                        'selected': False
-                    })
+                flair_optional = not subreddit.post_requirements.get('flair', False)
+                for f in flair_options:
+                    if not f['mod_only']:
+                        vl.append({
+                            'name': f['text'],
+                            'id': f['id'],
+                            'selected': False,
+                            
+                        })
 
+
+            except Exception as e:
+                flair_optional=True
+                
             present = False
             for sb in cr.subs:
                 if sb['sub'] == subreddit_name.display_name:
@@ -277,9 +285,11 @@ def getRedditSubFlairs(cid):
                 cr.subs.append(
                     {
                         'sub': subreddit_name.display_name,
+                        'flair_optional':flair_optional,
                         'flairs': vl
                     }
                 )
+                print('saved llx',subreddit_name.display_name)
                 cr.save()
 
 
@@ -474,6 +484,339 @@ def fetchPosts(request):
         return Response({'error': 'Bad request'})
     cp = CompanyPosts.objects.filter(company=cp).order_by('-pk')
     all_posts = []
+    if not cp:
+        for p in cp:
+            um = UploadedMedia.objects.filter(post=p)
+            med = []
+            for m in um:
+                med.append({
+                    'media_url': m.media.url,
+                    'is_video': False
+                })
+            reds=[]
+            cover_image_link=''
+            
+            if 'reddit' in p.platforms:
+                cr=CompanyRedditPosts.objects.filter(post_id=p.post_id)
+                if cr:
+                    for c in cr:
+                        t_en=0
+                        t_com=0
+                        for k in c.subs:
+                            if k['published']:
+                                cover_image_link=k['link']
+                                p_id=k['id']
+                                submission = reddit.submission(id=p_id)
+                                k['upvote_ratio']=submission.upvote_ratio*100
+                                k['upvotes']=submission.score
+                                k['comments']=submission.num_comments
+                                k['crossposts']=submission.num_crossposts
+                                reds.append(k)
+                                
+                                vlx=submission.score+submission.num_comments+submission.num_crossposts
+                                t_en+=vlx
+                                t_com+=submission.num_comments
+                        p.comment_count=t_com
+                        p.engagement_count=t_en
+                        p.save()   
+                        c.save()    
+                                
+            eng_cnt=p.engagement_count
+            if eng_cnt>1000000:
+                eng_cnt=round(eng_cnt/1000000,1)
+            elif eng_cnt>1000:
+                eng_cnt=round(eng_cnt/1000,1)
+            cmt_cnt=p.comment_count
+            if cmt_cnt>1000:
+                cmt_cnt=round(cmt_cnt/1000,1)
+            elif cmt_cnt>1000:
+                cmt_cnt=round(cmt_cnt/1000,1)
+            all_posts.append({
+                'platforms': [pl.capitalize() for pl in p.platforms],
+                'title': p.title,
+                'content': p.description,
+                'is_uploaded': p.is_published,
+                'is_scheduled': p.is_scheduled,
+                'comment_count':cmt_cnt,
+                'engagement_count':eng_cnt,
+                'tags': [] if not p.tags else p.tags.split(),
+                'has_media': p.has_media,
+                'cover_image_link':cover_image_link,
+                'media':None if not p.has_media else UploadedMedia.objects.filter(post=p).first(),
+                'date_uploaded': p.date_uploaded,
+                'date_scheduled':p.date_scheduled,
+                'media': med,
+                'post_id':p.post_id,
+                'has_all':len(p.platforms)==4,
+                'has_reddit':'reddit' in p.platforms,
+                'has_tiktok':'tiktok' in p.platforms,
+                'has_facebook':'facebook' in p.platforms,
+                'has_instagram':'instagram' in p.platforms,
+
+            })
+    else:    
+        for p in cp:
+            um = UploadedMedia.objects.filter(post=p)
+            med = []
+            for m in um:
+                med.append({
+                    'media_url': m.media.url,
+                    'is_video': False
+                })
+            reds=[]
+            cover_image_link=''
+            
+            if 'reddit' in p.platforms:
+                cr=CompanyRedditPosts.objects.filter(post_id=p.post_id).first()
+                if cr:
+                    k=cr.subs[0]
+                    cover_image_link = k['link']
+                # use threading to update post and comments
+                pass
+            eng_cnt=p.engagement_count
+            if eng_cnt>1000000:
+                eng_cnt=round(eng_cnt/1000000,1)
+            elif eng_cnt>1000:
+                eng_cnt=round(eng_cnt/1000,1)
+            cmt_cnt=p.comment_count
+            if cmt_cnt>1000:
+                cmt_cnt=round(cmt_cnt/1000,1)
+            elif cmt_cnt>1000:
+                cmt_cnt=round(cmt_cnt/1000,1)
+            all_posts.append({
+                'platforms': [pl.capitalize() for pl in p.platforms],
+                'title': p.title,
+                'content': p.description,
+                'is_uploaded': p.is_published,
+                'is_scheduled': p.is_scheduled,
+                'comment_count':cmt_cnt,
+                'engagement_count':eng_cnt,
+                'tags': [] if not p.tags else p.tags.split(),
+                'has_media': p.has_media,
+                'cover_image_link':cover_image_link,
+                'media':None if not p.has_media else UploadedMedia.objects.filter(post=p).first(),
+                'date_uploaded': p.date_uploaded,
+                'date_scheduled':p.date_scheduled,
+                'media': med,
+                'post_id':p.post_id,
+                'has_all':len(p.platforms)==4,
+                'has_reddit':'reddit' in p.platforms,
+                'has_tiktok':'tiktok' in p.platforms,
+                'has_facebook':'facebook' in p.platforms,
+                'has_instagram':'instagram' in p.platforms,
+
+            })
+        
+    context = {
+        'posts': all_posts,
+    }
+    return render(request, 'dashboard.html', context=context)
+
+# retrieve the stats of a given post
+@api_view(['POST'])
+def getStats(request):
+    post_id = request.POST.get('post_id', None)
+    if not post_id:
+        return Response({'error': 'Bad request'})
+    # get the post from the post_id
+    pst=CompanyPosts.objects.filter(post_id=post_id).first()
+    if not pst:
+        return Response({'error': 'Bad request'})
+    
+
+    my_dict = {'Facebook': 270, 'Instagram':80, 'Tiktok': 30, 'Reddit': 830}
+    sorted_dict = dict(sorted(my_dict.items(), key=lambda item: item[1], reverse=True))
+    ptfrms=[]
+    ptfrms_en=[]
+    cr = CompanyRedditPosts.objects.filter(post_id=post_id).first()
+    red_up=[]
+    red_cmt=[]
+    red_cpst=[]
+    red_tteng=[]
+    red_subs=[]
+    for c in cr.subs:
+        k=c
+        if k['published']:
+            p_id=k['id']
+            submission = reddit.submission(id=p_id)
+            k['upvote_ratio']=submission.upvote_ratio*100
+            k['upvotes']=int(submission.score)
+            k['comments']=int(submission.num_comments)
+            k['crossposts']=int(submission.num_crossposts)
+            red_subs.append(f"r/{k['sub_name']}")
+            
+            # vlx=submission.score+submission.num_comments+submission.num_crossposts
+            # t_en+=vlx
+            # t_com+=submission.num_comments
+        
+        red_up.append(c['upvotes'])
+        red_tteng.append(c['upvote_ratio'])
+        red_cmt.append(c['comments'])
+        red_cpst.append(c['crossposts'])
+    print(red_up)
+    print(red_cmt)
+    print(red_cpst)
+    print(ptfrms_en)
+    print(ptfrms)
+    red_te=0
+    if red_tteng:
+        red_te=sum(red_tteng)/len(red_tteng) 
+    return Response({'result': 'success',
+                     'has_reddit':True,
+                     'reddit_total_engagement':f'{red_te}%',
+                     'reddit_upvotes':red_up,
+                     'reddit_comments':red_cmt,
+                     'reddit_crossposts':red_cpst,
+                     'reddit_subs':red_subs,
+                     'platform_engagement':ptfrms_en,
+                     'pltfrms':ptfrms 
+                     })
+  
+def processCommentReplies(comment_id,replies,submission_op):
+    for comment in replies: 
+        cmr=CompanyPostsCommentsReplies.objects.filter(comment_id=comment.id).first()
+        if not cmr:
+            cpstcmt=CompanyPostsCommentsReplies(
+                parent_comment_id=comment_id,
+                comment_id=comment.id,
+                is_op=comment.author == submission_op,
+                author=comment.author,
+                author_profile=comment.author.icon_img,
+                message=comment.body,
+                like_count=comment.score,
+                reply_count=len(comment.replies),
+                date_updated=datetime.fromtimestamp(comment.created_utc)
+            )
+            cpstcmt.save()
+        else:
+            cmr.message=comment.body
+            cmr.like_count=comment.score
+            cmr.reply_count=len(comment.replies)
+            cmr.save()
+        if len(comment.replies)>0:
+            # nested reply recursive
+            processCommentReplies(comment_id=comment.id,replies=comment.replies,submission_op=submission_op)
+    
+def commentBackgroundUpdate(post,post_id):
+    crp=CompanyRedditPosts.objects.filter(post_id=post_id).first()
+    if crp:
+        platform='reddit'
+        for sbs in crp.subs:
+            p_id=sbs['id']
+            submission = reddit.submission(id=p_id)
+            # Ensure comments are fully loaded
+            submission.comments.replace_more(limit=None)
+            submission_op=submission.author    
+            # Iterate over the comments
+            for comment in submission.comments:
+                cmt=CompanyPostsComments.objects.filter(comment_id=comment.id).first()
+                if not cmt:
+                    cpstcmt=CompanyPostsComments(
+                        post=post,
+                        comment_id=comment.id,
+                        is_op=comment.author == submission_op,
+                        platform=platform,
+                        author=comment.author,
+                        author_profile=comment.author.icon_img,
+                        message=comment.body,
+                        like_count=comment.score,
+                        reply_count=len(comment.replies),
+                        date_updated=datetime.fromtimestamp(comment.created_utc)
+                    )
+                    cpstcmt.save()
+                else:
+                    cmt.message=comment.body
+                    cmt.like_count=comment.score
+                    cmt.reply_count=len(comment.replies)
+                    cmt.save()
+                # recursively process comment replies using threads
+                if len(comment.replies)>0:
+                    # save the reply comments
+                    processCommentReplies(comment_id=comment.id,replies=comment.replies,submission_op=submission_op) 
+
+@api_view(['POST'])
+def getComments(request):
+    post_id = request.POST.get('post_id', None)
+    if not post_id:
+        return Response({'error': 'Bad request'})
+    # get the ost from the post_id
+    pst=CompanyPosts.objects.filter(post_id=post_id).first()
+    if not pst:
+        return Response({'error': 'Bad request'})
+    # try:
+    cpstcmt=CompanyPostsComments.objects.filter(post=pst)
+    if not cpstcmt:
+        # reddit post comments
+        crp=CompanyRedditPosts.objects.filter(post_id=post_id).first()
+        if crp:
+            platform='reddit'
+            for sbs in crp.subs:
+                p_id=sbs['id']
+                submission = reddit.submission(id=p_id)
+                # Ensure comments are fully loaded
+                submission.comments.replace_more(limit=None)
+                submission_op=submission.author    
+                # Iterate over the comments
+                for comment in submission.comments:
+                    cpstcmt=CompanyPostsComments(
+                        post=pst,
+                        comment_id=comment.id,
+                        is_op=comment.author == submission_op,
+                        platform=platform,
+                        author=comment.author,
+                        author_profile=comment.author.icon_img,
+                        message=comment.body,
+                        like_count=comment.score,
+                        reply_count=len(comment.replies),
+                        date_updated=datetime.fromtimestamp(comment.created_utc)
+                    )
+                    cpstcmt.save()
+                    
+                    # recursively process comment replies using threads
+                    if len(comment.replies)>0:
+                        # save the reply comments
+                        processCommentReplies(comment_id=comment.id,replies=comment.replies,submission_op=submission_op) 
+    else:
+        #return already present comments while updating in the background
+        thrd=threading.Thread(target=commentBackgroundUpdate,daemon=True,kwargs={
+            'post':pst, 
+            'post_id':post_id,
+        })
+        thrd.start()
+
+        # if len(cpstcmt)<100: 
+        #     # fetch immediately small results
+        #     commentBackgroundUpdate(post=pst,post_id=post_id)
+        # else:
+        #     # use threads for larger queries
+        #     thrd=threading.Thread(target=commentBackgroundUpdate,daemon=True,kwargs={
+        #        'post':pst, 
+        #        'post_id':post_id,
+        #     })
+        #     thrd.start()
+        
+    cpstmt=CompanyPostsComments.objects.filter(post=pst)
+    cmts=[] 
+    for cpm in cpstmt:
+        cmts.append({
+            'author':cpm.author,
+            'id':cpm.comment_id,
+            'author_profile':cpm.author_profile,
+            'message_body':cpm.message,
+            'isOP':cpm.is_op,
+            'isReddit':True if cpm.platform == 'reddit' else False,
+            'isFacebook':True if cpm.platform == 'facebook' else False,
+            'isInstagram':True if cpm.platform == 'instagram' else False,
+            'isTiktok':True if cpm.platform == 'tiktok' else False,
+            'like_count':cpm.like_count,
+            'reply_count':cpm.reply_count,
+            'isPublished':cpm.is_published,
+            'date_updated':cpm.date_updated
+            
+        }) 
+    # cp=CompanyPosts.objects.all().order_by('-pk') # Execution time 4.7885 seconds
+    cp=CompanyPosts.objects.filter(id=pst.id) # Execution time 4.0257 seconds 
+    all_posts=[]
     for p in cp:
         um = UploadedMedia.objects.filter(post=p)
         med = []
@@ -486,30 +829,12 @@ def fetchPosts(request):
         cover_image_link=''
         
         if 'reddit' in p.platforms:
-            cr=CompanyRedditPosts.objects.filter(post_id=p.post_id)
+            cr=CompanyRedditPosts.objects.filter(post_id=p.post_id).first()
             if cr:
-                for c in cr:
-                    t_en=0
-                    t_com=0
-                    for k in c.subs:
-                        if k['published']:
-                            cover_image_link=k['link']
-                            p_id=k['id']
-                            submission = reddit.submission(id=p_id)
-                            k['upvote_ratio']=submission.upvote_ratio*100
-                            k['upvotes']=submission.score
-                            k['comments']=submission.num_comments
-                            k['crossposts']=submission.num_crossposts
-                            reds.append(k)
-                            
-                            vlx=submission.score+submission.num_comments+submission.num_crossposts
-                            t_en+=vlx
-                            t_com+=submission.num_comments
-                    p.comment_count=t_com
-                    p.engagement_count=t_en
-                    p.save()   
-                    c.save()    
-                            
+                k=cr.subs[0]
+                cover_image_link = k['link']
+            # use threading to update post and comments
+            pass
         eng_cnt=p.engagement_count
         if eng_cnt>1000000:
             eng_cnt=round(eng_cnt/1000000,1)
@@ -541,69 +866,145 @@ def fetchPosts(request):
             'has_tiktok':'tiktok' in p.platforms,
             'has_facebook':'facebook' in p.platforms,
             'has_instagram':'instagram' in p.platforms,
-
         })
-    context = {
+
+    context={
+        'success':True,
+        'comments_data':cmts,
         'posts': all_posts,
-    }
+        }
+    return render(request, 'dashboard.html', context=context)
+    
+@api_view(['POST'])
+def getCommentReplies(request):
+    c_id = request.POST.get('comment_id', None)
+    if not c_id:
+        return Response({'error': 'Bad request'})
+
+    pstc=CompanyPostsComments.objects.filter(comment_id=c_id).first()
+    if not pstc:
+        return Response({'error': 'Bad request'})
+    #  get the replies to this comment
+    pst=pstc.post
+    c_replies=[]
+    crp=CompanyPostsCommentsReplies.objects.filter(parent_comment_id=c_id)
+    for cpm in crp:
+        replies=[]
+        crps=CompanyPostsCommentsReplies.objects.filter(parent_comment_id=cpm.comment_id)
+        for c_s in crps: 
+            replies.append({
+                'author':c_s.author,
+                'id':c_s.comment_id,
+                'author_profile':c_s.author_profile,
+                'message_body':c_s.message,
+                'isOP':c_s.is_op,
+                'like_count':c_s.like_count,
+                'reply_count':c_s.reply_count,
+                'isPublished':c_s.is_published,
+                'date_updated':c_s.date_updated,
+            })
+        c_replies.append({
+            'author':cpm.author,
+            'id':cpm.comment_id,
+            'author_profile':cpm.author_profile,
+            'message_body':cpm.message,
+            'isOP':cpm.is_op,
+            'like_count':cpm.like_count,
+            'reply_count':cpm.reply_count,
+            'isPublished':cpm.is_published,
+            'date_updated':cpm.date_updated,
+            'replies':replies
+        })
+    # return that post alone
+    # cp=CompanyPosts.objects.all().order_by('-pk')
+    cp=CompanyPosts.objects.filter(id=pst.id)
+    all_posts=[]
+    for p in cp:
+            um = UploadedMedia.objects.filter(post=p)
+            med = []
+            for m in um:
+                med.append({
+                    'media_url': m.media.url,
+                    'is_video': False
+                })
+            reds=[]
+            cover_image_link=''
+            
+            if 'reddit' in p.platforms:
+                cr=CompanyRedditPosts.objects.filter(post_id=p.post_id).first()
+                if cr:
+                    k=cr.subs[0]
+                    cover_image_link = k['link']
+                # use threading to update post and comments
+                pass
+            eng_cnt=p.engagement_count
+            if eng_cnt>1000000:
+                eng_cnt=round(eng_cnt/1000000,1)
+            elif eng_cnt>1000:
+                eng_cnt=round(eng_cnt/1000,1)
+            cmt_cnt=p.comment_count
+            if cmt_cnt>1000:
+                cmt_cnt=round(cmt_cnt/1000,1)
+            elif cmt_cnt>1000:
+                cmt_cnt=round(cmt_cnt/1000,1)
+            all_posts.append({
+                'platforms': [pl.capitalize() for pl in p.platforms],
+                'title': p.title,
+                'content': p.description,
+                'is_uploaded': p.is_published,
+                'is_scheduled': p.is_scheduled,
+                'comment_count':cmt_cnt,
+                'engagement_count':eng_cnt,
+                'tags': [] if not p.tags else p.tags.split(),
+                'has_media': p.has_media,
+                'cover_image_link':cover_image_link,
+                'media':None if not p.has_media else UploadedMedia.objects.filter(post=p).first(),
+                'date_uploaded': p.date_uploaded,
+                'date_scheduled':p.date_scheduled,
+                'media': med,
+                'post_id':p.post_id,
+                'has_all':len(p.platforms)==4,
+                'has_reddit':'reddit' in p.platforms,
+                'has_tiktok':'tiktok' in p.platforms,
+                'has_facebook':'facebook' in p.platforms,
+                'has_instagram':'instagram' in p.platforms,
+            })
+    cpstmt=CompanyPostsComments.objects.filter(post=pst, comment_id=c_id) # get only relevant comment optimise speed
+    cmts=[] 
+    for cpm in cpstmt:
+        cmts.append({
+            'author':cpm.author,
+            'id':cpm.comment_id,
+            'author_profile':cpm.author_profile,
+            'message_body':cpm.message,
+            'isOP':cpm.is_op,
+            'isReddit':True if cpm.platform == 'reddit' else False,
+            'isFacebook':True if cpm.platform == 'facebook' else False,
+            'isInstagram':True if cpm.platform == 'instagram' else False,
+            'isTiktok':True if cpm.platform == 'tiktok' else False,
+            'like_count':cpm.like_count,
+            'reply_count':cpm.reply_count,
+            'isPublished':cpm.is_published,
+            'date_updated':cpm.date_updated,
+            
+        }) 
+
+    context={
+        'success':True,
+        'comments_replies':c_replies,
+        'comments_data':cmts,
+        'posts': all_posts,
+        }
     return render(request, 'dashboard.html', context=context)
 
-# retrieve the stats of a given post
 @api_view(['POST'])
-def getStats(request):
-    post_id = request.POST.get('post_id', None)
-    if not post_id:
+def postComment(request):
+    comment_id = request.POST.get('comment_id', None)
+    comment = request.POST.get('comment', None)
+    if not all([comment_id,comment]):
         return Response({'error': 'Bad request'})
-    # get the ost from the post_id
-    pst=CompanyPosts.objects.filter(post_id=post_id).first()
-    if not pst:
-        return Response({'error': 'Bad request'})
-    
-
-    my_dict = {'Facebook': 270, 'Instagram':80, 'Tiktok': 30, 'Reddit': 830}
-    sorted_dict = dict(sorted(my_dict.items(), key=lambda item: item[1], reverse=True))
-    ptfrms=[]
-    ptfrms_en=[]
-    cr = CompanyRedditPosts.objects.filter(post_id=post_id).first()
-    red_up=[]
-    red_cmt=[]
-    red_cpst=[]
-    red_tteng=[]
-    red_subs=[]
-    for c in cr.subs:
-        k=c
-        if k['published']:
-            p_id=k['id']
-            submission = reddit.submission(id=p_id)
-            k['upvote_ratio']=submission.upvote_ratio*100
-            k['upvotes']=submission.score
-            k['comments']=submission.num_comments
-            k['crossposts']=submission.num_crossposts
-            red_subs.append(f"r/{k['sub_name']}")
-            
-            # vlx=submission.score+submission.num_comments+submission.num_crossposts
-            # t_en+=vlx
-            # t_com+=submission.num_comments
-        
-        red_up.append(c['upvotes'])
-        red_tteng.append(c['upvote_ratio'])
-        red_cmt.append(c['comments'])
-        red_cpst.append(c['crossposts'])
-    print(red_up)
-    red_te=0
-    if red_tteng:
-        red_te=sum(red_tteng)/len(red_tteng) 
-    return Response({'result': 'success',
-                     'has_reddit':True,
-                     'reddit_total_engagement':f'{red_te}%',
-                     'reddit_upvotes':red_up,
-                     'reddit_comments':red_cmt,
-                     'reddit_crossposts':red_cpst,
-                     'reddit_subs':red_subs,
-                     'platform_engagement':ptfrms_en,
-                     'pltfrms':ptfrms 
-                     })
-    
+    return Response({'success': 'Bad request'})
+    pass
 @api_view(['POST'])
 def fetchTeams(request):
     company_id = request.POST.get('company_id', None)
@@ -838,7 +1239,6 @@ def generateInviteLink(request):
     ct = CompanyTeam.objects.filter(company=cp, id=team_id).first()
     if not ct:
         return Response({'error': 'Bad request'})
-    print(members_perm)
     permissions = members_perm.split(',')
     cleaned_permissions = [permission.strip().replace('\r', '').replace('\n', ' ') for permission in permissions]
     uid = uuid.uuid4()
@@ -871,7 +1271,6 @@ def sendChat(request):
         return Response({'error': 'Bad request'})
     # check if user is part of the team
     if not ct.members.filter(id=usr.id).exists():
-        print('member dont exist')
 
         return Response({'error': 'Bad request'})
     ctc = CompanyTeamChat(
@@ -2668,8 +3067,6 @@ def redditFlairs(request):
     subs = subs.split(',')
     subs = [r.split('r/')[-1] for r in subs]
     cr = CompanyReddit.objects.filter(company=cp).first()
-    
-    
     rt = []
     if cr:
         reddit = praw.Reddit(
@@ -2689,12 +3086,15 @@ def redditFlairs(request):
                 if sr['sub'] == subreddit_name:
                     present = True
                     rt.append({'sub_r': subreddit_name,
+                               'optional':sr['flair_optional'],
                                'flairs_r': sr['flairs']})
             if not present:
+                vl = []
                 try:
                     subreddit = reddit.subreddit(subreddit_name)
                     flair_options = list(subreddit.flair.link_templates)
-                    vl = []
+                    optional=False
+
                     for f in flair_options:
                         if not f['mod_only']:
                             vl.append({
@@ -2702,11 +3102,12 @@ def redditFlairs(request):
                                 'id': f['id'],
                                 'selected': False
                             })
-                    rt.append({
-                        'sub_r': subreddit_name,
-                        'flairs_r': vl})
                 except:
-                    continue
+                    optional=True
+                rt.append({
+                    'sub_r': subreddit_name,
+                    'optional':optional,
+                    'flairs_r': vl})
 
     context = {
         'flair_results': rt,

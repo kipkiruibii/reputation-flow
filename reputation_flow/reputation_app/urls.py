@@ -49,7 +49,12 @@ urlpatterns=[
     path('get_post_stats/',views.getStats,name='get_post_stats'),
     # get tiktok creator info
     path('get_tiktok_creator/',views.gettiktokCreatorInfo,name='get_tiktok_creator'),
-
+    # get post comments
+    path('get_post_comments/',views.getComments,name='get_post_comments'),
+    # get comment replies
+    path('get_comment_replies/',views.getCommentReplies,name='get_comment_replies'),
+    # get comment replies
+    path('post_comment/',views.postComment,name='post_comment'),
 
 ]
 # Serve media files during development
