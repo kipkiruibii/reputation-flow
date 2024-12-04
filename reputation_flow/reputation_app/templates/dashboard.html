@@ -1106,7 +1106,37 @@
             </div>
         </div>
     </div>
-    <!-- Modal -->
+    <!-- Delete Post-Comment Modal -->
+    <div class="modal fade" id="confirmModalPostDeleteCenter" tabindex="-1" role="dialog"
+        aria-labelledby="exampleModalCenterTitle">
+        <div class="modal-dialog modal-dialog-centered " role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="confirmModalPostDelete">Delete?</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p id="">Confirm delete of posts from all channels.</p>
+                    <!-- You have not linked an Instagram account -->
+                </div>
+                <div class="modal-footer">
+                    <span style="color: rgb(255, 1, 1);" class="font-12"> This action cannot be undone</span>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    {% if user_permissions.can_create_team_add_member %}
+                    <button type="button" id="confirmModalDeletePostAction" class="btn btn-danger">Delete</button>
+                    {% else %}
+                    <button type="button" id="forbiddenModalDeletePostAction" class="btn btn-primary"
+                        tooltip="Forbidden. Contact admin" flow="down" style="cursor: not-allowed;">Delete</button>
+                    {% endif %}
+                    <!-- <button type="button" class="btn btn-danger">Temporary Disable</button> -->
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Post Modal -->
     <div class="modal fade" id="confirmModalPostCenter" tabindex="-1" role="dialog"
         aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered " role="document">
@@ -3080,11 +3110,11 @@
                                     <div class="comment-reply-container-box" style="display: none;">
                                         <div class="comment-post-box">
                                             <div data-mdb-input-init class="form-outline" style="width: 90%;">
-                                                <textarea class="form-control" id="textAreaExample" rows="4"
+                                                <textarea class="form-control" id="comment-text-" rows="4"
                                                     style="background: #fff;"
                                                     placeholder="Type your response"></textarea>
                                                 <button type="button" data-mdb-button-init data-mdb-ripple-init
-                                                    class="btn btn-primary btn-sm"
+                                                    class="btn btn-primary btn-sm "
                                                     style="margin: 10px;">comment</button>
                                             </div>
                                         </div>
@@ -3273,7 +3303,7 @@
                             <div style="display: block;margin-top: 50px;">
                                 <p>You do not have any teams at the moment. To create a team:</p>
                                 <ol style="color: grey;">
-                                    <p style="font-size: 12px;"><strong>Ensure you are the admin/ have admin priviledges
+                                    <p style="font-size: 12px;"><strong>Ensure you are the admin/ have admin privileges
                                             to continue</strong></p>
                                     <li>
                                         <p>Click the <strong>Create Team</strong> button at the top-right of this
@@ -3283,15 +3313,15 @@
                                         <p>Choose a name for the team and description of teams responsibility</p>
                                     </li>
                                     <li>
-                                        <p>Give the necessary priviledges to the team</p>
+                                        <p>Click <strong>finish</strong>. A new team will be created </p>
                                     </li>
                                     <li>
-                                        <p>Once done click <strong>finish</strong>. A new team will be created </p>
+                                        <p>At the left panel within the selected team, click <strong>Generate & Copy</strong> </p>
                                     </li>
                                     <li>
-                                        <p>Locate the teams invite link (labeled as <strong>Teams Invite Link</strong>)
-                                            at the top right of the container </p>
+                                        <p>Fill in the <strong>number of members</strong> you want to join the team as well as the <strong>privileges</strong> they will have</p>
                                     </li>
+                                    <li><p>Click <strong>Generate</strong>.</p></li>
                                     <li>
                                         <p>Share the invite link with your members.</p>
                                     </li>
@@ -4159,8 +4189,7 @@
                         </div>
                         <div class="form-check" style="margin-left: 10px;">
                             <input class="form-check-input platforms_select" type="checkbox" value="tiktok"
-                                id="tiktok_platform" {% if not tiktok.linked %}disabled{% elif reddit.subs|length==0
-                                %}disabled{% endif %}>
+                                id="tiktok_platform" {% if not tiktok.linked %} disabled{% endif %}>
                             <label class="form-check-label" for="tiktok_platform">
                                 <p><img src="{% static 'images/tiktok_logo.png' %}" style="width: 20px;height: 20px;"
                                         alt="tiktok"> Tiktok {% if not tiktok.linked %}(not linked){% endif %}</p>
@@ -4168,11 +4197,14 @@
                         </div>
                         <div class="form-check" style="margin-left: 10px;">
                             <input class="form-check-input platforms_select" type="checkbox" value="reddit"
-                                id="reddit_platform" {% if not reddit.linked %}disabled {% endif %}>
+                                id="reddit_platform" {% if not reddit.linked or reddit.subs|length == 0 %}
+                                disabled
+                                 {% endif %}>
                             <label class="form-check-label" for="reddit_platform">
                                 <p><img src="{% static 'images/reddit_logo.png' %}" style="width: 20px;height: 20px;"
-                                        alt="reddit"> Reddit {% if not reddit.linked %}(not linked) {% elif
-                                    reddit.subs|length == 0 %}( No subs) {% endif %}</p>
+                                        alt="reddit"> Reddit
+                                    {% if not reddit.linked %}(not linked)
+                                    {% elif reddit.subs|length == 0 %}( No subs) {% endif %}</p>
                             </label>
                         </div>
                         <div style="margin-top: 20px;">
@@ -4831,21 +4863,24 @@
                                         <p style="font-size: 18px;margin-top: 10px;margin-bottom: 10px;color: black;">
                                             <strong>{{ p.title }} </strong>
                                         </p>
-                                        <img src="{{ p.cover_image_link }}" alt=""
-                                            style="height: 300px;width: 100%;margin-bottom: 20px;border-radius: 5px;">
-
-                                        <p style="max-height: 200px;overflow-y: scroll;">{{ p.content }}
+                                        <div
+                                            style="width: 100%;display: flex;justify-content: center;background-color: #06041c10;">
+                                            <img src="{{ p.cover_image_link }}" alt=""
+                                                style="height: 300px;margin:auto;border-radius: 5px;">
+                                        </div>
+                                        <p style="max-height: 200px;overflow-y: scroll;margin-top: 20px;">
+                                            {{ p.content }}
                                         </p>
 
                                         <div>
                                             <hr>
                                             {% if p.is_scheduled %}
-                                            <div style="display:flex;justify-content: center;">
+                                            <div style="display:flex;justify-content: center;;">
                                                 <p class="font-12">This post will be published on
                                                     <strong>{{ p.date_scheduled }}</strong>
                                                 </p>
                                             </div>
-                                            {% else %}
+                                            {% elif p.is_published %}
                                             <div class="thisparent"
                                                 style="display: flex;justify-content: space-between;font-size: 12px;width: 80%;gap: 10px">
                                                 <p class="impression-container" style="cursor: pointer;"
@@ -4869,18 +4904,32 @@
                                             <div>
                                                 {% if p.is_scheduled %}
                                                 <p
-                                                    style="font-size: 12px;padding: 0;margin: 0;background-color: rgb(216, 230, 251);color: rgb(21, 121, 164);width: 80px;border-radius: 5px;padding-left: 5px;padding-right: 10px;align-items: center;margin-bottom: 10px;">
+                                                    style="font-size: 12px;padding: auto;background-color: rgb(216, 230, 251);color: rgb(21, 121, 164);border-radius: 5px;padding-left: 5px;padding-right: 10px;align-items: center;margin-bottom: 10px;">
                                                     <i class="fa fa-clock" aria-hidden="true"></i> Scheduled
                                                 </p>
-                                                {% else %}
+                                                {% elif p.is_published %}
                                                 <p
-                                                    style="font-size: 12px;padding: 0;margin: 0;background-color: rgb(216, 251, 232);color: rgb(21, 164, 97);width: 80px;border-radius: 5px;padding-left: 5px;padding-right: 10px;align-items: center;margin-bottom: 10px;">
+                                                    style="font-size: 12px;padding: auto;background-color: rgb(216, 251, 232);color: rgb(21, 164, 97);border-radius: 5px;padding-left: 5px;padding-right: 10px;align-items: center;margin-bottom: 10px;">
                                                     <i class="fa fa-check" aria-hidden="true"></i> Published
                                                 </p>
-
+                                                {% elif p.has_failed %}
+                                                <div style="display: flex;gap: 15px;">
+                                                    <p
+                                                        style="font-size: 12px;padding: auto;background-color: rgb(251, 216, 216);color: rgb(164, 21, 21);border-radius: 5px;padding-left: 5px;padding-right: 10px;align-items: center;margin-bottom: 10px;">
+                                                        <i class="fa fa-times" aria-hidden="true"></i> Failed
+                                                    </p>
+                                                    <p style="font-size: 12px;cursor: pointer;"
+                                                        class="retry-failed-post"><i class="fa fa-refresh"></i> Retry
+                                                    </p>
+                                                </div>
+                                                <div>
+                                                    <p style="font-size: 12px;color: rgb(164, 21, 21);">Unable to post
+                                                        to the selected platform(s)</p>
+                                                </div>
                                                 {% endif %}
                                             </div>
-                                            <p style="padding-right: 12px;cursor: pointer;"
+                                            <p style="padding-right: 12px;cursor: pointer;" class="delete-post-comment"
+                                                data-post_id="{{ p.post_id }}" data-type="post"
                                                 tooltip="Permanently delete post from all channels" flow="down"><i
                                                     class="fa fa-trash"></i></p>
                                         </div>
@@ -4895,6 +4944,7 @@
                                             {% endfor %}
                                         </div>
                                         <hr>
+                                        {% if p.tags %}
                                         <p>#Tags</p>
                                         <div
                                             style="display: flex;gap: 5px;flex-wrap: wrap;padding-top: 0px;padding-bottom:10px;">
@@ -4903,6 +4953,7 @@
 
                                             {% endfor %}
                                         </div>
+                                        {% endif %}
                                     </div>
 
                                 </div>
@@ -4914,7 +4965,7 @@
                                     {% if comments_data|length > 0 %}
                                     {% for comment in comments_data %}
                                     <div
-                                        style="margin-left: 20px;border-radius: 10px;border: 1px solid rgb(219, 219, 219);padding: 10px;margin-bottom: 10px;">
+                                        style="margin-left: 20px;border-radius: 10px;border: 1px solid rgb(5, 189, 209);padding: 10px;margin-bottom: 10px;">
                                         <div class="d-flex flex-start align-items-center">
                                             <img class="rounded-circle shadow-1-strong me-3"
                                                 src="{{ comment.author_profile }}" alt="avatar" width="60"
@@ -4962,25 +5013,30 @@
 
                                             </div>
                                             <p class="comments-reply-container" style="cursor: pointer;font-size: 12px;"
-                                                tooltip="Replies" flow="down" data-id="{{ comment.id }}"
-                                                data-count="{{ comment.reply_count }}" data-post="{{ p.post_id }}">
+                                                data-id="{{ comment.id }}" data-count="{{ comment.reply_count }}"
+                                                data-post="{{ p.post_id }}">
                                                 Replies({{ comment.reply_count}})</span>
                                             </p>
-                                            <p class="comment-likes-container" style="cursor: pointer;" tooltip="Likes"
-                                                flow="down"><i class="fa fa fa-heart-o"></i>
-                                                <span style="font-size: 12px;">{{ comment.like_count }}</span>
+                                            <p class="like-comment" style="cursor: pointer;" data-id="{{ comment.id }}"
+                                                data-comment_level="comment_post">
+                                                <i class="fa fa fa-heart-o" id="like-icon-{{ comment.id }}"></i>
+                                                <span style="font-size: 12px;" id="like-{{ comment.id }}">
+                                                    {{ comment.like_count }}</span>
                                             </p>
+
                                             <p><i class="fa fa fa-star"></i> <span style="font-size: 12px;">Add to
                                                     review wall</span></p>
                                         </div>
                                         <div id="comment-reply-container-box-{{ comment.id }}" style="display: none;">
                                             <div class="comment-post-box">
                                                 <div data-mdb-input-init class="form-outline" style="width: 90%;">
-                                                    <textarea class="form-control" id="textAreaExample" rows="4"
-                                                        style="background: #fff;"
-                                                        placeholder="Type your response"></textarea>
+                                                    <textarea class="form-control" data-type="comment-post" rows="4"
+                                                        style="background: #fff;" placeholder="Type your response"
+                                                        id="textarea-{{ comment.id }}"></textarea>
                                                     <button type="button" data-mdb-button-init data-mdb-ripple-init
-                                                        class="btn btn-primary btn-sm" style="margin: 10px;">Post
+                                                        class="btn btn-primary btn-sm post-comment-update"
+                                                        data-comment_id="{{ comment.id }}"
+                                                        data-comment_level="comment-post" style="margin: 10px;">Post
                                                         comment</button>
                                                 </div>
                                             </div>
@@ -4988,7 +5044,7 @@
                                             {% if comments_replies|length > 0 %}
                                             {% for cr in comments_replies %}
                                             <div
-                                                style="margin-left: 20px;border-radius: 10px;border: 1px solid rgb(219, 219, 219);padding: 10px;margin-bottom: 10px;">
+                                                style="margin-left: 20px;border-radius: 10px;border: 1px solid rgb(207, 173, 4);padding: 10px;margin-bottom: 10px;">
                                                 <div class="d-flex flex-start align-items-center">
                                                     <img class="rounded-circle shadow-1-strong me-3"
                                                         src="{{ cr.author_profile }}" alt="avatar" width="60"
@@ -5012,30 +5068,37 @@
                                                     style="display: flex;gap:4px;font-size: 12px;width: 80%;gap: 10px">
 
                                                     <p class="second-reply-comment"
-                                                        style="cursor: pointer;font-size: 12px;" tooltip="Replies"
-                                                        flow="down">Reply ({{ cr.reply_count }})</span>
+                                                        style="cursor: pointer;font-size: 12px;">
+                                                        Reply ({{ cr.reply_count }})</span>
                                                     </p>
-                                                    <p class="second-likes-comment" style="cursor: pointer;"
-                                                        tooltip="Likes" flow="down"><i class="fa fa fa-heart-o"></i>
-                                                        <span style="font-size: 12px;">{{ cr.like_count }}</span>
+                                                    <p class="like-comment" style="cursor: pointer;"
+                                                        data-id="{{ cr.id }}" data-comment_level="comment_reply"><i
+                                                            class="fa fa fa-heart-o" id="like-icon-{{ cr.id }}"></i>
+                                                        <span style="font-size: 12px;" id="like-{{ cr.id }}">
+                                                            {{ cr.like_count }}</span>
                                                     </p>
+
                                                 </div>
                                                 <div class="second-replies-comment" style="display: none;">
                                                     <div class="comment-reply-box">
                                                         <div data-mdb-input-init class="form-outline"
                                                             style="width: 90%;">
-                                                            <textarea class="form-control" id="textAreaExample" rows="4"
+                                                            <textarea class="form-control" rows="4"
                                                                 style="background: #fff;"
-                                                                placeholder="Type your response"></textarea>
+                                                                placeholder="Type your response"
+                                                                id="textarea-{{ cr.id }}"></textarea>
                                                             <button type="button" data-mdb-button-init
-                                                                data-mdb-ripple-init class="btn btn-primary btn-sm"
+                                                                data-mdb-ripple-init
+                                                                class="btn btn-primary btn-sm post-comment-update"
+                                                                data-comment_id="{{ cr.id }}"
+                                                                data-comment_level="comment-reply"
                                                                 style="margin: 10px;">Post
                                                                 comment</button>
                                                         </div>
                                                     </div>
                                                     {% for cpl in cr.replies %}
                                                     <div
-                                                        style="margin-left: 20px;border-radius: 10px;border: 1px solid rgb(219, 219, 219);padding: 10px;margin-bottom: 10px;">
+                                                        style="margin-left: 20px;border-radius: 10px;border: 1px solid rgb(211, 5, 5);padding: 10px;margin-bottom: 10px;">
                                                         <div class="d-flex flex-start align-items-center">
                                                             <img class="rounded-circle shadow-1-strong me-3"
                                                                 src="{{ cpl.author_profile }}" alt="avatar" width="60"
@@ -5054,6 +5117,17 @@
                                                         <p class="mt-3 mb-4 pb-2">
                                                             {{ cpl.message_body }}
                                                         </p>
+                                                        <div class="thisparent"
+                                                            style="display: flex;gap:4px;font-size: 12px;width: 80%;gap: 10px">
+                                                            <p class="like-comment" style="cursor: pointer;"
+                                                                data-id="{{ cpl.id }}"
+                                                                data-comment_level="comment_sec_reply"><i
+                                                                    id="like-icon-{{ cpl.id }}"
+                                                                    class="fa fa fa-heart-o"></i>
+                                                                <span style="font-size: 12px;" id="like-{{ cpl.id }}">
+                                                                    {{ cpl.like_count }}</span>
+                                                            </p>
+                                                        </div>
                                                     </div>
                                                     {% endfor %}
                                                 </div>
@@ -5171,7 +5245,7 @@
                                                     <strong>{{ p.date_scheduled }}</strong>
                                                 </p>
                                             </div>
-                                            {% else %}
+                                            {% elif p.is_published %}
                                             <div class="thisparent"
                                                 style="display: flex;justify-content: space-between;font-size: 12px;width: 80%;gap: 10px">
                                                 <p class="impression-container" style="cursor: pointer;"
@@ -5195,18 +5269,32 @@
                                             <div>
                                                 {% if p.is_scheduled %}
                                                 <p
-                                                    style="font-size: 12px;padding: 0;margin: 0;background-color: rgb(216, 230, 251);color: rgb(21, 121, 164);width: 80px;border-radius: 5px;padding-left: 5px;padding-right: 10px;align-items: center;margin-bottom: 10px;">
+                                                    style="font-size: 12px;padding: auto;background-color: rgb(216, 230, 251);color: rgb(21, 121, 164);border-radius: 5px;padding-left: 5px;padding-right: 10px;align-items: center;margin-bottom: 10px;">
                                                     <i class="fa fa-clock" aria-hidden="true"></i> Scheduled
                                                 </p>
-                                                {% else %}
+                                                {% elif p.is_published %}
                                                 <p
-                                                    style="font-size: 12px;padding: 0;margin: 0;background-color: rgb(216, 251, 232);color: rgb(21, 164, 97);width: 80px;border-radius: 5px;padding-left: 5px;padding-right: 10px;align-items: center;margin-bottom: 10px;">
+                                                    style="font-size: 12px;padding: auto;background-color: rgb(216, 251, 232);color: rgb(21, 164, 97);border-radius: 5px;padding-left: 5px;padding-right: 10px;align-items: center;margin-bottom: 10px;">
                                                     <i class="fa fa-check" aria-hidden="true"></i> Published
                                                 </p>
-
+                                                {% elif p.has_failed %}
+                                                <div style="display: flex;gap: 15px;">
+                                                    <p
+                                                        style="font-size: 12px;margin: auto;background-color: rgb(251, 216, 216);color: rgb(164, 21, 21);border-radius: 5px;padding-left: 5px;padding-right: 10px;align-items: center;margin-bottom: 10px;">
+                                                        <i class="fa fa-times" aria-hidden="true"></i> Failed
+                                                    </p>
+                                                    <p style="font-size: 12px;cursor: pointer;"
+                                                        class="retry-failed-post"><i class="fa fa-refresh"></i> Retry
+                                                    </p>
+                                                </div>
+                                                <div>
+                                                    <p style="font-size: 12px;color: rgb(164, 21, 21);">Unable to post
+                                                        to the selected platform(s)</p>
+                                                </div>
                                                 {% endif %}
                                             </div>
-                                            <p style="padding-right: 12px;cursor: pointer;"
+                                            <p style="padding-right: 12px;cursor: pointer;" class="delete-post-comment"
+                                                data-post_id="{{ p.post_id }}" data-type="post"
                                                 tooltip="Permanently delete post from all channels" flow="down"><i
                                                     class="fa fa-trash"></i></p>
                                         </div>
@@ -5221,6 +5309,7 @@
                                             {% endfor %}
                                         </div>
                                         <hr>
+                                        {% if p.tags %}
                                         <p>#Tags</p>
                                         <div
                                             style="display: flex;gap: 5px;flex-wrap: wrap;padding-top: 0px;padding-bottom:10px;">
@@ -5229,6 +5318,7 @@
 
                                             {% endfor %}
                                         </div>
+                                        {% endif %}
                                     </div>
 
                                 </div>
@@ -5240,7 +5330,7 @@
                                     {% if comments_data|length > 0 %}
                                     {% for comment in comments_data %}
                                     <div
-                                        style="margin-left: 20px;border-radius: 10px;border: 1px solid rgb(219, 219, 219);padding: 10px;margin-bottom: 10px;">
+                                        style="margin-left: 20px;border-radius: 10px;border: 1px solid rgb(5, 189, 209);padding: 10px;margin-bottom: 10px;">
                                         <div class="d-flex flex-start align-items-center">
                                             <img class="rounded-circle shadow-1-strong me-3"
                                                 src="{{ comment.author_profile }}" alt="avatar" width="60"
@@ -5288,25 +5378,31 @@
 
                                             </div>
                                             <p class="comments-reply-container" style="cursor: pointer;font-size: 12px;"
-                                                tooltip="Replies" flow="down" data-id="{{ comment.id }}"
-                                                data-count="{{ comment.reply_count }}" data-post="{{ p.post_id }}">
+                                                data-id="{{ comment.id }}" data-count="{{ comment.reply_count }}"
+                                                data-post="{{ p.post_id }}">
                                                 Replies({{ comment.reply_count}})</span>
                                             </p>
-                                            <p class="comment-likes-container" style="cursor: pointer;" tooltip="Likes"
-                                                flow="down"><i class="fa fa fa-heart-o"></i>
-                                                <span style="font-size: 12px;">{{ comment.like_count }}</span>
+
+                                            <p class="like-comment" style="cursor: pointer;" data-id="{{ comment.id }}"
+                                                data-comment_level="comment_post">
+                                                <i class="fa fa fa-heart-o" id="like-icon-{{ comment.id }}"></i>
+                                                <span style="font-size: 12px;" id="like-{{ comment.id }}">
+                                                    {{ comment.like_count }}</span>
                                             </p>
+
                                             <p><i class="fa fa fa-star"></i> <span style="font-size: 12px;">Add to
                                                     review wall</span></p>
                                         </div>
                                         <div id="comment-reply-container-box-{{ comment.id }}" style="display: none;">
                                             <div class="comment-post-box">
                                                 <div data-mdb-input-init class="form-outline" style="width: 90%;">
-                                                    <textarea class="form-control" id="textAreaExample" rows="4"
-                                                        style="background: #fff;"
-                                                        placeholder="Type your response"></textarea>
+                                                    <textarea class="form-control " rows="4" style="background: #fff;"
+                                                        placeholder="Type your response"
+                                                        id="textarea-{{ comment.id }}"></textarea>
                                                     <button type="button" data-mdb-button-init data-mdb-ripple-init
-                                                        class="btn btn-primary btn-sm" style="margin: 10px;">Post
+                                                        class="btn btn-primary btn-sm post-comment-update"
+                                                        data-comment_id="{{ comment.id }}"
+                                                        data-comment_level="comment-post" style="margin: 10px;">Post
                                                         comment</button>
                                                 </div>
                                             </div>
@@ -5314,7 +5410,7 @@
                                             {% if comments_replies|length > 0 %}
                                             {% for cr in comments_replies %}
                                             <div
-                                                style="margin-left: 20px;border-radius: 10px;border: 1px solid rgb(219, 219, 219);padding: 10px;margin-bottom: 10px;">
+                                                style="margin-left: 20px;border-radius: 10px;border: 1px solid rgb(207, 173, 4);padding: 10px;margin-bottom: 10px;">
                                                 <div class="d-flex flex-start align-items-center">
                                                     <img class="rounded-circle shadow-1-strong me-3"
                                                         src="{{ cr.author_profile }}" alt="avatar" width="60"
@@ -5336,33 +5432,40 @@
 
                                                 <div class="thisparent"
                                                     style="display: flex;gap:4px;font-size: 12px;width: 80%;gap: 10px">
-
                                                     <p class="second-reply-comment"
-                                                        style="cursor: pointer;font-size: 12px;" tooltip="Replies"
-                                                        flow="down">Reply ({{ cr.reply_count }})</span>
+                                                        style="cursor: pointer;font-size: 12px;">
+
+                                                        Reply ({{cr.reply_count }})</span>
                                                     </p>
-                                                    <p class="second-likes-comment" style="cursor: pointer;"
-                                                        tooltip="Likes" flow="down"><i class="fa fa fa-heart-o"></i>
-                                                        <span style="font-size: 12px;">{{ cr.like_count }}</span>
+
+                                                    <p class="like-comment" style="cursor: pointer;"
+                                                        data-id="{{ cr.id }}" data-comment_level="comment_reply"><i
+                                                            id="like-icon-{{ cr.id }}" class="fa fa fa-heart-o"></i>
+                                                        <span style="font-size: 12px;" id="like-{{ cr.id }}">
+                                                            {{ cr.like_count }}</span>
                                                     </p>
+
                                                 </div>
                                                 <!-- second replies -->
                                                 <div class="second-replies-comment" style="display: none;">
                                                     <div class="comment-reply-box">
                                                         <div data-mdb-input-init class="form-outline"
                                                             style="width: 90%;">
-                                                            <textarea class="form-control" id="textAreaExample" rows="4"
-                                                                style="background: #fff;"
+                                                            <textarea class="form-control" rows="4"
+                                                                id="textarea-{{ cr.id }}" style="background: #fff;"
                                                                 placeholder="Type your response"></textarea>
                                                             <button type="button" data-mdb-button-init
-                                                                data-mdb-ripple-init class="btn btn-primary btn-sm"
+                                                                data-mdb-ripple-init
+                                                                class="btn btn-primary btn-sm post-comment-update"
+                                                                data-comment_id="{{ cr.id }}"
+                                                                data-comment_level="comment-reply"
                                                                 style="margin: 10px;">Post
                                                                 comment</button>
                                                         </div>
                                                     </div>
                                                     {% for cpl in cr.replies %}
                                                     <div
-                                                        style="margin-left: 20px;border-radius: 10px;border: 1px solid rgb(219, 219, 219);padding: 10px;margin-bottom: 10px;">
+                                                        style="margin-left: 20px;border-radius: 10px;border: 1px solid rgb(211, 5, 5);padding: 10px;margin-bottom: 10px;">
                                                         <div class="d-flex flex-start align-items-center">
                                                             <img class="rounded-circle shadow-1-strong me-3"
                                                                 src="{{ cpl.author_profile }}" alt="avatar" width="60"
@@ -5381,6 +5484,18 @@
                                                         <p class="mt-3 mb-4 pb-2">
                                                             {{ cpl.message_body }}
                                                         </p>
+                                                        <div class="thisparent"
+                                                            style="display: flex;gap:4px;font-size: 12px;width: 80%;gap: 10px">
+                                                            <p class="like-comment" style="cursor: pointer;"
+                                                                data-id="{{ cpl.id }}"
+                                                                data-comment_level="comment_sec_reply"><i
+                                                                    id="like-icon-{{ cpl.id }}"
+                                                                    class="fa fa fa-heart-o"></i>
+                                                                <span style="font-size: 12px;" id="like-{{ cpl.id }}">
+                                                                    {{ cpl.like_count }}</span>
+                                                            </p>
+                                                        </div>
+
                                                     </div>
                                                     {% endfor %}
                                                 </div>
@@ -6304,7 +6419,6 @@
 
                     // Create a new FormData object
                     var formData = new FormData();
-
                     // Append other input fields to FormData
                     var csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
                     formData.append('company_id', '{{ company_id }}');
@@ -6330,7 +6444,6 @@
                                 var newElementContent = tempDiv.find('#post-content').html();
 
                                 $('#post-content').html(newElementContent);
-                                initializeMultiSelect();
                                 $('.chat-content').hide();
                                 $('#post-content').show()
                                 return;
@@ -6369,7 +6482,6 @@
                                 // Extract the specific element from the new HTML
                                 var newElementContent = tempDiv.find('#teams-content').html();
                                 $('#teams-content').html(newElementContent);
-                                initializeMultiSelect();
                                 $('.chat-content').hide();
                                 $('#teams-content').show();
 
@@ -6485,18 +6597,122 @@
                     $('#view-team-files').show();
                     $('#add-files-btn').show();
                 });
+                // like comment
+                $(document).on('click', '.like-comment', function () {
+                    var comment_id = $(this).data('id');
+                    var comment_level = $(this).data('comment_level');
+                    $(`#like-icon-${comment_id}`).css('color', 'red');
+                    var formData = new FormData();
+                    // Append other input fields to FormData
+                    var csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                    formData.append('comment_id', comment_id);
+                    formData.append('company_id', '{{ company_id }}');
+                    formData.append('comment_level', comment_level);
+
+                    // Send the form data via AJAX
+                    $.ajax({
+                        url: '{% url "like_comment" %}', // Replace with your Django endpoint URL
+                        type: 'POST',
+                        headers: {
+                            'X-CSRFToken': csrfToken
+                        },
+                        data: formData,
+                        processData: false, // Prevent jQuery from processing the data
+                        contentType: false, // Prevent jQuery from setting the content type
+                        success: function (response) {
+                            if (response['error']) {
+                                toastr.error(response['error']);
+                                $(`#like-icon-${comment_id}`).css('color', 'grey');
+
+                            } else {
+                                $(`#like-icon-${comment_id}`).css('color', 'red');
+                                var vl = parseInt($(`#like-${comment_id}`).text()) + 1;
+                                $(`#like-${comment_id}`).text(vl);
+                                initializeMultiSelect();
+                            }
+                        },
+                        error: function (jqXHR, textStatus, errorThrown) {
+                            toastr.error('Failed to upvote comment');
+                        }
+                    });
+
+
+
+                });
+
+                // reply to comment
+                $(document).on('click', '.post-comment-update', function () {
+                    var txt = $(this).siblings('.form-control').val();
+                    if (txt == '') {
+                        return;
+                    }
+                    var btn_status = $(this).text();
+                    if (btn_status == 'Posting...') { return; }
+                    var btn = $(this);
+                    btn.text('Posting...')
+                    var comment_id = $(this).data('comment_id');
+                    var comment_level = $(this).data('comment_level');
+
+                    var formData = new FormData();
+                    // Append other input fields to FormData
+                    var csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                    formData.append('comment_id', comment_id);
+                    formData.append('comment', txt);
+                    formData.append('company_id', '{{ company_id }}');
+                    formData.append('comment_level', comment_level);
+
+                    // Send the form data via AJAX
+                    $.ajax({
+                        url: '{% url "post_comment" %}', // Replace with your Django endpoint URL
+                        type: 'POST',
+                        headers: {
+                            'X-CSRFToken': csrfToken
+                        },
+                        data: formData,
+                        processData: false, // Prevent jQuery from processing the data
+                        contentType: false, // Prevent jQuery from setting the content type
+                        success: function (response) {
+                            if (response['error']) {
+
+                            } else {
+                                toastr.success('Comment posted');
+                                // delete the text area value
+                                $(`#textarea-${comment_id}`).val('');
+                                btn.text('Post comment');
+
+                                // var tempDiv = $('<div>').html(response);
+                                // Extract the specific element from the new HTML
+                                // var newElementContent = tempDiv.find(`#post-comment-box-${post_id}`).html();
+
+                                // $(`#post-comment-box-${post_id}`).html(newElementContent);
+                                // $(`#spin-${post_id}`).css('display', 'none');
+                                // $(`#impression-analysis-${post_id}`).css('display', 'none');
+                                // $(`#post-comment-box-${post_id}`).css('display', 'block');
+                                initializeMultiSelect();
+                            }
+                        },
+                        error: function (jqXHR, textStatus, errorThrown) {
+                            $(`#spin-${post_id}`).css('display', 'none');
+                            toastr.error('Failed send comment');
+                        }
+                    });
+
+
+                });
+
+                // retrieve comments
                 $(document).on('click', '.comments-container', function () {
                     var post_id = $(this).data('id');
                     $(`#spin-${post_id}`).css('display', 'flex');
                     $(`#impression-analysis-${post_id}`).css('display', 'none');
-                    var comments_displayed=$(`#post-comment-box-${post_id}`).css('display');
-                    if(comments_displayed=='block'){
+                    var comments_displayed = $(`#post-comment-box-${post_id}`).css('display');
+                    if (comments_displayed == 'block') {
                         // close comment box 
                         $(`#spin-${post_id}`).css('display', 'none');
                         $(`#post-comment-box-${post_id}`).css('display', 'none');
                         return;
 
-                    } 
+                    }
 
                     $(`#post-comment-box-${post_id}`).css('display', 'none');
 
@@ -6555,6 +6771,11 @@
                     var comment_id = $(this).data('id');
                     var reply_count = $(this).data('count');
                     var post_id = $(this).data('post');
+                    var cmt_cnt_disp = $(`#comment-reply-container-box-${comment_id}`).css('display')
+                    if (cmt_cnt_disp == 'block') {
+                        $(`#comment-reply-container-box-${comment_id}`).css('display', 'none');
+                        return;
+                    }
                     $(`#spin-${comment_id}`).css('display', 'flex');
                     $(`#comment-reply-container-box-${comment_id}`).css('display', 'none');
 
@@ -6598,7 +6819,7 @@
                         },
                         error: function (jqXHR, textStatus, errorThrown) {
                             $(`#spin-${comment_id}`).css('display', 'none');
-                            toastr.error('Failed to get the stats');
+                            toastr.error('Failed to get comments');
                         }
                     });
 
@@ -7288,6 +7509,77 @@
                     $('#step4').addClass('current');
                     $('#set_up_content').css('display', 'none');
                     $('#review_content').css('display', 'block');
+                });
+
+                // delete post
+                $(document).on('click', '.delete-post-comment', function () {
+                    var post_id = $(this).data('post_id');
+                    var comment_id = $(this).data('comment_id');
+                    var delete_type = $(this).data('type');
+                    if (!post_id || !delete_type) { return; }
+                    if (delete_type == 'comment' && !comment_id) { return }
+                    // display modal
+                    $('#confirmModalDeletePostAction').data('post_id', post_id);
+                    $('#confirmModalDeletePostAction').data('comment_id', comment_id);
+                    $('#confirmModalDeletePostAction').data('type', delete_type);
+
+                    $('#confirmModalPostDeleteCenter').modal('show');
+
+                });
+
+                // confirm delete post
+                $(document).on('click', '#confirmModalDeletePostAction', function () {
+                    var post_id = $('#confirmModalDeletePostAction').data('post_id');
+                    var comment_id = $('#confirmModalDeletePostAction').data('comment_id');
+                    var delete_type = $('#confirmModalDeletePostAction').data('type');
+                    // display modal
+
+                    $('#confirmModalPostDeleteCenter').modal('hide');
+                    var formData = new FormData();
+                    // Append other input fields to FormData
+                    var csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                    formData.append('company_id', '{{ company_id }}');
+                    formData.append('post_id', post_id);
+                    formData.append('comment_id', comment_id);
+                    formData.append('action_type', delete_type);
+                    // Send the form data via AJAX
+                    $.ajax({
+                        url: '{% url "delete_comment" %}', // Replace with your Django endpoint URL
+                        type: 'POST',
+                        headers: {
+                            'X-CSRFToken': csrfToken
+                        },
+                        data: formData,
+                        processData: false, // Prevent jQuery from processing the data
+                        contentType: false, // Prevent jQuery from setting the content type
+                        success: function (response) {
+                            if (response['error']) {
+                                success = false;
+                                toastr.error(response['error']);
+
+                            } else {
+                                toastr.success('Post deleted successfully');
+                                var tempDiv = $('<div>').html(response);
+
+                                // Extract the specific element from the new HTML
+                                var newElementContent = tempDiv.find('#post-content').html();
+
+                                $('#post-content').html(newElementContent);
+                                // update the post
+
+                            }
+                        },
+                        error: function (jqXHR, textStatus, errorThrown) {
+                            success = false;
+                            toastr.error('Failed. Try again later.');
+                            console.error(textStatus, errorThrown);
+                            $('#wait-upload-spinner').css('display', 'none');
+
+                        }
+                    });
+
+
+
                 });
 
                 $(document).on('click', '#upload_new_post', function () {

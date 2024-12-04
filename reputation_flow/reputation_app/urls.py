@@ -53,9 +53,12 @@ urlpatterns=[
     path('get_post_comments/',views.getComments,name='get_post_comments'),
     # get comment replies
     path('get_comment_replies/',views.getCommentReplies,name='get_comment_replies'),
-    # get comment replies
+    # get post comments
     path('post_comment/',views.postComment,name='post_comment'),
-
+    # get like comments
+    path('like_comment/',views.likeComment,name='like_comment'),
+    # delete post
+    path('delete_comment/',views.deletePostComment,name='delete_comment'),
 ]
 # Serve media files during development
 # if settings.DEBUG:

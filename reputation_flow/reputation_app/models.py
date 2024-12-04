@@ -232,6 +232,9 @@ class CompanyPosts(models.Model):
     engagement_count=models.IntegerField(default=0)
     is_scheduled=models.BooleanField(default=False)
     is_published=models.BooleanField(default=False)
+    partial_publish=models.BooleanField(default=False)
+    has_failed=models.BooleanField(default=False)
+    failure_reasons=models.JSONField(default=list)
     has_media=models.BooleanField(default=True)
     date_uploaded=models.DateTimeField(default=timezone.now)
     date_scheduled=models.DateTimeField(default=timezone.now)
@@ -287,9 +290,8 @@ class CompanyRedditPosts(models.Model):
     subs = models.JSONField(default=dict)# [{'sub_name':str,'id':str,'link':str,'comments':int,'upvotes':int,'upvote_ratio':int,'crossposts':int}]
     target_subs=models.JSONField(default=list)
     post_link=models.TextField(default='')
-    
     agg_engagement_count = models.IntegerField(default=0)
-    
+    last_updated=models.DateTimeField(default=timezone.now)
     def __str__(self):
         return self.post_id
 

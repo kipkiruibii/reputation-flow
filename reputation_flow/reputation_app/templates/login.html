@@ -131,17 +131,18 @@
         </nav>
     </header>
     <br>
-    <section style="margin-top:5%;height: 70vh;">
+    <section style="margin-top:5%;height: 80vh;">
         <!-- login form -->
         <div class="container-fluid h-custom" id="login_container" style="display: block;height: 100%;">
+            <div style="display: flex;flex-direction: column;justify-content: center;">
             <div class="row d-flex justify-content-center align-items-center h-100" style="gap: 4rem;">
                 <div class="">
                     <img src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-login-form/draw2.webp"
                         class="img-fluid" alt="Sample image" style="width:500px">
                 </div>
-                <div class="" style="overflow-y: scroll;height: 100%;width: 50%;">
-                    <form>
-                        <div class="d-flex flex-row align-items-center justify-content-center justify-content-lg-start">
+                <div style="height: 100%;width: 50%;margin-top: 5%;">
+                    <form style="width:70%;margin: auto;">
+                        <!-- <div class="d-flex flex-row align-items-center justify-content-center justify-content-lg-start">
                             <p class="lead fw-normal mb-0 me-3">Sign in with</p>
                             <button type="button" data-mdb-button-init data-mdb-ripple-init
                                 class="btn btn-primary btn-floating mx-1">
@@ -161,7 +162,7 @@
 
                         <div class="divider d-flex align-items-center my-4">
                             <p class="text-center fw-bold mx-3 mb-0">Or</p>
-                        </div>
+                        </div> -->
 
                         <!-- Email input -->
                         <div data-mdb-input-init class="form-outline mb-4">
@@ -197,18 +198,18 @@
 
                     </form>
                 </div>
-            </div>
+            </div></div>
         </div>
         <!-- account register form -->
-        <div class="container-fluid h-custom" id="register_container" style="height: 100%;display: none;">
+        <div class="container-fluid h-custom" id="register_container" style="display: none;margin-bottom:50px">
             <div class="row d-flex justify-content-center align-items-center h-100" style="gap: 4rem;">
                 <div class="">
                     <img src="https://png.pngtree.com/element_our/png/20181228/building-vector-icon-png_296032.jpg"
                         style="width:100%;" class="img-fluid" alt="Sample image">
                 </div>
-                <div class="" style="overflow-y: scroll;height: 100%;width: 50%;">
-                    <form>
-                        <div class="d-flex flex-row align-items-center justify-content-center justify-content-lg-start">
+                <div style="height: 100%;width: 50%;margin-top: 20px;">
+                    <form style="width:70%;margin: auto;">
+                        <!-- <div class="d-flex flex-row align-items-center justify-content-center justify-content-lg-start">
                             <p class="lead fw-normal mb-0 me-3">Sign up with</p>
                             <button type="button" data-mdb-button-init data-mdb-ripple-init
                                 class="btn btn-primary btn-floating mx-1">
@@ -224,11 +225,11 @@
                                 class="btn btn-primary btn-floating mx-1">
                                 <i class="fab fa-facebook-f"></i>
                             </button>
-                        </div>
-
+                        </div> -->
+<!-- 
                         <div class="divider d-flex align-items-center my-4">
                             <p class="text-center fw-bold mx-3 mb-0">Or</p>
-                        </div>
+                        </div> -->
 
                         <!-- username input -->
                         <div data-mdb-input-init class="form-outline mb-4">
@@ -285,7 +286,7 @@
                         class="img-fluid" alt="Sample image">
                 </div>
                 <div class="" style="overflow-y: scroll;height: 100%;width: 50%;">
-                    <form>
+                    <form style="width:70%;margin: auto;">
                         <div class="d-flex flex-row align-items-center justify-content-center justify-content-lg-start">
                             <p class="lead fw-normal mb-0 me-3">Tell us about your business</p>
                         </div>
@@ -306,11 +307,14 @@
                                     <option value="Construction">Construction</option>
                                     <option value="Consulting">Consulting</option>
                                     <option value="Consumer Goods">Consumer Goods</option>
+                                    <option value="Content Creator">Content Creation</option>
                                     <option value="Cybersecurity">Cybersecurity</option>
+                                    <option value="Digital Marketing">Digital Marketing</option>
                                     <option value="Ecommerce">E-Commerce</option>
                                     <option value="Education">Education</option>
                                     <option value="Energy">Energy</option>
                                     <option value="Entertainment">Entertainment</option>
+                                    <option value="Entertainment (Adult)">Entertainment (Adult)</option>
                                     <option value="Environmental">Environmental</option>
                                     <option value="Finance">Finance</option>
                                     <option value="Freelance">Freelance</option>
@@ -319,6 +323,7 @@
                                     <option value="Hospitality">Hospitality</option>
                                     <option value="Information Technology">Information Technology</option>
                                     <option value="Insurance">Insurance</option>
+                                    <option value="Influencer">Influencer</option>
                                     <option value="Law">Law</option>
                                     <option value="Logistics">Logistics</option>
                                     <option value="Manufacturing">Manufacturing</option>
@@ -393,6 +398,7 @@
                             <span class="form-label d-block">Telephone</span>
 
                         </label>
+                        <p style="font-size: 12;align-items: center;">You can choose what information to disclose in the dashboard</p>
                         <div class="d-flex justify-content-between align-items-center">
                             <!-- Checkbox -->
                             <div class="form-check mb-0">
@@ -420,35 +426,6 @@
 
 
     <br>
-    <!-- Copyright -->
-    <div class="copyright " style="position: fixed;bottom: 0;width: 100%;">
-        <div
-            class="d-flex flex-column flex-md-row text-center text-md-start justify-content-between py-4 px-4 px-xl-5 bg-primary">
-            <!-- Copyright -->
-            <div class="text-white mb-3 mb-md-0">
-                Copyright © 2024. All rights reserved.
-            </div>
-            <!-- Copyright -->
-
-            <!-- Right -->
-            <div>
-                <a href="#!" class="text-white me-4">
-                    <i class="fab fa-facebook-f"></i>
-                </a>
-                <a href="#!" class="text-white me-4">
-                    <i class="fab fa-twitter"></i>
-                </a>
-                <a href="#!" class="text-white me-4">
-                    <i class="fab fa-google"></i>
-                </a>
-                <a href="#!" class="text-white">
-                    <i class="fab fa-linkedin-in"></i>
-                </a>
-            </div>
-            <!-- Right -->
-        </div>
-    </div> <!-- end of copyright -->
-    <!-- end of copyright -->
 
     <!-- Scripts -->
     <script src="{% static 'js/bootstrap.min.js' %}"></script> <!-- Bootstrap framework -->

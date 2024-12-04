@@ -252,7 +252,7 @@ def getRedditSubFlairs(cid):
             try:
                 subreddit = reddit.subreddit(subreddit_name.display_name)
                 flair_options = list(subreddit.flair.link_templates)
-                flair_optional = not subreddit.post_requirements.get('flair', False)
+                flair_optional = not subreddit.post_requirements().get('flair', False)
                 for f in flair_options:
                     if not f['mod_only']:
                         vl.append({
@@ -261,7 +261,6 @@ def getRedditSubFlairs(cid):
                             'selected': False,
                             
                         })
-
 
             except Exception as e:
                 flair_optional=True
@@ -278,7 +277,8 @@ def getRedditSubFlairs(cid):
                             pres = True
                             break
                     if not pres:
-                        sb['flairs'].append(vl)
+                        if vl:
+                            sb['flairs'].append(vl)
             cr.last_updated=timezone.now()
             cr.save()
             if not present:
@@ -320,6 +320,11 @@ def dashboard(request, company_id):
     if cr:
         sub_f = threading.Thread(target=getRedditSubFlairs, daemon=True, kwargs={'cid': company_id})
         sub_f.start()
+        
+    upd_pst=threading.Thread(target=updatePosts,daemon=True, kwargs={
+            'company_id':company_id,
+        })
+    upd_pst.start()
     fb_ig = request.session.get('facebook_ig_data', {})
     if fb_ig:
         ldta=fb_ig.get('time_updated')
@@ -473,6 +478,44 @@ def dashboard(request, company_id):
     }
     return render(request, 'dashboard.html', context=context)
 
+def updatePosts(company_id):
+    print('updating posts')
+    cp = Company.objects.filter(company_id=company_id).first()
+    cpsts=CompanyPosts.objects.filter(company=cp)
+    if cpsts:
+        for cps in cpsts:
+            platforms=cps.platforms
+            for platform in platforms:
+                if platform == 'reddit':
+                    # update reddit posts
+                    red_psts=CompanyRedditPosts.objects.filter(post_id=cps.post_id)
+                    for red_p in red_psts:
+                        dtn=timezone.now()
+                        lupd=red_p.last_updated
+                        t_diff=(dtn-lupd).total_seconds()
+                        if t_diff<300: #update after 5 mins
+                            continue
+                        subs=red_p.subs
+                        total_impressions=0
+                        total_comments=0
+                        for sub in subs:
+                            submission_id = sub['id']
+                            # Fetch the submission object using the ID
+                            try:
+                                submission = reddit.submission(id=submission_id)
+                                sub['upvotes']=submission.score
+                                sub['comments']=submission.num_comments
+                                total_comments+=submission.num_comments
+                                sub['upvote_ratio']=submission.upvote_ratio
+                                sub['crossposts']=submission.num_crossposts
+                                total_impressions+=(submission.num_crossposts+submission.score+submission.num_comments)
+                                red_p.save()
+                            except:
+                                continue
+                        cps.engagement_count=total_impressions
+                        cps.comment_count=total_comments
+                        cps.save()
+
 @api_view(['POST'])
 def fetchPosts(request):
     company_id = request.POST.get('company_id', None)
@@ -571,8 +614,7 @@ def fetchPosts(request):
                 if cr:
                     k=cr.subs[0]
                     cover_image_link = k['link']
-                # use threading to update post and comments
-                pass
+                
             eng_cnt=p.engagement_count
             if eng_cnt>1000000:
                 eng_cnt=round(eng_cnt/1000000,1)
@@ -589,6 +631,8 @@ def fetchPosts(request):
                 'content': p.description,
                 'is_uploaded': p.is_published,
                 'is_scheduled': p.is_scheduled,
+                'is_published': p.is_published,
+                'has_failed': p.has_failed,
                 'comment_count':cmt_cnt,
                 'engagement_count':eng_cnt,
                 'tags': [] if not p.tags else p.tags.split(),
@@ -606,7 +650,11 @@ def fetchPosts(request):
                 'has_instagram':'instagram' in p.platforms,
 
             })
-        
+        upd_pst=threading.Thread(target=updatePosts,daemon=True, kwargs={
+                'company_id':company_id,
+            })
+        upd_pst.start()
+  
     context = {
         'posts': all_posts,
     }
@@ -653,11 +701,6 @@ def getStats(request):
         red_tteng.append(c['upvote_ratio'])
         red_cmt.append(c['comments'])
         red_cpst.append(c['crossposts'])
-    print(red_up)
-    print(red_cmt)
-    print(red_cpst)
-    print(ptfrms_en)
-    print(ptfrms)
     red_te=0
     if red_tteng:
         red_te=sum(red_tteng)/len(red_tteng) 
@@ -676,12 +719,14 @@ def processCommentReplies(comment_id,replies,submission_op):
     for comment in replies: 
         cmr=CompanyPostsCommentsReplies.objects.filter(comment_id=comment.id).first()
         if not cmr:
+            if not all([comment.author]):
+                continue
             cpstcmt=CompanyPostsCommentsReplies(
                 parent_comment_id=comment_id,
                 comment_id=comment.id,
                 is_op=comment.author == submission_op,
-                author=comment.author,
-                author_profile=comment.author.icon_img,
+                author=comment.author if comment.author else '[Deleted]',
+                author_profile=comment.author.icon_img if comment.author else None ,
                 message=comment.body,
                 like_count=comment.score,
                 reply_count=len(comment.replies),
@@ -689,6 +734,9 @@ def processCommentReplies(comment_id,replies,submission_op):
             )
             cpstcmt.save()
         else:
+            if comment.body == '[deleted]':
+                cmr.delete()
+                continue
             cmr.message=comment.body
             cmr.like_count=comment.score
             cmr.reply_count=len(comment.replies)
@@ -716,7 +764,7 @@ def commentBackgroundUpdate(post,post_id):
                         comment_id=comment.id,
                         is_op=comment.author == submission_op,
                         platform=platform,
-                        author=comment.author,
+                        author=comment.author ,
                         author_profile=comment.author.icon_img,
                         message=comment.body,
                         like_count=comment.score,
@@ -734,6 +782,59 @@ def commentBackgroundUpdate(post,post_id):
                     # save the reply comments
                     processCommentReplies(comment_id=comment.id,replies=comment.replies,submission_op=submission_op) 
 
+@api_view(['POST'])
+def likeComment(request):
+    comment_id = request.POST.get('comment_id', None)
+    comment_level= request.POST.get('comment_level', None)
+    company_id = request.POST.get('company_id', None)
+    if not all([comment_id,comment_id,comment_level]):
+        return Response({'error': 'Bad request'})
+    cp = Company.objects.filter(company_id=company_id).first()
+    if not cp:
+        return Response({'error': 'Bad request'})
+    # get the specific platform
+    pltform=''
+    print(comment_level)
+    if comment_level == 'comment_post':
+        cpst=CompanyPostsComments.objects.filter(comment_id=comment_id).first()
+        if cpst:
+            pltform=cpst.platform
+    elif comment_level == 'comment_sec_reply':
+        cprs=CompanyPostsCommentsReplies.objects.filter(comment_id=comment_id).first()
+        if cprs:
+            pr_id=cprs.parent_comment_id
+            cprs=CompanyPostsCommentsReplies.objects.filter(comment_id=pr_id).first()
+            if cprs:
+                pr_id=cprs.parent_comment_id
+                cpst=CompanyPostsComments.objects.filter(comment_id=pr_id).first()
+                if cpst:
+                    pltform=cpst.platform
+    else:
+        cprs=CompanyPostsCommentsReplies.objects.filter(comment_id=comment_id).first()
+        if cprs:
+            pr_id=cprs.parent_comment_id
+            cpst=CompanyPostsComments.objects.filter(comment_id=pr_id).first()
+            if cpst:
+                pltform=cpst.platform
+    print(pltform)
+    if not pltform:
+        return Response({'error': 'Bad request'})
+    if pltform == 'reddit':
+        print('upvoting reddit post')
+        try:
+            cr = CompanyReddit.objects.filter(company=cp).first()
+            reddit = praw.Reddit(
+                    client_id=settings.REDDIT_CLIENT_ID,
+                    client_secret=settings.REDDIT_CLIENT_SECRET,
+                    user_agent=settings.REDDIT_USER_AGENT,
+                    refresh_token=cr.refresh_token,
+                )
+            comment = reddit.comment(id=comment_id)  # Replace with the comment ID
+            # Upvote the comment
+            comment.upvote() 
+            return Response({'success': 'Bad request'})
+        except:
+            return Response({'error': 'Could not upvote comment'})
 @api_view(['POST'])
 def getComments(request):
     post_id = request.POST.get('post_id', None)
@@ -795,7 +896,7 @@ def getComments(request):
         #     })
         #     thrd.start()
         
-    cpstmt=CompanyPostsComments.objects.filter(post=pst)
+    cpstmt=CompanyPostsComments.objects.filter(post=pst).order_by('-like_count','-reply_count')
     cmts=[] 
     for cpm in cpstmt:
         cmts.append({
@@ -887,10 +988,10 @@ def getCommentReplies(request):
     #  get the replies to this comment
     pst=pstc.post
     c_replies=[]
-    crp=CompanyPostsCommentsReplies.objects.filter(parent_comment_id=c_id)
+    crp=CompanyPostsCommentsReplies.objects.filter(parent_comment_id=c_id).order_by('-like_count','-reply_count')
     for cpm in crp:
         replies=[]
-        crps=CompanyPostsCommentsReplies.objects.filter(parent_comment_id=cpm.comment_id)
+        crps=CompanyPostsCommentsReplies.objects.filter(parent_comment_id=cpm.comment_id).order_by('-like_count','-reply_count')
         for c_s in crps: 
             replies.append({
                 'author':c_s.author,
@@ -1000,11 +1101,54 @@ def getCommentReplies(request):
 @api_view(['POST'])
 def postComment(request):
     comment_id = request.POST.get('comment_id', None)
-    comment = request.POST.get('comment', None)
-    if not all([comment_id,comment]):
+    comment_level= request.POST.get('comment_level', None)
+    comment_rt = request.POST.get('comment', None)
+    company_id = request.POST.get('company_id', None)
+    if not all([comment_id,comment_rt,comment_id,comment_level]):
         return Response({'error': 'Bad request'})
+    cp = Company.objects.filter(company_id=company_id).first()
+    if not cp:
+        return Response({'error': 'Bad request'})
+    
+    # get the specific platform
+    pltform=''
+    if comment_level == 'comment-post':
+        cpst=CompanyPostsComments.objects.filter(comment_id=comment_id).first()
+        if cpst:
+            pltform=cpst.platform
+    else:
+        cprs=CompanyPostsCommentsReplies.objects.filter(comment_id=comment_id).first()
+        if cprs:
+            pr_id=cprs.parent_comment_id
+            cpst=CompanyPostsComments.objects.filter(comment_id=pr_id).first()
+            if cpst:
+                pltform=cpst.platform
+    if not pltform:
+        return Response({'error': 'Bad request'})
+    # try:
+    if pltform == 'reddit':
+        cr = CompanyReddit.objects.filter(company=cp).first()
+        reddit = praw.Reddit(
+                client_id=settings.REDDIT_CLIENT_ID,
+                client_secret=settings.REDDIT_CLIENT_SECRET,
+                user_agent=settings.REDDIT_USER_AGENT,
+                refresh_token=cr.refresh_token,
+            )
+        comment = reddit.comment(id=comment_id)
+
+        # Submit a reply
+        reply = comment.reply(comment_rt)
+
+        # Output the reply details
+        # print(f"Replied to comment ID: {comment.id}")
+        # print(f"Reply ID: {reply.id}")
+        # print(f"Reply Body: {reply.body}")
+        
+        
     return Response({'success': 'Bad request'})
-    pass
+    # except Exception as e:
+    #     return Response({'error': e})
+    
 @api_view(['POST'])
 def fetchTeams(request):
     company_id = request.POST.get('company_id', None)
@@ -1812,6 +1956,9 @@ def postFacebook(page_id,media,access_token,title,description,is_video,has_media
 
 def postReddit(title,description,subs,hasMedia,files,nsfw_tag,spoiler_tag,red_refresh_token,post_id,company):
     cr=CompanyReddit.objects.filter(company=company).first()
+    pst=CompanyPosts.objects.filter(post_id=post_id).first()
+    if not pst:
+        return
     reddit = praw.Reddit(
             client_id=settings.REDDIT_CLIENT_ID,
             client_secret=settings.REDDIT_CLIENT_SECRET,
@@ -1819,6 +1966,9 @@ def postReddit(title,description,subs,hasMedia,files,nsfw_tag,spoiler_tag,red_re
             refresh_token=red_refresh_token,
         )
     sub_tr=[]
+    published=False
+    failed_publish=False
+    fail_reasons=[]
     for s in subs:
         for cs in cr.subs:
             sb=s.split('r/')[-1]
@@ -1838,88 +1988,136 @@ def postReddit(title,description,subs,hasMedia,files,nsfw_tag,spoiler_tag,red_re
                         f=files[0]['image_path']
                         content_type=files[0]['content_type']
                         if content_type.startswith("image/"):
-                            print('submitting image')
-                            try:
-                                submission = subreddit.submit_image(
-                                    title=title,
-                                    image_path=f,
-                                    flair_id=default_flair,
-                                    timeout=30,
-                                    nsfw=nsfw_tag,
-                                    spoiler=spoiler_tag
+                            # check image posting
+                            if subreddit.allow_images:
+                                print('submitting image')
+                                try:
+                                    submission = subreddit.submit_image(
+                                        title=title,
+                                        image_path=f,
+                                        flair_id=default_flair,
+                                        timeout=30,
+                                        nsfw=nsfw_tag,
+                                        spoiler=spoiler_tag
 
-                                )
-                                sub_tr.append({
-                                    'sub_name':sb,
-                                    'id':submission.id,
-                                    'link':submission.url,
-                                    'permalink':f"https://www.reddit.com{submission.permalink}",
-                                    'published':True,
-                                    'result':'Submission was accepted',
-                                    'upvotes':0,
-                                    'comments':0,
-                                    'upvote_ratio':0,
-                                    'crossposts':0
-                                })
-                                default_storage.delete(files[0]['image_path'])
-                            except Exception as e:
+                                    )
+                                    published=True
+                                    sub_tr.append({
+                                        'sub_name':sb,
+                                        'id':submission.id,
+                                        'link':submission.url,
+                                        'permalink':f"https://www.reddit.com{submission.permalink}",
+                                        'published':True,
+                                        'failed':False,
+                                        'result':'Submission was successful',
+                                        'upvotes':0,
+                                        'comments':0,
+                                        'upvote_ratio':0,
+                                        'crossposts':0
+                                    })
+                                    default_storage.delete(files[0]['image_path'])
+                                except Exception as e:
+                                    failed_publish=True
+                                    fail_reasons.append(f'Submission to r/{sb} Failed')
+                                    sub_tr.append({
+                                        'sub_name':sb,
+                                        'id':'',
+                                        'link':'',
+                                        'published':False,
+                                        'failed':True,
+                                        'result':'Uknown reason. Contact sub MODs ',
+                                        'comments':0,
+                                        'upvotes':0,
+                                        'upvote_ratio':0,
+                                        'crossposts':0
+                                    })
+                            else:
+                                failed_publish=True
+                                fail_reasons.append(f'Submission to r/{sb} Failed')
                                 sub_tr.append({
                                     'sub_name':sb,
                                     'id':'',
                                     'link':'',
                                     'published':False,
-                                    'result':e,
+                                    'failed':True,
+                                    'result':f'r/{sb} does not allow image sharing.',
                                     'comments':0,
                                     'upvotes':0,
                                     'upvote_ratio':0,
                                     'crossposts':0
                                 })
                             cr.save()
+
                         elif content_type.startswith("video/"):
                             print('submitting video')
-                            try:
-                                submission = subreddit.submit_video(
-                                    title=title,
-                                    video_path=f,
-                                    timeout=30,
-                                    nsfw=nsfw_tag,
-                                    spoiler=spoiler_tag
+                            if subreddit.allow_videos:
+                                try:
+                                    submission = subreddit.submit_video(
+                                        title=title,
+                                        video_path=f,
+                                        timeout=30,
+                                        nsfw=nsfw_tag,
+                                        spoiler=spoiler_tag
 
-                                )
-                                print(f"Video post created successfully: {submission.url}")
-                                sub_tr.append({
-                                    'sub_name':sb,
-                                    'id':submission.id,
-                                    'link':submission.url,
-                                    'permalink':f"https://www.reddit.com{submission.permalink}",
-                                    'published':True,
-                                    'result':'Submission was accepted',
-                                    'comments':0,
-                                    'upvotes':0,
-                                    'upvote_ratio':0,
-                                    'crossposts':0
-                                })
-                                default_storage.delete(files[0]['image_path'])
-                            except Exception as e:
+                                    )
+                                    published=True
+                                    print(f"Video post created successfully: {submission.url}")
+                                    sub_tr.append({
+                                        'sub_name':sb,
+                                        'id':submission.id,
+                                        'link':submission.url,
+                                        'permalink':f"https://www.reddit.com{submission.permalink}",
+                                        'published':True,
+                                        'failed':False,
+                                        'result':'Submission was accepted',
+                                        'comments':0,
+                                        'upvotes':0,
+                                        'upvote_ratio':0,
+                                        'crossposts':0
+                                    })
+                                    default_storage.delete(files[0]['image_path'])
+                                except Exception as e:
+                                    failed_publish=True
+                                    fail_reasons.append(f'Submission to r/{sb} Failed')
+                                    sub_tr.append({
+                                        'sub_name':sb,
+                                        'id':'',
+                                        'link':'',
+                                        'published':False,
+                                        'failed':True,
+                                        'result':'Uknown reason. Contact sub MODs ',
+                                        'comments':0,
+                                        'upvotes':0,
+                                        'upvote_ratio':0,
+                                        'crossposts':0
+                                    })
+                            else:
+                                failed_publish=True
+                                fail_reasons.append(f'Submission to r/{sb} Failed')
                                 sub_tr.append({
                                     'sub_name':sb,
                                     'id':'',
                                     'link':'',
                                     'published':False,
-                                    'result':e,
+                                    'failed':True,
+                                    'result':f'r/{sb} does not allow video sharing.',
                                     'comments':0,
                                     'upvotes':0,
                                     'upvote_ratio':0,
                                     'crossposts':0
                                 })
                             cr.save()
+
                         else:
+                            failed_publish=True
+                            fail_reasons.append(f'Submission to r/{sb} Failed')
                             sub_tr.append({
                                     'sub_name':sb,
                                     'id':'',
                                     'link':'',
                                     'published':False,
-                                    'result':'Unable to submit post',
+                                    'failed':True,
+                                    'result':f'Unsupported media type {content_type}',
                                     'comments':0,
                                     'upvotes':0,
                                     'upvote_ratio':0,
@@ -1929,38 +2127,76 @@ def postReddit(title,description,subs,hasMedia,files,nsfw_tag,spoiler_tag,red_re
                             default_storage.delete(files[0]['image_path'])
                     else:
                         # # Submit a gallery post
-                        try:
-                            submission = subreddit.submit_gallery(
-                                title=title,
-                                images=files,
-                                flair_id=default_flair,
-                                timeout=30,
-                                nsfw=nsfw_tag,
-                                spoiler=spoiler_tag
+                        if subreddit.allow_images:
+                            try:
+                                submission = subreddit.submit_gallery(
+                                    title=title,
+                                    images=files,
+                                    flair_id=default_flair,
+                                    nsfw=nsfw_tag,
+                                    spoiler=spoiler_tag
 
-                            )
-                            # clear the respective temporary files
-                            sub_tr.append({
-                                'sub_name':sb,
-                                'id':submission.id,
-                                'link':submission.url,
-                                'permalink':f"https://www.reddit.com{submission.permalink}",
-                                'published':True,
-                                'result':'Submission was accepted',
-                                'comments':0,
-                                'upvotes':0,
-                                'upvote_ratio':0,
-                                'crossposts':0
-                            })
-                            for f in files:
-                                default_storage.delete(f['image_path'])
-                        except Exception as e:
+                                )
+                                published=True
+                                
+                                    # Get media metadata
+                                gallery_data = submission.media_metadata
+                                cover_image_url=''
+                                if gallery_data:
+                                    # Find the cover image
+                                    cover_image_id = submission.gallery_data['items'][0]['media_id']
+                                    print()
+                                    print(len(gallery_data[cover_image_id]['p']))
+                                    for i in gallery_data[cover_image_id]['p']:
+                                        print(i)
+                                        print()
+                                    cover_image_url = gallery_data[cover_image_id]['p'][-1]['u']  # Get the first preview
+                                    # Reddit URLs may contain encoded characters like "&amp;", decode them
+                                    cover_image_url = cover_image_url.replace("&amp;", "&")
+                                # clear the respective temporary files
+                                
+                                sub_tr.append({
+                                    'sub_name':sb,
+                                    'id':submission.id,
+                                    'link':cover_image_url,
+                                    'permalink':f"https://www.reddit.com{submission.permalink}",
+                                    'published':True,
+                                    'failed':False,
+                                    
+                                    'result':'Submission was successful',
+                                    'comments':0,
+                                    'upvotes':0,
+                                    'upvote_ratio':0,
+                                    'crossposts':0
+                                })
+                                for f in files:
+                                    default_storage.delete(f['image_path'])
+                            except Exception as e:
+                                print(traceback.format_exc())
+                                failed_publish=True
+                                fail_reasons.append(f'Submission to r/{sb} Failed')
+                                sub_tr.append({
+                                    'sub_name':sb,
+                                    'id':'',
+                                    'link':'',
+                                    'published':False,
+                                    'failed':True,
+                                    'result':'Uknown reason. Contact sub MODs ',
+                                    'comments':0,
+                                    'upvotes':0,
+                                    'upvote_ratio':0,
+                                    'crossposts':0
+                                })
+                        else:
+                            failed_publish=True
+                            fail_reasons.append(f'Submission to r/{sb} Failed')
                             sub_tr.append({
                                 'sub_name':sb,
                                 'id':'',
                                 'link':'',
                                 'published':False,
-                                'result':e,
+                                'failed':True,
+                                'result':f'r/{sb} does not allow image sharing.',
                                 'comments':0,
                                 'upvotes':0,
                                 'upvote_ratio':0,
@@ -1969,26 +2205,44 @@ def postReddit(title,description,subs,hasMedia,files,nsfw_tag,spoiler_tag,red_re
                         cr.save()
 
                 else:
-                    submission = subreddit.submit(
-                        title, 
-                        selftext=description,
-                        flair_id=default_flair, 
-                        nsfw=nsfw_tag,
-                        spoiler=spoiler_tag)
-                    sub_tr.append({
-                        'sub_name':sb,
-                        'id':submission.id,
-                        'link':submission.url,
-                        'permalink':f"https://www.reddit.com{submission.permalink}",
-                        'published':True,
-                        'result':'Submission was accepted',
-                        'comments':0,
-                        'upvotes':0,
-                        'upvote':0,
-                        'upvote_ratio':0,
-                        'crossposts':0
-                    })
-    
+                    if subreddit.submission_type == 'any' or subreddit.submission_type == 'self':
+                        submission = subreddit.submit(
+                            title, 
+                            selftext=description,
+                            flair_id=default_flair, 
+                            nsfw=nsfw_tag,
+                            spoiler=spoiler_tag)
+                        published=True
+                        sub_tr.append({
+                            'sub_name':sb,
+                            'id':submission.id,
+                            'link':submission.url,
+                            'permalink':f"https://www.reddit.com{submission.permalink}",
+                            'published':True,
+                            'failed':False,
+                            'result':'Submission was successful',
+                            'comments':0,
+                            'upvotes':0,
+                            'upvote':0,
+                            'upvote_ratio':0,
+                            'crossposts':0
+                        })
+                    else:
+                        failed_publish=True
+                        fail_reasons.append(f'Submission to r/{sb} Failed')
+                        sub_tr.append({
+                            'sub_name':sb,
+                            'id':'',
+                            'link':'',
+                            'published':False,
+                            'failed':True,
+                            'result':f'r/{sb} does not allow text submissions.',
+                            'comments':0,
+                            'upvotes':0,
+                            'upvote_ratio':0,
+                            'crossposts':0
+                        })
+                    cr.save()
                 break
         # get the selected flairs
 
@@ -2004,7 +2258,196 @@ def postReddit(title,description,subs,hasMedia,files,nsfw_tag,spoiler_tag,red_re
     )
     cred.save()
 
-    print('post has been updated')
+    if failed_publish and published:
+        pst.is_published=True
+        pst.partial_publish=True
+        for res in fail_reasons:
+            pst.failure_reasons.append(res)
+        pst.save()
+    elif not failed_publish and published:
+        pst.is_published=True
+        pst.save()
+    elif failed_publish and not published:
+        if not pst.is_published:
+            pst.has_failed=True       
+        pst.failure_reasons.extend(fail_reasons)
+        pst.save()
+    
+    
+@api_view(['POST'])
+def deletePostComment(request):
+    post_id = request.POST.get('post_id', None)
+    comment_id= request.POST.get('comment_id', None)
+    action_type = request.POST.get('action_type', None)
+    if not all([post_id, action_type]):
+        return Response({'error': 'Bad request'})
+    cpst=CompanyPosts.objects.filter(post_id=post_id).first()
+    if not cpst:
+        return Response({'error': 'Post unavailable or already deleted'})
+    
+    pltfrms=cpst.platforms
+    for platform in pltfrms:
+        if 'reddit' in platform.lower():
+            # deleting reddit post /comment
+            cr=CompanyReddit.objects.filter(company=cpst.company).first()
+            if not cr:
+                continue
+            reddit = praw.Reddit(
+                client_id=settings.REDDIT_CLIENT_ID,
+                client_secret=settings.REDDIT_CLIENT_SECRET,
+                user_agent=settings.REDDIT_USER_AGENT,
+                refresh_token=cr.refresh_token,
+                        )
+            if action_type == 'post':
+                crp=CompanyRedditPosts.objects.filter(post_id=post_id).first()
+                if crp:
+                    sbs=crp.subs    
+                    for sb in sbs:
+                        try:
+                            sb_id=sb['id']
+
+                            
+                            submission = reddit.submission(id=sb_id)
+                            submission.delete()
+                            print('deleted from ',sb['sub_name'])
+                        except:
+                            continue
+
+    cp = CompanyPosts.objects.filter(company=cpst.company).order_by('-pk')
+    cpst.delete()         
+    all_posts = []
+    if not cp:
+        for p in cp:
+            um = UploadedMedia.objects.filter(post=p)
+            med = []
+            for m in um:
+                med.append({
+                    'media_url': m.media.url,
+                    'is_video': False
+                })
+            reds=[]
+            cover_image_link=''
+            
+            if 'reddit' in p.platforms:
+                cr=CompanyRedditPosts.objects.filter(post_id=p.post_id)
+                if cr:
+                    for c in cr:
+                        t_en=0
+                        t_com=0
+                        for k in c.subs:
+                            if k['published']:
+                                cover_image_link=k['link']
+                                p_id=k['id']
+                                submission = reddit.submission(id=p_id)
+                                k['upvote_ratio']=submission.upvote_ratio*100
+                                k['upvotes']=submission.score
+                                k['comments']=submission.num_comments
+                                k['crossposts']=submission.num_crossposts
+                                reds.append(k)
+                                
+                                vlx=submission.score+submission.num_comments+submission.num_crossposts
+                                t_en+=vlx
+                                t_com+=submission.num_comments
+                        p.comment_count=t_com
+                        p.engagement_count=t_en
+                        p.save()   
+                        c.save()    
+                                
+            eng_cnt=p.engagement_count
+            if eng_cnt>1000000:
+                eng_cnt=round(eng_cnt/1000000,1)
+            elif eng_cnt>1000:
+                eng_cnt=round(eng_cnt/1000,1)
+            cmt_cnt=p.comment_count
+            if cmt_cnt>1000:
+                cmt_cnt=round(cmt_cnt/1000,1)
+            elif cmt_cnt>1000:
+                cmt_cnt=round(cmt_cnt/1000,1)
+            all_posts.append({
+                'platforms': [pl.capitalize() for pl in p.platforms],
+                'title': p.title,
+                'content': p.description,
+                'is_uploaded': p.is_published,
+                'is_scheduled': p.is_scheduled,
+                'comment_count':cmt_cnt,
+                'engagement_count':eng_cnt,
+                'tags': [] if not p.tags else p.tags.split(),
+                'has_media': p.has_media,
+                'cover_image_link':cover_image_link,
+                'media':None if not p.has_media else UploadedMedia.objects.filter(post=p).first(),
+                'date_uploaded': p.date_uploaded,
+                'date_scheduled':p.date_scheduled,
+                'media': med,
+                'post_id':p.post_id,
+                'has_all':len(p.platforms)==4,
+                'has_reddit':'reddit' in p.platforms,
+                'has_tiktok':'tiktok' in p.platforms,
+                'has_facebook':'facebook' in p.platforms,
+                'has_instagram':'instagram' in p.platforms,
+
+            })
+    else:    
+        for p in cp:
+            um = UploadedMedia.objects.filter(post=p)
+            med = []
+            for m in um:
+                med.append({
+                    'media_url': m.media.url,
+                    'is_video': False
+                })
+            reds=[]
+            cover_image_link=''
+            
+            if 'reddit' in p.platforms:
+                cr=CompanyRedditPosts.objects.filter(post_id=p.post_id).first()
+                if cr:
+                    k=cr.subs[0]
+                    cover_image_link = k['link']
+                
+            eng_cnt=p.engagement_count
+            if eng_cnt>1000000:
+                eng_cnt=round(eng_cnt/1000000,1)
+            elif eng_cnt>1000:
+                eng_cnt=round(eng_cnt/1000,1)
+            cmt_cnt=p.comment_count
+            if cmt_cnt>1000:
+                cmt_cnt=round(cmt_cnt/1000,1)
+            elif cmt_cnt>1000:
+                cmt_cnt=round(cmt_cnt/1000,1)
+            all_posts.append({
+                'platforms': [pl.capitalize() for pl in p.platforms],
+                'title': p.title,
+                'content': p.description,
+                'is_uploaded': p.is_published,
+                'is_scheduled': p.is_scheduled,
+                'is_published': p.is_published,
+                'has_failed': p.has_failed,
+                'comment_count':cmt_cnt,
+                'engagement_count':eng_cnt,
+                'tags': [] if not p.tags else p.tags.split(),
+                'has_media': p.has_media,
+                'cover_image_link':cover_image_link,
+                'media':None if not p.has_media else UploadedMedia.objects.filter(post=p).first(),
+                'date_uploaded': p.date_uploaded,
+                'date_scheduled':p.date_scheduled,
+                'media': med,
+                'post_id':p.post_id,
+                'has_all':len(p.platforms)==4,
+                'has_reddit':'reddit' in p.platforms,
+                'has_tiktok':'tiktok' in p.platforms,
+                'has_facebook':'facebook' in p.platforms,
+                'has_instagram':'instagram' in p.platforms,
+
+            })
+        # upd_pst=threading.Thread(target=updatePosts,daemon=True, kwargs={
+        #         'company_id':company_id,
+        #     })
+        # upd_pst.start()
+  
+    context = {
+        'posts': all_posts,
+    }
+    return render(request, 'dashboard.html', context=context)
 
 @api_view(['POST'])
 def uploadPost(request):
@@ -2375,7 +2818,7 @@ def get_facebook_auth_url(company_id):
     return oauth_url
 
 
-@api_view(['GET'])
+# @api_view(['GET'])
 def instagram_callback(request):
     code = request.GET.get('code')
     state = request.GET.get("state")  # Retrieve the state parameter
@@ -3133,12 +3576,15 @@ def updateFlairs(request):
             for sr in init_sub:
                 if flr['name'] == sr['sub']:
                     for f_id in sr['flairs']:
-                        if f_id['id'] == flr['id']:
-                            f_id['selected'] = True
-                            pass
-                        else:
-                            f_id['selected'] = False
-                        modified = True  # Mark as modified
+                        try:
+                            if f_id['id'] == flr['id']:
+                                f_id['selected'] = True
+                                pass
+                            else:
+                                f_id['selected'] = False
+                            modified = True  # Mark as modified
+                        except:
+                            return Response({'success': 'Updated successfully'})
     if modified:
         cr.subs=init_sub
         cr.save()
@@ -3147,7 +3593,7 @@ def updateFlairs(request):
 
 def reddit_auth_link(company_id):
     state = urllib.parse.quote_plus(str(company_id))  # Ensure URL encoding for special characters
-    authorization_url = reddit.auth.url(['identity', 'submit', 'read', 'mysubreddits', 'flair',"history",'modposts'], state=state,
+    authorization_url = reddit.auth.url(['identity', 'submit', 'read', 'mysubreddits', 'flair',"history",'modposts','vote','edit'], state=state,
                                         duration='permanent', )
     return authorization_url
 
