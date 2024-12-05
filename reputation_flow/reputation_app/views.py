@@ -320,11 +320,13 @@ def dashboard(request, company_id):
     if cr:
         sub_f = threading.Thread(target=getRedditSubFlairs, daemon=True, kwargs={'cid': company_id})
         sub_f.start()
-        
+      
+        # get posts 
     upd_pst=threading.Thread(target=updatePosts,daemon=True, kwargs={
             'company_id':company_id,
         })
     upd_pst.start()
+    
     fb_ig = request.session.get('facebook_ig_data', {})
     if fb_ig:
         ldta=fb_ig.get('time_updated')
@@ -479,7 +481,6 @@ def dashboard(request, company_id):
     return render(request, 'dashboard.html', context=context)
 
 def updatePosts(company_id):
-    print('updating posts')
     cp = Company.objects.filter(company_id=company_id).first()
     cpsts=CompanyPosts.objects.filter(company=cp)
     if cpsts:
@@ -582,7 +583,7 @@ def fetchPosts(request):
                 'is_scheduled': p.is_scheduled,
                 'comment_count':cmt_cnt,
                 'engagement_count':eng_cnt,
-                'tags': [] if not p.tags else p.tags.split(),
+                'tags': p.tags,
                 'has_media': p.has_media,
                 'cover_image_link':cover_image_link,
                 'media':None if not p.has_media else UploadedMedia.objects.filter(post=p).first(),
@@ -635,7 +636,7 @@ def fetchPosts(request):
                 'has_failed': p.has_failed,
                 'comment_count':cmt_cnt,
                 'engagement_count':eng_cnt,
-                'tags': [] if not p.tags else p.tags.split(),
+                'tags': p.tags,#if not p.tags else p.tags.split(),
                 'has_media': p.has_media,
                 'cover_image_link':cover_image_link,
                 'media':None if not p.has_media else UploadedMedia.objects.filter(post=p).first(),
@@ -672,47 +673,135 @@ def getStats(request):
         return Response({'error': 'Bad request'})
     
 
-    my_dict = {'Facebook': 270, 'Instagram':80, 'Tiktok': 30, 'Reddit': 830}
-    sorted_dict = dict(sorted(my_dict.items(), key=lambda item: item[1], reverse=True))
-    ptfrms=[]
-    ptfrms_en=[]
+    my_dict = {'Facebook': 0, 'Instagram':0, 'Tiktok': 0, 'Reddit': 0}
     cr = CompanyRedditPosts.objects.filter(post_id=post_id).first()
+    
+    has_reddit=False
     red_up=[]
     red_cmt=[]
     red_cpst=[]
     red_tteng=[]
     red_subs=[]
-    for c in cr.subs:
-        k=c
-        if k['published']:
-            p_id=k['id']
-            submission = reddit.submission(id=p_id)
-            k['upvote_ratio']=submission.upvote_ratio*100
-            k['upvotes']=int(submission.score)
-            k['comments']=int(submission.num_comments)
-            k['crossposts']=int(submission.num_crossposts)
-            red_subs.append(f"r/{k['sub_name']}")
-            
-            # vlx=submission.score+submission.num_comments+submission.num_crossposts
-            # t_en+=vlx
-            # t_com+=submission.num_comments
-        
-        red_up.append(c['upvotes'])
-        red_tteng.append(c['upvote_ratio'])
-        red_cmt.append(c['comments'])
-        red_cpst.append(c['crossposts'])
     red_te=0
-    if red_tteng:
-        red_te=sum(red_tteng)/len(red_tteng) 
+    if cr:
+        has_reddit=True
+        for c in cr.subs:
+            k=c
+            if k['published']:
+                p_id=k['id']
+                submission = reddit.submission(id=p_id)
+                k['upvote_ratio']=submission.upvote_ratio*100
+                k['upvotes']=int(submission.score)
+                k['comments']=int(submission.num_comments)
+                k['crossposts']=int(submission.num_crossposts)
+                red_subs.append(f"r/{k['sub_name']}")
+                
+                # vlx=submission.score+submission.num_comments+submission.num_crossposts
+                # t_en+=vlx
+                # t_com+=submission.num_comments
+            
+            red_up.append(c['upvotes'])
+            red_tteng.append(c['upvote_ratio'])
+            red_cmt.append(c['comments'])
+            red_cpst.append(c['crossposts'])
+        if red_tteng:
+            red_te=sum(red_tteng)/len(red_tteng) 
+    total_reddit_en=sum(red_up)+sum(red_cmt)+sum(red_cpst)
+    my_dict['Reddit']=total_reddit_en
+    
+    has_facebook=False
+    cfb=CompanyFacebookPosts.objects.filter(post_id=post_id).first()
+    if cfb:
+        cfbp=CompanyFacebook.objects.filter(company=pst.company).first()
+        if not cfbp:
+            print('No facebook object')
+            return
+        # get facebook insights
+        url = f"https://graph.facebook.com/v21.0/{cfb.content_id}/insights"
+        '''
+        Page Metrics
+            page_post_engagements
+            page_fan_adds_by_paid_non_paid_unique
+            page_lifetime_engaged_followers_unique
+            page_daily_follows
+            page_daily_unfollows_unique
+            page_follows
+            page_impressions,page_impressions_unique,page_impressions_paid,
+            page_impressions_viral,page_impressions_nonviral
+            page_fans_locale,page_fans_city,page_fans_country
+            page_fan_adds,page_fan_adds_unique,page_fan_removes
+            page_fans_by_like_source
+            page_views_total
+
+        Post Metrics
+            post_impressions,post_impressions_unique,post_impressions_paid,
+            post_impressions_fan,post_impressions_organic  
+            post_impressions_viral,post_impressions_nonviral
+            post_reactions_by_type_total
+            post_clicks
+            page_negative_feedback_by_type
+            **video**
+            post_video_avg_time_watched
+            post_video_complete_views_organic
+            post_video_complete_views_organic_unique
+            post_video_complete_views_paid
+            post_video_complete_views_paid_unique
+            post_video_retention_graph
+            post_video_views_organic
+            post_video_views_organic_unique
+            post_video_views_paid
+            post_video_views_paid_unique
+            post_video_views
+            post_video_views_unique
+            post_video_views_autoplayed
+            post_video_views_clicked_to_play
+            post_video_views_sound_on
+            post_video_view_time
+            post_video_view_time_by_age_bucket_and_gender
+            post_video_view_time_by_region_id
+            post_video_view_time_by_country_id
+            post_video_social_actions_count_unique
+        Stories 
+            post_activity_by_action_type   
+        Video Ad Breaks
+            page_daily_video_ad_break_ad_impressions_by_crosspost_status
+            page_daily_video_ad_break_cpm_by_crosspost_status
+            page_daily_video_ad_break_earnings_by_crosspost_status
+            post_video_ad_break_ad_impressions
+            post_video_ad_break_earnings
+            post_video_ad_break_ad_cpm
+            creator_monetization_qualified_views
+             
+        Page Video Metrics
+            page_video_views,page_video_views_paid,page_video_views_organic,page_video_views_autoplayed,
+            page_video_repeat_views,page_video_complete_views_30s,page_video_complete_views_30s_paid
+            page_video_complete_views_30s_organic,page_video_complete_views_30s_autoplayed,
+            page_video_complete_views_30s_click_to_play,page_video_complete_views_30s_unique
+            page_video_complete_views_30s_repeat_views,post_video_complete_views_30s_autoplayed
+            post_video_complete_views_30s_clicked_to_play,
+            page_video_view_time
+        '''
+        params = {
+                "metric": "post_clicks,post_impressions,post_impressions_viral",
+                "access_token": cfbp.page_access_token,
+        }
+        # response =requests.get(url, params=params)
+        # if response.status_code == 200:
+        #     print("metrics retrieved successfully:", response.json())
+        # else:
+        #     print("Error getting metrics:", response.json())           
+    
+    sorted_dict = dict(sorted(my_dict.items(), key=lambda item: item[1], reverse=True))
     return Response({'result': 'success',
-                     'has_reddit':True,
+                     'has_reddit':has_reddit,
                      'reddit_total_engagement':f'{red_te}%',
                      'reddit_upvotes':red_up,
                      'reddit_comments':red_cmt,
                      'reddit_crossposts':red_cpst,
                      'reddit_subs':red_subs,
-                     'platform_engagement':ptfrms_en,
-                     'pltfrms':ptfrms 
+                     'platform_engagement':list(sorted_dict.values()),
+                     'pltfrms':list(sorted_dict.keys()), 
+                     'hasFacebook':True
                      })
   
 def processCommentReplies(comment_id,replies,submission_op):
@@ -744,8 +833,8 @@ def processCommentReplies(comment_id,replies,submission_op):
         if len(comment.replies)>0:
             # nested reply recursive
             processCommentReplies(comment_id=comment.id,replies=comment.replies,submission_op=submission_op)
-    
-def commentBackgroundUpdate(post,post_id):
+
+def fetchRedditComments(post,post_id):
     crp=CompanyRedditPosts.objects.filter(post_id=post_id).first()
     if crp:
         platform='reddit'
@@ -782,6 +871,27 @@ def commentBackgroundUpdate(post,post_id):
                     # save the reply comments
                     processCommentReplies(comment_id=comment.id,replies=comment.replies,submission_op=submission_op) 
 
+def fetchFacebookComments(post,post_id):
+    print('Fetching facebook comments')  
+def fetchInstagramComments(post,post_id):
+    pass  
+def fetchTiktokComments(post,post_id):
+    pass  
+
+def commentBackgroundUpdate(post,post_id):
+    rdCmtThread=threading.Thread(target=fetchRedditComments,daemon=True,kwargs={
+       'post_id':post_id,
+       'post':post 
+    })
+    rdCmtThread.start()
+    
+    fbCmtThread=threading.Thread(target=fetchFacebookComments,daemon=True,kwargs={
+       'post_id':post_id,
+       'post':post 
+    })
+    fbCmtThread.start()
+    
+    
 @api_view(['POST'])
 def likeComment(request):
     comment_id = request.POST.get('comment_id', None)
@@ -835,6 +945,7 @@ def likeComment(request):
             return Response({'success': 'Bad request'})
         except:
             return Response({'error': 'Could not upvote comment'})
+
 @api_view(['POST'])
 def getComments(request):
     post_id = request.POST.get('post_id', None)
@@ -877,6 +988,12 @@ def getComments(request):
                     if len(comment.replies)>0:
                         # save the reply comments
                         processCommentReplies(comment_id=comment.id,replies=comment.replies,submission_op=submission_op) 
+
+        cfbp=CompanyFacebookPosts.objects.filter(post_id=post_id).first()
+        if cfbp:
+            print('getting facebook comments')
+            pass
+    
     else:
         #return already present comments while updating in the background
         thrd=threading.Thread(target=commentBackgroundUpdate,daemon=True,kwargs={
@@ -884,17 +1001,6 @@ def getComments(request):
             'post_id':post_id,
         })
         thrd.start()
-
-        # if len(cpstcmt)<100: 
-        #     # fetch immediately small results
-        #     commentBackgroundUpdate(post=pst,post_id=post_id)
-        # else:
-        #     # use threads for larger queries
-        #     thrd=threading.Thread(target=commentBackgroundUpdate,daemon=True,kwargs={
-        #        'post':pst, 
-        #        'post_id':post_id,
-        #     })
-        #     thrd.start()
         
     cpstmt=CompanyPostsComments.objects.filter(post=pst).order_by('-like_count','-reply_count')
     cmts=[] 
@@ -954,7 +1060,7 @@ def getComments(request):
             'is_scheduled': p.is_scheduled,
             'comment_count':cmt_cnt,
             'engagement_count':eng_cnt,
-            'tags': [] if not p.tags else p.tags.split(),
+            'tags': p.tags,
             'has_media': p.has_media,
             'cover_image_link':cover_image_link,
             'media':None if not p.has_media else UploadedMedia.objects.filter(post=p).first(),
@@ -1056,7 +1162,7 @@ def getCommentReplies(request):
                 'is_scheduled': p.is_scheduled,
                 'comment_count':cmt_cnt,
                 'engagement_count':eng_cnt,
-                'tags': [] if not p.tags else p.tags.split(),
+                'tags':p.tags,
                 'has_media': p.has_media,
                 'cover_image_link':cover_image_link,
                 'media':None if not p.has_media else UploadedMedia.objects.filter(post=p).first(),
@@ -1741,7 +1847,11 @@ def postInstagram(account_id,media,access_token,description,has_media,post_id,to
 def postFacebook(page_id,media,access_token,title,description,is_video,has_media,post_id,to_stories,to_post):
     # API endpoint for creating a post
     url = f"https://graph.facebook.com/v21.0/{page_id}/feed"
-    
+    cops=CompanyPosts.objects.filter(post_id=post_id).first()
+    if not cops:
+        print('Could not get the sending post')
+        return
+        
     # save video post
     cfb_pst=CompanyFacebookPosts(
         post_id=post_id,
@@ -1934,25 +2044,39 @@ def postFacebook(page_id,media,access_token,title,description,is_video,has_media
             print("No photos were successfully uploaded.")
     else:
         if to_post:
-            url = f"https://graph.facebook.com/v21.0/{page_id}/feed"
+            try:
+                url = f"https://graph.facebook.com/v21.0/{page_id}/feed"
 
-            payload = {
-                "message": description,
-                "access_token": access_token,
-            }
+                payload = {
+                    "message": description,
+                    "access_token": access_token,
+                }
 
-            response = requests.post(url, data=payload)
+                response = requests.post(url, data=payload)
 
-            if response.status_code == 200:
-                print("Link post created successfully!")
-                content_id=response.json().get('id')
-                cfb_pst.content_id=content_id
-                cfb_pst.is_published=True
-                cfb_pst.save()
-                print(response.json())
-            else:
-                print(f"Error creating post: {response.status_code}")
-                print(response.json())
+                if response.status_code == 200:
+                    print("Link post created successfully!")
+                    print(response.json())
+                    print()
+                    content_id=response.json().get('id')
+                    cfb_pst.content_id=content_id
+                    cfb_pst.is_published=True
+                    cfb_pst.save()
+                    cops.is_published=True
+                    cops.save()
+                    print(response.json())
+                else:
+                    if not cops.partial_publish:
+                        cops.has_failed=True
+                        cops.failure_reasons.append('Failed to post to facebook')
+                        cops.save()
+                    print(f"Error creating post: {response.status_code}")
+                    print(response.json())
+            except:
+                if not cops.partial_publish:
+                    cops.has_failed=True
+                    cops.failure_reasons.append('Failed to post to facebook')
+
 
 def postReddit(title,description,subs,hasMedia,files,nsfw_tag,spoiler_tag,red_refresh_token,post_id,company):
     cr=CompanyReddit.objects.filter(company=company).first()
@@ -2305,14 +2429,28 @@ def deletePostComment(request):
                     for sb in sbs:
                         try:
                             sb_id=sb['id']
-
-                            
                             submission = reddit.submission(id=sb_id)
                             submission.delete()
                             print('deleted from ',sb['sub_name'])
                         except:
                             continue
-
+        if 'facebook' in platform.lower():
+            cfbp=CompanyFacebook.objects.filter(company=cpst.company).first()
+            if not cfbp:
+                continue
+            if action_type == 'post':
+                cfp=CompanyFacebookPosts.objects.filter(post_id=post_id).first()
+                if cfp:
+                    if cfp.content_id:
+                        url = f"https://graph.facebook.com/v21.0//{cfp.content_id}"
+                        payload = {
+                            "access_token": cfbp.page_access_token,
+                        }
+                        response =requests.delete(url, data=payload)
+                        if response.status_code == 200:
+                            print("Post deleted successfully:", response.json())
+                        else:
+                            print("Error deleting post:", response.json())           
     cp = CompanyPosts.objects.filter(company=cpst.company).order_by('-pk')
     cpst.delete()         
     all_posts = []
@@ -2371,7 +2509,7 @@ def deletePostComment(request):
                 'is_scheduled': p.is_scheduled,
                 'comment_count':cmt_cnt,
                 'engagement_count':eng_cnt,
-                'tags': [] if not p.tags else p.tags.split(),
+                'tags': p.tags,
                 'has_media': p.has_media,
                 'cover_image_link':cover_image_link,
                 'media':None if not p.has_media else UploadedMedia.objects.filter(post=p).first(),
@@ -2424,7 +2562,7 @@ def deletePostComment(request):
                 'has_failed': p.has_failed,
                 'comment_count':cmt_cnt,
                 'engagement_count':eng_cnt,
-                'tags': [] if not p.tags else p.tags.split(),
+                'tags':p.tags,
                 'has_media': p.has_media,
                 'cover_image_link':cover_image_link,
                 'media':None if not p.has_media else UploadedMedia.objects.filter(post=p).first(),
@@ -2541,13 +2679,14 @@ def uploadPost(request):
         company=cp,
         post_id=post_id,
         platforms=platform,
-        tags=hashTags,
         title=title,
         description=description,
         is_scheduled=isScheduled,
         has_media=hasMedia,
         date_scheduled= datetime_object
     )
+    ht=hashTags.split()
+    cpst.tags.extend(ht)
     cpst.save()
   
     if not isScheduled:

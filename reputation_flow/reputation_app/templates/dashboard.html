@@ -3316,12 +3316,16 @@
                                         <p>Click <strong>finish</strong>. A new team will be created </p>
                                     </li>
                                     <li>
-                                        <p>At the left panel within the selected team, click <strong>Generate & Copy</strong> </p>
+                                        <p>At the left panel within the selected team, click <strong>Generate &
+                                                Copy</strong> </p>
                                     </li>
                                     <li>
-                                        <p>Fill in the <strong>number of members</strong> you want to join the team as well as the <strong>privileges</strong> they will have</p>
+                                        <p>Fill in the <strong>number of members</strong> you want to join the team as
+                                            well as the <strong>privileges</strong> they will have</p>
                                     </li>
-                                    <li><p>Click <strong>Generate</strong>.</p></li>
+                                    <li>
+                                        <p>Click <strong>Generate</strong>.</p>
+                                    </li>
                                     <li>
                                         <p>Share the invite link with your members.</p>
                                     </li>
@@ -3500,10 +3504,11 @@
 
                                                                 </div>
                                                                 <div class="message other-message float-right"
-                                                                    style="padding-bottom: 10px;">{{
-                                                                    chat_message.message }}
+                                                                    style="padding-bottom: 10px;">
+                                                                    {{chat_message.message }}
                                                                     <p class="zero-padding-margin font-12">
-                                                                        {{ chat_message.date_sent }}</p>
+                                                                        {{ chat_message.date_sent }}
+                                                                    </p>
                                                                 </div>
                                                             </li>
                                                             {% else %}
@@ -3515,7 +3520,8 @@
                                                                     style="padding-bottom: 10px;">
                                                                     {{ chat_message.message }}
                                                                     <p class="zero-padding-margin font-12">
-                                                                        {{ chat_message.date_sent }}</p>
+                                                                        {{ chat_message.date_sent }}
+                                                                    </p>
 
                                                                 </div>
                                                             </li>
@@ -4196,10 +4202,9 @@
                             </label>
                         </div>
                         <div class="form-check" style="margin-left: 10px;">
-                            <input class="form-check-input platforms_select" type="checkbox" value="reddit"
-                                id="reddit_platform" {% if not reddit.linked or reddit.subs|length == 0 %}
-                                disabled
-                                 {% endif %}>
+                            <input type="checkbox" value="reddit" id="reddit_platform" {% if not reddit.linked %}
+                                disabled {% elif reddit.subs|length < 1 %} disabled {% endif %}
+                                class="form-check-input platforms_select">
                             <label class="form-check-label" for="reddit_platform">
                                 <p><img src="{% static 'images/reddit_logo.png' %}" style="width: 20px;height: 20px;"
                                         alt="reddit"> Reddit
@@ -4262,7 +4267,7 @@
                     <!-- SET UP CONTENT -->
                     <div id="set_up_content"
                         style="display: none;width: 100%;justify-content: center;padding-left: 10%;overflow-y: scroll;height: 80vh;margin-right: 10%;">
-                        <div class="form-group" id="title-set-up">
+                        <div class="form-group" id="title-set-up" style="display:none">
                             <label for="post-textarea">
                                 <div style="display: flex;gap: 10px;height: 25px;">
                                     <strong>Title</strong>
@@ -4278,9 +4283,8 @@
                         </div>
                         <div class="form-group">
                             <label for="post-textarea">
-
                                 <div style="display: flex;gap: 10px;">
-                                    <strong>Description</strong>
+                                    <strong>Content</strong>
                                     <img src="{% static 'images/facebook_logo.png' %}" alt=""
                                         style="width: 15px;height: 15px;margin: auto;"
                                         class="target_facebook unselectedPlatform">
@@ -4945,11 +4949,10 @@
                                         </div>
                                         <hr>
                                         {% if p.tags %}
-                                        <p>#Tags</p>
                                         <div
                                             style="display: flex;gap: 5px;flex-wrap: wrap;padding-top: 0px;padding-bottom:10px;">
                                             {% for t in p.tags %}
-                                            <p>{{ p }}</p>
+                                            <p style="font-size: 12px;font-weight: bold"><i>{{ t }}</i></p>
 
                                             {% endfor %}
                                         </div>
@@ -5209,6 +5212,24 @@
 
                                                     </div>
                                                     {% endif %}
+                                                    {% if p.has_facebook %}
+                                                    <div class="d-flex mb-2">
+                                                        <p class="text-xs mt-1 mb-0 font-weight-bold"
+                                                            style="cursor: default;">
+                                                            <img src="{% static 'images/facebook_logo.png '%}" alt=""
+                                                                style="width:20px;height: 20px;">
+                                                            Facebook Stats
+                                                        </p>
+
+                                                    </div>
+                                                    <div class="d-flex" style="gap: 10px;margin-left: 20px;">
+                                                        <p>Upvote Ratio:</p>
+                                                        <h5 class="font-weight-bolder" id="rte-{{p.post_id}}">36K
+                                                        </h5>
+                                                    </div>
+
+
+                                                    {% endif %}
                                                 </div>
                                             </div>
                                         </div>
@@ -5235,33 +5256,37 @@
                                         <p style="font-size: 18px;margin-top: 10px;margin-bottom: 10px;color: black;">
                                             <strong>{{ p.title }} </strong>
                                         </p>
-                                        <p style="max-height: 200px;overflow-y: scroll;">{{ p.content }}
-                                        </p>
-                                        <div>
-                                            <hr>
-                                            {% if p.is_scheduled %}
-                                            <div style="display:flex;justify-content: center;">
-                                                <p class="font-12">This post will be published on
-                                                    <strong>{{ p.date_scheduled }}</strong>
-                                                </p>
+                                        <div
+                                            style="display: flex;flex-direction: column;height:80%;justify-content: space-between;">
+                                            <p style="max-height: 200px;overflow-y: scroll;">{{ p.content }}
+                                            </p>
+                                            <div>
+                                                <hr>
+                                                {% if p.is_scheduled %}
+                                                <div style="display:flex;justify-content: center;">
+                                                    <p class="font-12">This post will be published on
+                                                        <strong>{{ p.date_scheduled }}</strong>
+                                                    </p>
+                                                </div>
+                                                {% elif p.is_published %}
+                                                <div class="thisparent"
+                                                    style="display: flex;justify-content: space-between;font-size: 12px;width: 80%;gap: 10px">
+                                                    <p class="impression-container" style="cursor: pointer;"
+                                                        id="{{p.post_id}}"
+                                                        tooltip="Click to see impression distribution"><i
+                                                            class="fa fa fa-bar-chart" flow="down"></i> <span
+                                                            style="font-size: 12px;">{{ p.engagement_count }}</span></p>
+                                                    <p class="comments-container" style="cursor: pointer;"
+                                                        data-id="{{ p.post_id }}" tooltip="Click to see comments"
+                                                        flow="down"><i class="fa fa fa-comments-o"></i> <span
+                                                            style="font-size: 12px;">{{ p.comment_count }}</span>
+                                                    </p>
+                                                    <p><i class="fa fa fa-calendar"></i>
+                                                        <span style="font-size: 12px;">{{ p.date_uploaded }}</span>
+                                                    </p>
+                                                </div>
+                                                {% endif %}
                                             </div>
-                                            {% elif p.is_published %}
-                                            <div class="thisparent"
-                                                style="display: flex;justify-content: space-between;font-size: 12px;width: 80%;gap: 10px">
-                                                <p class="impression-container" style="cursor: pointer;"
-                                                    id="{{p.post_id}}" tooltip="Click to see impression distribution"><i
-                                                        class="fa fa fa-bar-chart" flow="down"></i> <span
-                                                        style="font-size: 12px;">{{ p.engagement_count }}</span></p>
-                                                <p class="comments-container" style="cursor: pointer;"
-                                                    data-id="{{ p.post_id }}" tooltip="Click to see comments"
-                                                    flow="down"><i class="fa fa fa-comments-o"></i> <span
-                                                        style="font-size: 12px;">{{ p.comment_count }}</span>
-                                                </p>
-                                                <p><i class="fa fa fa-calendar"></i>
-                                                    <span style="font-size: 12px;">{{ p.date_uploaded }}</span>
-                                                </p>
-                                            </div>
-                                            {% endif %}
                                         </div>
                                     </div>
                                     <div style="width: 40%;padding-top: 20px;padding-bottom: 20px;">
@@ -5310,11 +5335,10 @@
                                         </div>
                                         <hr>
                                         {% if p.tags %}
-                                        <p>#Tags</p>
                                         <div
                                             style="display: flex;gap: 5px;flex-wrap: wrap;padding-top: 0px;padding-bottom:10px;">
                                             {% for t in p.tags %}
-                                            <p>{{ p }}</p>
+                                            <p style="font-size: 12px;font-weight: bold"><i>{{ t }}</i></p>
 
                                             {% endfor %}
                                         </div>
@@ -5517,12 +5541,13 @@
                                 <!-- impression analytics -->
                                 <div id="impression-analysis-{{ p.post_id }}" style="display: none;">
                                     <div class="card draggable">
-                                        <div class="card-body p-3" style="display:flex;justify-content: space-between;">
+                                        <div class="card-body p-3" style="display:flex;gap:10px;">
                                             <div class="card mb-4 z-index-2 draggable">
                                                 <div class="card-header pb-0">
                                                     <h6 class="mb-1 title-box">Impression Distribution </h6>
                                                 </div>
-                                                <div class="card-body card-body px-3 pt-lg-6 pb-lg-5">
+                                                <div class="card-body card-body px-3 pt-lg-6 pb-lg-5"
+                                                    style="display: flex;justify-content: center;">
                                                     <div class="row h-100">
                                                         <div
                                                             class="col-lg-5 my-auto text-center d-lg-block d-flex justify-content-center">
@@ -5533,8 +5558,8 @@
                                                 </div>
                                             </div>
                                             <div>
-
-                                                <div class="container border-radius-lg">
+                                                <div class="container border-radius-lg"
+                                                    style="height: 400px;overflow-y: scroll;">
                                                     <div style="display: none;">
                                                         <div>
                                                             <div class="d-flex mb-2">
@@ -5571,6 +5596,120 @@
                                                         <div id="reddit-engagement-chart-{{p.post_id}}"></div>
 
                                                     </div>
+                                                    <hr>
+                                                    {% endif %}
+                                                    <!-- facebook stats -->
+                                                    {% if p.has_facebook %}
+                                                    <div class="d-flex mb-2">
+                                                        <p class="text-xs mt-1 mb-0 font-weight-bold"
+                                                            style="cursor: default;">
+                                                            <img src="{% static 'images/facebook_logo.png '%}" alt=""
+                                                                style="width:20px;height: 20px;">
+                                                            Facebook Stats
+                                                        </p>
+                                                    </div>
+                                                    <div style="display: flex;gap: 10px;margin-top: 20px;">
+                                                        <div
+                                                            style="display: flex;flex-direction: column;justify-content: center;">
+                                                            <div>
+                                                                <div class="d-flex"
+                                                                    style="gap: 10px;margin-left: 20px;">
+                                                                    <p>Clicks:</p>
+                                                                    <h6 class="font-weight-bolder"
+                                                                        id="fb-clicks-{{p.post_id}}">2577
+                                                                    </h6>
+                                                                </div>
+                                                                <div class="d-flex"
+                                                                    style="gap: 10px;margin-left: 20px;">
+                                                                    <p>Impressions:</p>
+                                                                    <h6 class="font-weight-bolder"
+                                                                        id="fb-impressions-{{p.post_id}}">24574
+                                                                    </h6>
+
+                                                                </div>
+                                                                <div class="d-flex"
+                                                                    style="gap: 10px;margin-left: 20px;">
+                                                                    <p>Conversion Rate:</p>
+                                                                    <h6 class="font-weight-bolder"
+                                                                        id="fb-conv-{{p.post_id}}">13.45%
+                                                                    </h6>
+
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        <!-- impression chart  -->
+                                                        <div id="fb-impression-chart-{{ p.post_id }}">
+
+                                                        </div>
+
+                                                    </div>
+                                                    <!-- video watch stats -->
+                                                    <div id="fb-video-watch-{{ p.post_id }}">
+
+                                                    </div>
+
+                                                    <div style="display: flex;justify-content: space-around;">
+                                                        <div
+                                                            style="background-color: #371d01;border-radius: 10px;padding: 5px;display: flex;justify-content: center;">
+                                                            <div>
+                                                                <p style="font-size: 10px;color: rgb(212, 211, 211);">
+                                                                    Average Watch Time
+                                                                </p>
+                                                                <p
+                                                                    style="font-size: 25px;font-weight: bold;align-items: center;display: flex;justify-content: center;color: rgb(212, 211, 211);;">
+                                                                    3.3min
+                                                                </p>
+                                                            </div>
+                                                        </div>
+
+                                                        <div
+                                                            style="background-color: #060137;border-radius: 10px;padding: 5px;display: flex;justify-content: center;">
+                                                            <div>
+                                                                <p style="font-size: 10px;color: rgb(212, 211, 211);">
+                                                                    Users Watched to the end
+                                                                </p>
+                                                                <p
+                                                                    style="font-size: 25px;font-weight: bold;align-items: center;display: flex;justify-content: center;color: rgb(212, 211, 211);;">
+                                                                    40%
+                                                                </p>
+                                                            </div>
+                                                        </div>
+
+                                                        <div
+                                                            style="background-color: #163701;border-radius: 10px;padding: 5px;display: flex;justify-content: center;">
+                                                            <div>
+                                                                <p style="font-size: 10px;color: rgb(212, 211, 211);">
+                                                                    Organic Views
+                                                                </p>
+                                                                <p
+                                                                    style="font-size: 25px;font-weight: bold;align-items: center;display: flex;justify-content: center;color: rgb(212, 211, 211);;">
+                                                                    40%
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                        <div
+                                                            style="background-color: #012a37;border-radius: 10px;padding: 5px;display: flex;justify-content: center;">
+                                                            <div>
+                                                                <p style="font-size: 10px;color: rgb(212, 211, 211);">
+                                                                    Paid Views
+                                                                </p>
+                                                                <p
+                                                                    style="font-size: 25px;font-weight: bold;align-items: center;display: flex;justify-content: center;color: rgb(212, 211, 211);;">
+                                                                    15%
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- countries bar chart -->
+                                                    <div id="fb-countries-chart-{{ p.post_id }}"
+                                                        style="margin-top: 20px;">
+
+                                                    </div>
+                                                    <!-- Age gender bar chart -->
+                                                    <div id="fb-age-gender-chart-{{ p.post_id }}"
+                                                        style="margin-top: 20px;"></div>
                                                     {% endif %}
                                                 </div>
                                             </div>
@@ -6749,7 +6888,7 @@
                         },
                         error: function (jqXHR, textStatus, errorThrown) {
                             $(`#spin-${post_id}`).css('display', 'none');
-                            toastr.error('Failed to get the stats');
+                            toastr.error('Failed to get comments');
                         }
                     });
 
@@ -6845,14 +6984,12 @@
                     var disp = $(`#impression-analysis-${post_id}`).css('display');
                     // var disp = $(this).closest('.action-bar').siblings('.impression-analysis').css('display');
                     if (disp == 'block') {
+                        $(`#impression-analysis-${post_id}`).css('display', 'none');
                         return;
                     }
                     $(`#spin-${post_id}`).css('display', 'flex');
                     $(`#impression-analysis-${post_id}`).css('display', 'none');
                     $(`#post-comment-box-${post_id}`).css('display', 'none');
-                    // $(this).closest('.action-bar').siblings('.post-comment-box').css('display', 'none');
-                    // $(this).closest('.action-bar').siblings('.impression-analysis').css('display', 'none');
-
                     // get data from backend
 
                     var formData = new FormData();
@@ -6919,7 +7056,7 @@
                                         }],
                                         plotOptions: {
                                             bar: {
-                                                horizontal: false,
+                                                horizontal: true,
                                                 dataLabels: {
                                                     total: {
                                                         enabled: true,
@@ -7011,6 +7148,166 @@
                                 });
 
                                 chartPie.render();
+
+                                // FACEBOOK GRAPHS
+                                var options = {
+                                    series: [44, 55, 13, 43, 9, 13],
+                                    chart: {
+                                        width: 330,
+                                        type: 'pie',
+                                    },
+                                    labels: ['Fans', 'Unique', 'Organic', 'Paid(Ad.)', 'Viral', 'Non Viral'],
+                                    title: {
+                                        text: 'Impression Source', // Title text
+                                        align: 'right', // Alignment: 'left', 'center', or 'right'
+                                        margin: 0, // Margin around the title
+                                        offsetX: 0, // Horizontal offset
+                                        offsetY: 0, // Vertical offset
+                                        floating: false, // Floating title or not
+                                    },
+
+                                    responsive: [{
+                                        breakpoint: 480,
+                                        options: {
+                                            chart: {
+                                                width: 200
+                                            },
+                                            legend: {
+                                                position: 'bottom'
+                                            }
+                                        }
+                                    }]
+                                };
+
+                                var chart = new ApexCharts(document.querySelector(`#fb-impression-chart-${post_id}`), options);
+                                chart.render();
+
+                                // video watch time
+                                var options = {
+                                    series: [{
+                                        name: "Views",
+                                        data: [10, 12, 3, 13, 1, 5, 64, 78, 9]
+                                    }],
+                                    chart: {
+                                        type: 'area',
+                                        height: 350,
+                                        zoom: {
+                                            enabled: false
+                                        }
+                                    },
+                                    dataLabels: {
+                                        enabled: false
+                                    },
+                                    stroke: {
+                                        curve: 'straight'
+                                    },
+
+                                    title: {
+                                        text: 'Viewer Retention',
+                                        align: 'left'
+                                    },
+                                    subtitle: {
+                                        text: 'No. of views per minute',
+                                        align: 'left'
+                                    },
+                                    labels: ["1'", "2'", "3'", "4'", "5'", "6'", "7'", "8'", "9'"],
+                                    yaxis: {
+                                        opposite: true
+                                    },
+                                    legend: {
+                                        horizontalAlign: 'left'
+                                    }
+                                };
+
+                                var chart = new ApexCharts(document.querySelector(`#fb-video-watch-${post_id}`), options);
+                                chart.render();
+
+                                // fb country
+                                var options = {
+                                    series: [{
+                                        name: "Views",
+                                        data: [400, 430, 448, 470, 540, 580, 690, 1100, 1200, 1380]
+                                    }],
+                                    chart: {
+                                        type: 'bar',
+                                        height: 350
+                                    },
+                                    title: {
+                                        text: 'Views by Country',
+                                        align: 'left'
+                                    },
+
+                                    plotOptions: {
+                                        bar: {
+                                            borderRadius: 4,
+                                            borderRadiusApplication: 'end',
+                                            horizontal: true,
+                                        }
+                                    },
+                                    dataLabels: {
+                                        enabled: false
+                                    },
+                                    xaxis: {
+                                        categories: ['South Korea', 'Canada', 'United Kingdom', 'Netherlands', 'Italy', 'France', 'Japan',
+                                            'United States', 'China', 'Germany'
+                                        ],
+                                    }
+                                };
+
+                                var chart = new ApexCharts(document.querySelector(`#fb-countries-chart-${post_id}`), options);
+                                chart.render();
+
+                                // fb age gender
+                                var options = {
+                                    series: [{
+                                        name:'Male',
+                                        data: [44, 55, 41, 64, 22, 43, 21]
+                                    }, {
+                                        name:'Female',
+                                        data: [53, 32, 33, 52, 13, 44, 32]
+                                    }],
+                                    chart: {
+                                        type: 'bar',
+                                        height: 430
+                                    },
+                                    title: {
+                                        text: 'Views by Age & Gender',
+                                        align: 'left'
+                                    },
+
+                                    plotOptions: {
+                                        bar: {
+                                            horizontal: false,
+                                            dataLabels: {
+                                                position: 'top',
+                                            },
+                                        }
+                                    },
+                                    dataLabels: {
+                                        enabled: true,
+                                        offsetX: -6,
+                                        style: {
+                                            fontSize: '12px',
+                                            colors: ['#fff']
+                                        }
+                                    },
+                                    stroke: {
+                                        show: true,
+                                        width: 1,
+                                        colors: ['#fff']
+                                    },
+                                    tooltip: {
+                                        shared: true,
+                                        intersect: false
+                                    },
+                                    xaxis: {
+                                        categories: ['13-17', '18-24', '25-34', '35-44', '45-54', '54-64', '65+'],
+                                    },
+                                };
+
+                                var chart = new ApexCharts(document.querySelector(`#fb-age-gender-chart-${post_id}`), options);
+                                chart.render();
+
 
                             }
                         },
@@ -7359,8 +7656,13 @@
                 $(document).on('click', '#to_upload_content', function () {
                     if (!$('#to_upload_content').hasClass('post-btn-proceed-disabled')) {
                         var success = true;
+
+                        var facebookSelected = $('#facebook_platform').prop('checked');
+                        var instagramSelected = $('#instagram_platform').prop('checked');
+                        var tiktokSelected = $('#tiktok_platform').prop('checked');
+                        var redditSelected = $('#reddit_platform').prop('checked');
                         // Facebook
-                        if ($('#facebook_platform').prop('checked')) {
+                        if (facebookSelected) {
                             // selected
                             $('.target_facebook').each(function () { $(this).removeClass('unselectedPlatform') });
                         } else {
@@ -7369,7 +7671,7 @@
 
                         }
                         // Instagram
-                        if ($('#instagram_platform').prop('checked')) {
+                        if (instagramSelected) {
                             // selected
                             $('#non_media_post').css('display', 'none');
                             $('.target_instagram').each(function () { $(this).removeClass('unselectedPlatform') });
@@ -7379,7 +7681,7 @@
 
                         }
                         // Reddit
-                        if ($('#reddit_platform').prop('checked')) {
+                        if (redditSelected) {
                             // selected
                             $('.target_reddit').each(function () { $(this).removeClass('unselectedPlatform') });
                         } else {
@@ -7387,7 +7689,7 @@
                             $('.target_reddit').each(function () { $(this).addClass('unselectedPlatform') });
 
                         }
-                        if ($('#tiktok_platform').prop('checked')) {
+                        if (tiktokSelected) {
                             //titkok selected check the creator info
                             $('.target_tiktok').each(function () { $(this).removeClass('unselectedPlatform') });
                             $('#non_media_post').css('display', 'none')
@@ -7471,6 +7773,7 @@
                     if (iml == 0) {
                         return;
                     };
+
                     // upload the file and check content of file, filetype file length,etc 
                     $('#upload_content_view').css('display', 'none');
                     $('#step2').removeClass('current');
@@ -7478,6 +7781,7 @@
                     $('#step3').removeClass('upcoming');
                     $('#step3').addClass('current');
                     $('#set_up_content').css('display', 'block');
+
 
                 });
 
@@ -7490,11 +7794,13 @@
                     $('#step3').addClass('current');
                     $('#set_up_content').css('display', 'block');
 
+
                 });
 
                 $(document).on('click', '#back_to_upload', function () {
                     $('#set_up_content').css('display', 'none');
                     $('#upload_content_view').css('display', 'block');
+
 
                     // disable next btn
                 });
@@ -7603,14 +7909,30 @@
                 $(document).on('keyup', '#content_title', function () {
                     var descript = $('#content_description').val();
                     var title = $('#content_title').val();
+                    var iml = $('#preview').children().length;
+                    var hasMedia = true;
+                    if (iml == 0) {
+                        hasMedia = false;
+                    }
                     var redditChecked = $('#reddit_platform').prop('checked');
                     // ensure the content has a title and description
-                    if (!descript || !title) {
-                        if (!$('#submit_post').hasClass('post-btn-proceed-disabled')) {
-                            $('#submit_post').addClass('post-btn-proceed-disabled');
+                    if (hasMedia) {
+                        if (!descript) {
+                            if (!$('#submit_post').hasClass('post-btn-proceed-disabled')) {
+                                $('#submit_post').addClass('post-btn-proceed-disabled');
+                                return;
+                            };
                             return;
-                        };
-                        return;
+
+                        }
+                    } else {
+                        if (!descript || !title) {
+                            if (!$('#submit_post').hasClass('post-btn-proceed-disabled')) {
+                                $('#submit_post').addClass('post-btn-proceed-disabled');
+                                return;
+                            };
+                            return;
+                        }
                     }
                     $('#submit_post').removeClass('post-btn-proceed-disabled');
                 });
@@ -7621,32 +7943,37 @@
                     var fbSelected = $('#facebook_platform').prop('checked');
                     var igSelected = $('#instagram_platform').prop('checked');
                     var rdSelected = $('#reddit_platform').prop('checked');
-                    if (rdSelected) {
-                        if (!descript || !title) {
-                            if (!$('#submit_post').hasClass('post-btn-proceed-disabled')) {
-                                $('#submit_post').addClass('post-btn-proceed-disabled');
-                                return;
-                            };
-                            return;
-                        }
-                        if ($('#submit_post').hasClass('post-btn-proceed-disabled')) {
-                            $('#submit_post').removeClass('post-btn-proceed-disabled');
-                            return;
-                        };
-                    } else {
+
+                    var iml = $('#preview').children().length;
+                    var hasMedia = true;
+                    if (iml == 0) {
+                        hasMedia = false;
+                    }
+                    var redditChecked = $('#reddit_platform').prop('checked');
+                    // ensure the content has a title and description
+                    if (hasMedia) {
                         if (!descript) {
                             if (!$('#submit_post').hasClass('post-btn-proceed-disabled')) {
                                 $('#submit_post').addClass('post-btn-proceed-disabled');
                                 return;
                             };
                             return;
+
                         }
-                        if ($('#submit_post').hasClass('post-btn-proceed-disabled')) {
-                            $('#submit_post').removeClass('post-btn-proceed-disabled');
-                            return;
-                        };
+                    } else {
+                        if (redditChecked) {
+                            if (!descript || !title) {
+                                if (!$('#submit_post').hasClass('post-btn-proceed-disabled')) {
+                                    $('#submit_post').addClass('post-btn-proceed-disabled');
+                                    return;
+                                };
+                                return;
+                            }
+                        }
 
                     }
+                    $('#submit_post').removeClass('post-btn-proceed-disabled');
+
 
                 });
                 // upload modal
@@ -8177,6 +8504,11 @@
                     reader.onloadend = function () {
                         $('#image-delete-instruction').css('display', 'block');
                         var mediaElement;
+                        var RedditSelected = $('#reddit_platform').prop('checked');
+                        if (RedditSelected) {
+                            $('#title-set-up').css('display', 'none');
+                        };
+
 
                         // Create image or video element based on file type
                         if (file.type.startsWith("image/")) {
@@ -8195,6 +8527,8 @@
                             mediaElement.title = file.name;
                             mediaElement.src = this.result;
                             mediaElement.height = 300; // Set height for video
+
+                            // remove the title field
                         }
 
                         // Event listener to remove the media element on click
@@ -8205,11 +8539,12 @@
                                 $(this).remove();
                                 var iml = $('#preview').children().length;
                                 if (iml == 0) {
-                                    if (!$('#tiktok_platform').prop('checked')) {
-                                        $('#non_media_post').css('display', 'flex');
-                                    }
-                                    if (!$('#instagram_platform').prop('checked')) {
-                                        $('#non_media_post').css('display', 'flex');
+                                    var igSelected = $('#instagram_platform').prop('checked');
+                                    var tkSelected = $('#tiktok_platform').prop('checked');
+                                    if (igSelected || tkSelected) {
+                                        $('#non_media_post').css('display', 'none');
+                                    } else {
+                                        $('#non_media_post').css('display', 'none');
                                     }
                                     $('#to_set_up_content').addClass('post-btn-proceed-disabled');
                                 };
