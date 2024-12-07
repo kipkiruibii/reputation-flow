@@ -228,6 +228,7 @@ class CompanyPosts(models.Model):
     tags=models.JSONField(default=list)
     title=models.TextField(default='')
     description=models.TextField(default='')
+    media_thumbnail=models.TextField(default='')
     comment_count=models.IntegerField(default=0)
     engagement_count=models.IntegerField(default=0)
     is_scheduled=models.BooleanField(default=False)
@@ -236,6 +237,7 @@ class CompanyPosts(models.Model):
     has_failed=models.BooleanField(default=False)
     failure_reasons=models.JSONField(default=list)
     has_media=models.BooleanField(default=True)
+    is_video=models.BooleanField(default=True)
     date_uploaded=models.DateTimeField(default=timezone.now)
     date_scheduled=models.DateTimeField(default=timezone.now)
     def __str__(self):
@@ -272,12 +274,15 @@ class CompanyFacebookPosts(models.Model):
     comment_count=models.IntegerField(default=0)
     like_count=models.IntegerField(default=0)
     impression_count=models.IntegerField(default=0)
+    post_impression_type=models.JSONField(default=dict)#{'post_impressions_unique':int,'post_impressions_paid':int,'post_impressions_fan':int,'post_impressions_organic':int,'post_impressions_viral':int,'post_impressions_nonviral':int}
+    post_clicks=models.IntegerField(default=0)
     engagement_count=models.IntegerField(default=0)
     views_count=models.IntegerField(default=0)
     location_tags=models.TextField(default='')
     product_tags=models.TextField(default='')
     post_link=models.TextField(default='')
     content_id=models.TextField(default='')
+    parent_post_id=models.TextField(default='')
     
     def __str__(self):
         return self.post_id

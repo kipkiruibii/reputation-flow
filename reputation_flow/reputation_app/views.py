@@ -37,8 +37,8 @@ import praw
 import threading
 from django.core.files.storage import default_storage
 from prawcore.exceptions import ServerError, RequestException, ResponseException
-
-
+import ffmpeg
+import os
 # 1. Generate a State Token for CSRF protection
 def generate_state_token():
     return secrets.token_urlsafe(16)  # Generates a random URL-safe token
@@ -333,32 +333,37 @@ def dashboard(request, company_id):
         ldt=datetime.fromisoformat(ldta)
         df=(timezone.now()-ldt).total_seconds()
         if df > 18000: # update after 6 hrs only
-            if cig:
-                dt=get_instagram_account_insights(access_token=cig.long_lived_token,instagram_account_id=cig.account_id,company_id=company_id)  
-                cig.profile_url=dt['profile_picture_url']  
-                fb_ig['time_updated']=timezone.now().isoformat()
-                cig.save()
-            if cfb:
-                dt=get_facebook_page_insights(access_token=cfb.page_access_token,page_id=cfb.page_id,company_id=company_id)
-                cfb.profile_url=dt['p_picture']
-                fb_ig['time_updated']=timezone.now().isoformat()
-                cfb.save()
-
+            try:
+                if cig:
+                    dt=get_instagram_account_insights(access_token=cig.long_lived_token,instagram_account_id=cig.account_id,company_id=company_id)  
+                    cig.profile_url=dt['profile_picture_url']  
+                    fb_ig['time_updated']=timezone.now().isoformat()
+                    cig.save()
+                if cfb:
+                    dt=get_facebook_page_insights(access_token=cfb.page_access_token,page_id=cfb.page_id,company_id=company_id)
+                    cfb.profile_url=dt['p_picture']
+                    fb_ig['time_updated']=timezone.now().isoformat()
+                    cfb.save()
+            except:
+               pass        
     else:
         tk_data={
             'time_updated':timezone.now().isoformat()
         }
-        if cig:
-            dt=get_instagram_account_insights(access_token=cig.long_lived_token,instagram_account_id=cig.account_id,company_id=company_id)  
-            cig.profile_url=dt['profile_picture_url']  
-            print('saving profile url')
-            cig.save()
-        if cfb:
-            dt=get_facebook_page_insights(access_token=cfb.page_access_token,page_id=cfb.page_id,company_id=company_id)
-            cfb.profile_url=dt['p_picture']
-            print('saving fb profile pic ')
-            cfb.save()
-        request.session['facebook_ig_data'] = tk_data
+        try:
+            if cig:
+                dt=get_instagram_account_insights(access_token=cig.long_lived_token,instagram_account_id=cig.account_id,company_id=company_id)  
+                cig.profile_url=dt['profile_picture_url']  
+                print('saving profile url')
+                cig.save()
+            if cfb:
+                dt=get_facebook_page_insights(access_token=cfb.page_access_token,page_id=cfb.page_id,company_id=company_id)
+                cfb.profile_url=dt['p_picture']
+                print('saving fb profile pic ')
+                cfb.save()
+            request.session['facebook_ig_data'] = tk_data
+        except:
+            pass
         
 
     context = {
@@ -585,7 +590,7 @@ def fetchPosts(request):
                 'engagement_count':eng_cnt,
                 'tags': p.tags,
                 'has_media': p.has_media,
-                'cover_image_link':cover_image_link,
+                'cover_image_link':p.media_thumbnail,
                 'media':None if not p.has_media else UploadedMedia.objects.filter(post=p).first(),
                 'date_uploaded': p.date_uploaded,
                 'date_scheduled':p.date_scheduled,
@@ -638,7 +643,7 @@ def fetchPosts(request):
                 'engagement_count':eng_cnt,
                 'tags': p.tags,#if not p.tags else p.tags.split(),
                 'has_media': p.has_media,
-                'cover_image_link':cover_image_link,
+                'cover_image_link':p.media_thumbnail,
                 'media':None if not p.has_media else UploadedMedia.objects.filter(post=p).first(),
                 'date_uploaded': p.date_uploaded,
                 'date_scheduled':p.date_scheduled,
@@ -683,6 +688,11 @@ def getStats(request):
     red_tteng=[]
     red_subs=[]
     red_te=0
+    
+    fb_post_click=0
+    fb_impressions=0
+    impr_conv='-'
+
     if cr:
         has_reddit=True
         for c in cr.subs:
@@ -708,16 +718,20 @@ def getStats(request):
             red_te=sum(red_tteng)/len(red_tteng) 
     total_reddit_en=sum(red_up)+sum(red_cmt)+sum(red_cpst)
     my_dict['Reddit']=total_reddit_en
-    
     has_facebook=False
+    fb_video_data={}
     cfb=CompanyFacebookPosts.objects.filter(post_id=post_id).first()
     if cfb:
+        has_facebook=True
         cfbp=CompanyFacebook.objects.filter(company=pst.company).first()
         if not cfbp:
             print('No facebook object')
             return
         # get facebook insights
         url = f"https://graph.facebook.com/v21.0/{cfb.content_id}/insights"
+
+        if pst.is_video:
+            url = f"https://graph.facebook.com/v21.0/{cfb.content_id}/video_insights"
         '''
         Page Metrics
             page_post_engagements
@@ -732,6 +746,7 @@ def getStats(request):
             page_fan_adds,page_fan_adds_unique,page_fan_removes
             page_fans_by_like_source
             page_views_total
+            page_negative_feedback_by_type
 
         Post Metrics
             post_impressions,post_impressions_unique,post_impressions_paid,
@@ -739,7 +754,6 @@ def getStats(request):
             post_impressions_viral,post_impressions_nonviral
             post_reactions_by_type_total
             post_clicks
-            page_negative_feedback_by_type
             **video**
             post_video_avg_time_watched
             post_video_complete_views_organic
@@ -781,17 +795,77 @@ def getStats(request):
             post_video_complete_views_30s_clicked_to_play,
             page_video_view_time
         '''
-        params = {
-                "metric": "post_clicks,post_impressions,post_impressions_viral",
-                "access_token": cfbp.page_access_token,
-        }
-        # response =requests.get(url, params=params)
-        # if response.status_code == 200:
-        #     print("metrics retrieved successfully:", response.json())
-        # else:
-        #     print("Error getting metrics:", response.json())           
-    
+        if pst.is_video:
+            params = {
+                    "metric": "total_video_views,total_video_views_unique,total_video_views_clicked_to_play,total_video_views_organic",
+                    "access_token": cfbp.page_access_token,
+            }
+        else:
+            params = {
+                    "metric": "post_clicks,post_impressions,post_impressions_viral,post_impressions_unique,post_impressions_paid,post_impressions_fan,post_impressions_organic,post_impressions_nonviral",
+                    "access_token": cfbp.page_access_token,
+            }
+        response =requests.get(url, params=params)
+        if response.status_code == 200:
+            vl=response.json()['data']
+            print('vlllla',vl)
+            for v in vl:
+                if v['name'] == 'post_clicks':
+                    vl=v['values'][0]['value']
+                    cfb.post_impression_type['post_clicks']=vl
+                    cfb.post_clicks=vl
+                    cfb.save()
+                if v['name'] == 'post_impressions_viral':
+                    vl=v['values'][0]['value']
+                    cfb.post_impression_type['post_impressions_viral']=vl
+                    cfb.save()
+                if v['name'] == 'post_impressions_unique':
+                    vl=v['values'][0]['value']
+                    cfb.post_impression_type['post_impressions_unique']=vl
+                    cfb.save()
+                if v['name'] == 'post_impressions_paid':
+                    vl=v['values'][0]['value']
+                    cfb.post_impression_type['post_impressions_paid']=vl
+                    cfb.save()
+                if v['name'] == 'post_impressions_fan':
+                    vl=v['values'][0]['value']
+                    cfb.post_impression_type['post_impressions_fan']=vl
+                    cfb.save()
+                if v['name'] == 'post_impressions_organic':
+                    vl=v['values'][0]['value']
+                    cfb.post_impression_type['post_impressions_organic']=vl
+                    cfb.save()
+                if v['name'] == 'post_impressions_nonviral':
+                    vl=v['values'][0]['value']
+                    cfb.post_impression_type['post_impressions_nonviral']=vl
+                    cfb.save()
+                if v['name'] == 'post_impressions':
+                    vl=v['values'][0]['value']
+                    my_dict['facebook']=vl
+                    cfb.post_impression_type['post_impressions']=vl
+                    cfb.impression_count=vl
+                    cfb.save()
+            # cfb.impression_count=''
+            fb_post_click=cfb.post_clicks
+            fb_impressions=cfb.impression_count
+            if cfb.impression_count>0:
+                impr_conv=cfb.post_clicks/cfb.impression_count
+            # print("metrics retrieved successfully:", response.json())
+        else:
+            print("Error getting metrics:", response.json())           
     sorted_dict = dict(sorted(my_dict.items(), key=lambda item: item[1], reverse=True))
+    impress={}
+    if cfb:
+        dts=cfb.post_impression_type
+        impress={
+            'impression_fans':dts['post_impressions_fan'],
+            'impression_uniques':dts['post_impressions_unique'],
+            'impression_paid':dts['post_impressions_paid'],
+            'impression_organic':dts['post_impressions_organic'],
+            'impression_viral':dts['post_impressions_viral'],
+            'impression_nonviral':dts['post_impressions_nonviral'],
+        }
+    
     return Response({'result': 'success',
                      'has_reddit':has_reddit,
                      'reddit_total_engagement':f'{red_te}%',
@@ -801,7 +875,14 @@ def getStats(request):
                      'reddit_subs':red_subs,
                      'platform_engagement':list(sorted_dict.values()),
                      'pltfrms':list(sorted_dict.keys()), 
-                     'hasFacebook':True
+                    #  facebook
+                     'fb_impressions':fb_impressions,
+                     'fb_clicks':fb_post_click,
+                     'has_facebook':has_facebook,
+                     'fb_conversion_rate':impr_conv,
+                     'is_media_video':pst.is_video,
+                     'impression_dist':impress,
+                     'fb_video_data':fb_video_data
                      })
   
 def processCommentReplies(comment_id,replies,submission_op):
@@ -867,14 +948,119 @@ def fetchRedditComments(post,post_id):
                     cmt.reply_count=len(comment.replies)
                     cmt.save()
                 # recursively process comment replies using threads
-                if len(comment.replies)>0:
+                if len(comment.replies) > 0:
                     # save the reply comments
                     processCommentReplies(comment_id=comment.id,replies=comment.replies,submission_op=submission_op) 
 
+def processFacebookReplies(comment_id,page_access_token,page_id):
+    print('Get facebook replies')
+    url = f"https://graph.facebook.com/v21.0/{comment_id}/comments"
+    params = {
+        'fields': 'id,message,from{id,name,picture},created_time,like_count,comment_count',
+        'access_token': page_access_token
+    }  
+    response = requests.get(url, params=params)
+
+    if response.status_code == 200:
+        val=response.json()
+        datas=val['data']
+        for data in datas:
+            created_time_str=data['created_time']
+            created_time_naive = datetime.strptime(created_time_str, "%Y-%m-%dT%H:%M:%S%z")
+
+            created_time_with_timezone = created_time_naive.astimezone(timezone.utc)
+            cpr=CompanyPostsCommentsReplies.objects.filter(comment_id=data['id']).first()
+            if not cpr:
+                cpr = CompanyPostsCommentsReplies(
+                    parent_comment_id=comment_id,
+                    comment_id=data['id'],
+                    author=data['from']['name'],
+                    message=data['message'],
+                    author_profile=data['from']['picture']['data']['url'],
+                    is_op=data['from']['id'] == page_id,
+                    like_count=data['like_count'],
+                    reply_count=data['comment_count'],
+                    is_published=True,
+                    date_updated=created_time_with_timezone
+                    )
+                cpr.save()
+            else:
+                cpr.message=data['message']
+                cpr.like_count=data['like_count']
+                cpr.reply_count=data['comment_count']
+                cpr.save()
+            if cpr.reply_count>0:
+                # fetch reply to reply
+                print('fetching reply to the reply')
+                processFacebookReplies(comment_id=data['id'],page_access_token=page_access_token,page_id=page_id) 
+            
+        
+    else:
+        print('error found')
+        raise Exception(f"Error fetching data: {response.status_code} - {response.text}")
+
+      
+    
 def fetchFacebookComments(post,post_id):
-    print('Fetching facebook comments')  
+    print('Fetching facebook comments') 
+    cfbp=CompanyFacebookPosts.objects.filter(post_id=post_id).first()
+    if cfbp:
+        platform='facebook'
+        cfb=CompanyFacebook.objects.filter(company=post.company).first()
+        if not cfb:
+           
+            return
+        # Fields to fetch
+        url=f'https://graph.facebook.com/v21.0/{cfbp.content_id}/comments'
+        FIELDS = (
+            'id,message,from{id,name,picture},created_time,comment_count,like_count'
+        )
+        params = {
+            'fields': FIELDS,
+            'access_token': cfb.page_access_token
+        }
+        response = requests.get(url, params=params)
+
+        if response.status_code == 200:
+            val=response.json()
+            data=val['data']
+            for d in data:
+                c_id=d['id']
+                created_time_str=d['created_time']
+                created_time_naive = datetime.strptime(created_time_str, "%Y-%m-%dT%H:%M:%S%z")
+
+                created_time_with_timezone = created_time_naive.astimezone(timezone.utc)
+                cpc=CompanyPostsComments.objects.filter(comment_id=c_id).first()
+                if not cpc:
+                    cpc=CompanyPostsComments(
+                            post=post,
+                            comment_id=c_id,
+                            platform=platform,
+                            author=d['from']['name'],
+                            message=d['message'],
+                            author_profile=d['from']['picture']['data']['url'],
+                            is_op=d['from']['id'] == cfb.page_id,
+                            like_count=d['like_count'],
+                            reply_count=d['comment_count'],
+                            is_published=True,
+                            date_updated=created_time_with_timezone
+                        )
+                    cpc.save()
+                else:
+                    cpc.like_count=d['like_count']
+                    cpc.reply_count=d['comment_count']
+                    cpc.date_updated=created_time_with_timezone
+                    cpc.save()
+                print('reply count',cpc.reply_count)
+                if cpc.reply_count>0:
+                    # process the replies
+                    processFacebookReplies(comment_id=c_id,page_access_token=cfb.page_access_token,page_id=cfb.page_id) 
+        else:
+            raise Exception(f"Error fetching data: {response.status_code} - {response.text}")
+
+
 def fetchInstagramComments(post,post_id):
-    pass  
+    pass          
 def fetchTiktokComments(post,post_id):
     pass  
 
@@ -904,7 +1090,6 @@ def likeComment(request):
         return Response({'error': 'Bad request'})
     # get the specific platform
     pltform=''
-    print(comment_level)
     if comment_level == 'comment_post':
         cpst=CompanyPostsComments.objects.filter(comment_id=comment_id).first()
         if cpst:
@@ -945,6 +1130,31 @@ def likeComment(request):
             return Response({'success': 'Bad request'})
         except:
             return Response({'error': 'Could not upvote comment'})
+    if pltform == 'facebook':
+        cfb=CompanyFacebook.objects.filter(company=cp).first()
+        if not cfb: 
+            print('no facebook account')
+            return Response({'error': 'Could not like comment'})
+
+        url = f"https://graph.facebook.com/v21.0/{comment_id}/likes"
+        params = {
+            "access_token": cfb.page_access_token
+        }
+        try:
+            response = requests.post(url, params=params)
+            response.raise_for_status()  # Raise an error for HTTP error codes
+            data = response.json()
+            if data.get("success"):
+                print("Comment liked successfully!")
+                return Response({'success': 'comment liked'})
+            else:
+                return Response({'error': 'Could not like comment'})
+        except requests.exceptions.RequestException as e:
+            print(f"An error occurred: {e}")
+            return Response({'error': 'Could not like comment'})
+
+
+# Example usage
 
 @api_view(['POST'])
 def getComments(request):
@@ -961,39 +1171,10 @@ def getComments(request):
         # reddit post comments
         crp=CompanyRedditPosts.objects.filter(post_id=post_id).first()
         if crp:
-            platform='reddit'
-            for sbs in crp.subs:
-                p_id=sbs['id']
-                submission = reddit.submission(id=p_id)
-                # Ensure comments are fully loaded
-                submission.comments.replace_more(limit=None)
-                submission_op=submission.author    
-                # Iterate over the comments
-                for comment in submission.comments:
-                    cpstcmt=CompanyPostsComments(
-                        post=pst,
-                        comment_id=comment.id,
-                        is_op=comment.author == submission_op,
-                        platform=platform,
-                        author=comment.author,
-                        author_profile=comment.author.icon_img,
-                        message=comment.body,
-                        like_count=comment.score,
-                        reply_count=len(comment.replies),
-                        date_updated=datetime.fromtimestamp(comment.created_utc)
-                    )
-                    cpstcmt.save()
-                    
-                    # recursively process comment replies using threads
-                    if len(comment.replies)>0:
-                        # save the reply comments
-                        processCommentReplies(comment_id=comment.id,replies=comment.replies,submission_op=submission_op) 
-
+            fetchRedditComments(post=pst,post_id=post_id)
         cfbp=CompanyFacebookPosts.objects.filter(post_id=post_id).first()
         if cfbp:
-            print('getting facebook comments')
-            pass
-    
+            fetchFacebookComments(post=pst,post_id=post_id)
     else:
         #return already present comments while updating in the background
         thrd=threading.Thread(target=commentBackgroundUpdate,daemon=True,kwargs={
@@ -1002,7 +1183,7 @@ def getComments(request):
         })
         thrd.start()
         
-    cpstmt=CompanyPostsComments.objects.filter(post=pst).order_by('-like_count','-reply_count')
+    cpstmt=CompanyPostsComments.objects.filter(post=pst).order_by('-like_count','-reply_count','-pk')
     cmts=[] 
     for cpm in cpstmt:
         cmts.append({
@@ -1062,7 +1243,7 @@ def getComments(request):
             'engagement_count':eng_cnt,
             'tags': p.tags,
             'has_media': p.has_media,
-            'cover_image_link':cover_image_link,
+            'cover_image_link':p.media_thumbnail,
             'media':None if not p.has_media else UploadedMedia.objects.filter(post=p).first(),
             'date_uploaded': p.date_uploaded,
             'date_scheduled':p.date_scheduled,
@@ -1094,10 +1275,10 @@ def getCommentReplies(request):
     #  get the replies to this comment
     pst=pstc.post
     c_replies=[]
-    crp=CompanyPostsCommentsReplies.objects.filter(parent_comment_id=c_id).order_by('-like_count','-reply_count')
+    crp=CompanyPostsCommentsReplies.objects.filter(parent_comment_id=c_id).order_by('-like_count','-reply_count','-pk')
     for cpm in crp:
         replies=[]
-        crps=CompanyPostsCommentsReplies.objects.filter(parent_comment_id=cpm.comment_id).order_by('-like_count','-reply_count')
+        crps=CompanyPostsCommentsReplies.objects.filter(parent_comment_id=cpm.comment_id).order_by('-like_count','-reply_count','-pk')
         for c_s in crps: 
             replies.append({
                 'author':c_s.author,
@@ -1164,7 +1345,7 @@ def getCommentReplies(request):
                 'engagement_count':eng_cnt,
                 'tags':p.tags,
                 'has_media': p.has_media,
-                'cover_image_link':cover_image_link,
+                'cover_image_link':p.media_thumbnail,
                 'media':None if not p.has_media else UploadedMedia.objects.filter(post=p).first(),
                 'date_uploaded': p.date_uploaded,
                 'date_scheduled':p.date_scheduled,
@@ -1207,6 +1388,7 @@ def getCommentReplies(request):
 @api_view(['POST'])
 def postComment(request):
     comment_id = request.POST.get('comment_id', None)
+    post_id = request.POST.get('post_id', None)
     comment_level= request.POST.get('comment_level', None)
     comment_rt = request.POST.get('comment', None)
     company_id = request.POST.get('company_id', None)
@@ -1217,11 +1399,14 @@ def postComment(request):
         return Response({'error': 'Bad request'})
     
     # get the specific platform
+    # post_id=''
     pltform=''
     if comment_level == 'comment-post':
         cpst=CompanyPostsComments.objects.filter(comment_id=comment_id).first()
         if cpst:
             pltform=cpst.platform
+            # cps=cpst.post
+            # post_id=cps.post_id
     else:
         cprs=CompanyPostsCommentsReplies.objects.filter(comment_id=comment_id).first()
         if cprs:
@@ -1229,7 +1414,13 @@ def postComment(request):
             cpst=CompanyPostsComments.objects.filter(comment_id=pr_id).first()
             if cpst:
                 pltform=cpst.platform
+                # cps=cpst.post
+                # post_id=cps.post_id
+
     if not pltform:
+        return Response({'error': 'Bad request'})
+    if not post_id:
+        print('cant get post id')
         return Response({'error': 'Bad request'})
     # try:
     if pltform == 'reddit':
@@ -1241,19 +1432,159 @@ def postComment(request):
                 refresh_token=cr.refresh_token,
             )
         comment = reddit.comment(id=comment_id)
-
         # Submit a reply
-        reply = comment.reply(comment_rt)
-
-        # Output the reply details
-        # print(f"Replied to comment ID: {comment.id}")
-        # print(f"Reply ID: {reply.id}")
-        # print(f"Reply Body: {reply.body}")
+        comment.reply(comment_rt)
+        # fetch comments 
+    
+    elif pltform == 'facebook':
+        cfb=CompanyFacebook.objects.filter(company=cp).first()
+        url = f"https://graph.facebook.com/v21.0/{comment_id}/comments"
+        data = {
+            'message': comment_rt,
+            'access_token': cfb.page_access_token
+        }
+        response = requests.post(url, data=data)
         
+        if response.status_code == 200:
+            data= response.json()  # Returns the reply ID
+            print('Posted successfully',data)
+        else:
+            print('failed to post comment')
+            return Response({'error': 'Could not submit comment'})
+            
+    
+    # get the post from the post_id
+    pst=CompanyPosts.objects.filter(post_id=post_id).first()
+    if not pst:
+        return Response({'error': 'Bad request'})
+    # try:
+    
+    print('thread started')
+    if pltform == 'facebook':
+        fetchFacebookComments(post=pst,post_id=post_id)
+    elif pltform == 'tiktok':
+        fetchTiktokComments(post=pst,post_id=post_id)
+    elif pltform == 'instagram':
+        fetchInstagramComments(post=pst,post_id=post_id)
+    elif pltform == 'reddit':
+        print('fetching reddit comments')
+        fetchRedditComments(post=pst,post_id=post_id)
+    
+    # wait until update has been collected
+    
+    cpstmt=CompanyPostsComments.objects.filter(post=pst).order_by('-like_count','-reply_count','-pk')
+    cmts=[] 
+    for cpm in cpstmt:
+        cmts.append({
+            'author':cpm.author,
+            'id':cpm.comment_id,
+            'author_profile':cpm.author_profile,
+            'message_body':cpm.message,
+            'isOP':cpm.is_op,
+            'isReddit':True if cpm.platform == 'reddit' else False,
+            'isFacebook':True if cpm.platform == 'facebook' else False,
+            'isInstagram':True if cpm.platform == 'instagram' else False,
+            'isTiktok':True if cpm.platform == 'tiktok' else False,
+            'like_count':cpm.like_count,
+            'reply_count':cpm.reply_count,
+            'isPublished':cpm.is_published,
+            'date_updated':cpm.date_updated
+            
+        }) 
+    # cp=CompanyPosts.objects.all().order_by('-pk') # Execution time 4.7885 seconds
+    cp=CompanyPosts.objects.filter(id=pst.id) # Execution time 4.0257 seconds 
+    all_posts=[]
+    for p in cp:
+        um = UploadedMedia.objects.filter(post=p)
+        med = []
+        for m in um:
+            med.append({
+                'media_url': m.media.url,
+                'is_video': False
+            })
+        reds=[]
+        cover_image_link=''
         
-    return Response({'success': 'Bad request'})
-    # except Exception as e:
-    #     return Response({'error': e})
+        if 'reddit' in p.platforms:
+            cr=CompanyRedditPosts.objects.filter(post_id=p.post_id).first()
+            if cr:
+                k=cr.subs[0]
+                cover_image_link = k['link']
+            # use threading to update post and comments
+            pass
+        eng_cnt=p.engagement_count
+        if eng_cnt>1000000:
+            eng_cnt=round(eng_cnt/1000000,1)
+        elif eng_cnt>1000:
+            eng_cnt=round(eng_cnt/1000,1)
+        cmt_cnt=p.comment_count
+        if cmt_cnt>1000:
+            cmt_cnt=round(cmt_cnt/1000,1)
+        elif cmt_cnt>1000:
+            cmt_cnt=round(cmt_cnt/1000,1)
+        all_posts.append({
+            'platforms': [pl.capitalize() for pl in p.platforms],
+            'title': p.title,
+            'content': p.description,
+            'is_uploaded': p.is_published,
+            'is_scheduled': p.is_scheduled,
+            'comment_count':cmt_cnt,
+            'engagement_count':eng_cnt,
+            'tags': p.tags,
+            'has_media': p.has_media,
+            'cover_image_link':p.media_thumbnail,
+            'media':None if not p.has_media else UploadedMedia.objects.filter(post=p).first(),
+            'date_uploaded': p.date_uploaded,
+            'date_scheduled':p.date_scheduled,
+            'media': med,
+            'post_id':p.post_id,
+            'has_all':len(p.platforms)==4,
+            'has_reddit':'reddit' in p.platforms,
+            'has_tiktok':'tiktok' in p.platforms,
+            'has_facebook':'facebook' in p.platforms,
+            'has_instagram':'instagram' in p.platforms,
+        })
+    
+    c_replies=[]
+    crp=CompanyPostsCommentsReplies.objects.filter(parent_comment_id=comment_id).order_by('-like_count','-reply_count','-pk')
+    for cpm in crp:
+        replies=[]
+        crps=CompanyPostsCommentsReplies.objects.filter(parent_comment_id=cpm.comment_id).order_by('-like_count','-reply_count','-pk')
+        for c_s in crps: 
+            replies.append({
+                'author':c_s.author,
+                'id':c_s.comment_id,
+                'author_profile':c_s.author_profile,
+                'message_body':c_s.message,
+                'isOP':c_s.is_op,
+                'like_count':c_s.like_count,
+                'reply_count':c_s.reply_count,
+                'isPublished':c_s.is_published,
+                'date_updated':c_s.date_updated,
+            })
+        c_replies.append({
+            'author':cpm.author,
+            'id':cpm.comment_id,
+            'author_profile':cpm.author_profile,
+            'message_body':cpm.message,
+            'isOP':cpm.is_op,
+            'like_count':cpm.like_count,
+            'reply_count':cpm.reply_count,
+            'isPublished':cpm.is_published,
+            'date_updated':cpm.date_updated,
+            'replies':replies
+        })
+    
+    context={
+        'success':True,
+        'comments_replies':c_replies,
+        'comments_data':cmts,
+        'posts': all_posts,
+        }
+    return render(request, 'dashboard.html', context=context)
+    
+    
+    # return Response({'success': 'Bad request'})
     
 @api_view(['POST'])
 def fetchTeams(request):
@@ -1869,9 +2200,25 @@ def postFacebook(page_id,media,access_token,title,description,is_video,has_media
             "description": description,
             "access_token": access_token
         }
-
-        # Path to the video file
+        output_image_path='thumbnail.jpg'
+        if os.path.exists(output_image_path):
+            os.remove(output_image_path)
         video_file_path = media[0]['image_path']
+        print('extracting from')
+        try:
+            # Extract the first frame (frame at 0 seconds)
+            process = (
+                ffmpeg
+                .input(video_file_path, ss=0)  # Start at 0 seconds
+                .output(output_image_path, vframes=1)
+                .run_async(pipe_stdout=True, pipe_stderr=True)
+            )
+            process.communicate()  # Ensure the process completes
+            process.wait()   
+            print(f"First frame extracted and saved to {output_image_path}")
+        except Exception as e:
+            print(f"Error extracting frame: {traceback.format_exc()}")
+        # Path to the video file
         if to_post:
             # Open the video file and send the POST request
             with open(video_file_path, "rb") as video_file:
@@ -1882,17 +2229,83 @@ def postFacebook(page_id,media,access_token,title,description,is_video,has_media
 
             # Handle the response
             if response.status_code == 200:
+                print('the video id A1',response.json().get('id'))
+
                 video_id=response.json().get('id')
                 cfb_pst.content_id=video_id
                 cfb_pst.is_published=True
                 cfb_pst.save()
-                print(response.json())
-                print("Video uploaded successfully!")
+                cops.is_published=True
+                cops.save()
+                print("Video uploaded successfully! post")
+                if not cops.media_thumbnail:
+                    time.sleep(15)
+                    url = f"https://graph.facebook.com/v21.0/{video_id}/thumbnails"
+                    with open(output_image_path, 'rb') as file:
+                        files = {'source': file}
+                        params = {'access_token': access_token}
+                        response = requests.post(url, files=files, params=params)
+                        if response.status_code == 200:
+                            print("Thumbnail successfully updated!")
+                            print(response.content)
+                            
+                            url = f"https://graph.facebook.com/v21.0/{video_id}"
+                            params = {
+                                "fields": "thumbnails",
+                                "access_token": access_token
+                            }
+                            while True:
+                                response = requests.get(url, params=params)
+                                if response.status_code == 200:
+                                    data = response.json()
+                                    try:
+                                        if data:
+                                            thumbnails = data.get("thumbnails", {}).get("data", [])
+                                            if thumbnails:
+                                                # Get the preferred thumbnail or the first one
+                                                cops.media_thumbnail=thumbnails[0].get("uri")
+                                                cops.save()
+                                            else:
+                                                continue
+                                        break
+                                    # return data['images'][0]['source'] if 'images' in data else None
+                                    except:
+                                        continue
+                            
+                                else:
+                                    break
+                        else:
+                            print(f"Failed to set thumbnail: {response.text}")
+
+                    # 
+                
+                # get parent host id 
+                url = f"https://graph.facebook.com/v21.0/{video_id}"
+                params = {
+                    "fields": "post",
+                    "access_token": access_token
+                }
+                response = requests.get(url, params=params)
+                print('post iddd',response.content)
+                if response.status_code == 200:
+                    data = response.json()['post']['id']
+                    cfb_pst.parent_post_id=data
+                    cfb_pst.save()
+                    print('save post id',data)
+                    
+                # delete the media
+                
+                if os.path.exists(video_file_path):
+                    print('deleting already uploaded video')
+                os.remove(output_image_path)
+                # default_storage.delete(video_file_path)
+                
+                
             else:
                 print(f"Error uploading video: {response.status_code}")
                 print(response.json())
         # check if uploading to stories
-        if to_stories:
+        elif to_stories:
             print('attempting to upload video to stories')
             # initialise upload 
             url = f"https://graph.facebook.com/v21.0/{page_id}/video_stories"
@@ -1963,13 +2376,60 @@ def postFacebook(page_id,media,access_token,title,description,is_video,has_media
                 response = requests.post(url, data=payload)
                 print(response.json())
                 content_id=response.json().get('id')
+                print('the video id B',video_id)
+
                 cfb_pst.content_id=content_id
                 cfb_pst.is_published=True
                 cfb_pst.save()
+                cops.is_published=True
+                cops.save()
+
                 print("Video uploaded successfully!")
-                cfbp=CompanyFacebookPosts(
-                    
-                )
+                    # retrieve the images for the display
+                if not cops.media_thumbnail:
+                    time.sleep(15)
+                    url = f"https://graph.facebook.com/v21.0/{video_id}/thumbnails"
+                    with open(output_image_path, 'rb') as file:
+                        files = {'source': file}
+                        params = {'access_token': access_token}
+                        response = requests.post(url, files=files, params=params)
+                        if response.status_code == 200:
+                            print("Thumbnail successfully updated!")
+                            print(response.content)
+                            
+                            url = f"https://graph.facebook.com/v21.0/{video_id}"
+                            params = {
+                                "fields": "thumbnails",
+                                "access_token": access_token
+                            }
+                            while True:
+                                response = requests.get(url, params=params)
+                                if response.status_code == 200:
+                                    data = response.json()
+                                    try:
+                                        if data:
+                                            thumbnails = data.get("thumbnails", {}).get("data", [])
+                                            if thumbnails:
+                                                # Get the preferred thumbnail or the first one
+                                                cops.media_thumbnail=thumbnails[0].get("uri")
+                                                cops.save()
+                                            else:
+                                                continue
+                                        break
+                                    # return data['images'][0]['source'] if 'images' in data else None
+                                    except:
+                                        continue
+                            
+                                else:
+                                    break
+                        else:
+                            print(f"Failed to set thumbnail: {response.text}")
+
+                # delete the media
+                if os.path.exists(video_file_path):
+                    print('deleting already uploaded video')
+                os.remove(output_image_path)
+                
             else:
                 print(f"Error uploading video: {response.status_code}")
                 print(response.json())
@@ -2012,14 +2472,35 @@ def postFacebook(page_id,media,access_token,title,description,is_video,has_media
                     cfb_pst.content_id=content_id
                     cfb_pst.is_published=True
                     cfb_pst.save()
+                    cops.is_published=True
+                    cops.save()
+
                     print("Post created successfully with multiple photos!")
-                    print(response.json())
+                    
+                    # retrieve the images for the display
+                    if not cops.media_thumbnail:
+                        print('gettong thumbnail')
+                        url = f"https://graph.facebook.com/v21.0/{photo_ids[0]['media_fbid']}"
+                        params = {
+                            "fields": "images",
+                            "access_token": access_token
+                        }
+
+                        response = requests.get(url, params=params)
+                        if response.status_code == 200:
+                            data = response.json()
+                            # Get the highest-resolution image URL
+                            if data:
+                                cops.media_thumbnail=data['images'][0]['source']
+                                cops.save()
+                            # return data['images'][0]['source'] if 'images' in data else None
+                
                 else:
                     print(f"Error creating post: {response.status_code}")
                     print(response.json())
 
             # check if user is uploading to stories
-            if to_stories:
+            elif to_stories:
                 print('attempting to upload photo(s) to stories')
                 for ph_id in photo_ids:
                     url = f"https://graph.facebook.com/v21.0/{page_id}/photo_stories"
@@ -2034,9 +2515,55 @@ def postFacebook(page_id,media,access_token,title,description,is_video,has_media
                     content_id=response.json().get('id')
                     cfb_pst.content_id=content_id
                     cfb_pst.is_published=True
+                    cops.is_published=True
+                    cops.save()
+
                     cfb_pst.save()
                     print("stories created successfully with multiple photos!")
-                    print(response.json())
+                    # retrieve the images for the display
+                    if not cops.media_thumbnail:
+                        time.sleep(15)
+                        url = f"https://graph.facebook.com/v21.0/{video_id}/thumbnails"
+                        with open(output_image_path, 'rb') as file:
+                            files = {'source': file}
+                            params = {'access_token': access_token}
+                            response = requests.post(url, files=files, params=params)
+                            if response.status_code == 200:
+                                print("Thumbnail successfully updated!")
+                                print(response.content)
+                                
+                                url = f"https://graph.facebook.com/v21.0/{video_id}"
+                                params = {
+                                    "fields": "thumbnails",
+                                    "access_token": access_token
+                                }
+                                while True:
+                                    response = requests.get(url, params=params)
+                                    if response.status_code == 200:
+                                        data = response.json()
+                                        try:
+                                            if data:
+                                                thumbnails = data.get("thumbnails", {}).get("data", [])
+                                                if thumbnails:
+                                                    # Get the preferred thumbnail or the first one
+                                                    cops.media_thumbnail=thumbnails[0].get("uri")
+                                                    cops.save()
+                                                else:
+                                                    continue
+                                            break
+                                        # return data['images'][0]['source'] if 'images' in data else None
+                                        except:
+                                            continue
+                                
+                                    else:
+                                        break
+                            else:
+                                print(f"Failed to set thumbnail: {response.text}")
+
+                    # delete the media
+                    if os.path.exists(video_file_path):
+                        print('deleting already uploaded video')
+                    os.remove(output_image_path)
                 else:
                     print(f"Error creating post: {response.status_code}")
                     print(response.json())
@@ -2064,6 +2591,9 @@ def postFacebook(page_id,media,access_token,title,description,is_video,has_media
                     cfb_pst.save()
                     cops.is_published=True
                     cops.save()
+                    cops.is_published=True
+                    cops.save()
+
                     print(response.json())
                 else:
                     if not cops.partial_publish:
@@ -2117,7 +2647,7 @@ def postReddit(title,description,subs,hasMedia,files,nsfw_tag,spoiler_tag,red_re
                                 print('submitting image')
                                 try:
                                     submission = subreddit.submit_image(
-                                        title=title,
+                                        title=description,
                                         image_path=f,
                                         flair_id=default_flair,
                                         timeout=30,
@@ -2126,6 +2656,9 @@ def postReddit(title,description,subs,hasMedia,files,nsfw_tag,spoiler_tag,red_re
 
                                     )
                                     published=True
+                                    if not pst.media_thumbnail:
+                                        pst.media_thumbnail=submission.url
+
                                     sub_tr.append({
                                         'sub_name':sb,
                                         'id':submission.id,
@@ -2142,6 +2675,7 @@ def postReddit(title,description,subs,hasMedia,files,nsfw_tag,spoiler_tag,red_re
                                     default_storage.delete(files[0]['image_path'])
                                 except Exception as e:
                                     failed_publish=True
+                                    print('failed to submit to reddit',str(traceback.format_exc()))
                                     fail_reasons.append(f'Submission to r/{sb} Failed')
                                     sub_tr.append({
                                         'sub_name':sb,
@@ -2186,6 +2720,9 @@ def postReddit(title,description,subs,hasMedia,files,nsfw_tag,spoiler_tag,red_re
                                     )
                                     published=True
                                     print(f"Video post created successfully: {submission.url}")
+                                    if not pst.media_thumbnail:
+                                        pst.media_thumbnail=submission.url
+
                                     sub_tr.append({
                                         'sub_name':sb,
                                         'id':submission.id,
@@ -2269,16 +2806,14 @@ def postReddit(title,description,subs,hasMedia,files,nsfw_tag,spoiler_tag,red_re
                                 if gallery_data:
                                     # Find the cover image
                                     cover_image_id = submission.gallery_data['items'][0]['media_id']
-                                    print()
                                     print(len(gallery_data[cover_image_id]['p']))
-                                    for i in gallery_data[cover_image_id]['p']:
-                                        print(i)
-                                        print()
                                     cover_image_url = gallery_data[cover_image_id]['p'][-1]['u']  # Get the first preview
                                     # Reddit URLs may contain encoded characters like "&amp;", decode them
                                     cover_image_url = cover_image_url.replace("&amp;", "&")
                                 # clear the respective temporary files
-                                
+                                if not pst.media_thumbnail:
+                                    pst.media_thumbnail=cover_image_url
+
                                 sub_tr.append({
                                     'sub_name':sb,
                                     'id':submission.id,
@@ -2434,6 +2969,7 @@ def deletePostComment(request):
                             print('deleted from ',sb['sub_name'])
                         except:
                             continue
+                    crp.delete()
         if 'facebook' in platform.lower():
             cfbp=CompanyFacebook.objects.filter(company=cpst.company).first()
             if not cfbp:
@@ -2449,6 +2985,7 @@ def deletePostComment(request):
                         response =requests.delete(url, data=payload)
                         if response.status_code == 200:
                             print("Post deleted successfully:", response.json())
+                            cfp.delete()
                         else:
                             print("Error deleting post:", response.json())           
     cp = CompanyPosts.objects.filter(company=cpst.company).order_by('-pk')
@@ -2511,7 +3048,7 @@ def deletePostComment(request):
                 'engagement_count':eng_cnt,
                 'tags': p.tags,
                 'has_media': p.has_media,
-                'cover_image_link':cover_image_link,
+                'cover_image_link':p.media_thumbnail,
                 'media':None if not p.has_media else UploadedMedia.objects.filter(post=p).first(),
                 'date_uploaded': p.date_uploaded,
                 'date_scheduled':p.date_scheduled,
@@ -2564,7 +3101,7 @@ def deletePostComment(request):
                 'engagement_count':eng_cnt,
                 'tags':p.tags,
                 'has_media': p.has_media,
-                'cover_image_link':cover_image_link,
+                'cover_image_link':p.media_thumbnail,
                 'media':None if not p.has_media else UploadedMedia.objects.filter(post=p).first(),
                 'date_uploaded': p.date_uploaded,
                 'date_scheduled':p.date_scheduled,
@@ -2675,6 +3212,11 @@ def uploadPost(request):
         platform.append('reddit')
         
     post_id = uuid.uuid4()
+    is_video=False
+    glctyp= gallery_items[0]['content_type']
+    if glctyp.startswith("video/"):
+        is_video=True
+
     cpst = CompanyPosts(
         company=cp,
         post_id=post_id,
@@ -2683,6 +3225,7 @@ def uploadPost(request):
         description=description,
         is_scheduled=isScheduled,
         has_media=hasMedia,
+        is_video=is_video,
         date_scheduled= datetime_object
     )
     ht=hashTags.split()
