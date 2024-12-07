@@ -4936,7 +4936,9 @@
                                                     <i class="fa fa-clock-o" aria-hidden="true"></i> Processing ...
                                                 </p>
                                                 <div>
-                                                    <p class="refresh-post" style="font-size: 12px;color: rgb(5, 58, 174);cursor: pointer;">Click to refresh</p>
+                                                    <p class="refresh-post"
+                                                        style="font-size: 12px;color: rgb(5, 58, 174);cursor: pointer;">
+                                                        Click to refresh</p>
                                                 </div>
 
                                                 {% endif %}
@@ -5298,11 +5300,11 @@
                                                                 <div>
                                                                     <p
                                                                         style="font-size: 10px;color: rgb(212, 211, 211);">
-                                                                        Average Watch Time
+                                                                        Total Watch Time
                                                                     </p>
-                                                                    <p
+                                                                    <p id="twt-{{ p.post_id }}"
                                                                         style="font-size: 25px;font-weight: bold;align-items: center;display: flex;justify-content: center;color: rgb(212, 211, 211);;">
-                                                                        3.3min
+                                                                        -
                                                                     </p>
                                                                 </div>
                                                             </div>
@@ -5312,11 +5314,11 @@
                                                                 <div>
                                                                     <p
                                                                         style="font-size: 10px;color: rgb(212, 211, 211);">
-                                                                        Users Watched to the end
+                                                                        Average Watch Time
                                                                     </p>
-                                                                    <p
+                                                                    <p id="awt-{{ p.post_id }}"
                                                                         style="font-size: 25px;font-weight: bold;align-items: center;display: flex;justify-content: center;color: rgb(212, 211, 211);;">
-                                                                        40%
+                                                                        -
                                                                     </p>
                                                                 </div>
                                                             </div>
@@ -5326,11 +5328,11 @@
                                                                 <div>
                                                                     <p
                                                                         style="font-size: 10px;color: rgb(212, 211, 211);">
-                                                                        Organic Views
+                                                                        Total Play Count
                                                                     </p>
-                                                                    <p
+                                                                    <p id="tpc-{{ p.post_id }}"
                                                                         style="font-size: 25px;font-weight: bold;align-items: center;display: flex;justify-content: center;color: rgb(212, 211, 211);;">
-                                                                        40%
+                                                                        -
                                                                     </p>
                                                                 </div>
                                                             </div>
@@ -5339,11 +5341,11 @@
                                                                 <div>
                                                                     <p
                                                                         style="font-size: 10px;color: rgb(212, 211, 211);">
-                                                                        Paid Views
+                                                                        Consumption Rate
                                                                     </p>
-                                                                    <p
+                                                                    <p id="cr-{{ p.post_id }}"
                                                                         style="font-size: 25px;font-weight: bold;align-items: center;display: flex;justify-content: center;color: rgb(212, 211, 211);;">
-                                                                        15%
+                                                                        -
                                                                     </p>
                                                                 </div>
                                                             </div>
@@ -5450,7 +5452,9 @@
                                                     <i class="fa fa-clock-o" aria-hidden="true"></i> Processing ...
                                                 </p>
                                                 <div>
-                                                    <p class="refresh-post" style="font-size: 12px;color: rgb(5, 58, 174);cursor: pointer;">Click to refresh</p>
+                                                    <p class="refresh-post"
+                                                        style="font-size: 12px;color: rgb(5, 58, 174);cursor: pointer;">
+                                                        Click to refresh</p>
                                                 </div>
                                                 {% endif %}
                                             </div>
@@ -7258,8 +7262,12 @@
 
                                     // FACEBOOK GRAPHS
                                     dts = response['impression_dist']
+                                    var series = [];
+                                    if (dts['impression_fans']) {
+                                        series = [dts['impression_fans'], dts['impression_uniques'], dts['impression_organic'], dts['impression_paid'], dts['impression_viral'], dts['impression_nonviral']];
+                                    }
                                     var options = {
-                                        series: [dts['impression_fans'], dts['impression_uniques'], dts['impression_organic'], dts['impression_paid'], dts['impression_viral'], dts['impression_nonviral']],
+                                        series: series,
                                         chart: {
                                             width: 330,
                                             type: 'pie',
@@ -7273,7 +7281,28 @@
                                             offsetY: 0, // Vertical offset
                                             floating: false, // Floating title or not
                                         },
+                                        noData: {
+                                            text: 'No data available. Check back later', // Message to display
+                                            align: 'center',           // Align text
+                                            verticalAlign: 'middle',   // Vertically center the text
+                                            offsetX: 0,
+                                            offsetY: 0,
+                                        },
 
+                                        grid: {
+                                            show: true,
+                                            borderColor: '#e0e0e0',
+                                            strokeDashArray: 4
+                                        },
+                                        noData: {
+                                            text: 'No data available',
+                                            align: 'center',
+                                            verticalAlign: 'middle',
+                                            style: {
+                                                color: '#888',
+                                                fontSize: '14px'
+                                            }
+                                        },
                                         responsive: [{
                                             breakpoint: 480,
                                             options: {
@@ -7289,135 +7318,269 @@
 
                                     var chart = new ApexCharts(document.querySelector(`#fb-impression-chart-${post_id}`), options);
                                     chart.render();
+
                                     if (response['is_media_video']) {
-                                        $(`#video-summary-${post_id}`).css(('display', 'block'));
-                                        // video watch time
-                                        var options = {
-                                            series: [{
-                                                name: "Views",
-                                                data: [10, 12, 3, 13, 1, 5, 64, 78, 9]
-                                            }],
-                                            chart: {
-                                                type: 'area',
-                                                height: 350,
-                                                zoom: {
+                                        $(`#video-summary-${post_id}`).css('display', 'block');
+
+                                        if (!response['impression_dist']['has_data']) {
+
+                                            // no retention data
+                                            var options = {
+                                                series: [],
+                                                chart: {
+                                                    type: 'area',
+                                                    height: 350,
+                                                    zoom: {
+                                                        enabled: false
+                                                    }
+                                                },
+                                                dataLabels: {
                                                     enabled: false
+                                                },
+                                                noData: {
+                                                    text: 'No data available. Check back later', // Message to display
+                                                    align: 'center',           // Align text
+                                                    verticalAlign: 'middle',   // Vertically center the text
+                                                    offsetX: 0,
+                                                    offsetY: 0,
+                                                },
+                                                stroke: {
+                                                    curve: 'straight'
+                                                },
+
+                                                title: {
+                                                    text: 'Viewer Retention',
+                                                    align: 'left'
+                                                },
+                                                subtitle: {
+                                                    text: 'No. of views per minute',
+                                                    align: 'left'
+                                                },
+                                                labels: ["1'", "2'", "3'", "4'", "5'", "6'", "7'", "8'", "9'"],
+                                                yaxis: {
+                                                    opposite: true
+                                                },
+                                                legend: {
+                                                    horizontalAlign: 'left'
                                                 }
-                                            },
-                                            dataLabels: {
-                                                enabled: false
-                                            },
-                                            stroke: {
-                                                curve: 'straight'
-                                            },
+                                            };
+                                            var chart = new ApexCharts(document.querySelector(`#fb-video-watch-${post_id}`), options);
+                                            chart.render();
 
-                                            title: {
-                                                text: 'Viewer Retention',
-                                                align: 'left'
-                                            },
-                                            subtitle: {
-                                                text: 'No. of views per minute',
-                                                align: 'left'
-                                            },
-                                            labels: ["1'", "2'", "3'", "4'", "5'", "6'", "7'", "8'", "9'"],
-                                            yaxis: {
-                                                opposite: true
-                                            },
-                                            legend: {
-                                                horizontalAlign: 'left'
-                                            }
-                                        };
+                                            //  No country data
+                                            var options = {
+                                                series: [],
+                                                chart: {
+                                                    type: 'bar',
+                                                    height: 350
+                                                },
+                                                title: {
+                                                    text: 'Views by Country',
+                                                    align: 'left'
+                                                },
+                                                noData: {
+                                                    text: 'No data available. Check back later', // Message to display
+                                                    align: 'center',           // Align text
+                                                    verticalAlign: 'middle',   // Vertically center the text
+                                                    offsetX: 0,
+                                                    offsetY: 0,
+                                                },
+                                                plotOptions: {
+                                                    bar: {
+                                                        borderRadius: 4,
+                                                        borderRadiusApplication: 'end',
+                                                        horizontal: true,
+                                                    }
+                                                },
+                                                dataLabels: {
+                                                    enabled: false
+                                                },
 
-                                        var chart = new ApexCharts(document.querySelector(`#fb-video-watch-${post_id}`), options);
-                                        chart.render();
+                                            };
+                                            var chart = new ApexCharts(document.querySelector(`#fb-countries-chart-${post_id}`), options);
+                                            chart.render();
 
-                                        // fb country
-                                        var options = {
-                                            series: [{
-                                                name: "Views",
-                                                data: [400, 430, 448, 470, 540, 580, 690, 1100, 1200, 1380]
-                                            }],
-                                            chart: {
-                                                type: 'bar',
-                                                height: 350
-                                            },
-                                            title: {
-                                                text: 'Views by Country',
-                                                align: 'left'
-                                            },
-
-                                            plotOptions: {
-                                                bar: {
-                                                    borderRadius: 4,
-                                                    borderRadiusApplication: 'end',
-                                                    horizontal: true,
-                                                }
-                                            },
-                                            dataLabels: {
-                                                enabled: false
-                                            },
-                                            xaxis: {
-                                                categories: ['South Korea', 'Canada', 'United Kingdom', 'Netherlands', 'Italy', 'France', 'Japan',
-                                                    'United States', 'China', 'Germany'
-                                                ],
-                                            }
-                                        };
-
-                                        var chart = new ApexCharts(document.querySelector(`#fb-countries-chart-${post_id}`), options);
-                                        chart.render();
-
-                                        // fb age gender
-                                        var options = {
-                                            series: [{
-                                                name: 'Male',
-                                                data: [44, 55, 41, 64, 22, 43, 21]
-                                            }, {
-                                                name: 'Female',
-                                                data: [53, 32, 33, 52, 13, 44, 32]
-                                            }],
-                                            chart: {
-                                                type: 'bar',
-                                                height: 430
-                                            },
-                                            title: {
-                                                text: 'Views by Age & Gender',
-                                                align: 'left'
-                                            },
-
-                                            plotOptions: {
-                                                bar: {
-                                                    horizontal: false,
-                                                    dataLabels: {
-                                                        position: 'top',
-                                                    },
-                                                }
-                                            },
-                                            dataLabels: {
-                                                enabled: true,
-                                                offsetX: -6,
-                                                style: {
-                                                    fontSize: '12px',
+                                            // No Age gender data
+                                            var options = {
+                                                series: [],
+                                                chart: {
+                                                    type: 'bar',
+                                                    height: 430
+                                                },
+                                                title: {
+                                                    text: 'Views by Age & Gender',
+                                                    align: 'left'
+                                                },
+                                                noData: {
+                                                    text: 'No data available. Check back later', // Message to display
+                                                    align: 'center',           // Align text
+                                                    verticalAlign: 'middle',   // Vertically center the text
+                                                    offsetX: 0,
+                                                    offsetY: 0,
+                                                },
+                                                plotOptions: {
+                                                    bar: {
+                                                        horizontal: false,
+                                                        dataLabels: {
+                                                            position: 'top',
+                                                        },
+                                                    }
+                                                },
+                                                dataLabels: {
+                                                    enabled: true,
+                                                    offsetX: -6,
+                                                    style: {
+                                                        fontSize: '12px',
+                                                        colors: ['#fff']
+                                                    }
+                                                },
+                                                stroke: {
+                                                    show: true,
+                                                    width: 1,
                                                     colors: ['#fff']
+                                                },
+                                                tooltip: {
+                                                    shared: true,
+                                                    intersect: false
+                                                },
+
+                                            };
+                                            var chart = new ApexCharts(document.querySelector(`#fb-age-gender-chart-${post_id}`), options);
+                                            chart.render();
+
+                                        }
+                                         else {
+                                            $(`#twt-${post_id}`).text(response['fb_video_data']['total_watch_time']);
+                                            $(`#awt-${post_id}`).text(response['fb_video_data']['average_watch_time']);
+                                            $(`#cr-${post_id}`).text(response['fb_video_data']['total_video_consumption_rate']);
+                                            $(`#tpc-${post_id}`).text(response['fb_video_data']['video_play_count']);
+                                            // video watch time
+                                            var options = {
+                                                series: [{
+                                                    name: "Views",
+                                                    data: [0, 0, 0, 0, 0, 0, 0, 0, 0]
+                                                }],
+                                                chart: {
+                                                    type: 'area',
+                                                    height: 350,
+                                                    zoom: {
+                                                        enabled: false
+                                                    }
+                                                },
+                                                dataLabels: {
+                                                    enabled: false
+                                                },
+                                                stroke: {
+                                                    curve: 'straight'
+                                                },
+
+                                                title: {
+                                                    text: 'Viewer Retention',
+                                                    align: 'left'
+                                                },
+                                                subtitle: {
+                                                    text: 'No. of views per minute',
+                                                    align: 'left'
+                                                },
+                                                labels: ["1'", "2'", "3'", "4'", "5'", "6'", "7'", "8'", "9'"],
+                                                yaxis: {
+                                                    opposite: true
+                                                },
+                                                legend: {
+                                                    horizontalAlign: 'left'
                                                 }
-                                            },
-                                            stroke: {
-                                                show: true,
-                                                width: 1,
-                                                colors: ['#fff']
-                                            },
-                                            tooltip: {
-                                                shared: true,
-                                                intersect: false
-                                            },
-                                            xaxis: {
-                                                categories: ['13-17', '18-24', '25-34', '35-44', '45-54', '54-64', '65+'],
-                                            },
-                                        };
+                                            };
 
-                                        var chart = new ApexCharts(document.querySelector(`#fb-age-gender-chart-${post_id}`), options);
-                                        chart.render();
+                                            var chart = new ApexCharts(document.querySelector(`#fb-video-watch-${post_id}`), options);
+                                            chart.render();
 
+                                            // fb country
+                                            var options = {
+                                                series: [{
+                                                    name: "Views",
+                                                    data: [400, 430, 448, 470, 540, 580, 690, 1100, 1200, 1380]
+                                                }],
+                                                chart: {
+                                                    type: 'bar',
+                                                    height: 350
+                                                },
+                                                title: {
+                                                    text: 'Views by Country',
+                                                    align: 'left'
+                                                },
 
+                                                plotOptions: {
+                                                    bar: {
+                                                        borderRadius: 4,
+                                                        borderRadiusApplication: 'end',
+                                                        horizontal: true,
+                                                    }
+                                                },
+                                                dataLabels: {
+                                                    enabled: false
+                                                },
+                                                xaxis: {
+                                                    categories: ['South Korea', 'Canada', 'United Kingdom', 'Netherlands', 'Italy', 'France', 'Japan',
+                                                        'United States', 'China', 'Germany'
+                                                    ],
+                                                }
+                                            };
+
+                                            var chart = new ApexCharts(document.querySelector(`#fb-countries-chart-${post_id}`), options);
+                                            chart.render();
+
+                                            // fb age gender
+                                            var options = {
+                                                series: [{
+                                                    name: 'Male',
+                                                    data: [44, 55, 41, 64, 22, 43, 21]
+                                                }, {
+                                                    name: 'Female',
+                                                    data: [53, 32, 33, 52, 13, 44, 32]
+                                                }],
+                                                chart: {
+                                                    type: 'bar',
+                                                    height: 430
+                                                },
+                                                title: {
+                                                    text: 'Views by Age & Gender',
+                                                    align: 'left'
+                                                },
+
+                                                plotOptions: {
+                                                    bar: {
+                                                        horizontal: false,
+                                                        dataLabels: {
+                                                            position: 'top',
+                                                        },
+                                                    }
+                                                },
+                                                dataLabels: {
+                                                    enabled: true,
+                                                    offsetX: -6,
+                                                    style: {
+                                                        fontSize: '12px',
+                                                        colors: ['#fff']
+                                                    }
+                                                },
+                                                stroke: {
+                                                    show: true,
+                                                    width: 1,
+                                                    colors: ['#fff']
+                                                },
+                                                tooltip: {
+                                                    shared: true,
+                                                    intersect: false
+                                                },
+                                                xaxis: {
+                                                    categories: ['13-17', '18-24', '25-34', '35-44', '45-54', '54-64', '65+'],
+                                                },
+                                            };
+
+                                            var chart = new ApexCharts(document.querySelector(`#fb-age-gender-chart-${post_id}`), options);
+                                            chart.render();
+
+                                        }
 
                                     }
                                 }

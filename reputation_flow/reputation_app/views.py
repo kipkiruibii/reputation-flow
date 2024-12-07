@@ -797,75 +797,145 @@ def getStats(request):
         '''
         if pst.is_video:
             params = {
-                    "metric": "total_video_views,total_video_views_unique,total_video_views_clicked_to_play,total_video_views_organic",
+                    # "metric":",".join(vid_metric),
+                    # "metric":'total_video_view_time_by_country_id',
                     "access_token": cfbp.page_access_token,
             }
+            response =requests.get(url, params=params)
+            if response.status_code == 200:
+                vl=response.json().get('data')
+                # for metric in vid_metric:
+                clck=0
+                impr=0
+                for v in vl:
+                    vl=v['values'][0]['value']
+                    if v['name']== 'total_video_views_autoplayed':
+                        clck+=vl
+                    if v['name']== 'total_video_views_clicked_to_play':
+                        clck+=vl
+                    if v['name']== 'total_video_impressions':
+                        impr=vl
+                    cfb.post_impression_type[v['name']]=vl
+                    cfb.save()
+                # save video data
+                cfb.impression_count=clck
+                cfb.impression_count=impr
+                cfb.save()
+                fb_post_click=cfb.post_clicks
+                fb_impressions=cfb.impression_count
+                if cfb.impression_count>0:
+                    impr_conv=cfb.post_clicks/cfb.impression_count
+                
+            else:
+                print('failed',response.status_code,response.content)   
+                return Response({'success':True})        
+
         else:
             params = {
                     "metric": "post_clicks,post_impressions,post_impressions_viral,post_impressions_unique,post_impressions_paid,post_impressions_fan,post_impressions_organic,post_impressions_nonviral",
                     "access_token": cfbp.page_access_token,
             }
-        response =requests.get(url, params=params)
-        if response.status_code == 200:
-            vl=response.json()['data']
-            print('vlllla',vl)
-            for v in vl:
-                if v['name'] == 'post_clicks':
-                    vl=v['values'][0]['value']
-                    cfb.post_impression_type['post_clicks']=vl
-                    cfb.post_clicks=vl
-                    cfb.save()
-                if v['name'] == 'post_impressions_viral':
-                    vl=v['values'][0]['value']
-                    cfb.post_impression_type['post_impressions_viral']=vl
-                    cfb.save()
-                if v['name'] == 'post_impressions_unique':
-                    vl=v['values'][0]['value']
-                    cfb.post_impression_type['post_impressions_unique']=vl
-                    cfb.save()
-                if v['name'] == 'post_impressions_paid':
-                    vl=v['values'][0]['value']
-                    cfb.post_impression_type['post_impressions_paid']=vl
-                    cfb.save()
-                if v['name'] == 'post_impressions_fan':
-                    vl=v['values'][0]['value']
-                    cfb.post_impression_type['post_impressions_fan']=vl
-                    cfb.save()
-                if v['name'] == 'post_impressions_organic':
-                    vl=v['values'][0]['value']
-                    cfb.post_impression_type['post_impressions_organic']=vl
-                    cfb.save()
-                if v['name'] == 'post_impressions_nonviral':
-                    vl=v['values'][0]['value']
-                    cfb.post_impression_type['post_impressions_nonviral']=vl
-                    cfb.save()
-                if v['name'] == 'post_impressions':
-                    vl=v['values'][0]['value']
-                    my_dict['facebook']=vl
-                    cfb.post_impression_type['post_impressions']=vl
-                    cfb.impression_count=vl
-                    cfb.save()
-            # cfb.impression_count=''
-            fb_post_click=cfb.post_clicks
-            fb_impressions=cfb.impression_count
-            if cfb.impression_count>0:
-                impr_conv=cfb.post_clicks/cfb.impression_count
-            # print("metrics retrieved successfully:", response.json())
-        else:
-            print("Error getting metrics:", response.json())           
+            response =requests.get(url, params=params)
+            if response.status_code == 200:
+                vl=response.json()['data']
+                for v in vl:
+                    if v['name'] == 'post_clicks':
+                        vl=v['values'][0]['value']
+                        cfb.post_impression_type['post_clicks']=vl
+                        cfb.post_clicks=vl
+                        cfb.save()
+                    if v['name'] == 'post_impressions_viral':
+                        vl=v['values'][0]['value']
+                        cfb.post_impression_type['post_impressions_viral']=vl
+                        cfb.save()
+                    if v['name'] == 'post_impressions_unique':
+                        vl=v['values'][0]['value']
+                        cfb.post_impression_type['post_impressions_unique']=vl
+                        cfb.save()
+                    if v['name'] == 'post_impressions_paid':
+                        vl=v['values'][0]['value']
+                        cfb.post_impression_type['post_impressions_paid']=vl
+                        cfb.save()
+                    if v['name'] == 'post_impressions_fan':
+                        vl=v['values'][0]['value']
+                        cfb.post_impression_type['post_impressions_fan']=vl
+                        cfb.save()
+                    if v['name'] == 'post_impressions_organic':
+                        vl=v['values'][0]['value']
+                        cfb.post_impression_type['post_impressions_organic']=vl
+                        cfb.save()
+                    if v['name'] == 'post_impressions_nonviral':
+                        vl=v['values'][0]['value']
+                        cfb.post_impression_type['post_impressions_nonviral']=vl
+                        cfb.save()
+                    if v['name'] == 'post_impressions':
+                        vl=v['values'][0]['value']
+                        my_dict['facebook']=vl
+                        cfb.post_impression_type['post_impressions']=vl
+                        cfb.impression_count=vl
+                        cfb.save()
+                        
+                        
+                # cfb.impression_count=''
+                fb_post_click=cfb.post_clicks
+                fb_impressions=cfb.impression_count
+                if cfb.impression_count>0:
+                    impr_conv=cfb.post_clicks/cfb.impression_count
+                # print("metrics retrieved successfully:", response.json())
+            else:
+                print("Error getting metrics:", response.json())           
     sorted_dict = dict(sorted(my_dict.items(), key=lambda item: item[1], reverse=True))
     impress={}
     if cfb:
         dts=cfb.post_impression_type
-        impress={
-            'impression_fans':dts['post_impressions_fan'],
-            'impression_uniques':dts['post_impressions_unique'],
-            'impression_paid':dts['post_impressions_paid'],
-            'impression_organic':dts['post_impressions_organic'],
-            'impression_viral':dts['post_impressions_viral'],
-            'impression_nonviral':dts['post_impressions_nonviral'],
-        }
-    
+        if pst.is_video:
+            if dts['total_video_impressions']>0 or dts['total_video_play_count']>0:
+                impress={
+                    'impression_fans':dts['total_video_impressions_fan'],
+                    'impression_uniques':dts['total_video_impressions_unique'],
+                    'impression_paid':dts['total_video_impressions_paid'],
+                    'impression_organic':dts['total_video_impressions_organic'],
+                    'impression_viral':dts['total_video_impressions_viral'],
+                    'impression_nonviral':0,
+                    'has_data':True
+                }
+                fb_video_data={
+                    'video_play_count':dts['total_video_play_count'],
+                    'average_watch_time':dts['total_video_avg_time_watched'],
+                    'total_watch_time':dts['total_video_view_total_time'],
+                    'total_video_consumption_rate':dts['total_video_consumption_rate'],
+                    'total_views':dts['total_video_complete_views'],
+                    'organic_views':dts['total_video_complete_views_organic'],
+                    'paid_views':dts['total_video_complete_views_paid'],
+                    'viewers_countries':dts['total_video_view_time_by_country_id'],
+                    'top_countries':[],
+                    'top_countries_data':[],
+                    'age_keys':[],
+                    'age_values':[],
+                    'age_gender':dts['total_video_view_time_by_age_bucket_and_gender']
+            }
+            else:
+                impress={
+                    'impression_fans':None,
+                    'impression_uniques':None,
+                    'impression_paid':None,
+                    'impression_organic':None,
+                    'impression_viral':None,
+                    'impression_nonviral':None,
+                }
+                impress['has_data']=False
+
+        else:
+            impress={
+                'impression_fans':dts['post_impressions_fan'],
+                'impression_uniques':dts['post_impressions_unique'],
+                'impression_paid':dts['post_impressions_paid'],
+                'impression_organic':dts['post_impressions_organic'],
+                'impression_viral':dts['post_impressions_viral'],
+                'impression_nonviral':dts['post_impressions_nonviral'],
+                'has_data':True
+            }
+        
     return Response({'result': 'success',
                      'has_reddit':has_reddit,
                      'reddit_total_engagement':f'{red_te}%',
@@ -3213,9 +3283,10 @@ def uploadPost(request):
         
     post_id = uuid.uuid4()
     is_video=False
-    glctyp= gallery_items[0]['content_type']
-    if glctyp.startswith("video/"):
-        is_video=True
+    if len(gallery_items)>0:
+        glctyp= gallery_items[0]['content_type']
+        if glctyp.startswith("video/"):
+            is_video=True
 
     cpst = CompanyPosts(
         company=cp,
