@@ -23,7 +23,13 @@ urlpatterns=[
     path('generate-invite-link/',views.generateInviteLink,name='generate-invite-link'),
     # send chat       
     path('send-chat/',views.sendChat,name='send-chat'),
-    
+    # delete post
+    path('upload_train_doc/',views.uploadTrainDoc,name='upload_train_doc'),
+    # fetch reviews
+    path('get_reviews/',views.companyReviews,name='get_reviews'),
+    # fetch private messages
+    path('get_pms/',views.getPMs,name='get_pms'),
+        
     # instagram
     path('instagram-callback/',views.instagram_callback,name='instagram_callback'),
     # facebook

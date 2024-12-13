@@ -163,6 +163,13 @@
             -ms-animation: fadeIn ease 1s;
         }
 
+        .pm-box:hover {
+            border: #1dcd52 solid 1px;
+
+        }
+        .pm-chat-item:hover {
+            background: #f9f9f9 ;
+        }
 
         @keyframes fadeIn {
             0% {
@@ -939,6 +946,10 @@
             box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
         }
 
+        #pm-back-platforms:hover {
+            color: #f70d0d;
+        }
+
         .chat-header.active .popup {
             display: block;
             /* Show the pop-up when container has 'active' class */
@@ -1129,6 +1140,33 @@
                     {% else %}
                     <button type="button" id="forbiddenModalDeletePostAction" class="btn btn-primary"
                         tooltip="Forbidden. Contact admin" flow="down" style="cursor: not-allowed;">Delete</button>
+                    {% endif %}
+                    <!-- <button type="button" class="btn btn-danger">Temporary Disable</button> -->
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- upload business doc Modal -->
+    <div class="modal fade" id="confirmModalUploadDocCenter" tabindex="-1" role="dialog"
+        aria-labelledby="exampleModalCenterTitle">
+        <div class="modal-dialog modal-dialog-centered " role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="confirmModalPostDelete">Confirm Upload</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p id="">The content of the file will be used to train
+                        and update the chatbot model </p>
+                    <!-- You have not linked an Instagram account -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    {% if user_permissions.can_modify_ai_assistant %}
+                    <button type="button" id="confirmModalUploadDocAction" class="btn btn-danger">Upload</button>
                     {% endif %}
                     <!-- <button type="button" class="btn btn-danger">Temporary Disable</button> -->
 
@@ -1585,9 +1623,9 @@
             <div class="modal-content">
                 <div class="modal-header">
                     {% if tiktok.linked %}
-                    <h5 class="modal-title" id="exampleModalLongTitle">Change Tiktok account?</h5>
+                    <h5 class="modal-title" id="exampleModalLongTitle">Change TikTok account?</h5>
                     {% else %}
-                    <h5 class="modal-title" id="exampleModalLongTitle">Link Tiktok account?</h5>
+                    <h5 class="modal-title" id="exampleModalLongTitle">Link TikTok account?</h5>
                     {% endif %}
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
@@ -1632,8 +1670,8 @@
                 </div>
                 {% else %}
                 <div class="modal-body">
-                    <p>No linked Tiktok account. Clink Link Account below to connect to the business
-                        Tiktok account </p>
+                    <p>No linked TikTok account. Clink Link Account below to connect to the business
+                        TikTok account </p>
                     <!-- You have not linked an Instagram account -->
                 </div>
                 {% endif %}
@@ -1773,7 +1811,7 @@
                             <li id="reviews" data-target="#reviews-content"><i class="fa fa-comments-o"
                                     style="font-size:15px;width:30px"></i> Reviews</li>
                             <li id="drafts" data-target="#drafts-content"><i class="fa fa-inbox"
-                                    style="font-size:15px;width:30px"></i> Queue</li>
+                                    style="font-size:15px;width:30px"></i> PM</li>
                             <li id="post-btn" data-target="#post-content"><i class="fa fa-share"
                                     style="font-size:15px;width:30px"></i> Posts</li>
                             <li id="teams-btn" data-target="#teams-content"><i class="fa fa-group"
@@ -2322,7 +2360,7 @@
                                                 <div style="height:30px;display: flex;gap: 10px;">
                                                     <img src="{% static 'images/tiktok_logo.png' %}"
                                                         style="height: 20px;width: 20px;border-radius: 10px;" alt="">
-                                                    <p style="font-size: 12px;">Tiktok</p>
+                                                    <p style="font-size: 12px;">TikTok</p>
                                                 </div>
                                                 <hr style="margin: 2px;padding: 0;">
                                                 <div>
@@ -2532,7 +2570,7 @@
                                             <li>
                                                 <div class="form-check form-switch" style="margin-left: 20px;">
                                                     <input class="form-check-input" type="checkbox" role="switch"
-                                                        id="flexSwitchCheckChecked" checked>
+                                                        id="flexSwitchCheckChecked">
                                                     <label class="form-check-label" for="flexSwitchCheckChecked">Auto
                                                         publish positive reviews</label>
                                                 </div>
@@ -2540,7 +2578,7 @@
                                             <li>
                                                 <div class="form-check form-switch" style="margin-left: 20px;">
                                                     <input class="form-check-input" type="checkbox" role="switch"
-                                                        id="flexSwitchCheckChecked" checked>
+                                                        id="flexSwitchCheckChecked">
                                                     <label class="form-check-label" for="flexSwitchCheckChecked"
                                                         tooltip="Respond to comments using your AI Knowledgebase"
                                                         flow="down">Auto respond to queries</label>
@@ -2549,7 +2587,7 @@
                                             <li>
                                                 <div class="form-check form-switch" style="margin-left: 20px;">
                                                     <input class="form-check-input" type="checkbox" role="switch"
-                                                        id="flexSwitchCheckChecked" checked>
+                                                        id="flexSwitchCheckChecked">
                                                     <label class="form-check-label" for="flexSwitchCheckChecked"
                                                         tooltip="Show your customers that you appreciate their comments"
                                                         flow="down">Auto like positive comments</label>
@@ -2573,7 +2611,7 @@
                                             <div style="display: flex;justify-content: space-between;">
                                                 <div class="form-check form-switch" style="margin-left: 20px;">
                                                     <input class="form-check-input" type="checkbox" role="switch"
-                                                        id="flexSwitchCheckChecked" checked>
+                                                        id="flexSwitchCheckChecked">
                                                     <label class="form-check-label"
                                                         for="flexSwitchCheckChecked">Enabled</label>
                                                 </div>
@@ -2594,20 +2632,38 @@
                                                     effectively to
                                                     inquiries related to your business.</p>
                                                 <a style="font-size: 12px;color: blue;" href="">Learn more</a>
-                                                <div class="input-group mb-3">
-
+                                                <!-- <div class="input-group mb-3">
                                                     <div class="custom-file" style="padding: 0;">
                                                         <input type="file" class="custom-file-input"
-                                                            id="inputGroupFile01" multiple>
-                                                        <label class="custom-file-label" for="inputGroupFile01">Choose
+                                                            id="train-doc-file" multiple>
+                                                        <label class="custom-file-label" for="train-doc-file">Choose
                                                             files</label>
+                                                    </div>
+                                                </div> -->
+                                                <div style="width: 90%;margin: auto;">
+
+                                                    <div class="mb-3">
+                                                        <label for="train-doc-file" class="form-label">Upload
+                                                            Document</label>
+                                                        <input class="form-control" type="file" id="train-doc-file"
+                                                            accept=".pdf" onchange="validateFile();">
+                                                        <div class="form-check form-switch"
+                                                            style="margin-left: 20px;margin-top: 15px;">
+                                                            <input class="form-check-input" type="checkbox"
+                                                                role="switch" id="replace_info">
+                                                            <label class="form-check-label" for="replace_info">Replace
+                                                                existing knowledge base</label>
+                                                        </div>
+                                                        <small class="font-12">This will permanently erase your
+                                                            previously created knowledge base </small>
+
                                                     </div>
                                                 </div>
                                             </div>
                                             <div class="form-group"
                                                 style="text-align:center;font-size:20px;align-items:center;margin-top:30px;margin-bottom:20px">
                                                 <a class=" btn-solid-sm" style="cursor:pointer" id="upload-train"
-                                                    href="">Upload
+                                                    href="#">Upload
                                                     &
                                                     Train
                                                 </a>
@@ -2936,7 +2992,7 @@
                                             <div class="input-group-prepend">
                                                 <span class="input-group-text" id="inputGroup-sizing-sm"><i
                                                         class="fa fa-tiktok " style="padding-right: 5px;"></i>
-                                                    Tiktok</span>
+                                                    TikTok</span>
                                             </div>
                                             <input type="text" class="form-control" aria-label="Small"
                                                 id="update-tiktok" placeholder="enter your Tiktok profile link"
@@ -3026,25 +3082,33 @@
 
                     <div style="display: flex;justify-content: space-between;align-items: center;gap: 10px">
                         <div style="width: 300px;height: 50px;">
-                            <select id="filters" name="filters" data-placeholder="Filter" multiple data-multi-select>
-                                <option value="reviews">Reviews</option>
-                                <option value="mentions">Tags/Mentions</option>
+                            <select id="filters" name="filters" data-name="filters" data-placeholder="Filter" multiple
+                                data-multi-select>
+                                <!-- <option value="reviews">Reviews</option>
+                                <option value="mentions">Tags/Mentions</option> -->
                                 <option value="positive">Positive</option>
                                 <option value="negative">Negative</option>
                                 <option value="neutral">Neutral</option>
                                 <option value="published">Published</option>
+                                <option value="not-published">Not Published</option>
                                 <option value="ig">Instagram</option>
                                 <option value="fb">Facebook</option>
-                                <option value="x">X</option>
-                                <option value="youtube">Youtube</option>
-                                <option value="tiktok">Tiktok</option>
-                                <option value="google">Google Business </option>
+                                <!-- <option value="x">X</option>
+                                <option value="youtube">Youtube</option> -->
+                                <option value="tiktok">TikTok</option>
+                                <option value="reddit">Reddit</option>
+                                <!-- <option value="google">Google Business </option> -->
 
                             </select>
                         </div>
                         <div style="margin-top: 10px;">
-                            <div style="cursor: pointer;border-radius: 10px;" class="bx-shadow">
+                            <div style="cursor: pointer;border-radius: 10px;" class="bx-shadow" id="apply-filters">
                                 <p style="padding: 5px;">Apply</p>
+                            </div>
+                            <div id="apply-loading" style="border-radius: 10px;padding: 10px;display: none;"
+                                class="bx-shadow">
+                                <i class="fa fa-spinner fa-spin"></i>
+
                             </div>
                         </div>
                         <div style="margin-right: 10px;">
@@ -3055,9 +3119,15 @@
 
 
                 </div>
-                <div class="company-account-info container-right">
+                <div class="company-account-info container-right" id="company-reviews">
                     <div class="container-right" style="padding:10px;overflow-y: scroll;height: 95%;width: 90%;">
                         <div class="review-list">
+                            {% if not reviews %}
+                            <div style="display: flex;justify-content: center;margin-top: 25%;">
+                                <p>No Reviews Yet.</p>
+                            </div>
+                            {% else %}
+                            {% for r in reviews %}
                             <div class="post-comment-box" style="padding: 10px; ">
                                 <div
                                     style="margin-left: 20px;border-radius: 10px;border: 1px solid rgb(219, 219, 219);padding: 10px;margin-bottom: 10px;">
@@ -3066,31 +3136,52 @@
                                             src="https://mdbcdn.b-cdn.net/img/Photos/Avatars/img%20(19).webp"
                                             alt="avatar" width="60" height="60" />
                                         <div>
-                                            <h6 class="fw-bold text-primary mb-1">Lily
-                                                Coleman</h6>
+                                            <h6 class="fw-bold text-primary mb-1">{{ r.commentor }}</h6>
                                             <p class="text-muted small mb-0">
-                                                Shared publicly - Jan 2020
+                                                {{ r.date_commented }}
                                             </p>
                                         </div>
                                     </div>
                                     <p class="mt-3 mb-4 pb-2">
-                                        Lorem ipsum dolor sit amet, consectetur
-                                        adipiscing elit, sed do eiusmod
-                                        tempor incididunt ut labore et dolore magna
-                                        aliqua. Ut enim ad minim veniam,
-                                        quis nostrud exercitation ullamco laboris nisi
-                                        ut aliquip consequat.
+                                        {{ r.content }}
                                     </p>
                                     <div class="thisparent"
                                         style="display: flex;justify-content: space-between;font-size: 12px;width: 80%;gap: 10px">
+                                        {% if r.positive %}
                                         <p style="font-size: 12px;padding: 0;margin: 0;color: rgb(21, 164, 116);"><i
                                                 class="fa fa-check" aria-hidden="true"></i> Positive</p>
-
+                                        {% elif r.negative %}
+                                        <p style="font-size: 12px;padding: 0;margin: 0;color: rgb(164, 21, 21);"><i
+                                                class="fa fa-cancel" aria-hidden="true"></i> Negative</p>
+                                        {% elif r.neutral %}
+                                        <p style="font-size: 12px;padding: 0;margin: 0;color: rgb(21, 133, 164);"><i
+                                                class="fa fa-circle-notch" aria-hidden="true"></i> Neutral</p>
+                                        {% endif %}
                                         <div>
+                                            {% if r.platform == 'instagram' %}
                                             <p
-                                                style="font-size: 12px;padding: 0;margin: 0;background-color: rgb(251, 216, 243);color: rgb(164, 21, 154);border-radius: 5px;padding-left: 5px;padding-right: 5px;align-items: center;margin-bottom: 10px;">
-                                                Instagram
+                                                style="font-size: 12px;padding: 0;margin: 0;background-color: rgb(251, 216, 251);color: rgb(158, 15, 105);border-radius: 5px;padding-left: 5px;padding-right: 5px;align-items: center;margin-bottom: 10px;">
+                                                <i class="fa fa-instagram"></i> Instagram
                                             </p>
+                                            {% elif r.platform == 'tiktok' %}
+                                            <p
+                                                style="font-size: 12px;padding: 0;margin: 0;background-color: rgb(251, 250, 216);color: rgb(0, 0, 0);border-radius: 5px;padding-left: 5px;padding-right: 5px;align-items: center;margin-bottom: 10px;">
+                                                <i class="fa fa-tiktok"></i> TikTok
+                                            </p>
+                                            {% elif r.platform == 'reddit' %}
+                                            <p
+                                                style="font-size: 12px;padding: 0;margin: 0;background-color: rgb(251, 216, 216);color: rgb(255, 2, 2);border-radius: 5px;padding-left: 5px;padding-right: 5px;align-items: center;margin-bottom: 10px;">
+                                                <i class="fa fa-reddit"></i> Reddit
+                                            </p>
+                                            {% elif r.platform == 'facebook' %}
+                                            <p
+                                                style="font-size: 12px;padding: 0;margin: 0;background-color: rgb(216, 222, 251);color: rgb(5, 63, 255);border-radius: 5px;padding-left: 5px;padding-right: 5px;align-items: center;margin-bottom: 10px;">
+                                                <i class="fa fa-facebook"></i> Facebook
+                                            </p>
+                                            {% endif %}
+
+
+
                                         </div>
                                         <p class="comments-reply-container" style="cursor: pointer;font-size: 12px;">
                                             Reply</span>
@@ -3100,12 +3191,21 @@
                                                 style="background-color: rgb(251, 216, 216);color: rgb(192, 8, 8);padding: 5px;border-radius:5px ;font-size: 12px;padding: 0;margin: 0;padding-left: 5px;padding-right: 5px;">
                                                 Review</p>
                                         </div>
-                                        <p style="cursor: pointer;font-size: 12px;"><i class="fa fa-external-link"
+                                        <a href="{{ r.link }}" target="_blank"
+                                            style="cursor: pointer;font-size: 12px;"><i class="fa fa-external-link"
                                                 aria-hidden="true"></i>
-                                            Link</p>
+                                            Link</a>
+                                        {% if r.published %}
+                                        <p style="cursor: pointer;font-size: 12px;color: red;"><i
+                                                class="fa fa-trash"></i>
+                                            Unpublish
+                                        </p>
+
+                                        {% else %}
                                         <p style="cursor: pointer;font-size: 12px;"><i class="fa fa-mail-forward"></i>
                                             Publish
                                         </p>
+                                        {% endif %}
                                     </div>
                                     <div class="comment-reply-container-box" style="display: none;">
                                         <div class="comment-post-box">
@@ -3122,7 +3222,9 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="post-comment-box" style="padding: 10px; ">
+                            {% endfor %}
+                            {% endif %}
+                            <!-- <div class="post-comment-box" style="padding: 10px; ">
                                 <div
                                     style="margin-left: 20px;border-radius: 10px;border: 1px solid rgb(219, 219, 219);padding: 10px;margin-bottom: 10px;">
                                     <div class="d-flex flex-start align-items-center">
@@ -3254,7 +3356,7 @@
                                 </div>
 
                             </div>
-
+ -->
                         </div>
                     </div>
                 </div>
@@ -3945,7 +4047,7 @@
                     style="margin-top: 10px;margin-bottom: 10px;position: relative;">
                     <div class="logo-container">
                         <h4>
-                            Queue
+                            Private Messages
                         </h4>
                     </div>
                     <div class="user-details">
@@ -3978,15 +4080,136 @@
                         </a>
                     </div>
                 </div>
-                <div class="company-account-info container-right">
-                    <p class="font-12" style="display: flex;justify-content: center;">Review content here before they go
-                        live</p>
-                    <div style="margin-left:20px;margin-right:20px;height:85%;padding:10px;overflow-y: scroll;">
-                        <div class="review-list">
-                            {% if not drafts %}
-                            <div class="center-div">
-                                <p>There is no content to review.</p>
+                <div class="company-account-info container-right" style="height: 80%;">
+                    <div style="margin-left:5px;margin-right:5px;height:100%;padding:10px;">
+                        <div class="review-list" style="display: flex;justify-content: center;overflow-y: scroll;"
+                            id="pm-container">
+                            <div style="width: 90%;">
+                                <p class="font-12" style="display: flex;justify-content: center;">Select platform. Note:
+                                    TikTok PMs is not supported</p>
+                                {% if instagram.linked %}
+                                <div style="width: 100%;display: flex;justify-content: space-between;padding: 10px;border-radius: 10px;margin: 10px;"
+                                    class="bx-shadow pm-box" data-platform="instagram">
+                                    <div style="display: flex;gap: 15px;">
+                                        <img src="{{ instagram.profile }}"
+                                            style="height: 60px;width: 60px;border-radius: 10px;" alt="">
+                                        <div>
+                                            <p>{{ instagram.username }}</p>
+                                            <div style="display: flex;gap: 10px;">
+                                                <img src="{% static 'images/instagram_logo.png' %}"
+                                                    style="height: 15px;width: 15px;border-radius: 2px;" alt="">
+                                                <p
+                                                    style="background-color: rgb(216, 251, 239);color: rgb(8, 192, 131);padding: 0px;border-radius:5px ;font-size:10px;padding-left:5px;padding-right: 5px;height: 25px;">
+                                                    Linked
+                                                </p>
+
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                    <div
+                                        style="border-radius: 100%;background-color: #013653;width: 30px;height: 30px;align-items: center;display: flex;justify-content: center;">
+                                        <p
+                                            style="margin: auto;color: white;padding: 5px;font-size: 12px;font-weight: bold;">
+                                            12</p>
+                                    </div>
+
+                                </div>
+                                {% else %}
+                                <div style="width: 100%;display: flex;justify-content: space-between;padding: 10px;border-radius: 10px;cursor: not-allowed;margin: 10px;"
+                                    class="bx-shadow">
+                                    <div style="display: flex;gap: 15px;">
+                                        <img src="{% static 'images/instagram_logo.png' %}"
+                                            style="height: 60px;width: 60px;border-radius: 10px;" alt="">
+                                        <p>No Linked account</p>
+                                    </div>
+
+                                </div>
+                                {% endif %}
+                                {% if facebook.linked %}
+                                <div style="width: 100%;display: flex;justify-content: space-between;padding: 10px;border-radius: 10px;margin: 10px;"
+                                    class="bx-shadow pm-box" data-platform="facebook">
+                                    <div style="display: flex;gap: 15px;">
+                                        <img src="{{ facebook.profile }}"
+                                            style="height: 60px;width: 60px;border-radius: 10px;" alt="">
+                                        <div>
+                                            <p>{{ facebook.username }}</p>
+                                            <div style="display: flex;gap: 10px;">
+                                                <img src="{% static 'images/facebook_logo.png' %}"
+                                                    style="height: 15px;width: 15px;border-radius: 2px;" alt="">
+                                                <p
+                                                    style="background-color: rgb(216, 251, 239);color: rgb(8, 192, 131);padding: 0px;border-radius:5px ;font-size:10px;padding-left:5px;padding-right: 5px;height: 25px;">
+                                                    Linked
+                                                </p>
+
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                    <div
+                                        style="border-radius: 100%;background-color: #013653;width: 30px;height: 30px;align-items: center;display: flex;justify-content: center;">
+                                        <p
+                                            style="margin: auto;color: white;padding: 5px;font-size: 12px;font-weight: bold;">
+                                            12</p>
+                                    </div>
+
+                                </div>
+                                {% else %}
+                                <div style="width: 100%;display: flex;justify-content: space-between;padding: 10px;border-radius: 10px;cursor: not-allowed;margin: 10px;"
+                                    class="bx-shadow">
+                                    <div style="display: flex;gap: 15px;">
+                                        <img src="{% static 'images/facebook_logo.png' %}"
+                                            style="height: 60px;width: 60px;border-radius: 10px;" alt="">
+                                        <p>No Linked account</p>
+                                    </div>
+
+                                </div>
+                                {% endif %}
+                                {% if reddit.linked %}
+                                <div style="width: 100%;display: flex;justify-content: space-between;padding: 10px;border-radius: 10px;margin: 10px;"
+                                    class="bx-shadow pm-box" data-platform="reddit">
+                                    <div style="display: flex;gap: 15px;">
+                                        <img src="{{ reddit.profile }}"
+                                            style="height: 60px;width: 60px;border-radius: 10px;" alt="">
+                                        <div>
+                                            <p>{{ reddit.username }}</p>
+                                            <div style="display: flex;gap: 10px;">
+                                                <img src="{% static 'images/reddit_logo.png' %}"
+                                                    style="height: 15px;width: 15px;border-radius: 2px;" alt="">
+                                                <p
+                                                    style="background-color: rgb(216, 251, 239);color: rgb(8, 192, 131);padding: 0px;border-radius:5px ;font-size:10px;padding-left:5px;padding-right: 5px;height: 25px;">
+                                                    Linked
+                                                </p>
+
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                    <div
+                                        style="border-radius: 100%;background-color: #013653;width: 30px;height: 30px;align-items: center;display: flex;justify-content: center;">
+                                        <p
+                                            style="margin: auto;color: white;padding: 5px;font-size: 12px;font-weight: bold;">
+                                            12</p>
+                                    </div>
+
+                                </div>
+                                {% else %}
+                                <div style="width: 100%;display: flex;justify-content: space-between;padding: 10px;border-radius: 10px;cursor: not-allowed;margin: 10px;"
+                                    class="bx-shadow">
+                                    <div style="display: flex;gap: 15px;">
+                                        <img src="{% static 'images/reddit_logo.png' %}"
+                                            style="height: 60px;width: 60px;border-radius: 10px;" alt="">
+                                        <p>No Linked account</p>
+                                    </div>
+
+                                </div>
+                                {% endif %}
+
                             </div>
+                            {% if not drafts %}
+                            <!-- <div class="center-div" style="margin-top: 15%;">
+                                <p>There is no content to review.</p>
+                            </div> -->
                             {% else %}
                             {% for d in drafts %}
                             <div class="review-item">
@@ -4019,6 +4242,244 @@
                             </div>
                             {% endfor %}
                             {% endif %}
+                        </div>
+                        <div id="pm-inbox"
+                            style="display: none;width: 100%;justify-content: space-between;height: 100%;">
+                            <div
+                                style="width: 30%;background-color: rgb(242, 240, 240);height: 100%;">
+                                <div style="display: flex; justify-content: space-between;padding: 10px;">
+                                    <p style="cursor: pointer;" id="pm-back-platforms"><i class="fa fa-caret-left"></i>
+                                        Back</p>
+                                    <p><i class="fa fa-facebook" id="pm-icon"></i></p>
+                                </div>
+                                <div style="overflow-y: scroll;height: 85%;">
+                                    <div class="pm-chat-item"
+                                        style="display: flex; justify-content: space-between;padding: 10px;">
+                                        <div style="display: flex; gap: 5px;">
+                                            <img src="{% static 'images/facebook_logo.png' %}" alt=""
+                                                style="width: 30px;height: 30px;">
+                                            <p class="zero-padding-margin font-12" style="text-overflow: ellipsis;white-space: nowrap;width:120px;overflow: hidden;cursor: default; ">User gfvhgvgh ghvhgvhg
+                                                </p>
+
+                                        </div>
+                                        <div style="display: flex;gap: 5px;align-items: center;">
+                                            <p class="zero-padding-margin" style="font-size: 10px;cursor: default;">14/Oct/23 12:13pm</p>
+                                            <i class="fa fa-caret-right"></i>
+                                        </div>
+                                    </div>
+                                    <div class="pm-chat-item"
+                                        style="display: flex; justify-content: space-between;padding: 10px;">
+                                        <div style="display: flex; gap: 5px;">
+                                            <img src="{% static 'images/facebook_logo.png' %}" alt=""
+                                                style="width: 30px;height: 30px;">
+                                            <p class="zero-padding-margin font-12" style="text-overflow: ellipsis;white-space: nowrap;width:120px;overflow: hidden;cursor: default; ">User gfvhgvgh ghvhgvhg
+                                                </p>
+
+                                        </div>
+                                        <div style="display: flex;gap: 5px;align-items: center;">
+                                            <p class="zero-padding-margin" style="font-size: 10px;cursor: default;">14/Oct/23 12:13pm</p>
+                                            <i class="fa fa-caret-right"></i>
+                                        </div>
+                                    </div>
+                                    <div class="pm-chat-item"
+                                        style="display: flex; justify-content: space-between;padding: 10px;">
+                                        <div style="display: flex; gap: 5px;">
+                                            <img src="{% static 'images/facebook_logo.png' %}" alt=""
+                                                style="width: 30px;height: 30px;">
+                                            <p class="zero-padding-margin font-12" style="text-overflow: ellipsis;white-space: nowrap;width:120px;overflow: hidden;cursor: default; ">User gfvhgvgh ghvhgvhg
+                                                </p>
+
+                                        </div>
+                                        <div style="display: flex;gap: 5px;align-items: center;">
+                                            <p class="zero-padding-margin" style="font-size: 10px;cursor: default;">14/Oct/23 12:13pm</p>
+                                            <i class="fa fa-caret-right"></i>
+                                        </div>
+                                    </div>
+                                    <div class="pm-chat-item"
+                                        style="display: flex; justify-content: space-between;padding: 10px;">
+                                        <div style="display: flex; gap: 5px;">
+                                            <img src="{% static 'images/facebook_logo.png' %}" alt=""
+                                                style="width: 30px;height: 30px;">
+                                            <p class="zero-padding-margin font-12" style="text-overflow: ellipsis;white-space: nowrap;width:120px;overflow: hidden;cursor: default; ">User gfvhgvgh ghvhgvhg
+                                                </p>
+
+                                        </div>
+                                        <div style="display: flex;gap: 5px;align-items: center;">
+                                            <p class="zero-padding-margin" style="font-size: 10px;cursor: default;">14/Oct/23 12:13pm</p>
+                                            <i class="fa fa-caret-right"></i>
+                                        </div>
+                                    </div>
+                                    <div class="pm-chat-item"
+                                        style="display: flex; justify-content: space-between;padding: 10px;">
+                                        <div style="display: flex; gap: 5px;">
+                                            <img src="{% static 'images/facebook_logo.png' %}" alt=""
+                                                style="width: 30px;height: 30px;">
+                                            <p class="zero-padding-margin font-12" style="text-overflow: ellipsis;white-space: nowrap;width:120px;overflow: hidden;cursor: default; ">User gfvhgvgh ghvhgvhg
+                                                </p>
+
+                                        </div>
+                                        <div style="display: flex;gap: 5px;align-items: center;">
+                                            <p class="zero-padding-margin" style="font-size: 10px;cursor: default;">14/Oct/23 12:13pm</p>
+                                            <i class="fa fa-caret-right"></i>
+                                        </div>
+                                    </div>
+                                    <div class="pm-chat-item"
+                                        style="display: flex; justify-content: space-between;padding: 10px;">
+                                        <div style="display: flex; gap: 5px;">
+                                            <img src="{% static 'images/facebook_logo.png' %}" alt=""
+                                                style="width: 30px;height: 30px;">
+                                            <p class="zero-padding-margin font-12" style="text-overflow: ellipsis;white-space: nowrap;width:120px;overflow: hidden;cursor: default; ">User gfvhgvgh ghvhgvhg
+                                                </p>
+
+                                        </div>
+                                        <div style="display: flex;gap: 5px;align-items: center;">
+                                            <p class="zero-padding-margin" style="font-size: 10px;cursor: default;">14/Oct/23 12:13pm</p>
+                                            <i class="fa fa-caret-right"></i>
+                                        </div>
+                                    </div>
+                                    <div class="pm-chat-item"
+                                        style="display: flex; justify-content: space-between;padding: 10px;">
+                                        <div style="display: flex; gap: 5px;">
+                                            <img src="{% static 'images/facebook_logo.png' %}" alt=""
+                                                style="width: 30px;height: 30px;">
+                                            <p class="zero-padding-margin font-12" style="text-overflow: ellipsis;white-space: nowrap;width:120px;overflow: hidden;cursor: default; ">User gfvhgvgh ghvhgvhg
+                                                </p>
+
+                                        </div>
+                                        <div style="display: flex;gap: 5px;align-items: center;">
+                                            <p class="zero-padding-margin" style="font-size: 10px;cursor: default;">14/Oct/23 12:13pm</p>
+                                            <i class="fa fa-caret-right"></i>
+                                        </div>
+                                    </div>
+                                    <div class="pm-chat-item"
+                                        style="display: flex; justify-content: space-between;padding: 10px;">
+                                        <div style="display: flex; gap: 5px;">
+                                            <img src="{% static 'images/facebook_logo.png' %}" alt=""
+                                                style="width: 30px;height: 30px;">
+                                            <p class="zero-padding-margin font-12" style="text-overflow: ellipsis;white-space: nowrap;width:120px;overflow: hidden;cursor: default; ">User gfvhgvgh ghvhgvhg
+                                                </p>
+
+                                        </div>
+                                        <div style="display: flex;gap: 5px;align-items: center;">
+                                            <p class="zero-padding-margin" style="font-size: 10px;cursor: default;">14/Oct/23 12:13pm</p>
+                                            <i class="fa fa-caret-right"></i>
+                                        </div>
+                                    </div>
+                                    <div class="pm-chat-item"
+                                        style="display: flex; justify-content: space-between;padding: 10px;">
+                                        <div style="display: flex; gap: 5px;">
+                                            <img src="{% static 'images/facebook_logo.png' %}" alt=""
+                                                style="width: 30px;height: 30px;">
+                                            <p class="zero-padding-margin font-12" style="text-overflow: ellipsis;white-space: nowrap;width:120px;overflow: hidden;cursor: default; ">User gfvhgvgh ghvhgvhg
+                                                </p>
+
+                                        </div>
+                                        <div style="display: flex;gap: 5px;align-items: center;">
+                                            <p class="zero-padding-margin" style="font-size: 10px;cursor: default;">14/Oct/23 12:13pm</p>
+                                            <i class="fa fa-caret-right"></i>
+                                        </div>
+                                    </div>
+                                    <div class="pm-chat-item"
+                                        style="display: flex; justify-content: space-between;padding: 10px;">
+                                        <div style="display: flex; gap: 5px;">
+                                            <img src="{% static 'images/facebook_logo.png' %}" alt=""
+                                                style="width: 30px;height: 30px;">
+                                            <p class="zero-padding-margin font-12" style="text-overflow: ellipsis;white-space: nowrap;width:120px;overflow: hidden;cursor: default; ">User gfvhgvgh ghvhgvhg
+                                                </p>
+
+                                        </div>
+                                        <div style="display: flex;gap: 5px;align-items: center;">
+                                            <p class="zero-padding-margin" style="font-size: 10px;cursor: default;">14/Oct/23 12:13pm</p>
+                                            <i class="fa fa-caret-right"></i>
+                                        </div>
+                                    </div>
+                                    <div style="display: flex;justify-content: center;">
+                                        <p style="font-size: 10px;">End.</p>
+                                    </div>
+
+                                </div>
+                            </div>
+                            <div id="pm-messages" class="t-c"
+                                style="height: 100%;width: 70%;border: rgb(242, 240, 240) solid 1px;overflow-y: scroll;overflow-x: hidden">
+                                <div class="row clearfix" style="width: 100%;height: 100%;">
+                                    <div class="col-lg-12">
+                                        <div class=" chat-app">
+                                            <div class="chat" id="chat-box">
+                                                {% if not pm_messages %}
+                                                <div class="chat-history " style="height: 30vh;">
+                                                    <p class="center-div">No chat selected
+                                                    </p>
+                                                </div>
+                                                {% else %}
+                                                <div class="chat-history">
+                                                    <ul id="chat-elem"
+                                                        style="height: 100%;overflow-y: scroll;overflow-x: hidden; ">
+                                                        {% for chat_message in pm_messages %}
+                                                        {% if not chat_message.me %}
+                                                        <li class="clearfix">
+                                                            <div class="message-data text-right">
+                                                                <span class="message-data-time">
+                                                                    <strong>
+                                                                        {{ chat_message.sender.user.username}}
+                                                                    </strong>,
+                                                                    <!-- <span style="font-size: 12px;"
+                                                                    class="success-flair">Supervisor</span> -->
+                                                                </span>
+                                                                {% if not chat_message.dp %}
+                                                                <img src="{% static 'images/default-avatar.avif' %}"
+                                                                    alt="avatar">
+                                                                {% else %}
+                                                                <img src="{{ chat_message.dp }}" alt="avatar">
+                                                                {% endif %}
+
+                                                            </div>
+                                                            <div class="message other-message float-right"
+                                                                style="padding-bottom: 10px;">
+                                                                {{chat_message.message }}
+                                                                <p class="zero-padding-margin font-12">
+                                                                    {{ chat_message.date_sent }}
+                                                                </p>
+                                                            </div>
+                                                        </li>
+                                                        {% else %}
+                                                        <li class="clearfix">
+                                                            <div class="message-data">
+                                                                <span class="message-data-time"></span>
+                                                            </div>
+                                                            <div class="message my-message"
+                                                                style="padding-bottom: 10px;">
+                                                                {{ chat_message.message }}
+                                                                <p class="zero-padding-margin font-12">
+                                                                    {{ chat_message.date_sent }}
+                                                                </p>
+
+                                                            </div>
+                                                        </li>
+                                                        {% endif %}
+                                                        {% endfor %}
+                                                        <div id="lastElement" style="display: none;">Last Item</div>
+                                                    </ul>
+                                                </div>
+                                                <div class="chat-message zero-padding-margin"
+                                                    style="padding: 1px;width: 90%;position: fixed;bottom: 15px;">
+                                                    <div class="input-group mb-0">
+                                                        <div class="input-group-prepend" id="send-chat">
+                                                            <span class="input-group-text"><i
+                                                                    class="fa fa-send"></i></span>
+                                                        </div>
+                                                        <input type="text" class="form-control" id="input-message"
+                                                            style="background-color: #d6d6d688;"
+                                                            placeholder="Enter text here...">
+                                                    </div>
+                                                </div>
+                                                {% endif %}
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
                         </div>
                     </div>
                 </div>
@@ -4198,7 +4659,7 @@
                                 id="tiktok_platform" {% if not tiktok.linked %} disabled{% endif %}>
                             <label class="form-check-label" for="tiktok_platform">
                                 <p><img src="{% static 'images/tiktok_logo.png' %}" style="width: 20px;height: 20px;"
-                                        alt="tiktok"> Tiktok {% if not tiktok.linked %}(not linked){% endif %}</p>
+                                        alt="tiktok"> TikTok {% if not tiktok.linked %}(not linked){% endif %}</p>
                             </label>
                         </div>
                         <div class="form-check" style="margin-left: 10px;">
@@ -4730,7 +5191,7 @@
                                 </div>
                                 <hr>
                                 <div>
-                                    <p class="zero-padding-margin" style="color: #1d8ecd;">Tiktok configuration <img
+                                    <p class="zero-padding-margin" style="color: #1d8ecd;">TikTok configuration <img
                                             src="{% static 'images/tiktok_logo.png' %}" alt=""
                                             style="width: 15px;height: 15px;margin: auto;"></p>
                                     <div style="margin-left: 20px;">
@@ -4913,13 +5374,13 @@
                                                 </p>
                                                 {% elif p.is_published %}
                                                 <p
-                                                    style="font-size: 12px;padding: auto;background-color: rgb(216, 251, 232);color: rgb(21, 164, 97);border-radius: 5px;padding-left: 5px;padding-right: 10px;align-items: center;margin-bottom: 10px;">
+                                                    style="font-size: 12px;padding: auto;background-color: rgb(216, 251, 232);color: rgb(21, 164, 97);border-radius: 5px;padding-left: 5px;padding-right: 5px;align-items: center;margin-bottom: 10px;">
                                                     <i class="fa fa-check" aria-hidden="true"></i> Published
                                                 </p>
                                                 {% elif p.has_failed %}
                                                 <div style="display: flex;gap: 15px;">
                                                     <p
-                                                        style="font-size: 12px;padding: auto;background-color: rgb(251, 216, 216);color: rgb(164, 21, 21);border-radius: 5px;padding-left: 5px;padding-right: 10px;align-items: center;margin-bottom: 10px;">
+                                                        style="font-size: 12px;padding: auto;background-color: rgb(251, 216, 216);color: rgb(164, 21, 21);border-radius: 5px;align-items: center;padding-left: 5px;padding-right:5px">
                                                         <i class="fa fa-times" aria-hidden="true"></i> Failed
                                                     </p>
                                                     <p style="font-size: 12px;cursor: pointer;"
@@ -5032,12 +5493,12 @@
                                                     style="font-size: 12px;padding: 0;margin: 0;background-color: rgb(246, 251, 216);color: rgb(164, 159, 21);border-radius: 5px;padding-left: 5px;padding-right: 10px;align-items: center;margin-bottom: 10px;">
                                                     <i class="fa fa-reddit" aria-hidden="true"></i> Reddit
                                                 </p>
-                                                {% elif isFacebook %}
+                                                {% elif isTiktok %}
                                                 <p
                                                     style="font-size: 12px;padding: 0;margin: 0;background-color: rgb(216, 251, 237);color: rgb(21, 164, 97);border-radius: 5px;padding-left: 5px;padding-right: 10px;align-items: center;margin-bottom: 10px;">
-                                                    <i class="fa fa-tiktok" aria-hidden="true"></i> Tiktok
+                                                    <i class="fa fa-tiktok" aria-hidden="true"></i> TikTok
                                                 </p>
-                                                {% elif isTiktok %}
+                                                {% elif isFacebook %}
                                                 <p
                                                     style="font-size: 12px;padding: 0;margin: 0;background-color: rgb(216, 227, 251);color: rgb(21, 21, 164);border-radius: 5px;padding-left: 5px;padding-right: 10px;align-items: center;margin-bottom: 10px;">
                                                     <i class="fa fa-facebook" aria-hidden="true"></i> Facebook
@@ -5367,7 +5828,7 @@
                                 </div>
                                 <!-- spin -->
                                 <div id="spin-{{ p.post_id }}"
-                                    style="display: none;justify-content: center;margin-top: 10px;margin-bottom: 10px;">
+                                    style="display: none;justify-content: center;margin-top: 20px;margin-bottom: 20px;padding: 30px;">
                                     <i class="fa fa-spinner fa-spin"></i>
                                 </div>
 
@@ -5424,18 +5885,18 @@
                                             <div>
                                                 {% if p.is_scheduled %}
                                                 <p
-                                                    style="font-size: 12px;padding: auto;background-color: rgb(216, 230, 251);color: rgb(21, 121, 164);border-radius: 5px;padding-left: 5px;padding-right: 10px;align-items: center;margin-bottom: 10px;">
+                                                    style="font-size: 12px;padding: auto;background-color: rgb(216, 230, 251);color: rgb(21, 121, 164);border-radius: 5px;padding-left: 5px;padding-right: 5px;align-items: center;margin-bottom: 10px;">
                                                     <i class="fa fa-clock" aria-hidden="true"></i> Scheduled
                                                 </p>
                                                 {% elif p.is_published %}
                                                 <p
-                                                    style="font-size: 12px;padding: auto;background-color: rgb(216, 251, 232);color: rgb(21, 164, 97);border-radius: 5px;padding-left: 5px;padding-right: 10px;align-items: center;margin-bottom: 10px;">
+                                                    style="font-size: 12px;padding: auto;background-color: rgb(216, 251, 232);color: rgb(21, 164, 97);border-radius: 5px;padding-left: 5px;padding-right: 5px;align-items: center;margin-bottom: 10px;">
                                                     <i class="fa fa-check" aria-hidden="true"></i> Published
                                                 </p>
                                                 {% elif p.has_failed %}
                                                 <div style="display: flex;gap: 15px;">
                                                     <p
-                                                        style="font-size: 12px;margin: auto;background-color: rgb(251, 216, 216);color: rgb(164, 21, 21);border-radius: 5px;padding-left: 5px;padding-right: 10px;align-items: center;margin-bottom: 10px;">
+                                                        style="font-size: 12px;padding: auto;background-color: rgb(251, 216, 216);color: rgb(164, 21, 21);border-radius: 5px;align-items: center;padding-left: 5px;padding-right:5px;">
                                                         <i class="fa fa-times" aria-hidden="true"></i> Failed
                                                     </p>
                                                     <p style="font-size: 12px;cursor: pointer;"
@@ -5546,12 +6007,12 @@
                                                     style="font-size: 12px;padding: 0;margin: 0;background-color: rgb(246, 251, 216);color: rgb(164, 159, 21);border-radius: 5px;padding-left: 5px;padding-right: 10px;align-items: center;margin-bottom: 10px;">
                                                     <i class="fa fa-reddit" aria-hidden="true"></i> Reddit
                                                 </p>
-                                                {% elif isFacebook %}
+                                                {% elif isTiktok %}
                                                 <p
                                                     style="font-size: 12px;padding: 0;margin: 0;background-color: rgb(216, 251, 237);color: rgb(21, 164, 97);border-radius: 5px;padding-left: 5px;padding-right: 10px;align-items: center;margin-bottom: 10px;">
-                                                    <i class="fa fa-tiktok" aria-hidden="true"></i> Tiktok
+                                                    <i class="fa fa-tiktok" aria-hidden="true"></i> TikTok
                                                 </p>
-                                                {% elif isTiktok %}
+                                                {% elif isFacebook %}
                                                 <p
                                                     style="font-size: 12px;padding: 0;margin: 0;background-color: rgb(216, 227, 251);color: rgb(21, 21, 164);border-radius: 5px;padding-left: 5px;padding-right: 10px;align-items: center;margin-bottom: 10px;">
                                                     <i class="fa fa-facebook" aria-hidden="true"></i> Facebook
@@ -6376,7 +6837,16 @@
 
             });
         </script>
-
+        <script>
+            function validateFile() {
+                const fileInput = document.getElementById('train-doc-file');
+                const file = fileInput.files[0];
+                if (file && file.type !== 'application/pdf') {
+                    toastr.error('Please upload a PDF file.');
+                    fileInput.value = ''; // Clear the invalid file
+                }
+            }
+        </script>
 
         <!-- update business page -->
         <script>
@@ -6437,11 +6907,134 @@
                     $('.chat-content').hide();
                     $('#drafts-content').show()
                 });
+                // -----------------------------------PRIVATE MESSAGES-----------------------------
+
+                $(document).on('click', '.pm-box', function () {
+                    var platform = $(this).data('platform');
+                    $('#pm-container').css('display', 'none');
+                    $('#pm-inbox').css('display', 'flex');
+                    var icn_type = $('#pm-icon');
+                    icn_type.removeClass();
+                    switch (platform) {
+                        case 'facebook':
+                            icn_type.addClass('fa fa-facebook');
+                            break;
+                        case 'instagram':
+                            icn_type.addClass('fa fa-instagram');
+                            break;
+                        case 'reddit':
+                            icn_type.addClass('fa fa-reddit');
+                            break;
+                    }
+                    // alert(platform);
+                });
+                $(document).on('click', '#pm-back-platforms', function () {
+                    $('#pm-container').css('display', 'block');
+                    $('#pm-inbox').css('display', 'none');
+
+                    // alert(platform);
+                });
+
 
                 // ---------------------------------REVIEWS-------------------------------------- 
+                $(document).on('click', '#apply-filters', function () {
+                    const filterInstance = multiSelectInstances.find(instance => instance.selectElement.dataset.name === "filters");
+                    if (!filterInstance) {
+                        return;
+
+                    }
+                    const selectedItems = filterInstance.selectedItems.map(item => item.text);
+                    // getSelectedOptions();
+                    $('#apply-filters').css('display', 'none');
+                    $('#apply-loading').css('display', 'block');
+                    var formData = new FormData();
+                    var csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                    formData.append('company_id', '{{ company_id }}');
+                    formData.append('filters', selectedItems);
+                    // Send the form data via AJAX
+                    $.ajax({
+                        url: '{% url "get_reviews" %}', // Replace with your Django endpoint URL
+                        type: 'POST',
+                        headers: {
+                            'X-CSRFToken': csrfToken
+                        },
+                        data: formData,
+                        processData: false, // Prevent jQuery from processing the data
+                        contentType: false, // Prevent jQuery from setting the content type
+                        success: function (response) {
+                            if (response['error']) {
+                                toastr.error(response['error']);
+                                $('#apply-filters').css('display', 'block');
+                                $('#apply-loading').css('display', 'none');
+
+                            } else {
+                                $('.chat-content').hide();
+
+                                // update html
+                                var tempDiv = $('<div>').html(response);
+                                // Extract the specific element from the new HTML
+                                var newElementContent = tempDiv.find('#company-reviews').html();
+
+                                $('#company-reviews').html(newElementContent);
+                                // initializeMultiSelect();
+                                $('#reviews-content').show()
+                                $('#apply-filters').css('display', 'block');
+                                $('#apply-loading').css('display', 'none');
+
+                                return;
+                            }
+                        },
+                        error: function (jqXHR, textStatus, errorThrown) {
+                            toastr.error('Failed to submit form.');
+                            $('#apply-filters').css('display', 'block');
+                            $('#apply-loading').css('display', 'none');
+
+                            console.error(textStatus, errorThrown);
+                        }
+                    });
+
+
+                });
                 $(document).on('click', '#reviews', function () {
-                    $('.chat-content').hide();
-                    $('#reviews-content').show()
+                    var formData = new FormData();
+                    //get data frpm server 
+                    var csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                    formData.append('company_id', '{{ company_id }}');
+                    // Send the form data via AJAX
+                    $.ajax({
+                        url: '{% url "get_reviews" %}', // Replace with your Django endpoint URL
+                        type: 'POST',
+                        headers: {
+                            'X-CSRFToken': csrfToken
+                        },
+                        data: formData,
+                        processData: false, // Prevent jQuery from processing the data
+                        contentType: false, // Prevent jQuery from setting the content type
+                        success: function (response) {
+                            if (response['error']) {
+                                toastr.error(response['error']);
+
+                            } else {
+                                $('.chat-content').hide();
+
+                                // update html
+                                var tempDiv = $('<div>').html(response);
+                                // Extract the specific element from the new HTML
+                                var newElementContent = tempDiv.find('#company-reviews').html();
+
+                                $('#company-reviews').html(newElementContent);
+                                // initializeMultiSelect();
+                                $('#reviews-content').show()
+
+                                return;
+                            }
+                        },
+                        error: function (jqXHR, textStatus, errorThrown) {
+                            toastr.error('Failed to submit form.');
+                            console.error(textStatus, errorThrown);
+                        }
+                    });
+
                 });
 
                 // ---------------------------------ISSUES & REQUESTS-------------------------------------- 
@@ -7263,8 +7856,13 @@
                                     // FACEBOOK GRAPHS
                                     dts = response['impression_dist']
                                     var series = [];
-                                    if (dts['impression_fans']) {
+                                    var labels = ['Fans', 'Unique', 'Organic', 'Paid(Ad.)', 'Viral', 'Non Viral']
+                                    if (dts['has_data']) {
                                         series = [dts['impression_fans'], dts['impression_uniques'], dts['impression_organic'], dts['impression_paid'], dts['impression_viral'], dts['impression_nonviral']];
+                                    }
+                                    if (response['is_media_video']) {
+                                        series = [dts['impression_fans'], dts['impression_uniques'], dts['impression_organic'], dts['impression_paid'], dts['impression_viral']];
+                                        labels = ['Fans', 'Unique', 'Organic', 'Paid(Ad.)', 'Viral']
                                     }
                                     var options = {
                                         series: series,
@@ -7272,7 +7870,7 @@
                                             width: 330,
                                             type: 'pie',
                                         },
-                                        labels: ['Fans', 'Unique', 'Organic', 'Paid(Ad.)', 'Viral', 'Non Viral'],
+                                        labels: labels,
                                         title: {
                                             text: 'Impression Source', // Title text
                                             align: 'right', // Alignment: 'left', 'center', or 'right'
@@ -7321,7 +7919,8 @@
 
                                     if (response['is_media_video']) {
                                         $(`#video-summary-${post_id}`).css('display', 'block');
-
+                                        $(`#fb-clicks-${post_id}`).siblings('p').text('Views');
+                                        $(`#fb-clicks-${post_id}`).text(response['fb_video_data']['total_views']);
                                         if (!response['impression_dist']['has_data']) {
 
                                             // no retention data
@@ -7449,16 +8048,24 @@
                                             chart.render();
 
                                         }
-                                         else {
+                                        else {
                                             $(`#twt-${post_id}`).text(response['fb_video_data']['total_watch_time']);
                                             $(`#awt-${post_id}`).text(response['fb_video_data']['average_watch_time']);
                                             $(`#cr-${post_id}`).text(response['fb_video_data']['total_video_consumption_rate']);
                                             $(`#tpc-${post_id}`).text(response['fb_video_data']['video_play_count']);
                                             // video watch time
+
+                                            var watch_series = [];
+                                            var watch_labels = [];
+                                            if (response['fb_video_data']['video_retention_data'].length > 0) {
+                                                watch_labels = response['fb_video_data']['video_retention_labels'];
+                                                watch_series = response['fb_video_data']['video_retention_data'];
+                                            }
+
                                             var options = {
                                                 series: [{
-                                                    name: "Views",
-                                                    data: [0, 0, 0, 0, 0, 0, 0, 0, 0]
+                                                    name: "Percentage of initial Views ",
+                                                    data: watch_series
                                                 }],
                                                 chart: {
                                                     type: 'area',
@@ -7466,6 +8073,13 @@
                                                     zoom: {
                                                         enabled: false
                                                     }
+                                                },
+                                                noData: {
+                                                    text: 'No data available. Check back later', // Message to display
+                                                    align: 'center',           // Align text
+                                                    verticalAlign: 'middle',   // Vertically center the text
+                                                    offsetX: 0,
+                                                    offsetY: 0,
                                                 },
                                                 dataLabels: {
                                                     enabled: false
@@ -7479,10 +8093,10 @@
                                                     align: 'left'
                                                 },
                                                 subtitle: {
-                                                    text: 'No. of views per minute',
+                                                    text: '%. of views per minute',
                                                     align: 'left'
                                                 },
-                                                labels: ["1'", "2'", "3'", "4'", "5'", "6'", "7'", "8'", "9'"],
+                                                labels: watch_labels,
                                                 yaxis: {
                                                     opposite: true
                                                 },
@@ -7494,12 +8108,21 @@
                                             var chart = new ApexCharts(document.querySelector(`#fb-video-watch-${post_id}`), options);
                                             chart.render();
 
+                                            var country_series = [];
+                                            var x_axis_data = {};
+                                            if (response['fb_video_data']['viewers_countries'].length > 0) {
+                                                country_series = [{
+                                                    name: "Views",
+                                                    data: response['fb_video_data']['country_values']
+                                                }];
+                                                x_axis_data = {
+                                                    categories: response['fb_video_data']['country_keys'],
+                                                };
+
+                                            }
                                             // fb country
                                             var options = {
-                                                series: [{
-                                                    name: "Views",
-                                                    data: [400, 430, 448, 470, 540, 580, 690, 1100, 1200, 1380]
-                                                }],
+                                                series: country_series,
                                                 chart: {
                                                     type: 'bar',
                                                     height: 350
@@ -7508,7 +8131,13 @@
                                                     text: 'Views by Country',
                                                     align: 'left'
                                                 },
-
+                                                noData: {
+                                                    text: 'No data available. Check back later', // Message to display
+                                                    align: 'center',           // Align text
+                                                    verticalAlign: 'middle',   // Vertically center the text
+                                                    offsetX: 0,
+                                                    offsetY: 0,
+                                                },
                                                 plotOptions: {
                                                     bar: {
                                                         borderRadius: 4,
@@ -7519,25 +8148,22 @@
                                                 dataLabels: {
                                                     enabled: false
                                                 },
-                                                xaxis: {
-                                                    categories: ['South Korea', 'Canada', 'United Kingdom', 'Netherlands', 'Italy', 'France', 'Japan',
-                                                        'United States', 'China', 'Germany'
-                                                    ],
-                                                }
+                                                xaxis: x_axis_data
                                             };
 
                                             var chart = new ApexCharts(document.querySelector(`#fb-countries-chart-${post_id}`), options);
                                             chart.render();
 
+
                                             // fb age gender
+                                            var age_gender_labels = [];
+                                            var age_gender_series = [];
+                                            if (response['fb_video_data']['age_values'].length > 0) {
+                                                age_gender_labels = response['fb_video_data']['age_keys'];
+                                                age_gender_series = response['fb_video_data']['age_values'];
+                                            }
                                             var options = {
-                                                series: [{
-                                                    name: 'Male',
-                                                    data: [44, 55, 41, 64, 22, 43, 21]
-                                                }, {
-                                                    name: 'Female',
-                                                    data: [53, 32, 33, 52, 13, 44, 32]
-                                                }],
+                                                series: age_gender_series,
                                                 chart: {
                                                     type: 'bar',
                                                     height: 430
@@ -7546,7 +8172,13 @@
                                                     text: 'Views by Age & Gender',
                                                     align: 'left'
                                                 },
-
+                                                noData: {
+                                                    text: 'No data available. Check back later', // Message to display
+                                                    align: 'center',           // Align text
+                                                    verticalAlign: 'middle',   // Vertically center the text
+                                                    offsetX: 0,
+                                                    offsetY: 0,
+                                                },
                                                 plotOptions: {
                                                     bar: {
                                                         horizontal: false,
@@ -7573,7 +8205,7 @@
                                                     intersect: false
                                                 },
                                                 xaxis: {
-                                                    categories: ['13-17', '18-24', '25-34', '35-44', '45-54', '54-64', '65+'],
+                                                    categories: age_gender_labels,
                                                 },
                                             };
 
@@ -7832,10 +8464,12 @@
 
 
                 });
+                $(document).on('click', '#get_reviews', function () {
+                    alert('freeeze');
 
+                });
                 // view the team
                 $(document).on('click', '.view-team-btn', function () {
-
                     // Create a new FormData object
                     var formData = new FormData();
                     var team_id = $(this).data('placeholder');
@@ -7885,6 +8519,84 @@
 
 
                 });
+
+                // upload document 
+
+                $(document).on('click', '#confirmModalUploadDocAction', function () {
+                    $('#confirmModalUploadDocCenter').modal('hide');
+                    const fileInput = $('#train-doc-file');
+                    const file = fileInput[0].files[0];
+                    var formData = new FormData();
+                    var replace_info = $('#replace_info').prop('checked');
+                    formData.append(`train_doc`, file);  // `file0`, `file1`, etc., as keys
+                    // Append other input fields to FormData
+                    var csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                    formData.append('company_id', '{{ company_id }}');
+                    formData.append('replace_info', replace_info);
+                    $.ajax({
+                        url: '{% url "upload_train_doc" %}', // Replace with your Django endpoint URL
+                        type: 'POST',
+                        headers: {
+                            'X-CSRFToken': csrfToken
+                        },
+                        data: formData,
+                        processData: false, // Prevent jQuery from processing the data
+                        contentType: false, // Prevent jQuery from setting the content type
+                        success: function (response) {
+                            if (response['error']) {
+                                toastr.error(response['error'])
+
+                            } else {
+                                toastr.success('File uploaded. Training in progress');
+                                $('#train-doc-file').val('');
+                                // update html
+                                // var tempDiv = $('<div>').html(response);
+
+                                // // Extract the specific element from the new HTML
+                                // var newElementContent = tempDiv.find('#teams-content').html();
+
+                                // $('#teams-content').html(newElementContent);
+                                // // initializeMultiSelect();
+                                // $('#available-teams').css('display', 'none');
+                                // $('#create-team-btn').css('display', 'none');
+                                // $('#back-to-teams').css('display', 'block');
+                                // $('#team-workspace').css('display', 'flex');
+
+                                return;
+                            }
+                        },
+                        error: function (jqXHR, textStatus, errorThrown) {
+                            toastr.error('Failed to get the team.');
+                            console.error(textStatus, errorThrown);
+                        }
+                    });
+
+                });
+                $(document).on('click', '#upload-train', function () {
+                    var tr_file = $('#train-doc-file').val();
+                    if (!tr_file) {
+                        toastr.error('Please select a file.');
+                        return;
+                    };
+                    const fileInput = $('#train-doc-file');
+                    const file = fileInput[0].files[0];
+                    if (!file) {
+                        toastr.error('Please select a file.');
+                        return;
+                    }
+
+                    // Client-side validation for MIME type
+                    if (file.type !== 'application/pdf') {
+                        toastr.error('Only PDF files are allowed.');
+                        fileInput.value = ''; // Clear invalid file
+                        return;
+                    }
+                    $('#confirmModalUploadDocCenter').modal('show');
+
+
+
+                });
+
                 // ----------------------------------SUBMIT REQUEST----------------------------
                 // $(document).on('click', '#request-btn', function () {
                 //     alert('clicked req');

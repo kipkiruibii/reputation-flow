@@ -12,6 +12,8 @@ admin.site.register(CompanyTeamChat)
 admin.site.register(CompanyTeamInviteLinks)
 admin.site.register(CompanyTeamFiles)
 admin.site.register(CompanyTeamAnnouncements)
+admin.site.register(CompanyKnowledgeBase)
+
 
 # socials
 admin.site.register(CompanyInstagram)

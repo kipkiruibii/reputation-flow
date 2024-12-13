@@ -82,6 +82,16 @@ class CompanyTeamFiles(models.Model):
     def __str__(self):
         return self.file_name
     
+class CompanyKnowledgeBase(models.Model):
+    company=models.ForeignKey(Company,on_delete=models.CASCADE)
+    training_done=models.BooleanField(default=False)
+    training_inprogress=models.BooleanField(default=False)
+    date_uploaded=models.DateTimeField(default=timezone.now)
+    file=models.FileField(upload_to='training_data/')
+    def __str__(self):
+        return 'Training: '+ self.company.company_name
+    
+    
 class UploadedFiles(models.Model):
     file=models.FileField(upload_to='uploaded_files/')
     team=models.ForeignKey(CompanyTeamFiles,on_delete=models.CASCADE) 
@@ -286,7 +296,6 @@ class CompanyFacebookPosts(models.Model):
     
     def __str__(self):
         return self.post_id
-    
 class CompanyRedditPosts(models.Model):
     post_id=models.CharField(max_length=255)
     nsfw_tag=models.BooleanField(default=False)
@@ -371,12 +380,20 @@ class UploadedMedia(models.Model):
         return self.post.title
 
 class CompanyReviews(models.Model):
+    company=models.ForeignKey(Company,on_delete=models.CASCADE,null=True,blank=True)
     content=models.TextField(default='')
+    link=models.TextField(default='')
     commentor=models.CharField(max_length=100)
+    is_published=models.BooleanField(default=False,null=True,blank=True)
+    is_positive=models.BooleanField(default=False,null=True,blank=True)
+    is_negative=models.BooleanField(default=False,null=True,blank=True)
+    is_neutral=models.BooleanField(default=False,null=True,blank=True)
     date_commented=models.DateTimeField(default=timezone.now)
     category=models.CharField(max_length=100) # can be review/ question/unidentified. obtained from mention/reply to post
     platform=models.TextField(default='')
- 
+    def __str__(self):
+        return self.platform
+
 class MemberMessages(models.Model):
     sender=models.ForeignKey(CompanyMember,on_delete=models.CASCADE)
     recipients=models.ManyToManyField(CompanyMember,related_name='recipient')   

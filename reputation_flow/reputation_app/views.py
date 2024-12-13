@@ -39,6 +39,7 @@ from django.core.files.storage import default_storage
 from prawcore.exceptions import ServerError, RequestException, ResponseException
 import ffmpeg
 import os
+import pdfplumber
 # 1. Generate a State Token for CSRF protection
 def generate_state_token():
     return secrets.token_urlsafe(16)  # Generates a random URL-safe token
@@ -77,7 +78,6 @@ reddit = praw.Reddit(
     user_agent=settings.REDDIT_USER_AGENT,
     redirect_uri=settings.REDDIT_REDIRECT_URI  # This is required for OAuth2 flows.
 )
-
 
 def clean_html(input_html):
     # Sanitize the input HTML using Bleach
@@ -292,6 +292,73 @@ def getRedditSubFlairs(cid):
                 print('saved llx',subreddit_name.display_name)
                 cr.save()
 
+@api_view(['POST', 'GET'])
+def getPMs(request):
+    company_id = request.POST.get('company_id', None)
+    platform = request.POST.get('platform', None)
+    if not all([company_id,platform]):
+        return Response({'error': 'Bad request'})
+    return Response({'success': 'Bad request'})
+    
+@api_view(['POST', 'GET'])
+def companyReviews(request):
+    company_id = request.POST.get('company_id', None)
+    filters = request.POST.get('filters', [])
+    print(filters)
+    if not company_id:
+        return Response({'error': 'Bad request'})
+    cp=Company.objects.filter(company_id=company_id).first()
+    if not cp:
+        return Response({'error': 'Bad request'})
+    if not filters:
+        print('none filter',filters)
+        cpr=CompanyReviews.objects.filter(company=cp)
+    else:
+        filters=[i.lower() for i in filters.split(',')]
+        print(filters)
+
+        cpr=CompanyReviews.objects.filter(company=cp)
+        if 'published' in filters: 
+            cpr=cpr.filter(is_published=True)
+        if 'not published' in filters: 
+            cpr=cpr.filter(is_published=False)
+        if 'positive' in filters:
+            cpr=cpr.filter(is_positive=True)
+        if 'negative' in filters:
+            cpr=cpr.filter(is_negative=True)
+        if 'neutral' in filters:
+            cpr=cpr.filter(is_neutral=True)
+        platforms = []
+        if 'facebook' in filters:
+            platforms.append('facebook')
+        if 'instagram' in filters:
+            platforms.append('instagram')
+        if 'tiktok' in filters:
+            platforms.append('tiktok')
+        if 'reddit' in filters:
+            platforms.append('reddit')
+
+        if platforms:
+            cpr = cpr.filter(platform__in=platforms)
+    reviews=[]
+    for r in cpr:
+        reviews.append({
+            'commentor':r.commentor,
+            'content':r.content,
+            'link':r.link,
+            'published':r.is_published,
+            'neutral':r.is_neutral,
+            'positive':r.is_positive,
+            'negative':r.is_negative,
+            'date_commented':r.date_commented,
+            'category':r.category,
+            'platform':r.platform
+        })
+        
+    context={
+        'reviews':reviews
+    }
+    return render(request, 'dashboard.html', context=context)
 
 @login_required
 def dashboard(request, company_id):
@@ -448,8 +515,8 @@ def dashboard(request, company_id):
             'username': cr.account_username if cr else '',
             'date_linked': '',
             'link_url': reddit_auth_link(company_id),
-            'linked': cr.linked if cr else '',
-            'active': cr.active if cr else '',
+            'linked': cr.linked if cr else False,
+            'active': cr.active if cr else False,
             'comment_karma': cr.comment_karma if cr else '',
             'subs': cr.subs if cr else []
         },
@@ -688,10 +755,9 @@ def getStats(request):
     red_tteng=[]
     red_subs=[]
     red_te=0
-    
     fb_post_click=0
     fb_impressions=0
-    impr_conv='-'
+    impr_conv=0
 
     if cr:
         has_reddit=True
@@ -797,8 +863,6 @@ def getStats(request):
         '''
         if pst.is_video:
             params = {
-                    # "metric":",".join(vid_metric),
-                    # "metric":'total_video_view_time_by_country_id',
                     "access_token": cfbp.page_access_token,
             }
             response =requests.get(url, params=params)
@@ -808,6 +872,7 @@ def getStats(request):
                 clck=0
                 impr=0
                 for v in vl:
+                    print(v['name'])
                     vl=v['values'][0]['value']
                     if v['name']== 'total_video_views_autoplayed':
                         clck+=vl
@@ -824,7 +889,7 @@ def getStats(request):
                 fb_post_click=cfb.post_clicks
                 fb_impressions=cfb.impression_count
                 if cfb.impression_count>0:
-                    impr_conv=cfb.post_clicks/cfb.impression_count
+                    impr_conv = cfb.post_clicks/cfb.impression_count
                 
             else:
                 print('failed',response.status_code,response.content)   
@@ -884,7 +949,6 @@ def getStats(request):
                 # print("metrics retrieved successfully:", response.json())
             else:
                 print("Error getting metrics:", response.json())           
-    sorted_dict = dict(sorted(my_dict.items(), key=lambda item: item[1], reverse=True))
     impress={}
     if cfb:
         dts=cfb.post_impression_type
@@ -899,20 +963,71 @@ def getStats(request):
                     'impression_nonviral':0,
                     'has_data':True
                 }
+                cfb.impression_count=dts['total_video_impressions']
+                cfb.post_clicks=dts['total_video_complete_views']
+                cfb.save()
+                
+                awt=dts['total_video_avg_time_watched']/1000
+                if awt>3600:
+                    awt=f'{round(awt/3600,2)}h'
+                elif awt>60:
+                    awt=f'{round(awt/60,2)}m'
+                else:
+                    awt=f'{round(awt,2)}s' 
+                       
+                twt=dts['total_video_view_total_time']/1000
+                if twt>3600:
+                    twt=f'{round(twt/3600,2)}h'
+                elif twt>60:
+                    twt=f'{round(twt/60,2)}m'
+                else:
+                    twt=f'{round(twt,2)}s' 
+                my_dict['facebook']= dts['total_video_impressions'] 
+                country_keys=[]
+                country_values=[]
+                if dts['total_video_view_time_by_country_id']:
+                    pass
+                
+                age_values=[]
+                age_keys= ['13-17', '18-24', '25-34', '35-44', '45-54', '54-64', '65+']
+                if dts['total_video_view_time_by_age_bucket_and_gender']:
+                    age_values=[{
+                            'name': 'Male',
+                            'data': [44, 55, 41, 64, 22, 43, 21]
+                        }, {
+                            'name': 'Female',
+                            'data': [53, 32, 33, 52, 13, 44, 32]
+                        }]
+                    age_keys= ['13-17', '18-24', '25-34', '35-44', '45-54', '54-64', '65+']
+                video_retention_labels=[]    
+                video_retention_data=[]  
+                if dts['total_video_retention_graph']:
+                      vrv=dts['total_video_retention_graph'].keys()
+                      video_retention_labels=[f"{i}'" for i in vrv]
+                      vd=dts['total_video_retention_graph'].values()
+                      video_retention_data=[round(i*100,1 ) for i in vd]
+                
+                if cfb.impression_count>0:
+                    impr_conv=cfb.post_clicks/cfb.impression_count
+
+                # print(dts['total_video_retention_graph'])   
                 fb_video_data={
                     'video_play_count':dts['total_video_play_count'],
-                    'average_watch_time':dts['total_video_avg_time_watched'],
-                    'total_watch_time':dts['total_video_view_total_time'],
+                    'average_watch_time':awt ,
+                    'total_watch_time':twt,
+                    'total_video_retention_graph':dts['total_video_retention_graph'],
+                    'video_retention_labels':video_retention_labels,
+                    'video_retention_data':video_retention_data,
                     'total_video_consumption_rate':dts['total_video_consumption_rate'],
                     'total_views':dts['total_video_complete_views'],
                     'organic_views':dts['total_video_complete_views_organic'],
                     'paid_views':dts['total_video_complete_views_paid'],
-                    'viewers_countries':dts['total_video_view_time_by_country_id'],
-                    'top_countries':[],
-                    'top_countries_data':[],
-                    'age_keys':[],
-                    'age_values':[],
-                    'age_gender':dts['total_video_view_time_by_age_bucket_and_gender']
+                    'viewers_countries':[] if not dts['total_video_view_time_by_country_id'] else dts['total_video_view_time_by_country_id'],
+                    'country_keys':country_keys,
+                    'country_values':country_values,
+                    'age_keys':age_keys,
+                    'age_values':age_values,
+                    'age_gender':[] if not dts['total_video_view_time_by_age_bucket_and_gender'] else dts['total_video_view_time_by_age_bucket_and_gender']
             }
             else:
                 impress={
@@ -936,6 +1051,8 @@ def getStats(request):
                 'has_data':True
             }
         
+    sorted_dict = dict(sorted(my_dict.items(), key=lambda item: item[1], reverse=True))
+    
     return Response({'result': 'success',
                      'has_reddit':has_reddit,
                      'reddit_total_engagement':f'{red_te}%',
@@ -949,7 +1066,7 @@ def getStats(request):
                      'fb_impressions':fb_impressions,
                      'fb_clicks':fb_post_click,
                      'has_facebook':has_facebook,
-                     'fb_conversion_rate':impr_conv,
+                     'fb_conversion_rate':f'{round(impr_conv*100,1) }%' if impr_conv >0 else impr_conv ,
                      'is_media_video':pst.is_video,
                      'impression_dist':impress,
                      'fb_video_data':fb_video_data
@@ -1517,18 +1634,14 @@ def postComment(request):
         
         if response.status_code == 200:
             data= response.json()  # Returns the reply ID
-            print('Posted successfully',data)
         else:
-            print('failed to post comment')
             return Response({'error': 'Could not submit comment'})
             
-    
     # get the post from the post_id
     pst=CompanyPosts.objects.filter(post_id=post_id).first()
     if not pst:
         return Response({'error': 'Bad request'})
     # try:
-    
     print('thread started')
     if pltform == 'facebook':
         fetchFacebookComments(post=pst,post_id=post_id)
@@ -1537,7 +1650,6 @@ def postComment(request):
     elif pltform == 'instagram':
         fetchInstagramComments(post=pst,post_id=post_id)
     elif pltform == 'reddit':
-        print('fetching reddit comments')
         fetchRedditComments(post=pst,post_id=post_id)
     
     # wait until update has been collected
@@ -1562,6 +1674,7 @@ def postComment(request):
             
         }) 
     # cp=CompanyPosts.objects.all().order_by('-pk') # Execution time 4.7885 seconds
+
     cp=CompanyPosts.objects.filter(id=pst.id) # Execution time 4.0257 seconds 
     all_posts=[]
     for p in cp:
@@ -1874,8 +1987,68 @@ def viewTeam(request):
     }
     return render(request, 'dashboard.html', context=context)
 
-
+def extract_text_from_pdf(pdf_path):
+    with pdfplumber.open(pdf_path) as pdf:
+        text = ""
+        for page in pdf.pages:
+            text += page.extract_text()
+    return text
+def trainChatbot(cmp):
+    cp=CompanyKnowledgeBase.objects.filter(company=cmp).first()
+    if not cp:
+        print('no data')
+    pth=cp.file.path    
+    v=extract_text_from_pdf(pth)
+    print(v)
+    pass
 # create invite link
+@api_view(['POST'])
+def uploadTrainDoc(request):
+    company_id = request.POST.get('company_id', None)
+    erase = request.POST.get('replace_info', None)
+    files = request.FILES  # Access uploaded files
+    if not all([company_id, files]):
+        return Response({'error': 'Bad request'})
+    cp=Company.objects.filter(company_id=company_id).first()
+    if not cp:
+         return Response({'error': 'Bad request'})
+    print(erase,company_id)
+    train_doc = []
+    for field_name, file in files.items():
+        train_doc.append(file)
+        # gallery_items.append({"image_path": absolute_file_path,'content_type':file.content_type,"file_size": file.size })
+
+        break
+    fle=train_doc[0]
+    if fle.content_type != "application/pdf":
+        return Response({'error': 'Bad request'})
+
+    print(fle.content_type)
+    cpn_doc=CompanyKnowledgeBase.objects.filter(company=cp).first()
+    if cpn_doc:
+        if not cpn_doc.training_inprogress:
+            return Response({'error': 'Training in progress. Try again after some time.'})
+        if erase == 'true':
+            print('erasing company doc')
+            cpn_doc.delete()
+
+            
+    else:
+        cpn_doc=CompanyKnowledgeBase(
+                company=cp,
+                training_inprogress=True,
+                file=file
+            )
+        cpn_doc.save()
+        
+        # start thread to train
+        tc= threading.Thread(target=trainChatbot,daemon=True,kwargs={'cmp':cp})
+        tc.start()
+        
+        
+    return Response({'success': 'Bad request'})
+# create invite link
+
 @api_view(['POST'])
 def generateInviteLink(request):
     company_id = request.POST.get('company_id', None)
@@ -1980,8 +2153,9 @@ def gettiktokCreatorInfo(request):
             "Content-Type": "application/json"
         }
 
-        response = requests.post(url, headers=headers,verify=False)
+        response = requests.post(url, headers=headers)
         res=response.json().get('data')
+        print(response.json())
         tk_data={
             'max_video_post_duration_sec':res.get('max_video_post_duration_sec'),
             'stitch_disabled':res.get('stitch_disabled'),
@@ -1996,83 +2170,138 @@ def gettiktokCreatorInfo(request):
             'comment_disabled':res.get('comment_disabled'),
             'duet_disabled':res.get('duet_disabled')
         }) 
-    except:
+    except Exception as e:
+        print(traceback.format_exc())
         return Response({'error': 'TikTok Bad request.Try again or remove TikTok '})
 
 def postTiktok(company,description,video,duet,comment,stitch,audience,post_id,mentions):
     """
     Initialize a chunked video upload to TikTok.
     """
+    
     ctk=CompanyTiktok.objects.filter(company=company).first()
     if not ctk:
         return 'No Company Tiktok'
     access_token=ctk.access_token
-    video_size=video['file_size']
-    # Get the necessary data from the request
-    chunk_size = 20* 1024 * 1024  # 10 MB in bytes
 
-    # Adjust chunk size if the video is smaller than the chunk size
-    if video_size < chunk_size:
-        chunk_size = video_size  
-        total_chunk_count=1
-    if video_size > chunk_size:
-        total_chunk_count=4
-        chunk_size = int(video_size/4)
-         
+    vid_ex='7212243560387726597'
+    # vid_ex='7446787420933015558'
+    # video_list_url = "https://open.tiktokapis.com/v2/video/list/"
+    # params = {
+    #     # "video_ids": [vid_ex],
+    #     # "fields": "id,title,description,video_url",
+    #     "fields": "id,title,video_description,duration,cover_image_url,embed_link"
+    # }
+    headers = {
+        "Authorization": f"Bearer {access_token}",
+        "Content-Type": "application/json"
+    }
+
+
+    # response = requests.post(video_list_url, headers=headers,params=params)
+    # # print('')
+    # print(response.content)
+    # return
+    url = "https://open.tiktokapis.com/v2/video/query/"
     
-    url = "https://open.tiktokapis.com/v2/post/publish/creator_info/query/"
-    headers = {
-        "Authorization": f"Bearer {access_token}",
-        "Content-Type": "application/json"
+    params = {
+        "fields": "id,views"
     }
-
-    response = requests.post(url, headers=headers)
-    # API URL for the video upload initialization
-    url = "https://open.tiktokapis.com/v2/post/publish/video/init/"
-    # Prepare the headers with the access token
-    headers = {
-        "Authorization": f"Bearer {access_token}",
-        "Content-Type": "application/json"
-    }
-
-    # Prepare the JSON payload
     payload = {
-        "post_info": {
-            "title": description,  
-            "privacy_level": audience,   
-            "disable_duet": not duet,
-            "disable_comment": not comment,
-            "disable_stitch": not stitch
-        },
-        "source_info": {
-            "source": "FILE_UPLOAD",
-            "video_size": video_size,     
-            "chunk_size": chunk_size,     
-            "total_chunk_count": total_chunk_count  
+        "filters": {
+            "video_ids": [
+                vid_ex
+            ]
         }
     }
 
-    # Make the POST request
     response = requests.post(url, headers=headers, json=payload)
-    # Check the response status and print the result
-    if response.status_code == 200:
-        print("Upload initialized successfully.")
-    else:
-        print(f"Error: {response.status_code}")
-        print(response.json())
 
+    print(response.json())  # Print the JSON response    
+    return
+
+    cpst=CompanyPosts.objects.filter(post_id=post_id).first()
+    if not cpst:
+        print('failed to retrieve post')
         return
-        
-
-    # Parse the response
-    upload_data = response.json()
-    publish_id = upload_data.get('data', {}).get('publish_id')
-    chunk_upload_url = upload_data.get('data', {}).get('upload_url')
-
-    if not all([publish_id, chunk_upload_url]):
-        return print({'error': 'Missing publish_id or upload_url in response'})
-
     try:
+        ctk=CompanyTiktok.objects.filter(company=company).first()
+        if not ctk:
+            cpst.has_failed=True
+            cpst.save()
+            return 'No Company Tiktok'
+        
+        access_token=ctk.access_token
+        video_size=video['file_size']
+        # Get the necessary data from the request
+        chunk_size = 20* 1024 * 1024  # 10 MB in bytes
+
+        # Adjust chunk size if the video is smaller than the chunk size
+        if video_size < chunk_size:
+            chunk_size = video_size  
+            total_chunk_count=1
+        if video_size > chunk_size:
+            total_chunk_count=4
+            chunk_size = int(video_size/4)
+            
+        
+        url = "https://open.tiktokapis.com/v2/post/publish/creator_info/query/"
+        headers = {
+            "Authorization": f"Bearer {access_token}",
+            "Content-Type": "application/json"
+        }
+
+        response = requests.post(url, headers=headers)
+        # API URL for the video upload initialization
+        url = "https://open.tiktokapis.com/v2/post/publish/video/init/"
+        # Prepare the headers with the access token
+        headers = {
+            "Authorization": f"Bearer {access_token}",
+            "Content-Type": "application/json"
+        }
+
+        # Prepare the JSON payload
+        payload = {
+            "post_info": {
+                "title": description,  
+                "privacy_level": audience,   
+                "disable_duet": not duet,
+                "disable_comment": not comment,
+                "disable_stitch": not stitch
+            },
+            "source_info": {
+                "source": "FILE_UPLOAD",
+                "video_size": video_size,     
+                "chunk_size": chunk_size,     
+                "total_chunk_count": total_chunk_count  
+            }
+        }
+
+        # Make the POST request
+        response = requests.post(url, headers=headers, json=payload)
+        # Check the response status and print the result
+        if response.status_code == 200:
+            print("Upload initialized successfully.",response.content)
+        else:
+            cpst.has_failed=True
+            cpst.save()
+            print(f"Error: {response.status_code}")
+            print(response.json())
+
+            return
+            
+        # Parse the response
+        upload_data = response.json()
+        publish_id = upload_data.get('data', {}).get('publish_id')
+        chunk_upload_url = upload_data.get('data', {}).get('upload_url')
+        vide_id=publish_id.split('.')[-1]
+        print('videeeee',vide_id)
+
+        if not all([publish_id, chunk_upload_url]):
+            cpst.has_failed=True
+            cpst.save()
+            return print({'error': 'Missing publish_id or upload_url in response'})
+
         with open(video['image_path'], "rb") as video_file:
             video_data = video_file.read()
             total_size = len(video_data)
@@ -2085,9 +2314,11 @@ def postTiktok(company,description,video,duet,comment,stitch,audience,post_id,me
             upload_response = requests.put(chunk_upload_url, headers=upload_headers, data=video_data)
 
             if upload_response.status_code == 201:
-                print("Video uploaded successfully!")
+                print("Video uploaded successfully!",upload_response.content)
 
             else:
+                cpst.has_failed=True
+                cpst.save()
                 print(f"Failed to upload video: {upload_response.status_code}")
                 print(upload_response.json())
                 return
@@ -2116,19 +2347,51 @@ def postTiktok(company,description,video,duet,comment,stitch,audience,post_id,me
         
             # get latest updated video
             if published:
-                video_list_url = "https://open.tiktokapis.com/v2/video/list/?fields=id,cover_image_url,video_url"
+                url = "https://open.tiktokapis.com/v2/video/query/"
+                
+                params = {
+                    "fields": "id,title,video_description,duration,cover_image_url,embed_link"
+                }
                 payload = {
-                    "max_count": 5,
+                    "filters": {
+                        "video_ids": [
+                            vide_id
+                        ]
+                    }
                 }
 
+                 # Print the JSON response    
+                
                 # Make the POST request
-                response = requests.post(video_list_url, headers=headers, data=json.dumps(payload),verify=False)
-                videos = response.json()['data']
-                print(videos)
-                # Display the list of videos
-                video_id=videos['videos'][0]['id']
-                video_cover=videos['videos'][0]['cover_image_url']
-                video_link=videos['videos'][0]['video_url']
+                count=0
+                while count < 10: # query the 10 times with each failure
+                    response = requests.post(url, headers=headers, json=payload,params=params)
+
+                    print(response.json())   
+                    # Display the list of videos
+
+                    try:
+                        videos = response.json()['videos'][0]
+                        print('Found')
+                        video_id=videos['id']
+                        video_cover=videos['cover_image_url']
+                        video_link=videos['embed_link']
+                        if not cpst.media_thumbnail:
+                            cpst.media_thumbnail=video_cover
+                            cpst.save()
+                        break
+                        # return
+                        # time.sleep(10)
+                        # count+=1
+
+                    except Exception as e:
+                        time.sleep(10)
+                        count+=1
+                if count>=10:
+                    print('maximum triLa')
+                    cpst.has_failed=True
+                    cpst.save()
+                    return
                 # save the tiktok post
                 ctkp=CompanyTiktokPosts(
                     post_id=post_id,
@@ -2139,10 +2402,20 @@ def postTiktok(company,description,video,duet,comment,stitch,audience,post_id,me
                     post_link=video_link,
                 )
                 ctkp.save()
+                # update the post
+                cpst.is_published=True
+                cpst.save()
+                print('done')
                 return print({
                     'message': 'Video uploaded successfully',
                 })
             else:
+                if cpst.is_published and len(cpst.platforms)>1:
+                    cpst.partial_publish=True
+                else:
+                    cpst.has_failed=True
+                cpst.failure_reasons.append('Uknown error')
+                cpst.save()
                 ctkp=CompanyTiktokPosts(
                     post_id=post_id,
                     is_published=published,
@@ -2150,6 +2423,13 @@ def postTiktok(company,description,video,duet,comment,stitch,audience,post_id,me
                 ctkp.save()
             
     except Exception as e:
+        if cpst.is_published and len(cpst.platforms)>1:
+            cpst.partial_publish=True
+        else:
+            cpst.has_failed=True
+        cpst.failure_reasons.append(str(e))
+        cpst.save()
+
         return print({'error': 'An unexpected error occurred', 'details': str(e)})
 
 
