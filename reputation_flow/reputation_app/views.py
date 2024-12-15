@@ -40,6 +40,7 @@ from prawcore.exceptions import ServerError, RequestException, ResponseException
 import ffmpeg
 import os
 import pdfplumber
+import pytz
 # 1. Generate a State Token for CSRF protection
 def generate_state_token():
     return secrets.token_urlsafe(16)  # Generates a random URL-safe token
@@ -292,13 +293,347 @@ def getRedditSubFlairs(cid):
                 print('saved llx',subreddit_name.display_name)
                 cr.save()
 
+def format_datetime(timezone_str,datetime_str,platform):
+    # Sample data from AJAX
+    
+    # Parse the datetime string
+    if platform.strip() == 'facebook':
+        # utc_datetime = datetime.strptime(datetime_str, "%Y-%m-%dT%H:%M:%S%z")
+        utc_datetime = datetime_str
+    if platform.strip() == 'reddit':
+        utc_datetime = datetime.fromtimestamp(datetime_str,tz=timezone.utc)
+    # Convert to the specified timezone
+   
+    target_tz = pytz.timezone(timezone_str)
+    local_datetime = utc_datetime.astimezone(target_tz)
+    
+    # Get the current time in the same timezone
+    now = datetime.now(target_tz)
+    
+    # Format output based on date relation
+    if local_datetime.date() == now.date():
+        # Same day: "Today hh:mm AM/PM"
+        formatted = local_datetime.strftime("Today %I:%M %p")
+    elif local_datetime.date() == (now - timedelta(days=1)).date():
+        # One day before: "Yesterday hh:mm AM/PM"
+        formatted = local_datetime.strftime("Yesterday %I:%M %p")
+    else:
+        # Other dates: "day/date/month/year hh:mm AM/PM"
+        formatted = local_datetime.strftime("%a/%d/%m/%Y %I:%M %p")
+    
+    return formatted
+
+@api_view(['POST', 'GET'])
+def replyPM(request):
+    company_id = request.POST.get('company_id', None)
+    platform = request.POST.get('platform', None)
+    timezone_s = request.POST.get('timezone', 'UTC')
+    conv_id = request.POST.get('conv_id', None)
+    message = request.POST.get('message', None)
+    if not all([company_id,platform,conv_id,message]):
+        return Response({'error': 'Bad request'})
+    convs=[]
+    if platform.strip() == 'facebook':
+        pass
+    if platform.strip() == 'instagram':
+        cp=Company.objects.filter(company_id=company_id).first()
+        if not cp:
+            return Response({'error': 'Bad request'})
+        cfb=CompanyFacebook.objects.filter(company=cp).first()
+        if not cfb:
+            return Response({'error': 'Bad request'})
+        cig=CompanyInstagram.objects.filter(company=cp).first()
+        if not cig:
+            return Response({'error': 'Bad request'})
+        url = f"https://graph.facebook.com/v21.0/{conv_id}/messages"
+        params = {
+            "access_token": cfb.page_access_token
+        }
+        data = {
+            "message": message
+        }
+        response = requests.post(url, params=params, json=data)
+
+        print(response.json())
+    return Response({'success': 'Bad request'})
+
+
+@api_view(['POST', 'GET'])
+def getMessages(request):
+    company_id = request.POST.get('company_id', None)
+    platform = request.POST.get('platform', None)
+    timezone_s = request.POST.get('timezone', 'UTC')
+    conv_id = request.POST.get('conv_id', None)
+    if not all([company_id,platform,conv_id]):
+        return Response({'error': 'Bad request'})
+    convs=[]
+    if platform.strip() == 'facebook':
+        cp=Company.objects.filter(company_id=company_id).first()
+        if not cp:
+            return Response({'error': 'Bad request'})
+        cfb=CompanyFacebook.objects.filter(company=cp).first()
+        if not cfb:
+            return Response({'error': 'Bad request'})
+        
+        def getmsgs():
+            url = f"https://graph.facebook.com/v21.0/{conv_id}/messages"
+            params = {"access_token": cfb.page_access_token,"fields": "message,from,created_time" }
+            response = requests.get(url, params=params)
+            data = response.json()['data']
+            cnvm=ConversationMessages.objects.filter(conversation_id=conv_id)
+            if cnvm:
+                for c in data:
+                    cnvk=cnvm.filter(message_id=c['id']).first()
+                    if not cnvk:
+                        f_id=c['from']['id']
+                        cnvk=ConversationMessages(
+                                conversation_id=conv_id,
+                                message_id=c['id'],
+                                sender=c['from']['name'],
+                                message=c['message'],
+                                is_me=f_id == cfb.account_id,
+                                created_at=datetime.strptime(c['created_time'], "%Y-%m-%dT%H:%M:%S%z")
+                        )
+                        cnvk.save()
+                    else:
+                        cnvm.message=c['message']
+                        cnvm.save()
+            else:
+                for c in data:
+                    f_id=c['from']['id']
+                    cnvk=ConversationMessages(
+                            conversation_id=conv_id,
+                            message_id=c['id'],
+                            sender=c['from']['name'],
+                            message=c['message'],
+                            is_me=f_id == cfb.account_id,
+                            created_at=datetime.strptime(c['created_time'], "%Y-%m-%dT%H:%M:%S%z")
+                    )
+                    cnvk.save()
+        cms=ConversationMessages.objects.filter(conversation_id=conv_id)
+        if cms:
+            trgt=threading.Thread(target=getmsgs,daemon=True)
+            trgt.start()
+        else:
+            getmsgs()
+        cms=ConversationMessages.objects.filter(conversation_id=conv_id)
+        for conv in cms: 
+            convs.append({
+                'message':conv.message,
+                'date_sent':format_datetime(datetime_str=conv.created_at,timezone_str=timezone_s,platform='facebook'),
+                'from':conv.sender,
+                'me':conv.is_me
+            })
+        convs.reverse()
+        context={
+            'pm_messages':convs
+        }
+        return render(request, 'dashboard.html', context=context)
+    if platform.strip() == 'reddit':
+        rcv=request.session['red_convos']
+        for r in rcv:
+            print(r['conv_id'],conv_id)
+            if r['conv_id']==conv_id:
+                convs.append({
+                    'message':r['message'],
+                    'date_sent':r['updated_time'],
+                    'from':r['sender'],
+                    'me':False
+                })
+                break
+        convs.reverse()
+        context={
+            'pm_messages':convs
+        }
+        return render(request, 'dashboard.html', context=context)
+            
+    if platform.strip() == 'instagram':
+        cp=Company.objects.filter(company_id=company_id).first()
+        if not cp:
+            return Response({'error': 'Bad request'})
+        cfb=CompanyFacebook.objects.filter(company=cp).first()
+        if not cfb:
+            return Response({'error': 'Bad request'})
+        cig=CompanyInstagram.objects.filter(company=cp).first()
+        if not cig:
+            return Response({'error': 'Bad request'})
+        url = f"https://graph.facebook.com/v21.0/{conv_id}"
+        params = {"access_token": cfb.page_access_token,"fields":'messages'}
+        response = requests.get(url, params=params)
+        msg_ids = response.json()['messages']['data']
+        
+        for msgd_id in msg_ids:
+            msg_id=msgd_id['id']
+            url = f"https://graph.facebook.com/v21.0/{msg_id}"
+            params = {"access_token": cfb.page_access_token,"fields":'id,created_time,from,to,message'}
+            response = requests.get(url, params=params)
+            dt= response.json()
+            print(dt)
+            frm_uname =dt['from']['username']
+            frm_id = dt['from']['id']
+            msg=dt['message']
+          
+            convs.append({
+                'message':msg,
+                'date_sent':format_datetime(datetime_str=dt['created_time'],timezone_str=timezone_s,platform='facebook'),
+                'from':frm_uname,
+                'me':frm_id == cig.account_id
+            })
+        convs.reverse()
+        context={
+            'pm_messages':convs
+        }
+        print(convs)
+        return render(request, 'dashboard.html', context=context)
+
+    
+    return Response({'success': 'Bad request'})
+
 @api_view(['POST', 'GET'])
 def getPMs(request):
     company_id = request.POST.get('company_id', None)
     platform = request.POST.get('platform', None)
+    timezone_s = request.POST.get('timezone', 'UTC')
     if not all([company_id,platform]):
         return Response({'error': 'Bad request'})
-    return Response({'success': 'Bad request'})
+    if platform == 'reddit':
+        cp=Company.objects.filter(company_id=company_id).first()
+        if not cp:
+            return Response({'error': 'Bad request'})
+        cr=CompanyReddit.objects.filter(company=cp).first()
+        if not cr:
+            return Response({'error': 'Bad request'})
+        reddit = praw.Reddit(
+                client_id=settings.REDDIT_CLIENT_ID,
+                client_secret=settings.REDDIT_CLIENT_SECRET,
+                user_agent=settings.REDDIT_USER_AGENT,
+                refresh_token=cr.refresh_token,
+            )
+        senders=[]
+        
+        for message in reddit.inbox.messages():
+                senders.append({
+                    'sender':message.author.name,
+                    # 'sender_pp':message.author.icon_img ,
+                    'conv_id':message.id,
+                    'message':message.body,
+                    'platform':'reddit',
+                    'updated_time':format_datetime(datetime_str=message.created_utc,timezone_str=timezone_s,platform=platform)
+                })
+
+        request.session['red_convos']=senders
+        context={'senders':senders}
+        return render(request, 'dashboard.html', context=context)
+    elif platform == 'facebook':
+        cp=Company.objects.filter(company_id=company_id).first()
+        if not cp:
+            return Response({'error': 'Bad request'})
+        cfb=CompanyFacebook.objects.filter(company=cp).first()
+        if not cfb:
+            return Response({'error': 'Bad request'})
+        
+        def getconvs():
+
+            url = f"https://graph.facebook.com/v21.0/{cfb.page_id}/conversations"
+            params = {"access_token": cfb.page_access_token,"fields":'senders,id,updated_time','platform':'messenger'}
+            response = requests.get(url, params=params)
+            conversations = response.json()['data']
+            
+            cpc=CompanyPrivateConversation.objects.filter(platform='facebook')
+            if cpc:
+                for c in conversations:
+                    sendr=c['senders']['data'][0]
+                    cpk=cpc.filter(conversation_id=c['id']).first()
+                    if not cpk:
+                        utc_datetime = datetime.strptime(c['updated_time'], "%Y-%m-%dT%H:%M:%S%z")
+                        cpk=CompanyPrivateConversation(
+                            company=cp,
+                            sender=sendr['name'],
+                            last_message_time=utc_datetime,
+                            platform='facebook',
+                            conversation_id=c['id']
+                        )
+                        cpk.save()
+            else:
+                for c in conversations:
+                    sendr=c['senders']['data'][0]
+                    utc_datetime = datetime.strptime(c['updated_time'], "%Y-%m-%dT%H:%M:%S%z")
+                    cpc=CompanyPrivateConversation(
+                        company=cp,
+                        sender=sendr['name'],
+                        last_message_time=utc_datetime,
+                        platform='facebook',
+                        conversation_id=c['id']
+                    )
+                    cpc.save()
+
+        conv=CompanyPrivateConversation.objects.filter(platform='facebook')
+        if conv:
+            cnvThread=threading.Thread(target=getconvs,daemon=True)
+            cnvThread.start()
+        else:
+            getconvs()
+        senders=[]
+        
+        for co in conv:
+            senders.append({
+                'sender':co.sender,
+                'conv_id':co.conversation_id,
+                'platform':'facebook',
+                'updated_time':format_datetime(datetime_str=co.last_message_time,timezone_str=timezone_s,platform='facebook')
+            })        
+
+        context={'senders':senders}
+        return render(request, 'dashboard.html', context=context)
+
+    elif platform == 'instagram':
+        cp=Company.objects.filter(company_id=company_id).first()
+        if not cp:
+            return Response({'error': 'Bad request'})
+        cfb=CompanyFacebook.objects.filter(company=cp).first()
+        if not cfb:
+            return Response({'error': 'Bad request'})
+        cig=CompanyInstagram.objects.filter(company=cp).first()
+        if not cig:
+            return Response({'error': 'Bad request'})
+        print('cIG ID',cig.account_id)
+        # url =f"https://graph.instagram.com/v21.0/me/conversations"
+        url = f"https://graph.facebook.com/v21.0/{cfb.page_id}/conversations"
+        params = {"access_token": cfb.page_access_token,"fields":'ud,updated_time','platform':'instagram'}
+        response = requests.get(url, params=params)
+        conversations = response.content
+        # Print the response
+        conversations = response.json()['data']
+
+        senders=[]
+        def getSMes(con_id):
+            url = f"https://graph.facebook.com/v21.0/{con_id}"
+            params = {"access_token": cfb.page_access_token,"fields":'messages'}
+            response = requests.get(url, params=params)
+            msg_id = response.json()['messages']['data'][0]['id']
+            
+            url = f"https://graph.facebook.com/v21.0/{msg_id}"
+            params = {"access_token": cfb.page_access_token,"fields":'id,created_time,from,to,message'}
+            response = requests.get(url, params=params)
+            dt= response.json()
+            frm_uname =dt['from']['username']
+            frm_id = dt['from']['id']
+            to_uname=dt['to']['data'][0]['username']
+            return frm_uname if frm_id != cig.account_id else to_uname
+
+            
+        for c in conversations:
+            s_name=getSMes(c['id'])
+            senders.append({
+                'sender':s_name,
+                'conv_id':c['id'],
+                'platform':'instagram',
+                'updated_time':format_datetime(datetime_str=c['updated_time'],timezone_str=timezone_s,platform='facebook')
+            })
+        context={'senders':senders}
+        return render(request, 'dashboard.html', context=context)
+
+    return Response({'error': 'Bad request'})
     
 @api_view(['POST', 'GET'])
 def companyReviews(request):
@@ -592,7 +927,6 @@ def updatePosts(company_id):
 @api_view(['POST'])
 def fetchPosts(request):
     company_id = request.POST.get('company_id', None)
-
     if not company_id:
         return Response({'error': 'Bad request'})
     cp = Company.objects.filter(company_id=company_id).first()
@@ -3826,7 +4160,7 @@ def get_instagram_auth_url(company_id):
         f"https://www.facebook.com/v21.0/dialog/oauth"
         f"?client_id={settings.INSTAGRAM_CLIENT_ID}"
         f"&redirect_uri={settings.INSTAGRAM_REDIRECT_URI}"
-        f"&scope=read_insights,business_management,instagram_basic,instagram_manage_comments,instagram_manage_insights,instagram_content_publish,instagram_manage_messages,pages_read_engagement,pages_manage_engagement"
+        f"&scope=read_insights,business_management,instagram_basic,instagram_manage_comments,instagram_manage_insights,instagram_content_publish,instagram_manage_messages,pages_read_engagement,pages_manage_engagement,pages_manage_metadata"
         f"&state={state}"
     )
     return oauth_url
@@ -3845,7 +4179,7 @@ def get_facebook_auth_url(company_id):
         f"https://www.facebook.com/v21.0/dialog/oauth"
         f"?client_id={settings.FACEBOOK_APP_ID}"
         f"&redirect_uri={settings.FACEBOOK_REDIRECT_URI}"
-        f"&scope=pages_show_list,pages_manage_posts,pages_read_engagement,pages_manage_engagement,business_management,pages_manage_metadata,pages_messaging,pages_read_user_content,read_insights"
+        f"&scope=pages_show_list,pages_manage_posts,pages_read_engagement,pages_manage_engagement,business_management,pages_manage_metadata,pages_messaging,pages_read_user_content,read_insights,instagram_manage_messages,pages_manage_metadata,instagram_basic"
         f"&state={state}"
     )
     return oauth_url
@@ -4062,6 +4396,7 @@ def get_facebook_page_insights(access_token, page_id, **kwargs):
 
     response = requests.get(url, params=params)
     profile_info = response.json()
+    print(profile_info)
 
     url2 = f"https://graph.facebook.com/v21.0/{page_id}/insights"
     params2 = {
@@ -4071,25 +4406,28 @@ def get_facebook_page_insights(access_token, page_id, **kwargs):
     }
 
     response = requests.get(url2, params=params2)
+    
     page_insights = response.json()
+    print(response.json())
     page_impress=0
     page_fans=0
     page_vws=0
-    for pg in page_insights.get('data'):
-        pim=pg.get('name')
-        if pim == 'page_impressions':
-            prd=pg.get('period')
-            vll=pg.get('values')[-1].get('value')
-            page_impress=vll
-            
-        if pim == 'page_views_total':
-            vll=pg.get('values')[-1].get('value')
-            page_vws=vll
-            
-        if pim == 'page_fans':
-            vll=pg.get('values')[-1].get('value')
-            page_fans=vll
-    
+    if page_insights:
+        for pg in page_insights.get('data'):
+            pim=pg.get('name')
+            if pim == 'page_impressions':
+                prd=pg.get('period')
+                vll=pg.get('values')[-1].get('value')
+                page_impress=vll
+                
+            if pim == 'page_views_total':
+                vll=pg.get('values')[-1].get('value')
+                page_vws=vll
+                
+            if pim == 'page_fans':
+                vll=pg.get('values')[-1].get('value')
+                page_fans=vll
+        
     # print(page_insights.get('data').get('page_fans'))
     vl_id=kwargs.get('company_id',None)
     if vl_id:
@@ -4154,7 +4492,6 @@ def facebook_callback(request):
     pg_id = get_facebook_ig_page_id(access_token)
     l_lived_token = get_long_lived_token(access_token)
     cf = CompanyFacebook.objects.filter(company=cm).first()
-    insgts = get_facebook_page_insights(access_token, pg_id)
     
     pages_url = f"https://graph.facebook.com/v21.0/me/accounts"
     headers = {"Authorization": f"Bearer {access_token}"}
@@ -4167,6 +4504,8 @@ def facebook_callback(request):
     page = pages_data['data'][0]
     page_id = page.get('id')
     page_access_token = page.get('access_token')
+    insgts = get_facebook_page_insights(page_access_token, pg_id)
+
     if cf:
         cf.short_lived_token = access_token
         cf.account_id = pg_id
@@ -4626,7 +4965,7 @@ def updateFlairs(request):
 
 def reddit_auth_link(company_id):
     state = urllib.parse.quote_plus(str(company_id))  # Ensure URL encoding for special characters
-    authorization_url = reddit.auth.url(['identity', 'submit', 'read', 'mysubreddits', 'flair',"history",'modposts','vote','edit'], state=state,
+    authorization_url = reddit.auth.url(['identity', 'submit', 'read', 'mysubreddits', 'flair',"history",'modposts','vote','edit','privatemessages'], state=state,
                                         duration='permanent', )
     return authorization_url
 

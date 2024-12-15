@@ -14,6 +14,10 @@ admin.site.register(CompanyTeamFiles)
 admin.site.register(CompanyTeamAnnouncements)
 admin.site.register(CompanyKnowledgeBase)
 
+# PM
+admin.site.register(CompanyPrivateConversation)
+admin.site.register(ConversationMessages)
+
 
 # socials
 admin.site.register(CompanyInstagram)

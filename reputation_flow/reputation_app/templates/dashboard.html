@@ -167,8 +167,13 @@
             border: #1dcd52 solid 1px;
 
         }
+
         .pm-chat-item:hover {
-            background: #f9f9f9 ;
+            background: #f9f9f9;
+        }
+
+        .pm-chat-active {
+            background: #f9f9f9;
         }
 
         @keyframes fadeIn {
@@ -4244,193 +4249,72 @@
                             {% endif %}
                         </div>
                         <div id="pm-inbox"
-                            style="display: none;width: 100%;justify-content: space-between;height: 100%;">
+                            style="display: none;width: 100%;justify-content: space-between;height: 100%;border-radius: 15px;">
                             <div
-                                style="width: 30%;background-color: rgb(242, 240, 240);height: 100%;">
+                                style="width: 30%;background-color: rgb(242, 240, 240);height: 100%;  border-top-left-radius: 10px; border-bottom-left-radius: 10px;">
                                 <div style="display: flex; justify-content: space-between;padding: 10px;">
                                     <p style="cursor: pointer;" id="pm-back-platforms"><i class="fa fa-caret-left"></i>
                                         Back</p>
                                     <p><i class="fa fa-facebook" id="pm-icon"></i></p>
                                 </div>
-                                <div style="overflow-y: scroll;height: 85%;">
-                                    <div class="pm-chat-item"
+                                <div style="overflow-y: scroll;height: 85%;background-color: rgb(225, 236, 231);">
+                                    {% if senders|length == 0 %}
+                                    {% else %}
+                                    {% for s in senders %}
+                                    <div class="pm-chat-item" data-conv_id="{{ s.conv_id }}"
+                                        data-platform=" {{ s.platform }}"
                                         style="display: flex; justify-content: space-between;padding: 10px;">
                                         <div style="display: flex; gap: 5px;">
-                                            <img src="{% static 'images/facebook_logo.png' %}" alt=""
-                                                style="width: 30px;height: 30px;">
-                                            <p class="zero-padding-margin font-12" style="text-overflow: ellipsis;white-space: nowrap;width:120px;overflow: hidden;cursor: default; ">User gfvhgvgh ghvhgvhg
-                                                </p>
+                                            <div
+                                                style="width: 20px;height: 20px;border-radius: 100%;background-color: #012a37;">
+                                            </div>
+                                            <p class="zero-padding-margin"
+                                                style="text-overflow: ellipsis;white-space: nowrap;width:120px;overflow: hidden;cursor: default; ">
+                                                {{ s.sender }}
+                                            </p>
 
                                         </div>
                                         <div style="display: flex;gap: 5px;align-items: center;">
-                                            <p class="zero-padding-margin" style="font-size: 10px;cursor: default;">14/Oct/23 12:13pm</p>
+                                            <p class="zero-padding-margin" style="font-size: 10px;cursor: default;">
+                                                {{ s.updated_time }}</p>
                                             <i class="fa fa-caret-right"></i>
                                         </div>
                                     </div>
-                                    <div class="pm-chat-item"
-                                        style="display: flex; justify-content: space-between;padding: 10px;">
-                                        <div style="display: flex; gap: 5px;">
-                                            <img src="{% static 'images/facebook_logo.png' %}" alt=""
-                                                style="width: 30px;height: 30px;">
-                                            <p class="zero-padding-margin font-12" style="text-overflow: ellipsis;white-space: nowrap;width:120px;overflow: hidden;cursor: default; ">User gfvhgvgh ghvhgvhg
-                                                </p>
-
-                                        </div>
-                                        <div style="display: flex;gap: 5px;align-items: center;">
-                                            <p class="zero-padding-margin" style="font-size: 10px;cursor: default;">14/Oct/23 12:13pm</p>
-                                            <i class="fa fa-caret-right"></i>
-                                        </div>
-                                    </div>
-                                    <div class="pm-chat-item"
-                                        style="display: flex; justify-content: space-between;padding: 10px;">
-                                        <div style="display: flex; gap: 5px;">
-                                            <img src="{% static 'images/facebook_logo.png' %}" alt=""
-                                                style="width: 30px;height: 30px;">
-                                            <p class="zero-padding-margin font-12" style="text-overflow: ellipsis;white-space: nowrap;width:120px;overflow: hidden;cursor: default; ">User gfvhgvgh ghvhgvhg
-                                                </p>
-
-                                        </div>
-                                        <div style="display: flex;gap: 5px;align-items: center;">
-                                            <p class="zero-padding-margin" style="font-size: 10px;cursor: default;">14/Oct/23 12:13pm</p>
-                                            <i class="fa fa-caret-right"></i>
-                                        </div>
-                                    </div>
-                                    <div class="pm-chat-item"
-                                        style="display: flex; justify-content: space-between;padding: 10px;">
-                                        <div style="display: flex; gap: 5px;">
-                                            <img src="{% static 'images/facebook_logo.png' %}" alt=""
-                                                style="width: 30px;height: 30px;">
-                                            <p class="zero-padding-margin font-12" style="text-overflow: ellipsis;white-space: nowrap;width:120px;overflow: hidden;cursor: default; ">User gfvhgvgh ghvhgvhg
-                                                </p>
-
-                                        </div>
-                                        <div style="display: flex;gap: 5px;align-items: center;">
-                                            <p class="zero-padding-margin" style="font-size: 10px;cursor: default;">14/Oct/23 12:13pm</p>
-                                            <i class="fa fa-caret-right"></i>
-                                        </div>
-                                    </div>
-                                    <div class="pm-chat-item"
-                                        style="display: flex; justify-content: space-between;padding: 10px;">
-                                        <div style="display: flex; gap: 5px;">
-                                            <img src="{% static 'images/facebook_logo.png' %}" alt=""
-                                                style="width: 30px;height: 30px;">
-                                            <p class="zero-padding-margin font-12" style="text-overflow: ellipsis;white-space: nowrap;width:120px;overflow: hidden;cursor: default; ">User gfvhgvgh ghvhgvhg
-                                                </p>
-
-                                        </div>
-                                        <div style="display: flex;gap: 5px;align-items: center;">
-                                            <p class="zero-padding-margin" style="font-size: 10px;cursor: default;">14/Oct/23 12:13pm</p>
-                                            <i class="fa fa-caret-right"></i>
-                                        </div>
-                                    </div>
-                                    <div class="pm-chat-item"
-                                        style="display: flex; justify-content: space-between;padding: 10px;">
-                                        <div style="display: flex; gap: 5px;">
-                                            <img src="{% static 'images/facebook_logo.png' %}" alt=""
-                                                style="width: 30px;height: 30px;">
-                                            <p class="zero-padding-margin font-12" style="text-overflow: ellipsis;white-space: nowrap;width:120px;overflow: hidden;cursor: default; ">User gfvhgvgh ghvhgvhg
-                                                </p>
-
-                                        </div>
-                                        <div style="display: flex;gap: 5px;align-items: center;">
-                                            <p class="zero-padding-margin" style="font-size: 10px;cursor: default;">14/Oct/23 12:13pm</p>
-                                            <i class="fa fa-caret-right"></i>
-                                        </div>
-                                    </div>
-                                    <div class="pm-chat-item"
-                                        style="display: flex; justify-content: space-between;padding: 10px;">
-                                        <div style="display: flex; gap: 5px;">
-                                            <img src="{% static 'images/facebook_logo.png' %}" alt=""
-                                                style="width: 30px;height: 30px;">
-                                            <p class="zero-padding-margin font-12" style="text-overflow: ellipsis;white-space: nowrap;width:120px;overflow: hidden;cursor: default; ">User gfvhgvgh ghvhgvhg
-                                                </p>
-
-                                        </div>
-                                        <div style="display: flex;gap: 5px;align-items: center;">
-                                            <p class="zero-padding-margin" style="font-size: 10px;cursor: default;">14/Oct/23 12:13pm</p>
-                                            <i class="fa fa-caret-right"></i>
-                                        </div>
-                                    </div>
-                                    <div class="pm-chat-item"
-                                        style="display: flex; justify-content: space-between;padding: 10px;">
-                                        <div style="display: flex; gap: 5px;">
-                                            <img src="{% static 'images/facebook_logo.png' %}" alt=""
-                                                style="width: 30px;height: 30px;">
-                                            <p class="zero-padding-margin font-12" style="text-overflow: ellipsis;white-space: nowrap;width:120px;overflow: hidden;cursor: default; ">User gfvhgvgh ghvhgvhg
-                                                </p>
-
-                                        </div>
-                                        <div style="display: flex;gap: 5px;align-items: center;">
-                                            <p class="zero-padding-margin" style="font-size: 10px;cursor: default;">14/Oct/23 12:13pm</p>
-                                            <i class="fa fa-caret-right"></i>
-                                        </div>
-                                    </div>
-                                    <div class="pm-chat-item"
-                                        style="display: flex; justify-content: space-between;padding: 10px;">
-                                        <div style="display: flex; gap: 5px;">
-                                            <img src="{% static 'images/facebook_logo.png' %}" alt=""
-                                                style="width: 30px;height: 30px;">
-                                            <p class="zero-padding-margin font-12" style="text-overflow: ellipsis;white-space: nowrap;width:120px;overflow: hidden;cursor: default; ">User gfvhgvgh ghvhgvhg
-                                                </p>
-
-                                        </div>
-                                        <div style="display: flex;gap: 5px;align-items: center;">
-                                            <p class="zero-padding-margin" style="font-size: 10px;cursor: default;">14/Oct/23 12:13pm</p>
-                                            <i class="fa fa-caret-right"></i>
-                                        </div>
-                                    </div>
-                                    <div class="pm-chat-item"
-                                        style="display: flex; justify-content: space-between;padding: 10px;">
-                                        <div style="display: flex; gap: 5px;">
-                                            <img src="{% static 'images/facebook_logo.png' %}" alt=""
-                                                style="width: 30px;height: 30px;">
-                                            <p class="zero-padding-margin font-12" style="text-overflow: ellipsis;white-space: nowrap;width:120px;overflow: hidden;cursor: default; ">User gfvhgvgh ghvhgvhg
-                                                </p>
-
-                                        </div>
-                                        <div style="display: flex;gap: 5px;align-items: center;">
-                                            <p class="zero-padding-margin" style="font-size: 10px;cursor: default;">14/Oct/23 12:13pm</p>
-                                            <i class="fa fa-caret-right"></i>
-                                        </div>
-                                    </div>
+                                    {% endfor %}
                                     <div style="display: flex;justify-content: center;">
                                         <p style="font-size: 10px;">End.</p>
                                     </div>
+
+                                    {% endif %}
 
                                 </div>
                             </div>
                             <div id="pm-messages" class="t-c"
                                 style="height: 100%;width: 70%;border: rgb(242, 240, 240) solid 1px;overflow-y: scroll;overflow-x: hidden">
                                 <div class="row clearfix" style="width: 100%;height: 100%;">
-                                    <div class="col-lg-12">
-                                        <div class=" chat-app">
-                                            <div class="chat" id="chat-box">
+                                    <div class="col-lg-12" style="width:100% ;">
+                                        <div class=" chat-app" style="width:100% ;">
+                                            <div class="chat" id="chat-box" style="width:100% ;">
                                                 {% if not pm_messages %}
                                                 <div class="chat-history " style="height: 30vh;">
-                                                    <p class="center-div">No chat selected
+                                                    <p class="center-div" id="pm-chat-info">No chat selected
                                                     </p>
                                                 </div>
                                                 {% else %}
-                                                <div class="chat-history">
-                                                    <ul id="chat-elem"
-                                                        style="height: 100%;overflow-y: scroll;overflow-x: hidden; ">
+                                                <div class="chat-history" style="width: 90%;">
+                                                    <ul id="pm-chat-elem"
+                                                        style="height: 66vh;overflow-y: scroll;overflow-x: hidden;width: 100%; ">
                                                         {% for chat_message in pm_messages %}
                                                         {% if not chat_message.me %}
                                                         <li class="clearfix">
                                                             <div class="message-data text-right">
                                                                 <span class="message-data-time">
                                                                     <strong>
-                                                                        {{ chat_message.sender.user.username}}
-                                                                    </strong>,
+                                                                        {{ chat_message.from }}
+                                                                    </strong>
                                                                     <!-- <span style="font-size: 12px;"
                                                                     class="success-flair">Supervisor</span> -->
                                                                 </span>
-                                                                {% if not chat_message.dp %}
-                                                                <img src="{% static 'images/default-avatar.avif' %}"
-                                                                    alt="avatar">
-                                                                {% else %}
-                                                                <img src="{{ chat_message.dp }}" alt="avatar">
-                                                                {% endif %}
 
                                                             </div>
                                                             <div class="message other-message float-right"
@@ -4461,18 +4345,53 @@
                                                     </ul>
                                                 </div>
                                                 <div class="chat-message zero-padding-margin"
-                                                    style="padding: 1px;width: 90%;position: fixed;bottom: 15px;">
+                                                    style="padding: 1px;position: fixed;bottom: 15px;width: 500px;">
                                                     <div class="input-group mb-0">
-                                                        <div class="input-group-prepend" id="send-chat">
-                                                            <span class="input-group-text"><i
-                                                                    class="fa fa-send"></i></span>
-                                                        </div>
-                                                        <input type="text" class="form-control" id="input-message"
-                                                            style="background-color: #d6d6d688;"
-                                                            placeholder="Enter text here...">
+                                                        <input type="text" class="form-control" id="reply-pm-message"
+                                                            data-conv_id=""
+                                                            style="background-color: #d6d6d688;width: 50px;"
+                                                            placeholder="Enter text here..." reply>
                                                     </div>
+                                                    <div class="input-group-prepend">
+                                                        <span class="input-group-text"><i class="fa fa-send"></i></span>
+                                                    </div>
+
                                                 </div>
                                                 {% endif %}
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                        <div id="pm-inbox-wait"
+                            style="display: none;width: 100%;justify-content: space-between;height: 100%;border-radius: 15px;">
+                            <div
+                                style="width: 30%;background-color: rgb(242, 240, 240);height: 100%;  border-top-left-radius: 10px; border-bottom-left-radius: 10px;">
+                                <div style="display: flex; justify-content: space-between;padding: 10px;">
+                                    <p style="cursor: pointer;" id="pm-back-platforms"><i class="fa fa-caret-left"></i>
+                                        Back</p>
+                                    <p><i class="fa fa-facebook" id="pm-icon-wait"></i></p>
+                                </div>
+                                <div style="overflow-y: scroll;height: 85%;background-color: rgb(225, 236, 231);">
+                                    <div style="display: flex;justify-content: center;margin-top: 15%;">
+                                        <i class="fa fa-spinner fa-spin"></i>
+                                    </div>
+
+                                </div>
+                            </div>
+                            <div id="pm-messages" class="t-c"
+                                style="height: 100%;width: 70%;border: rgb(242, 240, 240) solid 1px;overflow-y: scroll;overflow-x: hidden">
+                                <div class="row clearfix" style="width: 100%;height: 100%;">
+                                    <div class="col-lg-12">
+                                        <div class=" chat-app">
+                                            <div class="chat" id="chat-box">
+                                                <div class="chat-history " style="height: 30vh;">
+                                                    <p class="center-div">No chat selected
+                                                    </p>
+                                                </div>
 
                                             </div>
                                         </div>
@@ -6911,22 +6830,80 @@
 
                 $(document).on('click', '.pm-box', function () {
                     var platform = $(this).data('platform');
+                    $('#pm-icon-wait').hide();
+                    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+                    // fetch data in the server 
+                    var formData = new FormData();
+                    var csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                    formData.append('company_id', '{{ company_id }}');
+                    formData.append('platform', platform);
+                    formData.append('timezone', timezone);
+
                     $('#pm-container').css('display', 'none');
-                    $('#pm-inbox').css('display', 'flex');
-                    var icn_type = $('#pm-icon');
-                    icn_type.removeClass();
-                    switch (platform) {
-                        case 'facebook':
-                            icn_type.addClass('fa fa-facebook');
-                            break;
-                        case 'instagram':
-                            icn_type.addClass('fa fa-instagram');
-                            break;
-                        case 'reddit':
-                            icn_type.addClass('fa fa-reddit');
-                            break;
-                    }
-                    // alert(platform);
+                    $('#pm-inbox').css('display', 'none');
+                    $('#pm-inbox-wait').css('display', 'flex');
+
+                    // Send the form data via AJAX
+                    $.ajax({
+                        url: '{% url "get_pms" %}', // Replace with your Django endpoint URL
+                        type: 'POST',
+                        headers: {
+                            'X-CSRFToken': csrfToken
+                        },
+                        data: formData,
+                        processData: false, // Prevent jQuery from processing the data
+                        contentType: false, // Prevent jQuery from setting the content type
+                        success: function (response) {
+                            if (response['error']) {
+                                toastr.error(response['error']);
+                                $('#pm-container').css('display', 'block');
+                                $('#pm-inbox').css('display', 'none');
+                                $('#pm-inbox-wait').css('display', 'none');
+                            } else {
+                                toastr.success('success');
+
+                                // alert(platform);
+
+                                // update html
+                                var tempDiv = $('<div>').html(response);
+                                // Extract the specific element from the new HTML
+                                var newElementContent = tempDiv.find('#pm-inbox').html();
+
+                                $('#pm-inbox').html(newElementContent);
+                                // initializeMultiSelect();
+                                var icn_type = $('#pm-icon');
+                                icn_type.removeClass();
+                                switch (platform) {
+                                    case 'facebook':
+                                        icn_type.addClass('fa fa-facebook');
+                                        break;
+                                    case 'instagram':
+                                        icn_type.addClass('fa fa-instagram');
+                                        break;
+                                    case 'reddit':
+                                        icn_type.addClass('fa fa-reddit');
+                                        break;
+                                }
+
+                                $('#pm-container').css('display', 'none');
+                                $('#pm-inbox').css('display', 'flex');
+                                $('#pm-inbox-wait').css('display', 'none');
+
+                                return;
+                            }
+                        },
+                        error: function (jqXHR, textStatus, errorThrown) {
+                            toastr.error('Failed to get messages.');
+                            $('#pm-container').css('display', 'block');
+                            $('#pm-inbox').css('display', 'none');
+                            $('#pm-inbox-wait').css('display', 'none');
+                            console.error(textStatus, errorThrown);
+                        }
+                    });
+
+
+
                 });
                 $(document).on('click', '#pm-back-platforms', function () {
                     $('#pm-container').css('display', 'block');
@@ -6935,6 +6912,70 @@
                     // alert(platform);
                 });
 
+                $(document).on('click', '.pm-chat-item', function () {
+                    $('.pm-chat-item').each(function () {
+                        $(this).removeClass('pm-chat-active');
+                    })
+                    $(this).addClass('pm-chat-active');
+                    var conv_id = $(this).data('conv_id');
+                    var platform = $(this).data('platform');
+                    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+                    // fetch data in the server 
+                    var formData = new FormData();
+                    var csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                    formData.append('company_id', '{{ company_id }}');
+                    formData.append('platform', platform);
+                    formData.append('timezone', timezone);
+                    formData.append('conv_id', conv_id);
+
+                    $('#pm-chat-info').text('Loading conversation...')
+                    // Send the form data via AJAX
+                    $.ajax({
+                        url: '{% url "get_messages" %}', // Replace with your Django endpoint URL
+                        type: 'POST',
+                        headers: {
+                            'X-CSRFToken': csrfToken
+                        },
+                        data: formData,
+                        processData: false, // Prevent jQuery from processing the data
+                        contentType: false, // Prevent jQuery from setting the content type
+                        success: function (response) {
+                            if (response['error']) {
+                                toastr.error(response['error']);
+                                $('#pm-chat-info').text('Failed to load')
+
+                            } else {
+                                toastr.success('success');
+                                $('#pm-chat-info').text('Conversations empty')
+                                // alert(platform);
+
+                                // update html
+                                var tempDiv = $('<div>').html(response);
+                                // Extract the specific element from the new HTML
+                                var newElementContent = tempDiv.find('#pm-messages').html();
+
+                                $('#pm-messages').html(newElementContent);
+                                // initializeMultiSelect();
+                                setTimeout(function () {
+                                    var scrollableDiv = $('#pm-chat-elem');
+                                    scrollableDiv.scrollTop(scrollableDiv[0].scrollHeight);
+                                    return;
+                                }, 2)
+
+                                return;
+                            }
+                        },
+                        error: function (jqXHR, textStatus, errorThrown) {
+                            toastr.error('Failed to get messages.');
+                            $('#pm-chat-info').text('Failed to load')
+                            console.error(textStatus, errorThrown);
+                        }
+                    });
+
+
+
+                });
 
                 // ---------------------------------REVIEWS-------------------------------------- 
                 $(document).on('click', '#apply-filters', function () {
@@ -7333,6 +7374,8 @@
 
                 $(document).on('scrollToBottom', function () {
                     var scrollableDiv = $('#chat-elem');
+                    scrollableDiv.scrollTop(scrollableDiv[0].scrollHeight);
+                    var scrollableDiv = $('#pm-chat-elem');
                     scrollableDiv.scrollTop(scrollableDiv[0].scrollHeight);
                 });
                 function sendMessage() {

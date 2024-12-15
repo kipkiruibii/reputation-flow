@@ -29,6 +29,10 @@ urlpatterns=[
     path('get_reviews/',views.companyReviews,name='get_reviews'),
     # fetch private messages
     path('get_pms/',views.getPMs,name='get_pms'),
+    # fetch private messages from conversation id
+    path('get_messages/',views.getMessages,name='get_messages'),
+    # reply private messages from conversation id
+    path('reply_pm/',views.replyPM,name='reply_pm'),
         
     # instagram
     path('instagram-callback/',views.instagram_callback,name='instagram_callback'),
