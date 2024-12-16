@@ -2,3 +2,4 @@
 venv
 config.json
 reputation_flow/reputation_app/test.py
+reputation_flow/db.sqlite3

@@ -3690,32 +3690,6 @@
                                                             {{ tf.creator_id }}
                                                         </p>
                                                     </div>
-                                                    <div>
-                                                        <!-- <span style="font-size: 12px;">Status</span> -->
-
-                                                        {% if tf.sent_drafts %}
-                                                        <p class="pending-flair"
-                                                            style="margin-left: 20px;font-size: 12px;">
-                                                            In
-                                                            Queue
-                                                        </p>
-                                                        {% elif tf.not_sent %}
-                                                        <p class="not-sent-flair"
-                                                            style="margin-left: 20px;font-size: 12px;">
-                                                            Not Sent
-                                                        </p>
-                                                        {% elif tf.sent_back %}
-                                                        <p class="warning-flair"
-                                                            style="margin-left: 20px;font-size: 12px;">
-                                                            Sent Back
-                                                        </p>
-                                                        {% else %}
-                                                        <p class="success-flair"
-                                                            style="margin-left: 20px;font-size: 12px;">
-                                                            Approved
-                                                        </p>
-                                                        {% endif %}
-                                                    </div>
                                                 </div>
                                                 <hr class="zero-padding-margin" style="height: 1px;">
                                                 <div>
@@ -4112,12 +4086,11 @@
                                         </div>
 
                                     </div>
-                                    <div
-                                        style="border-radius: 100%;background-color: #013653;width: 30px;height: 30px;align-items: center;display: flex;justify-content: center;">
-                                        <p
-                                            style="margin: auto;color: white;padding: 5px;font-size: 12px;font-weight: bold;">
-                                            12</p>
-                                    </div>
+                                    <p
+                                        style="color: #013653;padding: 5px;font-size: 15px;font-weight: bold;align-items: center;height: 100%;">
+                                        <i class="fa fa-caret-right"></i>
+                                    </p>
+
 
                                 </div>
                                 {% else %}
@@ -4151,12 +4124,11 @@
                                         </div>
 
                                     </div>
-                                    <div
-                                        style="border-radius: 100%;background-color: #013653;width: 30px;height: 30px;align-items: center;display: flex;justify-content: center;">
-                                        <p
-                                            style="margin: auto;color: white;padding: 5px;font-size: 12px;font-weight: bold;">
-                                            12</p>
-                                    </div>
+                                    <p
+                                        style="color: #013653;padding: 5px;font-size: 15px;font-weight: bold;align-items: center;height: 100%;">
+                                        <i class="fa fa-caret-right"></i>
+                                    </p>
+
 
                                 </div>
                                 {% else %}
@@ -4171,7 +4143,7 @@
                                 </div>
                                 {% endif %}
                                 {% if reddit.linked %}
-                                <div style="width: 100%;display: flex;justify-content: space-between;padding: 10px;border-radius: 10px;margin: 10px;"
+                                <div style="width: 100%;display: flex;justify-content: space-between;padding: 10px;border-radius: 10px;margin: 10px;align-content: center;"
                                     class="bx-shadow pm-box" data-platform="reddit">
                                     <div style="display: flex;gap: 15px;">
                                         <img src="{{ reddit.profile }}"
@@ -4190,12 +4162,10 @@
                                         </div>
 
                                     </div>
-                                    <div
-                                        style="border-radius: 100%;background-color: #013653;width: 30px;height: 30px;align-items: center;display: flex;justify-content: center;">
-                                        <p
-                                            style="margin: auto;color: white;padding: 5px;font-size: 12px;font-weight: bold;">
-                                            12</p>
-                                    </div>
+                                    <p
+                                        style="color: #013653;padding: 5px;font-size: 15px;font-weight: bold;align-items: center;height: 100%;">
+                                        <i class="fa fa-caret-right"></i>
+                                    </p>
 
                                 </div>
                                 {% else %}
@@ -4211,42 +4181,6 @@
                                 {% endif %}
 
                             </div>
-                            {% if not drafts %}
-                            <!-- <div class="center-div" style="margin-top: 15%;">
-                                <p>There is no content to review.</p>
-                            </div> -->
-                            {% else %}
-                            {% for d in drafts %}
-                            <div class="review-item">
-                                <h5><span style="font-size: 12px;">from</span> Ran Blon <span
-                                        style="font-size: 12px;font-weight: normal;background-color: rgb(216, 251, 239);color: rgb(8, 192, 131);padding: 5px;border-radius:5px ;">Graphic
-                                        Designers Team
-                                    </span> </h5>
-                                <p>Attached files(1)</p>
-                                <p style="padding-left: 10px;">Please fix the error with paypal info
-                                </p>
-                                <div style="display: flex;justify-content: space-between;margin-top: 20px;">
-                                    <p style="font-size: 12px;padding: 0;margin: 0;">2nd October 2024</p>
-                                    <div class="review-bar"
-                                        style="display:flex;gap: 20px;font-size: 12px;margin-left:20%;margin-right:20%">
-                                        <p style="cursor: pointer;"
-                                            tooltip="Send the files back and request modifications" flow="up"><i
-                                                class="fa fa-reply" aria-hidden="true"></i> Request Changes
-                                        </p>
-                                        <p style="cursor: pointer;" tooltip="Download file for review" flow="up"><i
-                                                class="fa fa-download"></i> Download
-                                        </p>
-                                        <p style="cursor: pointer;" tooltip="Use the file in a new post" flow="up"><i
-                                                class="fa fa-share"></i> Approve & Post
-                                        </p>
-
-                                    </div>
-                                </div>
-
-                                <hr>
-                            </div>
-                            {% endfor %}
-                            {% endif %}
                         </div>
                         <div id="pm-inbox"
                             style="display: none;width: 100%;justify-content: space-between;height: 100%;border-radius: 15px;">
@@ -4262,7 +4196,7 @@
                                     {% else %}
                                     {% for s in senders %}
                                     <div class="pm-chat-item" data-conv_id="{{ s.conv_id }}"
-                                        data-platform=" {{ s.platform }}"
+                                        data-sender_id="{{ s.sender_id }}" data-platform=" {{ s.platform }}"
                                         style="display: flex; justify-content: space-between;padding: 10px;">
                                         <div style="display: flex; gap: 5px;">
                                             <div
@@ -4318,7 +4252,7 @@
 
                                                             </div>
                                                             <div class="message other-message float-right"
-                                                                style="padding-bottom: 10px;">
+                                                                style="padding: 10px;">
                                                                 {{chat_message.message }}
                                                                 <p class="zero-padding-margin font-12">
                                                                     {{ chat_message.date_sent }}
@@ -4345,15 +4279,29 @@
                                                     </ul>
                                                 </div>
                                                 <div class="chat-message zero-padding-margin"
-                                                    style="padding: 1px;position: fixed;bottom: 15px;width: 500px;">
+                                                    style="padding: 1px;position: fixed;bottom: 15px;margin-right:10px;margin-left:10px;display: flex;justify-content: center;width: 50vw;">
                                                     <div class="input-group mb-0">
-                                                        <input type="text" class="form-control" id="reply-pm-message"
-                                                            data-conv_id=""
-                                                            style="background-color: #d6d6d688;width: 50px;"
-                                                            placeholder="Enter text here..." reply>
-                                                    </div>
-                                                    <div class="input-group-prepend">
-                                                        <span class="input-group-text"><i class="fa fa-send"></i></span>
+                                                        {% if pm_reply_supported %}
+                                                        <textarea class="form-control" id="reply-pm-message"
+                                                            style="background-color: #d6d6d688;width: 80%;border-top-left-radius: 10px;border-bottom-left-radius: 10px;"
+                                                            rows="1" placeholder="Type your reply..."></textarea>
+                                                        {% else %}
+                                                        <textarea class="form-control" id="reply-pm-message"
+                                                            style="background-color: #d6d6d688;width: 80%;border-top-left-radius: 10px;border-bottom-left-radius: 10px;"
+                                                            rows="1"
+                                                            placeholder="Reply not allowed. Use the official site/app."
+                                                            disabled></textarea>
+                                                        {% endif %}
+                                                        <div class="input-group-prepend">
+                                                            <span class="input-group-text"
+                                                                style="border-top-right-radius: 10px;border-bottom-right-radius: 10px;background-color: #013639;"><i
+                                                                    id="pm-reply-button"
+                                                                    data-conv_id="{{ conversation_id }}"
+                                                                    data-recipient_id="{{ pm_recipient_id }}"
+                                                                    data-platform="{{ pm_platform }}" class="fa fa-send"
+                                                                    style="color: white;"></i></span>
+                                                        </div>
+
                                                     </div>
 
                                                 </div>
@@ -5648,7 +5596,7 @@
                                                                     <p>Impressions:</p>
                                                                     <h6 class="font-weight-bolder"
                                                                         id="fb-impressions-{{p.post_id}}">
-                                                                        }
+
                                                                     </h6>
 
                                                                 </div>
@@ -6861,8 +6809,6 @@
                                 $('#pm-inbox').css('display', 'none');
                                 $('#pm-inbox-wait').css('display', 'none');
                             } else {
-                                toastr.success('success');
-
                                 // alert(platform);
 
                                 // update html
@@ -6890,6 +6836,7 @@
                                 $('#pm-inbox').css('display', 'flex');
                                 $('#pm-inbox-wait').css('display', 'none');
 
+                                // start loop to query conversations
                                 return;
                             }
                         },
@@ -6911,13 +6858,13 @@
 
                     // alert(platform);
                 });
-
                 $(document).on('click', '.pm-chat-item', function () {
                     $('.pm-chat-item').each(function () {
                         $(this).removeClass('pm-chat-active');
                     })
                     $(this).addClass('pm-chat-active');
                     var conv_id = $(this).data('conv_id');
+                    var sender_id = $(this).data('sender_id');
                     var platform = $(this).data('platform');
                     const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
@@ -6928,6 +6875,7 @@
                     formData.append('platform', platform);
                     formData.append('timezone', timezone);
                     formData.append('conv_id', conv_id);
+                    formData.append('sender_id', sender_id);
 
                     $('#pm-chat-info').text('Loading conversation...')
                     // Send the form data via AJAX
@@ -6946,7 +6894,6 @@
                                 $('#pm-chat-info').text('Failed to load')
 
                             } else {
-                                toastr.success('success');
                                 $('#pm-chat-info').text('Conversations empty')
                                 // alert(platform);
 
@@ -6963,6 +6910,8 @@
                                     return;
                                 }, 2)
 
+                                // start a loop of querying the db
+
                                 return;
                             }
                         },
@@ -6976,6 +6925,70 @@
 
 
                 });
+                $(document).on('click', '#pm-reply-button', function () {
+                    var convers_id = $(this).data('conv_id');
+                    var recipient_id = $(this).data('recipient_id');
+                    var platform = $(this).data('platform');
+                    var input_text = $('#reply-pm-message').val();
+
+                    if (input_text == '') { return; }
+                    // send to the server
+                    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+                    var formData = new FormData();
+                    // Append other input fields to FormData
+                    var csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                    formData.append('conversation_id', convers_id);
+                    formData.append('message', input_text);
+                    formData.append('platform', platform);
+                    formData.append('recipient_id', recipient_id);
+                    formData.append('company_id', '{{ company_id }}');
+                    formData.append('timezone', timezone);
+                    $('#reply-pm-message').val('');
+
+                    // Send the form data via AJAX
+                    $.ajax({
+                        url: '{% url "reply_pm" %}', // Replace with your Django endpoint URL
+                        type: 'POST',
+                        headers: {
+                            'X-CSRFToken': csrfToken
+                        },
+                        data: formData,
+                        processData: false, // Prevent jQuery from processing the data
+                        contentType: false, // Prevent jQuery from setting the content type
+                        success: function (response) {
+                            if (response['error']) {
+                                toastr.error(response['error']);
+
+                            } else {
+                                toastr.success('sent');
+                                // update chats
+                                var tempDiv = $('<div>').html(response);
+                                // Extract the specific element from the new HTML
+                                var newElementContent = tempDiv.find('#pm-messages').html();
+
+                                $('#pm-messages').html(newElementContent);
+                                // initializeMultiSelect();
+                                setTimeout(function () {
+                                    var scrollableDiv = $('#pm-chat-elem');
+                                    scrollableDiv.scrollTop(scrollableDiv[0].scrollHeight);
+                                    return;
+                                }, 2)
+
+
+
+                            }
+                        },
+                        error: function (jqXHR, textStatus, errorThrown) {
+                            $(`#spin-${comment_id}`).css('display', 'none');
+                            toastr.error('Failed to get comments');
+                        }
+                    });
+
+
+
+                });
+
 
                 // ---------------------------------REVIEWS-------------------------------------- 
                 $(document).on('click', '#apply-filters', function () {
@@ -7640,7 +7653,51 @@
                     this.scrollIntoView({
                         behavior: 'smooth', // Smooth scrolling
                         block: 'start' // Align to the top of the viewport
+                    }); var formData = new FormData();
+                    // Append other input fields to FormData
+                    var csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                    formData.append('comment_id', comment_id);
+                    formData.append('company_id', '{{ company_id }}');
+
+                    // Send the form data via AJAX
+                    $.ajax({
+                        url: '{% url "get_comment_replies" %}', // Replace with your Django endpoint URL
+                        type: 'POST',
+                        headers: {
+                            'X-CSRFToken': csrfToken
+                        },
+                        data: formData,
+                        processData: false, // Prevent jQuery from processing the data
+                        contentType: false, // Prevent jQuery from setting the content type
+                        success: function (response) {
+                            if (response['error']) {
+
+                            } else {
+                                // update charts
+                                var tempDiv = $('<div>').html(response);
+                                // Extract the specific element from the new HTML
+
+                                var newElementContent = tempDiv.find(`#comment-reply-container-box-${comment_id}`).html();
+                                $(`#comment-reply-container-box-${comment_id}`).html(newElementContent);
+                                // initializeMultiSelect();
+                                $(`#spin-${comment_id}`).css('display', 'none');
+                                var repdisp = $(`#comment-reply-container-box-${comment_id}`).css('display');
+                                if (repdisp == 'block') {
+                                    $(`#comment-reply-container-box-${comment_id}`).css('display', 'none');
+                                }
+                                else {
+                                    $(`#comment-reply-container-box-${comment_id}`).css('display', 'block');
+                                }
+                            }
+                        },
+                        error: function (jqXHR, textStatus, errorThrown) {
+                            $(`#spin-${comment_id}`).css('display', 'none');
+                            toastr.error('Failed to get comments');
+                        }
                     });
+
+
+
                     setTimeout(() => {
                         window.scrollBy({
                             top: -800, // Move 800px upward

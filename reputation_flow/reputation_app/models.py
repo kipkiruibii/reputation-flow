@@ -234,6 +234,7 @@ class CompanyReddit(models.Model):
 class CompanyPrivateConversation(models.Model):
     company=models.ForeignKey(Company,on_delete=models.CASCADE)
     sender=models.CharField(max_length=255,null=True,blank=True)
+    sender_id=models.CharField(max_length=255,null=True,blank=True)
     sender_profile=models.TextField(default='')
     last_message_time=models.DateTimeField(default=timezone.now)
     platform=models.CharField(max_length=255,null=True,blank=True)
@@ -245,6 +246,7 @@ class ConversationMessages(models.Model):
     conversation_id=models.CharField(max_length=255,null=True,blank=True)
     message_id=models.CharField(max_length=255,null=True,blank=True)
     sender=models.CharField(max_length=255,null=True,blank=True)
+    sender_id=models.CharField(max_length=255,null=True,blank=True)
     message=models.TextField(default='')
     is_me=models.BooleanField(default=False)
     created_at=models.DateTimeField(default=timezone.now)
