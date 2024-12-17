@@ -1152,6 +1152,31 @@
             </div>
         </div>
     </div>
+    <!-- Delete uploaded team file Modal -->
+    <div class="modal fade" id="confirmModalTeamFileDeleteCenter" tabindex="-1" role="dialog"
+        aria-labelledby="exampleModalCenterTitle">
+        <div class="modal-dialog modal-dialog-centered " role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="confirmModalTeamFileDelete">Delete?</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p id="">Confirm permanent delete of this file .</p>
+                    <!-- You have not linked an Instagram account -->
+                </div>
+                <div class="modal-footer">
+                    <span style="color: rgb(255, 1, 1);" class="font-12"> This action cannot be undone</span>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" id="confirmModalDeleteTeamFileAction" class="btn btn-danger">Delete</button>
+                    <!-- <button type="button" class="btn btn-danger">Temporary Disable</button> -->
+
+                </div>
+            </div>
+        </div>
+    </div>
     <!-- upload business doc Modal -->
     <div class="modal fade" id="confirmModalUploadDocCenter" tabindex="-1" role="dialog"
         aria-labelledby="exampleModalCenterTitle">
@@ -3702,8 +3727,8 @@
                                                     <p class="mild-desc"
                                                         style="margin-left: 20px;font-size: 12px;font-weight: bold;">
                                                         {{ tf.date_created }}</p>
-                                                    <p class="zero-padding-margin pointer" tooltip="Permanently remove"
-                                                        flow="up"><i class="fa fa-trash"></i></p>
+                                                    <p class="zero-padding-margin pointer delete-team-file-btn" tooltip="Permanently remove"
+                                                        flow="up" data-file_id="{{ tf.id }}"><i class="fa fa-trash"></i></p>
                                                     <p class="zero-padding-margin pointer"
                                                         tooltip="Save to local storage" flow="up"><i
                                                             class="fa fa-download"></i></p>
@@ -3731,26 +3756,26 @@
                                             method="post" enctype="multipart/form-data">
                                             <div class="form-group">
                                                 <input type="text" class="form-control-input"
-                                                    placeholder="File Name/ Title" id="file-title"
+                                                    placeholder="File Name/ Title" id="team-file-title"
                                                     style="border: 1px solid #ced4da;border-radius:4px;width: 100%;box-sizing: border-box;background-color: white;font-size: 15px;padding-left:15px"
                                                     required>
                                             </div>
                                             <div class="form-group">
                                                 <textarea class="form-control-textarea" placeholder="Attachment notes"
                                                     style="border: 1px solid #ced4da;border-radius:4px;width:100%;box-sizing: border-box;background-color: white;font-size: 15px;padding-left:15px"
-                                                    id="file-notes" required></textarea>
+                                                    id="file-attachment-notes" required></textarea>
                                             </div>
 
                                             <div class="form-group" style="width: 95%;">
                                                 <label for="formFile" class="form-label">Upload file</label>
-                                                <input class="form-control" type="file" id="team-file">
+                                                <input class="form-control" type="file" id="team-upload-file">
                                             </div>
 
                                             <div>
                                                 <div class="form-group"
                                                     style="text-align:center;font-size:20px;align-items:center;margin-top:10px;margin-bottom:20px">
                                                     <a href="#" class=" btn-solid-sm" style="cursor:pointer"
-                                                        id="file-upload-btn">Done</a>
+                                                        id="file-upload-btn" data-team_id="{{ team_id }}">Done</a>
                                                 </div>
 
                                             </div>
@@ -3834,24 +3859,23 @@
                                         <p>There are no recent activities</p>
                                     </div>
                                     {% else %}
-                                    {% for ac in activities %}
                                     <div style="background-color: white;height: 90%;overflow-y: scroll;padding: 10px;">
+                                        {% for ac in activities %}
+
                                         <div style="margin-bottom: 15px;">
-                                            <div style="display: flex;gap: 10px;">
-                                                <div style="width: 20%;">
-                                                    <p class="font-12 mild-desc zero-padding-margin">{{ ac.date_created
-                                                        }}
-                                                    </p>
+                                            <div style="display: flex;gap:10px;">
+                                                <div style="width: 30%;">
                                                     <p class="font-12 zero-padding-margin mild-title">{{ ac.time_from }}
                                                     </p>
 
                                                 </div>
-                                                <p>{{ ac.title }}</p>
+                                                <p>{{ ac.title|safe }}</p>
                                             </div>
                                             <hr class="zero-padding-margin">
                                         </div>
+                                        {% endfor %}
+
                                     </div>
-                                    {% endfor %}
                                     {% endif %}
                                 </div>
                                 <!-- members -->
@@ -6178,12 +6202,14 @@
         <script>
             const multiSelectInstances = [];
 
+
             function initializeMultiSelect() {
-                multiSelectInstances.length = 0;
-                // document.querySelectorAll('[data-multi-select]').forEach(select => new MultiSelect(select));
+                const processedElements = new Set(multiSelectInstances.map(instance => instance.element));
                 document.querySelectorAll('[data-multi-select]').forEach(select => {
-                    const instance = new MultiSelect(select);
-                    multiSelectInstances.push(instance); // Store instance
+                    if (!processedElements.has(select)) {
+                        const instance = new MultiSelect(select);
+                        multiSelectInstances.push(instance);
+                    }
                 });
             }
 
@@ -6961,7 +6987,6 @@
                                 toastr.error(response['error']);
 
                             } else {
-                                toastr.success('sent');
                                 // update chats
                                 var tempDiv = $('<div>').html(response);
                                 // Extract the specific element from the new HTML
@@ -6981,7 +7006,7 @@
                         },
                         error: function (jqXHR, textStatus, errorThrown) {
                             $(`#spin-${comment_id}`).css('display', 'none');
-                            toastr.error('Failed to get comments');
+                            toastr.error('Failed to send');
                         }
                     });
 
@@ -8490,6 +8515,7 @@
                 $(document).on('click', '#generate-link-btn', function () {
                     $('.t-c').each(function () { $(this).css('display', 'none') });
                     $('#generate-link').css('display', 'block');
+                    initializeMultiSelect();
 
                 });
                 // generate-link-btn2
@@ -8541,7 +8567,6 @@
                                 var newElementContent = tempDiv.find('#teams-content').html();
 
                                 $('#teams-content').html(newElementContent);
-                                // initializeMultiSelect();
                                 $('#available-teams').css('display', 'none');
                                 $('#create-team-btn').css('display', 'none');
                                 $('#back-to-teams').css('display', 'block');
@@ -8564,8 +8589,125 @@
 
 
                 });
-                $(document).on('click', '#get_reviews', function () {
-                    alert('freeeze');
+                // add files
+                $(document).on('click', '#file-upload-btn', function () {
+                    var file_title = $('#team-file-title').val();
+                    if (file_title == '') {
+                        toastr.error('Title missing');
+                        return;
+                    }
+                    var file_notes = $('#file-attachment-notes').val();
+                    if (file_notes == '') {
+                        toastr.error('Attachment notes missing');
+                        return;
+                    }
+                    const fileInput = $('#team-upload-file');
+                    const file = fileInput[0].files[0];
+                    if (!file) {
+                        toastr.error('Please upload a file');
+                        return;
+                    }
+                    var team_id = $(this).data('team_id');
+                    // upload items to team
+                    var formData = new FormData();
+                    // Append other input fields to FormData
+                    var csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                    formData.append('company_id', '{{ company_id }}');
+                    formData.append('team_id', team_id);
+                    formData.append('file_title', file_title);
+                    formData.append('file_notes', file_notes);
+                    formData.append('file', file);
+                    $.ajax({
+                        url: '{% url "upload-team-file" %}', // Replace with your Django endpoint URL
+                        type: 'POST',
+                        headers: {
+                            'X-CSRFToken': csrfToken
+                        },
+                        data: formData,
+                        processData: false, // Prevent jQuery from processing the data
+                        contentType: false, // Prevent jQuery from setting the content type
+                        success: function (response) {
+                            if (response['error']) {
+                                toastr.error(response['error'])
+
+                            } else {
+                                toastr.success('File uploaded successfully.');
+                                // $('#train-doc-file').val('');
+                                // update html
+                                var tempDiv = $('<div>').html(response);
+
+                                // Extract the specific element from the new HTML
+                                var newElementContent = tempDiv.find('#teams-files').html();
+                                var newActivityContent = tempDiv.find('#teams-activity').html();
+                                
+                                $('#teams-files').html(newElementContent);
+                                $('#teams-activity').html(newActivityContent);
+                                // initializeMultiSelect();
+
+                                return;
+                            }
+                        },
+                        error: function (jqXHR, textStatus, errorThrown) {
+                            toastr.error('Failed to get the team.');
+                            console.error(textStatus, errorThrown);
+                        }
+                    });
+
+
+
+                });
+                // delete file btn
+                $(document).on('click', '.delete-team-file-btn', function () {
+                    var deleting_file=$(this).data('file_id');
+                    $('#confirmModalDeleteTeamFileAction').data('file_id',deleting_file);
+                    $('#confirmModalTeamFileDeleteCenter').modal('show');
+                });
+                // confirm delete file 
+                $(document).on('click', '#confirmModalDeleteTeamFileAction', function () {
+                    var deleting_file=$('#confirmModalDeleteTeamFileAction').data('file_id');
+                    $('#confirmModalTeamFileDeleteCenter').modal('hide');
+
+                    var formData = new FormData();
+                    // Append other input fields to FormData
+                    var csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                    formData.append('company_id', '{{ company_id }}');
+                    formData.append('file_id', deleting_file);
+                    $.ajax({
+                        url: '{% url "delete-team-file" %}', // Replace with your Django endpoint URL
+                        type: 'POST',
+                        headers: {
+                            'X-CSRFToken': csrfToken
+                        },
+                        data: formData,
+                        processData: false, // Prevent jQuery from processing the data
+                        contentType: false, // Prevent jQuery from setting the content type
+                        success: function (response) {
+                            if (response['error']) {
+                                toastr.error(response['error'])
+
+                            } else {
+                                toastr.success('File deleted successfully.');
+                                // $('#train-doc-file').val('');
+                                // update html
+                                var tempDiv = $('<div>').html(response);
+
+                                // Extract the specific element from the new HTML
+                                var newElementContent = tempDiv.find('#teams-files').html();
+                                var newActivityContent = tempDiv.find('#teams-activity').html();
+                                
+                                $('#teams-files').html(newElementContent);
+                                $('#teams-activity').html(newActivityContent);
+                                // initializeMultiSelect();
+
+                                return;
+                            }
+                        },
+                        error: function (jqXHR, textStatus, errorThrown) {
+                            toastr.error('Failed to delete the file');
+                            console.error(textStatus, errorThrown);
+                        }
+                    });
+
 
                 });
                 // view the team

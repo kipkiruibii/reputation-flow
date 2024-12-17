@@ -113,7 +113,7 @@ class CompanyTeamActivity(models.Model):
     date_created=models.DateTimeField(default=timezone.now)
     
     def __str__(self):
-        return self.team.team_name + ' TITLE '+ self.date_created
+        return self.team.team_name + ' TITLE '+ str(self.date_created)
                      
 class CompanyTeamChat(models.Model):
     team=models.ForeignKey(CompanyTeam,on_delete=models.CASCADE)

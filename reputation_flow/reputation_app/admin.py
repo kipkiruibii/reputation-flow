@@ -13,6 +13,8 @@ admin.site.register(CompanyTeamInviteLinks)
 admin.site.register(CompanyTeamFiles)
 admin.site.register(CompanyTeamAnnouncements)
 admin.site.register(CompanyKnowledgeBase)
+admin.site.register(UploadedFiles)
+admin.site.register(CompanyTeamActivity)
 
 # PM
 admin.site.register(CompanyPrivateConversation)

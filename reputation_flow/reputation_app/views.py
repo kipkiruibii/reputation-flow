@@ -41,6 +41,19 @@ import ffmpeg
 import os
 import pdfplumber
 import pytz
+import mimetypes
+
+# import magic 
+ALLOWED_MIME_TYPES = [
+    "image/jpeg", "image/png", "image/gif", "image/webp",
+    "video/mp4", "video/quicktime", "video/x-msvideo", "video/x-matroska", "video/webm",
+    "application/pdf", "application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    "application/vnd.ms-excel", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "application/vnd.ms-powerpoint", "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+    "text/plain"
+]
+
+
 # 1. Generate a State Token for CSRF protection
 def generate_state_token():
     return secrets.token_urlsafe(16)  # Generates a random URL-safe token
@@ -79,6 +92,7 @@ reddit = praw.Reddit(
     user_agent=settings.REDDIT_USER_AGENT,
     redirect_uri=settings.REDDIT_REDIRECT_URI  # This is required for OAuth2 flows.
 )
+
 
 def clean_html(input_html):
     # Sanitize the input HTML using Bleach
@@ -231,11 +245,11 @@ def loginUser(request):
 def getRedditSubFlairs(cid):
     cm = Company.objects.filter(company_id=cid).first()
     cr = CompanyReddit.objects.filter(company=cm).first()
-    
+
     if cr:
         reddit_subs = [s['sub'] for s in cr.subs]
-        lu=cr.last_updated
-        tn=(timezone.now()-lu).total_seconds()
+        lu = cr.last_updated
+        tn = (timezone.now() - lu).total_seconds()
         try:
             # check if there is a new sub,
             # if no new sub wait 1hour before updating the flairs 
@@ -247,7 +261,7 @@ def getRedditSubFlairs(cid):
                 refresh_token=cr.refresh_token,
             )
             for subreddit_name in reddit.user.subreddits(limit=None):
-                if tn <3600 and subreddit_name.display_name in reddit_subs:
+                if tn < 3600 and subreddit_name.display_name in reddit_subs:
                     continue
                 flair_options = []
                 vl = []
@@ -261,12 +275,12 @@ def getRedditSubFlairs(cid):
                                 'name': f['text'],
                                 'id': f['id'],
                                 'selected': False,
-                                
+
                             })
 
                 except Exception as e:
-                    flair_optional=True
-                    
+                    flair_optional = True
+
                 present = False
                 for sb in cr.subs:
                     if sb['sub'] == subreddit_name.display_name:
@@ -281,37 +295,39 @@ def getRedditSubFlairs(cid):
                         if not pres:
                             if vl:
                                 sb['flairs'].append(vl)
-                cr.last_updated=timezone.now()
+                cr.last_updated = timezone.now()
                 cr.save()
                 if not present:
                     cr.subs.append(
                         {
                             'sub': subreddit_name.display_name,
-                            'flair_optional':flair_optional,
+                            'flair_optional': flair_optional,
                             'flairs': vl
                         }
                     )
-                    print('saved llx',subreddit_name.display_name)
+                    print('saved llx', subreddit_name.display_name)
                     cr.save()
         except:
             pass
-def format_datetime(timezone_str,datetime_str,platform):
+
+
+def format_datetime(timezone_str, datetime_str, platform):
     # Sample data from AJAX
-    
+
     # Parse the datetime string
     # if platform.strip() == 'facebook':
-        # utc_datetime = datetime.strptime(datetime_str, "%Y-%m-%dT%H:%M:%S%z")
+    # utc_datetime = datetime.strptime(datetime_str, "%Y-%m-%dT%H:%M:%S%z")
     utc_datetime = datetime_str
     # if platform.strip() == 'reddit':
     #     utc_datetime = datetime.fromtimestamp(datetime_str,tz=timezone.utc)
     # Convert to the specified timezone
-   
+
     target_tz = pytz.timezone(timezone_str)
     local_datetime = utc_datetime.astimezone(target_tz)
-    
+
     # Get the current time in the same timezone
     now = datetime.now(target_tz)
-    
+
     # Format output based on date relation
     if local_datetime.date() == now.date():
         # Same day: "Today hh:mm AM/PM"
@@ -322,8 +338,9 @@ def format_datetime(timezone_str,datetime_str,platform):
     else:
         # Other dates: "day/date/month/year hh:mm AM/PM"
         formatted = local_datetime.strftime("%a/%d/%m/%Y %I:%M %p")
-    
+
     return formatted
+
 
 @api_view(['POST', 'GET'])
 def replyPM(request):
@@ -333,63 +350,47 @@ def replyPM(request):
     conv_id = request.POST.get('conversation_id', None)
     recipient_id = request.POST.get('recipient_id', None)
     message = request.POST.get('message', None)
-    if not all([company_id,platform,conv_id,message]):
+    if not all([company_id, platform, conv_id, message]):
         return Response({'error': 'Bad request'})
-    convs=[]
-    
+    convs = []
+
     if platform.strip() == 'instagram':
         pass
     if platform.strip() == 'facebook':
-        cp=Company.objects.filter(company_id=company_id).first()
+        cp = Company.objects.filter(company_id=company_id).first()
         if not cp:
             return Response({'error': 'Bad request'})
-        cfb=CompanyFacebook.objects.filter(company=cp).first()
+        cfb = CompanyFacebook.objects.filter(company=cp).first()
         if not cfb:
             return Response({'error': 'Bad request'})
-        cig=CompanyInstagram.objects.filter(company=cp).first()
+        cig = CompanyInstagram.objects.filter(company=cp).first()
         if not cig:
             return Response({'error': 'Bad request'})
         url = f"https://graph.facebook.com/v21.0/{cfb.page_id}/messages"
         params = {
             "access_token": cfb.page_access_token,
-            
+
         }
         data = {
-            "message": {'text':message},
+            "message": {'text': message},
             "recipient": {"id": recipient_id},
             "messaging_type": "RESPONSE",
         }
         # response = requests.get(url, params=params)
         response = requests.post(url, params=params, json=data)
-        if response.json().get('recipient_id',None):
+        if response.json().get('recipient_id', None):
             # grab items to refresh page
             url = f"https://graph.facebook.com/v21.0/{conv_id}/messages"
-            params = {"access_token": cfb.page_access_token,"fields": "message,from,created_time" }
+            params = {"access_token": cfb.page_access_token, "fields": "message,from,created_time"}
             response = requests.get(url, params=params)
             data = response.json()['data']
-            cnvm=ConversationMessages.objects.filter(conversation_id=conv_id)
+            cnvm = ConversationMessages.objects.filter(conversation_id=conv_id)
             if cnvm:
                 for c in data:
-                    cnvk=cnvm.filter(message_id=c['id']).first()
-                    f_id=c['from']['id']
+                    cnvk = cnvm.filter(message_id=c['id']).first()
+                    f_id = c['from']['id']
                     if not cnvk:
-                        cnvk=ConversationMessages(
-                                conversation_id=conv_id,
-                                message_id=c['id'],
-                                sender=c['from']['name'],
-                                sender_id=c['from']['id'],
-                                message=c['message'],
-                                is_me=f_id == cfb.account_id,
-                                created_at=datetime.strptime(c['created_time'], "%Y-%m-%dT%H:%M:%S%z")
-                        )
-                        cnvk.save()
-                    else:
-                        cnvk.message=c['message']
-                        cnvk.save()
-            else:
-                for c in data:
-                    f_id=c['from']['id']
-                    cnvk=ConversationMessages(
+                        cnvk = ConversationMessages(
                             conversation_id=conv_id,
                             message_id=c['id'],
                             sender=c['from']['name'],
@@ -397,23 +398,40 @@ def replyPM(request):
                             message=c['message'],
                             is_me=f_id == cfb.account_id,
                             created_at=datetime.strptime(c['created_time'], "%Y-%m-%dT%H:%M:%S%z")
+                        )
+                        cnvk.save()
+                    else:
+                        cnvk.message = c['message']
+                        cnvk.save()
+            else:
+                for c in data:
+                    f_id = c['from']['id']
+                    cnvk = ConversationMessages(
+                        conversation_id=conv_id,
+                        message_id=c['id'],
+                        sender=c['from']['name'],
+                        sender_id=c['from']['id'],
+                        message=c['message'],
+                        is_me=f_id == cfb.account_id,
+                        created_at=datetime.strptime(c['created_time'], "%Y-%m-%dT%H:%M:%S%z")
                     )
                     cnvk.save()
-            cms=ConversationMessages.objects.filter(conversation_id=conv_id).order_by('created_at')
-            for conv in cms: 
+            cms = ConversationMessages.objects.filter(conversation_id=conv_id).order_by('created_at')
+            for conv in cms:
                 convs.append({
-                    'message':conv.message,
-                    'date_sent':format_datetime(datetime_str=conv.created_at,timezone_str=timezone_s,platform='facebook'),
-                    'from':conv.sender,
-                    'me':conv.is_me,
+                    'message': conv.message,
+                    'date_sent': format_datetime(datetime_str=conv.created_at, timezone_str=timezone_s,
+                                                 platform='facebook'),
+                    'from': conv.sender,
+                    'me': conv.is_me,
                 })
             # convs.reverse()
-            context={
-                'pm_messages':convs,
-                'conversation_id':conv_id,
-                'pm_platform':platform,
-                'pm_recipient_id':recipient_id,
-                'pm_reply_supported':True
+            context = {
+                'pm_messages': convs,
+                'conversation_id': conv_id,
+                'pm_platform': platform,
+                'pm_recipient_id': recipient_id,
+                'pm_reply_supported': True
             }
             return render(request, 'dashboard.html', context=context)
         else:
@@ -430,45 +448,30 @@ def getMessages(request):
     timezone_s = request.POST.get('timezone', 'UTC')
     conv_id = request.POST.get('conv_id', None)
     sender_id = request.POST.get('sender_id', None)
-    
-    if not all([company_id,platform,conv_id]):
+
+    if not all([company_id, platform, conv_id]):
         return Response({'error': 'Bad request'})
-    convs=[]
+    convs = []
     if platform.strip() == 'facebook':
-        cp=Company.objects.filter(company_id=company_id).first()
+        cp = Company.objects.filter(company_id=company_id).first()
         if not cp:
             return Response({'error': 'Bad request'})
-        cfb=CompanyFacebook.objects.filter(company=cp).first()
+        cfb = CompanyFacebook.objects.filter(company=cp).first()
         if not cfb:
             return Response({'error': 'Bad request'})
+
         def getmsgs():
             url = f"https://graph.facebook.com/v21.0/{conv_id}/messages"
-            params = {"access_token": cfb.page_access_token,"fields": "message,from,created_time" }
+            params = {"access_token": cfb.page_access_token, "fields": "message,from,created_time"}
             response = requests.get(url, params=params)
             data = response.json()['data']
-            cnvm=ConversationMessages.objects.filter(conversation_id=conv_id)
+            cnvm = ConversationMessages.objects.filter(conversation_id=conv_id)
             if cnvm:
                 for c in data:
-                    cnvk=cnvm.filter(message_id=c['id']).first()
-                    f_id=c['from']['id']
+                    cnvk = cnvm.filter(message_id=c['id']).first()
+                    f_id = c['from']['id']
                     if not cnvk:
-                        cnvk=ConversationMessages(
-                                conversation_id=conv_id,
-                                message_id=c['id'],
-                                sender=c['from']['name'],
-                                sender_id=c['from']['id'],
-                                message=c['message'],
-                                is_me=f_id == cfb.account_id,
-                                created_at=datetime.strptime(c['created_time'], "%Y-%m-%dT%H:%M:%S%z")
-                        )
-                        cnvk.save()
-                    else:
-                        cnvk.message=c['message']
-                        cnvk.save()
-            else:
-                for c in data:
-                    f_id=c['from']['id']
-                    cnvk=ConversationMessages(
+                        cnvk = ConversationMessages(
                             conversation_id=conv_id,
                             message_id=c['id'],
                             sender=c['from']['name'],
@@ -476,77 +479,95 @@ def getMessages(request):
                             message=c['message'],
                             is_me=f_id == cfb.account_id,
                             created_at=datetime.strptime(c['created_time'], "%Y-%m-%dT%H:%M:%S%z")
+                        )
+                        cnvk.save()
+                    else:
+                        cnvk.message = c['message']
+                        cnvk.save()
+            else:
+                for c in data:
+                    f_id = c['from']['id']
+                    cnvk = ConversationMessages(
+                        conversation_id=conv_id,
+                        message_id=c['id'],
+                        sender=c['from']['name'],
+                        sender_id=c['from']['id'],
+                        message=c['message'],
+                        is_me=f_id == cfb.account_id,
+                        created_at=datetime.strptime(c['created_time'], "%Y-%m-%dT%H:%M:%S%z")
                     )
                     cnvk.save()
-        cms=ConversationMessages.objects.filter(conversation_id=conv_id)
+
+        cms = ConversationMessages.objects.filter(conversation_id=conv_id)
         if cms:
-            trgt=threading.Thread(target=getmsgs,daemon=True)
+            trgt = threading.Thread(target=getmsgs, daemon=True)
             trgt.start()
         else:
             getmsgs()
-        cms=ConversationMessages.objects.filter(conversation_id=conv_id).order_by('created_at')
-        for conv in cms: 
+        cms = ConversationMessages.objects.filter(conversation_id=conv_id).order_by('created_at')
+        for conv in cms:
             convs.append({
-                'message':conv.message,
-                'date_sent':format_datetime(datetime_str=conv.created_at,timezone_str=timezone_s,platform='facebook'),
-                'from':conv.sender,
-                'me':conv.is_me,
+                'message': conv.message,
+                'date_sent': format_datetime(datetime_str=conv.created_at, timezone_str=timezone_s,
+                                             platform='facebook'),
+                'from': conv.sender,
+                'me': conv.is_me,
             })
         # convs.reverse()
-        context={
-            'pm_messages':convs,
-            'conversation_id':conv_id,
-            'pm_platform':platform,
-            'pm_recipient_id':sender_id,
-            'pm_reply_supported':True
+        context = {
+            'pm_messages': convs,
+            'conversation_id': conv_id,
+            'pm_platform': platform,
+            'pm_recipient_id': sender_id,
+            'pm_reply_supported': True
         }
         return render(request, 'dashboard.html', context=context)
     if platform.strip() == 'reddit':
-        rcv=ConversationMessages.objects.filter(conversation_id=conv_id).order_by('created_at')
+        rcv = ConversationMessages.objects.filter(conversation_id=conv_id).order_by('created_at')
         for r in rcv:
             convs.append({
-                'message':r.message,
-                'date_sent':format_datetime(datetime_str=r.created_at,timezone_str=timezone_s,platform=platform),
-                'from':r.sender,
-                'me':r.is_me,
+                'message': r.message,
+                'date_sent': format_datetime(datetime_str=r.created_at, timezone_str=timezone_s, platform=platform),
+                'from': r.sender,
+                'me': r.is_me,
 
             })
-            
+
         # convs.reverse()
-        context={
-            'pm_messages':convs,
-            'conversation_id':conv_id,
-            'pm_platform':platform,
-            'pm_reply_supported':False
+        context = {
+            'pm_messages': convs,
+            'conversation_id': conv_id,
+            'pm_platform': platform,
+            'pm_reply_supported': False
         }
         return render(request, 'dashboard.html', context=context)
     if platform.strip() == 'instagram':
-        cp=Company.objects.filter(company_id=company_id).first()
+        cp = Company.objects.filter(company_id=company_id).first()
         if not cp:
             return Response({'error': 'Bad request'})
-        cfb=CompanyFacebook.objects.filter(company=cp).first()
+        cfb = CompanyFacebook.objects.filter(company=cp).first()
         if not cfb:
             return Response({'error': 'Bad request'})
-        cig=CompanyInstagram.objects.filter(company=cp).first()
+        cig = CompanyInstagram.objects.filter(company=cp).first()
         if not cig:
             return Response({'error': 'Bad request'})
-        
+
         def getMesgs():
             url = f"https://graph.facebook.com/v21.0/{conv_id}"
-            params = {"access_token": cfb.page_access_token,"fields":'messages'}
+            params = {"access_token": cfb.page_access_token, "fields": 'messages'}
             response = requests.get(url, params=params)
             msg_ids = response.json()['messages']['data']
-            
+
             for msgd_id in msg_ids:
-                msg_id=msgd_id['id']
+                msg_id = msgd_id['id']
                 url = f"https://graph.facebook.com/v21.0/{msg_id}"
-                params = {"access_token": cfb.page_access_token,"fields":'id,created_time,from,to,message'}
+                params = {"access_token": cfb.page_access_token, "fields": 'id,created_time,from,to,message'}
                 response = requests.get(url, params=params)
-                dt= response.json()
-                cnv=ConversationMessages.objects.filter(message_id=msg_id).first()
+                dt = response.json()
+                cnv = ConversationMessages.objects.filter(message_id=msg_id).first()
                 frm_id = dt['from']['id']
                 if not cnv:
-                    cnv=ConversationMessages(
+                    cnv = ConversationMessages(
                         conversation_id=conv_id,
                         message_id=msg_id,
                         sender=dt['from']['username'],
@@ -556,124 +577,126 @@ def getMessages(request):
                     )
                     cnv.save()
                 else:
-                    cnv.message=dt['message']
+                    cnv.message = dt['message']
                     cnv.save()
-                
-         
-        igconmess=ConversationMessages.objects.filter(conversation_id=conv_id)
+
+        igconmess = ConversationMessages.objects.filter(conversation_id=conv_id)
         if igconmess:
-            igthrt=threading.Thread(target=getMesgs,daemon=True)
+            igthrt = threading.Thread(target=getMesgs, daemon=True)
             igthrt.start()
         else:
             getMesgs()
-            
-        igconmess=ConversationMessages.objects.filter(conversation_id=conv_id).order_by('created_at')
-        convs=[]
+
+        igconmess = ConversationMessages.objects.filter(conversation_id=conv_id).order_by('created_at')
+        convs = []
         for igm in igconmess:
             convs.append({
-                'message':igm.message,
-                'date_sent':format_datetime(datetime_str=igm.created_at,timezone_str=timezone_s,platform='facebook'),
-                'from':igm.sender,
-                'me':igm.is_me,
+                'message': igm.message,
+                'date_sent': format_datetime(datetime_str=igm.created_at, timezone_str=timezone_s, platform='facebook'),
+                'from': igm.sender,
+                'me': igm.is_me,
 
             })
         # convs.reverse()
-        context={
-            'pm_messages':convs,
-            'conversation_id':conv_id,
-            'pm_platform':platform,
-            'pm_reply_supported':False
+        context = {
+            'pm_messages': convs,
+            'conversation_id': conv_id,
+            'pm_platform': platform,
+            'pm_reply_supported': False
         }
         return render(request, 'dashboard.html', context=context)
     return Response({'success': 'Bad request'})
+
 
 @api_view(['POST', 'GET'])
 def getPMs(request):
     company_id = request.POST.get('company_id', None)
     platform = request.POST.get('platform', None)
     timezone_s = request.POST.get('timezone', 'UTC')
-    if not all([company_id,platform]):
+    if not all([company_id, platform]):
         return Response({'error': 'Bad request'})
     if platform == 'reddit':
-        cp=Company.objects.filter(company_id=company_id).first()
+        cp = Company.objects.filter(company_id=company_id).first()
         if not cp:
             return Response({'error': 'Bad request'})
-        cr=CompanyReddit.objects.filter(company=cp).first()
+        cr = CompanyReddit.objects.filter(company=cp).first()
         if not cr:
             return Response({'error': 'Bad request'})
-        senders=[]
+        senders = []
 
         def getconvs():
             reddit = praw.Reddit(
-                    client_id=settings.REDDIT_CLIENT_ID,
-                    client_secret=settings.REDDIT_CLIENT_SECRET,
-                    user_agent=settings.REDDIT_USER_AGENT,
-                    refresh_token=cr.refresh_token,
-                )
-            
+                client_id=settings.REDDIT_CLIENT_ID,
+                client_secret=settings.REDDIT_CLIENT_SECRET,
+                user_agent=settings.REDDIT_USER_AGENT,
+                refresh_token=cr.refresh_token,
+            )
+
             for message in reddit.inbox.messages():
-                    cnk=CompanyPrivateConversation.objects.filter(conversation_id=message.id).first()
-                    if not cnk:
-                        cnk=CompanyPrivateConversation(
-                            company=cp,
-                            sender=message.author.name,
-                            last_message_time=datetime.fromtimestamp(message.created_utc,tz=timezone.utc),
-                            platform='reddit',
-                            conversation_id=message.id,
-                        )
-                        cnk.save()
-                        ccms=ConversationMessages(
-                                conversation_id=message.id,
-                                sender=message.author.name,
-                                message=message.body,
-                                is_me=message.author.name.lower() == cr.account_username,
-                                created_at=datetime.fromtimestamp(message.created_utc,tz=timezone.utc)
-                        )
-                        ccms.save()
-                    else:
-                        cnk=ConversationMessages.objects.filter(conversation_id=message.id).first()
-                        cnk.message=message.body
-                        cnk.save()
-                        
-        cnc=CompanyPrivateConversation.objects.filter(platform='reddit',company=cp)
+                cnk = CompanyPrivateConversation.objects.filter(conversation_id=message.id).first()
+                if not cnk:
+                    cnk = CompanyPrivateConversation(
+                        company=cp,
+                        sender=message.author.name,
+                        last_message_time=datetime.fromtimestamp(message.created_utc, tz=timezone.utc),
+                        platform='reddit',
+                        conversation_id=message.id,
+                    )
+                    cnk.save()
+                    ccms = ConversationMessages(
+                        conversation_id=message.id,
+                        sender=message.author.name,
+                        message=message.body,
+                        is_me=message.author.name.lower() == cr.account_username,
+                        created_at=datetime.fromtimestamp(message.created_utc, tz=timezone.utc)
+                    )
+                    ccms.save()
+                else:
+                    cnk = ConversationMessages.objects.filter(conversation_id=message.id).first()
+                    cnk.message = message.body
+                    cnk.save()
+
+        cnc = CompanyPrivateConversation.objects.filter(platform='reddit', company=cp)
         if cnc:
-            redTrt=threading.Thread(target=getconvs,daemon=True)
+            redTrt = threading.Thread(target=getconvs, daemon=True)
             redTrt.start()
         else:
             getconvs()
-        
-        cnc=CompanyPrivateConversation.objects.filter(platform='reddit',company=cp).order_by('-last_message_time')
+
+        cnc = CompanyPrivateConversation.objects.filter(platform='reddit', company=cp).order_by('-last_message_time')
         for cn in cnc:
             senders.append({
-                'sender':cn.sender,
-                'conv_id':cn.conversation_id,
-                'platform':cn.platform,
-                'updated_time':format_datetime(datetime_str=cn.last_message_time,timezone_str=timezone_s,platform=platform)
+                'sender': cn.sender,
+                'conv_id': cn.conversation_id,
+                'platform': cn.platform,
+                'updated_time': format_datetime(datetime_str=cn.last_message_time, timezone_str=timezone_s,
+                                                platform=platform)
             })
-        request.session['red_convos']=senders
-        context={'senders':senders}
+        request.session['red_convos'] = senders
+        context = {'senders': senders}
         return render(request, 'dashboard.html', context=context)
     elif platform == 'facebook':
-        cp=Company.objects.filter(company_id=company_id).first()
+        cp = Company.objects.filter(company_id=company_id).first()
         if not cp:
             return Response({'error': 'Bad request'})
-        cfb=CompanyFacebook.objects.filter(company=cp).first()
+        cfb = CompanyFacebook.objects.filter(company=cp).first()
         if not cfb:
             return Response({'error': 'Bad request'})
-        
+
         def getconvs():
             url = f"https://graph.facebook.com/v21.0/{cfb.page_id}/conversations"
-            params = {"access_token": cfb.page_access_token,"fields":'senders,id,updated_time','platform':'messenger'}
+            params = {"access_token": cfb.page_access_token, "fields": 'senders,id,updated_time',
+                      'platform': 'messenger'}
             response = requests.get(url, params=params)
             conversations = response.json()['data']
-            cpc=CompanyPrivateConversation.objects.filter(platform='facebook',company=cp)
+            cpc = CompanyPrivateConversation.objects.filter(platform='facebook', company=cp)
             if cpc:
                 for c in conversations:
-                    sendr=c['senders']['data'][0]
-                    cpk=cpc.filter(conversation_id=c['id']).first()
+                    sendr = c['senders']['data'][0]
+                    cpk = cpc.filter(conversation_id=c['id']).first()
                     if not cpk:
                         utc_datetime = datetime.strptime(c['updated_time'], "%Y-%m-%dT%H:%M:%S%z")
-                        cpk=CompanyPrivateConversation(
+                        cpk = CompanyPrivateConversation(
                             company=cp,
                             sender=sendr['name'],
                             sender_id=sendr['id'],
@@ -683,13 +706,13 @@ def getPMs(request):
                         )
                         cpk.save()
                     else:
-                        cpk.sender_id=sendr['id']
+                        cpk.sender_id = sendr['id']
                         cpk.save()
             else:
                 for c in conversations:
-                    sendr=c['senders']['data'][0]
+                    sendr = c['senders']['data'][0]
                     utc_datetime = datetime.strptime(c['updated_time'], "%Y-%m-%dT%H:%M:%S%z")
-                    cpc=CompanyPrivateConversation(
+                    cpc = CompanyPrivateConversation(
                         company=cp,
                         sender=sendr['name'],
                         sender_id=sendr['id'],
@@ -698,39 +721,42 @@ def getPMs(request):
                         conversation_id=c['id']
                     )
                     cpc.save()
-        conv=CompanyPrivateConversation.objects.filter(platform='facebook',company=cp)
+
+        conv = CompanyPrivateConversation.objects.filter(platform='facebook', company=cp)
         if conv:
-            cnvThread=threading.Thread(target=getconvs,daemon=True)
+            cnvThread = threading.Thread(target=getconvs, daemon=True)
             cnvThread.start()
         else:
             getconvs()
-        senders=[]
-        conv=CompanyPrivateConversation.objects.filter(platform='facebook',company=cp).order_by('-last_message_time')
+        senders = []
+        conv = CompanyPrivateConversation.objects.filter(platform='facebook', company=cp).order_by('-last_message_time')
         for co in conv:
             senders.append({
-                'sender':co.sender,
-                'sender_id':co.sender_id,
-                'conv_id':co.conversation_id,
-                'platform':'facebook',
-                'updated_time':format_datetime(datetime_str=co.last_message_time,timezone_str=timezone_s,platform='facebook')
-            })        
+                'sender': co.sender,
+                'sender_id': co.sender_id,
+                'conv_id': co.conversation_id,
+                'platform': 'facebook',
+                'updated_time': format_datetime(datetime_str=co.last_message_time, timezone_str=timezone_s,
+                                                platform='facebook')
+            })
 
-        context={'senders':senders}
+        context = {'senders': senders}
         return render(request, 'dashboard.html', context=context)
     elif platform == 'instagram':
-        cp=Company.objects.filter(company_id=company_id).first()
+        cp = Company.objects.filter(company_id=company_id).first()
         if not cp:
             return Response({'error': 'Bad request'})
-        cfb=CompanyFacebook.objects.filter(company=cp).first()
+        cfb = CompanyFacebook.objects.filter(company=cp).first()
         if not cfb:
             return Response({'error': 'Bad request'})
-        cig=CompanyInstagram.objects.filter(company=cp).first()
+        cig = CompanyInstagram.objects.filter(company=cp).first()
         if not cig:
             return Response({'error': 'Bad request'})
+
         # url =f"https://graph.instagram.com/v21.0/me/conversations"
         def getconvs():
             url = f"https://graph.facebook.com/v21.0/{cfb.page_id}/conversations"
-            params = {"access_token": cfb.page_access_token,"fields":'ud,updated_time','platform':'instagram'}
+            params = {"access_token": cfb.page_access_token, "fields": 'ud,updated_time', 'platform': 'instagram'}
             response = requests.get(url, params=params)
             conversations = response.content
             # Print the response
@@ -738,51 +764,54 @@ def getPMs(request):
 
             def getSMes(con_id):
                 url = f"https://graph.facebook.com/v21.0/{con_id}"
-                params = {"access_token": cfb.page_access_token,"fields":'messages'}
+                params = {"access_token": cfb.page_access_token, "fields": 'messages'}
                 response = requests.get(url, params=params)
                 msg_id = response.json()['messages']['data'][0]['id']
-                
+
                 url = f"https://graph.facebook.com/v21.0/{msg_id}"
-                params = {"access_token": cfb.page_access_token,"fields":'id,created_time,from,to,message'}
+                params = {"access_token": cfb.page_access_token, "fields": 'id,created_time,from,to,message'}
                 response = requests.get(url, params=params)
-                dt= response.json()
-                frm_uname =dt['from']['username']
+                dt = response.json()
+                frm_uname = dt['from']['username']
                 frm_id = dt['from']['id']
-                to_uname=dt['to']['data'][0]['username']
+                to_uname = dt['to']['data'][0]['username']
                 return frm_uname if frm_id != cig.account_id else to_uname
-            
+
             for c in conversations:
-                cnvmes=CompanyPrivateConversation.objects.filter(conversation_id=c['id']).first()
+                cnvmes = CompanyPrivateConversation.objects.filter(conversation_id=c['id']).first()
                 if not cnvmes:
-                    cnvmes=CompanyPrivateConversation(
+                    cnvmes = CompanyPrivateConversation(
                         company=cp,
                         sender=getSMes(c['id']),
-                        last_message_time= datetime.strptime(c['updated_time'], "%Y-%m-%dT%H:%M:%S%z"),
+                        last_message_time=datetime.strptime(c['updated_time'], "%Y-%m-%dT%H:%M:%S%z"),
                         platform='instagram',
                         conversation_id=c['id']
                     )
                     cnvmes.save()
 
-        cpv=CompanyPrivateConversation.objects.filter(platform='instagram')
+        cpv = CompanyPrivateConversation.objects.filter(platform='instagram')
         if cpv:
-            trd=threading.Thread(target=getconvs,daemon=True)
+            trd = threading.Thread(target=getconvs, daemon=True)
             trd.start()
         else:
             getconvs()
-        senders=[]
-        conversations=CompanyPrivateConversation.objects.filter(platform='instagram',company=cp).order_by('-last_message_time')       
+        senders = []
+        conversations = CompanyPrivateConversation.objects.filter(platform='instagram', company=cp).order_by(
+            '-last_message_time')
         for c in conversations:
             senders.append({
-                'sender':c.sender,
-                'conv_id':c.conversation_id,
-                'platform':c.platform,
-                'updated_time':format_datetime(datetime_str=c.last_message_time,timezone_str=timezone_s,platform='facebook')
+                'sender': c.sender,
+                'conv_id': c.conversation_id,
+                'platform': c.platform,
+                'updated_time': format_datetime(datetime_str=c.last_message_time, timezone_str=timezone_s,
+                                                platform='facebook')
             })
-        context={'senders':senders}
+        context = {'senders': senders}
         return render(request, 'dashboard.html', context=context)
 
     return Response({'error': 'Bad request'})
-    
+
+
 @api_view(['POST', 'GET'])
 def companyReviews(request):
     company_id = request.POST.get('company_id', None)
@@ -790,27 +819,27 @@ def companyReviews(request):
     print(filters)
     if not company_id:
         return Response({'error': 'Bad request'})
-    cp=Company.objects.filter(company_id=company_id).first()
+    cp = Company.objects.filter(company_id=company_id).first()
     if not cp:
         return Response({'error': 'Bad request'})
     if not filters:
-        print('none filter',filters)
-        cpr=CompanyReviews.objects.filter(company=cp)
+        print('none filter', filters)
+        cpr = CompanyReviews.objects.filter(company=cp)
     else:
-        filters=[i.lower() for i in filters.split(',')]
+        filters = [i.lower() for i in filters.split(',')]
         print(filters)
 
-        cpr=CompanyReviews.objects.filter(company=cp)
-        if 'published' in filters: 
-            cpr=cpr.filter(is_published=True)
-        if 'not published' in filters: 
-            cpr=cpr.filter(is_published=False)
+        cpr = CompanyReviews.objects.filter(company=cp)
+        if 'published' in filters:
+            cpr = cpr.filter(is_published=True)
+        if 'not published' in filters:
+            cpr = cpr.filter(is_published=False)
         if 'positive' in filters:
-            cpr=cpr.filter(is_positive=True)
+            cpr = cpr.filter(is_positive=True)
         if 'negative' in filters:
-            cpr=cpr.filter(is_negative=True)
+            cpr = cpr.filter(is_negative=True)
         if 'neutral' in filters:
-            cpr=cpr.filter(is_neutral=True)
+            cpr = cpr.filter(is_neutral=True)
         platforms = []
         if 'facebook' in filters:
             platforms.append('facebook')
@@ -823,25 +852,26 @@ def companyReviews(request):
 
         if platforms:
             cpr = cpr.filter(platform__in=platforms)
-    reviews=[]
+    reviews = []
     for r in cpr:
         reviews.append({
-            'commentor':r.commentor,
-            'content':r.content,
-            'link':r.link,
-            'published':r.is_published,
-            'neutral':r.is_neutral,
-            'positive':r.is_positive,
-            'negative':r.is_negative,
-            'date_commented':r.date_commented,
-            'category':r.category,
-            'platform':r.platform
+            'commentor': r.commentor,
+            'content': r.content,
+            'link': r.link,
+            'published': r.is_published,
+            'neutral': r.is_neutral,
+            'positive': r.is_positive,
+            'negative': r.is_negative,
+            'date_commented': r.date_commented,
+            'category': r.category,
+            'platform': r.platform
         })
-        
-    context={
-        'reviews':reviews
+
+    context = {
+        'reviews': reviews
     }
     return render(request, 'dashboard.html', context=context)
+
 
 @login_required
 def dashboard(request, company_id):
@@ -870,51 +900,54 @@ def dashboard(request, company_id):
     if cr:
         sub_f = threading.Thread(target=getRedditSubFlairs, daemon=True, kwargs={'cid': company_id})
         sub_f.start()
-      
+
         # get posts 
-    upd_pst=threading.Thread(target=updatePosts,daemon=True, kwargs={
-            'company_id':company_id,
-        })
+    upd_pst = threading.Thread(target=updatePosts, daemon=True, kwargs={
+        'company_id': company_id,
+    })
     upd_pst.start()
-    
+
     fb_ig = request.session.get('facebook_ig_data', {})
     if fb_ig:
-        ldta=fb_ig.get('time_updated')
-        ldt=datetime.fromisoformat(ldta)
-        df=(timezone.now()-ldt).total_seconds()
-        if df > 18000: # update after 6 hrs only
+        ldta = fb_ig.get('time_updated')
+        ldt = datetime.fromisoformat(ldta)
+        df = (timezone.now() - ldt).total_seconds()
+        if df > 18000:  # update after 6 hrs only
             try:
                 if cig:
-                    dt=get_instagram_account_insights(access_token=cig.long_lived_token,instagram_account_id=cig.account_id,company_id=company_id)  
-                    cig.profile_url=dt['profile_picture_url']  
-                    fb_ig['time_updated']=timezone.now().isoformat()
+                    dt = get_instagram_account_insights(access_token=cig.long_lived_token,
+                                                        instagram_account_id=cig.account_id, company_id=company_id)
+                    cig.profile_url = dt['profile_picture_url']
+                    fb_ig['time_updated'] = timezone.now().isoformat()
                     cig.save()
                 if cfb:
-                    dt=get_facebook_page_insights(access_token=cfb.page_access_token,page_id=cfb.page_id,company_id=company_id)
-                    cfb.profile_url=dt['p_picture']
-                    fb_ig['time_updated']=timezone.now().isoformat()
+                    dt = get_facebook_page_insights(access_token=cfb.page_access_token, page_id=cfb.page_id,
+                                                    company_id=company_id)
+                    cfb.profile_url = dt['p_picture']
+                    fb_ig['time_updated'] = timezone.now().isoformat()
                     cfb.save()
             except:
-               pass        
+                pass
     else:
-        tk_data={
-            'time_updated':timezone.now().isoformat()
+        tk_data = {
+            'time_updated': timezone.now().isoformat()
         }
         try:
             if cig:
-                dt=get_instagram_account_insights(access_token=cig.long_lived_token,instagram_account_id=cig.account_id,company_id=company_id)  
-                cig.profile_url=dt['profile_picture_url']  
+                dt = get_instagram_account_insights(access_token=cig.long_lived_token,
+                                                    instagram_account_id=cig.account_id, company_id=company_id)
+                cig.profile_url = dt['profile_picture_url']
                 print('saving profile url')
                 cig.save()
             if cfb:
-                dt=get_facebook_page_insights(access_token=cfb.page_access_token,page_id=cfb.page_id,company_id=company_id)
-                cfb.profile_url=dt['p_picture']
+                dt = get_facebook_page_insights(access_token=cfb.page_access_token, page_id=cfb.page_id,
+                                                company_id=company_id)
+                cfb.profile_url = dt['p_picture']
                 print('saving fb profile pic ')
                 cfb.save()
             request.session['facebook_ig_data'] = tk_data
         except:
             pass
-        
 
     context = {
         'company_name': cm.company_name,
@@ -1035,42 +1068,45 @@ def dashboard(request, company_id):
     }
     return render(request, 'dashboard.html', context=context)
 
+
 def updatePosts(company_id):
     cp = Company.objects.filter(company_id=company_id).first()
-    cpsts=CompanyPosts.objects.filter(company=cp)
+    cpsts = CompanyPosts.objects.filter(company=cp)
     if cpsts:
         for cps in cpsts:
-            platforms=cps.platforms
+            platforms = cps.platforms
             for platform in platforms:
                 if platform == 'reddit':
                     # update reddit posts
-                    red_psts=CompanyRedditPosts.objects.filter(post_id=cps.post_id)
+                    red_psts = CompanyRedditPosts.objects.filter(post_id=cps.post_id)
                     for red_p in red_psts:
-                        dtn=timezone.now()
-                        lupd=red_p.last_updated
-                        t_diff=(dtn-lupd).total_seconds()
-                        if t_diff<300: #update after 5 mins
+                        dtn = timezone.now()
+                        lupd = red_p.last_updated
+                        t_diff = (dtn - lupd).total_seconds()
+                        if t_diff < 300:  # update after 5 mins
                             continue
-                        subs=red_p.subs
-                        total_impressions=0
-                        total_comments=0
+                        subs = red_p.subs
+                        total_impressions = 0
+                        total_comments = 0
                         for sub in subs:
                             submission_id = sub['id']
                             # Fetch the submission object using the ID
                             try:
                                 submission = reddit.submission(id=submission_id)
-                                sub['upvotes']=submission.score
-                                sub['comments']=submission.num_comments
-                                total_comments+=submission.num_comments
-                                sub['upvote_ratio']=submission.upvote_ratio
-                                sub['crossposts']=submission.num_crossposts
-                                total_impressions+=(submission.num_crossposts+submission.score+submission.num_comments)
+                                sub['upvotes'] = submission.score
+                                sub['comments'] = submission.num_comments
+                                total_comments += submission.num_comments
+                                sub['upvote_ratio'] = submission.upvote_ratio
+                                sub['crossposts'] = submission.num_crossposts
+                                total_impressions += (
+                                        submission.num_crossposts + submission.score + submission.num_comments)
                                 red_p.save()
                             except:
                                 continue
-                        cps.engagement_count=total_impressions
-                        cps.comment_count=total_comments
+                        cps.engagement_count = total_impressions
+                        cps.comment_count = total_comments
                         cps.save()
+
 
 @api_view(['POST'])
 def fetchPosts(request):
@@ -1091,68 +1127,68 @@ def fetchPosts(request):
                     'media_url': m.media.url,
                     'is_video': False
                 })
-            reds=[]
-            cover_image_link=''
-            
+            reds = []
+            cover_image_link = ''
+
             if 'reddit' in p.platforms:
-                cr=CompanyRedditPosts.objects.filter(post_id=p.post_id)
+                cr = CompanyRedditPosts.objects.filter(post_id=p.post_id)
                 if cr:
                     for c in cr:
-                        t_en=0
-                        t_com=0
+                        t_en = 0
+                        t_com = 0
                         for k in c.subs:
                             if k['published']:
-                                cover_image_link=k['link']
-                                p_id=k['id']
+                                cover_image_link = k['link']
+                                p_id = k['id']
                                 submission = reddit.submission(id=p_id)
-                                k['upvote_ratio']=submission.upvote_ratio*100
-                                k['upvotes']=submission.score
-                                k['comments']=submission.num_comments
-                                k['crossposts']=submission.num_crossposts
+                                k['upvote_ratio'] = submission.upvote_ratio * 100
+                                k['upvotes'] = submission.score
+                                k['comments'] = submission.num_comments
+                                k['crossposts'] = submission.num_crossposts
                                 reds.append(k)
-                                
-                                vlx=submission.score+submission.num_comments+submission.num_crossposts
-                                t_en+=vlx
-                                t_com+=submission.num_comments
-                        p.comment_count=t_com
-                        p.engagement_count=t_en
-                        p.save()   
-                        c.save()    
-                                
-            eng_cnt=p.engagement_count
-            if eng_cnt>1000000:
-                eng_cnt=round(eng_cnt/1000000,1)
-            elif eng_cnt>1000:
-                eng_cnt=round(eng_cnt/1000,1)
-            cmt_cnt=p.comment_count
-            if cmt_cnt>1000:
-                cmt_cnt=round(cmt_cnt/1000,1)
-            elif cmt_cnt>1000:
-                cmt_cnt=round(cmt_cnt/1000,1)
+
+                                vlx = submission.score + submission.num_comments + submission.num_crossposts
+                                t_en += vlx
+                                t_com += submission.num_comments
+                        p.comment_count = t_com
+                        p.engagement_count = t_en
+                        p.save()
+                        c.save()
+
+            eng_cnt = p.engagement_count
+            if eng_cnt > 1000000:
+                eng_cnt = round(eng_cnt / 1000000, 1)
+            elif eng_cnt > 1000:
+                eng_cnt = round(eng_cnt / 1000, 1)
+            cmt_cnt = p.comment_count
+            if cmt_cnt > 1000:
+                cmt_cnt = round(cmt_cnt / 1000, 1)
+            elif cmt_cnt > 1000:
+                cmt_cnt = round(cmt_cnt / 1000, 1)
             all_posts.append({
                 'platforms': [pl.capitalize() for pl in p.platforms],
                 'title': p.title,
                 'content': p.description,
                 'is_uploaded': p.is_published,
                 'is_scheduled': p.is_scheduled,
-                'comment_count':cmt_cnt,
-                'engagement_count':eng_cnt,
+                'comment_count': cmt_cnt,
+                'engagement_count': eng_cnt,
                 'tags': p.tags,
                 'has_media': p.has_media,
-                'cover_image_link':p.media_thumbnail,
-                'media':None if not p.has_media else UploadedMedia.objects.filter(post=p).first(),
+                'cover_image_link': p.media_thumbnail,
+                'media': None if not p.has_media else UploadedMedia.objects.filter(post=p).first(),
                 'date_uploaded': p.date_uploaded,
-                'date_scheduled':p.date_scheduled,
+                'date_scheduled': p.date_scheduled,
                 'media': med,
-                'post_id':p.post_id,
-                'has_all':len(p.platforms)==4,
-                'has_reddit':'reddit' in p.platforms,
-                'has_tiktok':'tiktok' in p.platforms,
-                'has_facebook':'facebook' in p.platforms,
-                'has_instagram':'instagram' in p.platforms,
+                'post_id': p.post_id,
+                'has_all': len(p.platforms) == 4,
+                'has_reddit': 'reddit' in p.platforms,
+                'has_tiktok': 'tiktok' in p.platforms,
+                'has_facebook': 'facebook' in p.platforms,
+                'has_instagram': 'instagram' in p.platforms,
 
             })
-    else:    
+    else:
         for p in cp:
             um = UploadedMedia.objects.filter(post=p)
             med = []
@@ -1161,25 +1197,25 @@ def fetchPosts(request):
                     'media_url': m.media.url,
                     'is_video': False
                 })
-            reds=[]
-            cover_image_link=''
-            
+            reds = []
+            cover_image_link = ''
+
             if 'reddit' in p.platforms:
-                cr=CompanyRedditPosts.objects.filter(post_id=p.post_id).first()
+                cr = CompanyRedditPosts.objects.filter(post_id=p.post_id).first()
                 if cr:
-                    k=cr.subs[0]
+                    k = cr.subs[0]
                     cover_image_link = k['link']
-                
-            eng_cnt=p.engagement_count
-            if eng_cnt>1000000:
-                eng_cnt=round(eng_cnt/1000000,1)
-            elif eng_cnt>1000:
-                eng_cnt=round(eng_cnt/1000,1)
-            cmt_cnt=p.comment_count
-            if cmt_cnt>1000:
-                cmt_cnt=round(cmt_cnt/1000,1)
-            elif cmt_cnt>1000:
-                cmt_cnt=round(cmt_cnt/1000,1)
+
+            eng_cnt = p.engagement_count
+            if eng_cnt > 1000000:
+                eng_cnt = round(eng_cnt / 1000000, 1)
+            elif eng_cnt > 1000:
+                eng_cnt = round(eng_cnt / 1000, 1)
+            cmt_cnt = p.comment_count
+            if cmt_cnt > 1000:
+                cmt_cnt = round(cmt_cnt / 1000, 1)
+            elif cmt_cnt > 1000:
+                cmt_cnt = round(cmt_cnt / 1000, 1)
             all_posts.append({
                 'platforms': [pl.capitalize() for pl in p.platforms],
                 'title': p.title,
@@ -1188,32 +1224,33 @@ def fetchPosts(request):
                 'is_scheduled': p.is_scheduled,
                 'is_published': p.is_published,
                 'has_failed': p.has_failed,
-                'comment_count':cmt_cnt,
-                'engagement_count':eng_cnt,
-                'tags': p.tags,#if not p.tags else p.tags.split(),
+                'comment_count': cmt_cnt,
+                'engagement_count': eng_cnt,
+                'tags': p.tags,  # if not p.tags else p.tags.split(),
                 'has_media': p.has_media,
-                'cover_image_link':p.media_thumbnail,
-                'media':None if not p.has_media else UploadedMedia.objects.filter(post=p).first(),
+                'cover_image_link': p.media_thumbnail,
+                'media': None if not p.has_media else UploadedMedia.objects.filter(post=p).first(),
                 'date_uploaded': p.date_uploaded,
-                'date_scheduled':p.date_scheduled,
+                'date_scheduled': p.date_scheduled,
                 'media': med,
-                'post_id':p.post_id,
-                'has_all':len(p.platforms)==4,
-                'has_reddit':'reddit' in p.platforms,
-                'has_tiktok':'tiktok' in p.platforms,
-                'has_facebook':'facebook' in p.platforms,
-                'has_instagram':'instagram' in p.platforms,
+                'post_id': p.post_id,
+                'has_all': len(p.platforms) == 4,
+                'has_reddit': 'reddit' in p.platforms,
+                'has_tiktok': 'tiktok' in p.platforms,
+                'has_facebook': 'facebook' in p.platforms,
+                'has_instagram': 'instagram' in p.platforms,
 
             })
-        upd_pst=threading.Thread(target=updatePosts,daemon=True, kwargs={
-                'company_id':company_id,
-            })
+        upd_pst = threading.Thread(target=updatePosts, daemon=True, kwargs={
+            'company_id': company_id,
+        })
         upd_pst.start()
-  
+
     context = {
         'posts': all_posts,
     }
     return render(request, 'dashboard.html', context=context)
+
 
 # retrieve the stats of a given post
 @api_view(['POST'])
@@ -1222,56 +1259,55 @@ def getStats(request):
     if not post_id:
         return Response({'error': 'Bad request'})
     # get the post from the post_id
-    pst=CompanyPosts.objects.filter(post_id=post_id).first()
+    pst = CompanyPosts.objects.filter(post_id=post_id).first()
     if not pst:
         return Response({'error': 'Bad request'})
-    
 
-    my_dict = {'Facebook': 0, 'Instagram':0, 'Tiktok': 0, 'Reddit': 0}
+    my_dict = {'Facebook': 0, 'Instagram': 0, 'Tiktok': 0, 'Reddit': 0}
     cr = CompanyRedditPosts.objects.filter(post_id=post_id).first()
-    
-    has_reddit=False
-    red_up=[]
-    red_cmt=[]
-    red_cpst=[]
-    red_tteng=[]
-    red_subs=[]
-    red_te=0
-    fb_post_click=0
-    fb_impressions=0
-    impr_conv=0
+
+    has_reddit = False
+    red_up = []
+    red_cmt = []
+    red_cpst = []
+    red_tteng = []
+    red_subs = []
+    red_te = 0
+    fb_post_click = 0
+    fb_impressions = 0
+    impr_conv = 0
 
     if cr:
-        has_reddit=True
+        has_reddit = True
         for c in cr.subs:
-            k=c
+            k = c
             if k['published']:
-                p_id=k['id']
+                p_id = k['id']
                 submission = reddit.submission(id=p_id)
-                k['upvote_ratio']=submission.upvote_ratio*100
-                k['upvotes']=int(submission.score)
-                k['comments']=int(submission.num_comments)
-                k['crossposts']=int(submission.num_crossposts)
+                k['upvote_ratio'] = submission.upvote_ratio * 100
+                k['upvotes'] = int(submission.score)
+                k['comments'] = int(submission.num_comments)
+                k['crossposts'] = int(submission.num_crossposts)
                 red_subs.append(f"r/{k['sub_name']}")
-                
+
                 # vlx=submission.score+submission.num_comments+submission.num_crossposts
                 # t_en+=vlx
                 # t_com+=submission.num_comments
-            
+
             red_up.append(c['upvotes'])
             red_tteng.append(c['upvote_ratio'])
             red_cmt.append(c['comments'])
             red_cpst.append(c['crossposts'])
         if red_tteng:
-            red_te=sum(red_tteng)/len(red_tteng) 
-    total_reddit_en=sum(red_up)+sum(red_cmt)+sum(red_cpst)
-    my_dict['Reddit']=total_reddit_en
-    has_facebook=False
-    fb_video_data={}
-    cfb=CompanyFacebookPosts.objects.filter(post_id=post_id).first()
+            red_te = sum(red_tteng) / len(red_tteng)
+    total_reddit_en = sum(red_up) + sum(red_cmt) + sum(red_cpst)
+    my_dict['Reddit'] = total_reddit_en
+    has_facebook = False
+    fb_video_data = {}
+    cfb = CompanyFacebookPosts.objects.filter(post_id=post_id).first()
     if cfb:
-        has_facebook=True
-        cfbp=CompanyFacebook.objects.filter(company=pst.company).first()
+        has_facebook = True
+        cfbp = CompanyFacebook.objects.filter(company=pst.company).first()
         if not cfbp:
             print('No facebook object')
             return
@@ -1333,7 +1369,7 @@ def getStats(request):
             post_video_ad_break_earnings
             post_video_ad_break_ad_cpm
             creator_monetization_qualified_views
-             
+
         Page Video Metrics
             page_video_views,page_video_views_paid,page_video_views_organic,page_video_views_autoplayed,
             page_video_repeat_views,page_video_complete_views_30s,page_video_complete_views_30s_paid
@@ -1345,227 +1381,229 @@ def getStats(request):
         '''
         if pst.is_video:
             params = {
-                    "access_token": cfbp.page_access_token,
+                "access_token": cfbp.page_access_token,
             }
-            response =requests.get(url, params=params)
+            response = requests.get(url, params=params)
             if response.status_code == 200:
-                vl=response.json().get('data')
+                vl = response.json().get('data')
                 # for metric in vid_metric:
-                clck=0
-                impr=0
+                clck = 0
+                impr = 0
                 for v in vl:
                     print(v['name'])
-                    vl=v['values'][0]['value']
-                    if v['name']== 'total_video_views_autoplayed':
-                        clck+=vl
-                    if v['name']== 'total_video_views_clicked_to_play':
-                        clck+=vl
-                    if v['name']== 'total_video_impressions':
-                        impr=vl
-                    cfb.post_impression_type[v['name']]=vl
+                    vl = v['values'][0]['value']
+                    if v['name'] == 'total_video_views_autoplayed':
+                        clck += vl
+                    if v['name'] == 'total_video_views_clicked_to_play':
+                        clck += vl
+                    if v['name'] == 'total_video_impressions':
+                        impr = vl
+                    cfb.post_impression_type[v['name']] = vl
                     cfb.save()
                 # save video data
-                cfb.impression_count=clck
-                cfb.impression_count=impr
+                cfb.impression_count = clck
+                cfb.impression_count = impr
                 cfb.save()
-                fb_post_click=cfb.post_clicks
-                fb_impressions=cfb.impression_count
-                if cfb.impression_count>0:
-                    impr_conv = cfb.post_clicks/cfb.impression_count
-                
+                fb_post_click = cfb.post_clicks
+                fb_impressions = cfb.impression_count
+                if cfb.impression_count > 0:
+                    impr_conv = cfb.post_clicks / cfb.impression_count
+
             else:
-                print('failed',response.status_code,response.content)   
-                return Response({'success':True})        
+                print('failed', response.status_code, response.content)
+                return Response({'success': True})
 
         else:
             params = {
-                    "metric": "post_clicks,post_impressions,post_impressions_viral,post_impressions_unique,post_impressions_paid,post_impressions_fan,post_impressions_organic,post_impressions_nonviral",
-                    "access_token": cfbp.page_access_token,
+                "metric": "post_clicks,post_impressions,post_impressions_viral,post_impressions_unique,post_impressions_paid,post_impressions_fan,post_impressions_organic,post_impressions_nonviral",
+                "access_token": cfbp.page_access_token,
             }
-            response =requests.get(url, params=params)
+            response = requests.get(url, params=params)
             if response.status_code == 200:
-                vl=response.json()['data']
+                vl = response.json()['data']
                 for v in vl:
                     if v['name'] == 'post_clicks':
-                        vl=v['values'][0]['value']
-                        cfb.post_impression_type['post_clicks']=vl
-                        cfb.post_clicks=vl
+                        vl = v['values'][0]['value']
+                        cfb.post_impression_type['post_clicks'] = vl
+                        cfb.post_clicks = vl
                         cfb.save()
                     if v['name'] == 'post_impressions_viral':
-                        vl=v['values'][0]['value']
-                        cfb.post_impression_type['post_impressions_viral']=vl
+                        vl = v['values'][0]['value']
+                        cfb.post_impression_type['post_impressions_viral'] = vl
                         cfb.save()
                     if v['name'] == 'post_impressions_unique':
-                        vl=v['values'][0]['value']
-                        cfb.post_impression_type['post_impressions_unique']=vl
+                        vl = v['values'][0]['value']
+                        cfb.post_impression_type['post_impressions_unique'] = vl
                         cfb.save()
                     if v['name'] == 'post_impressions_paid':
-                        vl=v['values'][0]['value']
-                        cfb.post_impression_type['post_impressions_paid']=vl
+                        vl = v['values'][0]['value']
+                        cfb.post_impression_type['post_impressions_paid'] = vl
                         cfb.save()
                     if v['name'] == 'post_impressions_fan':
-                        vl=v['values'][0]['value']
-                        cfb.post_impression_type['post_impressions_fan']=vl
+                        vl = v['values'][0]['value']
+                        cfb.post_impression_type['post_impressions_fan'] = vl
                         cfb.save()
                     if v['name'] == 'post_impressions_organic':
-                        vl=v['values'][0]['value']
-                        cfb.post_impression_type['post_impressions_organic']=vl
+                        vl = v['values'][0]['value']
+                        cfb.post_impression_type['post_impressions_organic'] = vl
                         cfb.save()
                     if v['name'] == 'post_impressions_nonviral':
-                        vl=v['values'][0]['value']
-                        cfb.post_impression_type['post_impressions_nonviral']=vl
+                        vl = v['values'][0]['value']
+                        cfb.post_impression_type['post_impressions_nonviral'] = vl
                         cfb.save()
                     if v['name'] == 'post_impressions':
-                        vl=v['values'][0]['value']
-                        my_dict['facebook']=vl
-                        cfb.post_impression_type['post_impressions']=vl
-                        cfb.impression_count=vl
+                        vl = v['values'][0]['value']
+                        my_dict['facebook'] = vl
+                        cfb.post_impression_type['post_impressions'] = vl
+                        cfb.impression_count = vl
                         cfb.save()
-                        
-                        
+
                 # cfb.impression_count=''
-                fb_post_click=cfb.post_clicks
-                fb_impressions=cfb.impression_count
-                if cfb.impression_count>0:
-                    impr_conv=cfb.post_clicks/cfb.impression_count
+                fb_post_click = cfb.post_clicks
+                fb_impressions = cfb.impression_count
+                if cfb.impression_count > 0:
+                    impr_conv = cfb.post_clicks / cfb.impression_count
                 # print("metrics retrieved successfully:", response.json())
             else:
-                print("Error getting metrics:", response.json())           
-    impress={}
+                print("Error getting metrics:", response.json())
+    impress = {}
     if cfb:
-        dts=cfb.post_impression_type
+        dts = cfb.post_impression_type
         if pst.is_video:
-            if dts['total_video_impressions']>0 or dts['total_video_play_count']>0:
-                impress={
-                    'impression_fans':dts['total_video_impressions_fan'],
-                    'impression_uniques':dts['total_video_impressions_unique'],
-                    'impression_paid':dts['total_video_impressions_paid'],
-                    'impression_organic':dts['total_video_impressions_organic'],
-                    'impression_viral':dts['total_video_impressions_viral'],
-                    'impression_nonviral':0,
-                    'has_data':True
+            if dts['total_video_impressions'] > 0 or dts['total_video_play_count'] > 0:
+                impress = {
+                    'impression_fans': dts['total_video_impressions_fan'],
+                    'impression_uniques': dts['total_video_impressions_unique'],
+                    'impression_paid': dts['total_video_impressions_paid'],
+                    'impression_organic': dts['total_video_impressions_organic'],
+                    'impression_viral': dts['total_video_impressions_viral'],
+                    'impression_nonviral': 0,
+                    'has_data': True
                 }
-                cfb.impression_count=dts['total_video_impressions']
-                cfb.post_clicks=dts['total_video_complete_views']
+                cfb.impression_count = dts['total_video_impressions']
+                cfb.post_clicks = dts['total_video_complete_views']
                 cfb.save()
-                
-                awt=dts['total_video_avg_time_watched']/1000
-                if awt>3600:
-                    awt=f'{round(awt/3600,2)}h'
-                elif awt>60:
-                    awt=f'{round(awt/60,2)}m'
+
+                awt = dts['total_video_avg_time_watched'] / 1000
+                if awt > 3600:
+                    awt = f'{round(awt / 3600, 2)}h'
+                elif awt > 60:
+                    awt = f'{round(awt / 60, 2)}m'
                 else:
-                    awt=f'{round(awt,2)}s' 
-                       
-                twt=dts['total_video_view_total_time']/1000
-                if twt>3600:
-                    twt=f'{round(twt/3600,2)}h'
-                elif twt>60:
-                    twt=f'{round(twt/60,2)}m'
+                    awt = f'{round(awt, 2)}s'
+
+                twt = dts['total_video_view_total_time'] / 1000
+                if twt > 3600:
+                    twt = f'{round(twt / 3600, 2)}h'
+                elif twt > 60:
+                    twt = f'{round(twt / 60, 2)}m'
                 else:
-                    twt=f'{round(twt,2)}s' 
-                my_dict['facebook']= dts['total_video_impressions'] 
-                country_keys=[]
-                country_values=[]
+                    twt = f'{round(twt, 2)}s'
+                my_dict['facebook'] = dts['total_video_impressions']
+                country_keys = []
+                country_values = []
                 if dts['total_video_view_time_by_country_id']:
                     pass
-                
-                age_values=[]
-                age_keys= ['13-17', '18-24', '25-34', '35-44', '45-54', '54-64', '65+']
+
+                age_values = []
+                age_keys = ['13-17', '18-24', '25-34', '35-44', '45-54', '54-64', '65+']
                 if dts['total_video_view_time_by_age_bucket_and_gender']:
-                    age_values=[{
-                            'name': 'Male',
-                            'data': [44, 55, 41, 64, 22, 43, 21]
-                        }, {
-                            'name': 'Female',
-                            'data': [53, 32, 33, 52, 13, 44, 32]
-                        }]
-                    age_keys= ['13-17', '18-24', '25-34', '35-44', '45-54', '54-64', '65+']
-                video_retention_labels=[]    
-                video_retention_data=[]  
+                    age_values = [{
+                        'name': 'Male',
+                        'data': [44, 55, 41, 64, 22, 43, 21]
+                    }, {
+                        'name': 'Female',
+                        'data': [53, 32, 33, 52, 13, 44, 32]
+                    }]
+                    age_keys = ['13-17', '18-24', '25-34', '35-44', '45-54', '54-64', '65+']
+                video_retention_labels = []
+                video_retention_data = []
                 if dts['total_video_retention_graph']:
-                      vrv=dts['total_video_retention_graph'].keys()
-                      video_retention_labels=[f"{i}'" for i in vrv]
-                      vd=dts['total_video_retention_graph'].values()
-                      video_retention_data=[round(i*100,1 ) for i in vd]
-                
-                if cfb.impression_count>0:
-                    impr_conv=cfb.post_clicks/cfb.impression_count
+                    vrv = dts['total_video_retention_graph'].keys()
+                    video_retention_labels = [f"{i}'" for i in vrv]
+                    vd = dts['total_video_retention_graph'].values()
+                    video_retention_data = [round(i * 100, 1) for i in vd]
+
+                if cfb.impression_count > 0:
+                    impr_conv = cfb.post_clicks / cfb.impression_count
 
                 # print(dts['total_video_retention_graph'])   
-                fb_video_data={
-                    'video_play_count':dts['total_video_play_count'],
-                    'average_watch_time':awt ,
-                    'total_watch_time':twt,
-                    'total_video_retention_graph':dts['total_video_retention_graph'],
-                    'video_retention_labels':video_retention_labels,
-                    'video_retention_data':video_retention_data,
-                    'total_video_consumption_rate':dts['total_video_consumption_rate'],
-                    'total_views':dts['total_video_complete_views'],
-                    'organic_views':dts['total_video_complete_views_organic'],
-                    'paid_views':dts['total_video_complete_views_paid'],
-                    'viewers_countries':[] if not dts['total_video_view_time_by_country_id'] else dts['total_video_view_time_by_country_id'],
-                    'country_keys':country_keys,
-                    'country_values':country_values,
-                    'age_keys':age_keys,
-                    'age_values':age_values,
-                    'age_gender':[] if not dts['total_video_view_time_by_age_bucket_and_gender'] else dts['total_video_view_time_by_age_bucket_and_gender']
-            }
-            else:
-                impress={
-                    'impression_fans':None,
-                    'impression_uniques':None,
-                    'impression_paid':None,
-                    'impression_organic':None,
-                    'impression_viral':None,
-                    'impression_nonviral':None,
+                fb_video_data = {
+                    'video_play_count': dts['total_video_play_count'],
+                    'average_watch_time': awt,
+                    'total_watch_time': twt,
+                    'total_video_retention_graph': dts['total_video_retention_graph'],
+                    'video_retention_labels': video_retention_labels,
+                    'video_retention_data': video_retention_data,
+                    'total_video_consumption_rate': dts['total_video_consumption_rate'],
+                    'total_views': dts['total_video_complete_views'],
+                    'organic_views': dts['total_video_complete_views_organic'],
+                    'paid_views': dts['total_video_complete_views_paid'],
+                    'viewers_countries': [] if not dts['total_video_view_time_by_country_id'] else dts[
+                        'total_video_view_time_by_country_id'],
+                    'country_keys': country_keys,
+                    'country_values': country_values,
+                    'age_keys': age_keys,
+                    'age_values': age_values,
+                    'age_gender': [] if not dts['total_video_view_time_by_age_bucket_and_gender'] else dts[
+                        'total_video_view_time_by_age_bucket_and_gender']
                 }
-                impress['has_data']=False
+            else:
+                impress = {
+                    'impression_fans': None,
+                    'impression_uniques': None,
+                    'impression_paid': None,
+                    'impression_organic': None,
+                    'impression_viral': None,
+                    'impression_nonviral': None,
+                }
+                impress['has_data'] = False
 
         else:
-            impress={
-                'impression_fans':dts['post_impressions_fan'],
-                'impression_uniques':dts['post_impressions_unique'],
-                'impression_paid':dts['post_impressions_paid'],
-                'impression_organic':dts['post_impressions_organic'],
-                'impression_viral':dts['post_impressions_viral'],
-                'impression_nonviral':dts['post_impressions_nonviral'],
-                'has_data':True
+            impress = {
+                'impression_fans': dts['post_impressions_fan'],
+                'impression_uniques': dts['post_impressions_unique'],
+                'impression_paid': dts['post_impressions_paid'],
+                'impression_organic': dts['post_impressions_organic'],
+                'impression_viral': dts['post_impressions_viral'],
+                'impression_nonviral': dts['post_impressions_nonviral'],
+                'has_data': True
             }
-        
+
     sorted_dict = dict(sorted(my_dict.items(), key=lambda item: item[1], reverse=True))
-    
+
     return Response({'result': 'success',
-                     'has_reddit':has_reddit,
-                     'reddit_total_engagement':f'{red_te}%',
-                     'reddit_upvotes':red_up,
-                     'reddit_comments':red_cmt,
-                     'reddit_crossposts':red_cpst,
-                     'reddit_subs':red_subs,
-                     'platform_engagement':list(sorted_dict.values()),
-                     'pltfrms':list(sorted_dict.keys()), 
-                    #  facebook
-                     'fb_impressions':fb_impressions,
-                     'fb_clicks':fb_post_click,
-                     'has_facebook':has_facebook,
-                     'fb_conversion_rate':f'{round(impr_conv*100,1) }%' if impr_conv >0 else impr_conv ,
-                     'is_media_video':pst.is_video,
-                     'impression_dist':impress,
-                     'fb_video_data':fb_video_data
+                     'has_reddit': has_reddit,
+                     'reddit_total_engagement': f'{red_te}%',
+                     'reddit_upvotes': red_up,
+                     'reddit_comments': red_cmt,
+                     'reddit_crossposts': red_cpst,
+                     'reddit_subs': red_subs,
+                     'platform_engagement': list(sorted_dict.values()),
+                     'pltfrms': list(sorted_dict.keys()),
+                     #  facebook
+                     'fb_impressions': fb_impressions,
+                     'fb_clicks': fb_post_click,
+                     'has_facebook': has_facebook,
+                     'fb_conversion_rate': f'{round(impr_conv * 100, 1)}%' if impr_conv > 0 else impr_conv,
+                     'is_media_video': pst.is_video,
+                     'impression_dist': impress,
+                     'fb_video_data': fb_video_data
                      })
-  
-def processCommentReplies(comment_id,replies,submission_op):
-    for comment in replies: 
-        cmr=CompanyPostsCommentsReplies.objects.filter(comment_id=comment.id).first()
+
+
+def processCommentReplies(comment_id, replies, submission_op):
+    for comment in replies:
+        cmr = CompanyPostsCommentsReplies.objects.filter(comment_id=comment.id).first()
         if not cmr:
             if not all([comment.author]):
                 continue
-            cpstcmt=CompanyPostsCommentsReplies(
+            cpstcmt = CompanyPostsCommentsReplies(
                 parent_comment_id=comment_id,
                 comment_id=comment.id,
                 is_op=comment.author == submission_op,
                 author=comment.author if comment.author else '[Deleted]',
-                author_profile=comment.author.icon_img if comment.author else None ,
+                author_profile=comment.author.icon_img if comment.author else None,
                 message=comment.body,
                 like_count=comment.score,
                 reply_count=len(comment.replies),
@@ -1576,34 +1614,35 @@ def processCommentReplies(comment_id,replies,submission_op):
             if comment.body == '[deleted]':
                 cmr.delete()
                 continue
-            cmr.message=comment.body
-            cmr.like_count=comment.score
-            cmr.reply_count=len(comment.replies)
+            cmr.message = comment.body
+            cmr.like_count = comment.score
+            cmr.reply_count = len(comment.replies)
             cmr.save()
-        if len(comment.replies)>0:
+        if len(comment.replies) > 0:
             # nested reply recursive
-            processCommentReplies(comment_id=comment.id,replies=comment.replies,submission_op=submission_op)
+            processCommentReplies(comment_id=comment.id, replies=comment.replies, submission_op=submission_op)
 
-def fetchRedditComments(post,post_id):
-    crp=CompanyRedditPosts.objects.filter(post_id=post_id).first()
+
+def fetchRedditComments(post, post_id):
+    crp = CompanyRedditPosts.objects.filter(post_id=post_id).first()
     if crp:
-        platform='reddit'
+        platform = 'reddit'
         for sbs in crp.subs:
-            p_id=sbs['id']
+            p_id = sbs['id']
             submission = reddit.submission(id=p_id)
             # Ensure comments are fully loaded
             submission.comments.replace_more(limit=None)
-            submission_op=submission.author    
+            submission_op = submission.author
             # Iterate over the comments
             for comment in submission.comments:
-                cmt=CompanyPostsComments.objects.filter(comment_id=comment.id).first()
+                cmt = CompanyPostsComments.objects.filter(comment_id=comment.id).first()
                 if not cmt:
-                    cpstcmt=CompanyPostsComments(
+                    cpstcmt = CompanyPostsComments(
                         post=post,
                         comment_id=comment.id,
                         is_op=comment.author == submission_op,
                         platform=platform,
-                        author=comment.author ,
+                        author=comment.author,
                         author_profile=comment.author.icon_img,
                         message=comment.body,
                         like_count=comment.score,
@@ -1612,33 +1651,34 @@ def fetchRedditComments(post,post_id):
                     )
                     cpstcmt.save()
                 else:
-                    cmt.message=comment.body
-                    cmt.like_count=comment.score
-                    cmt.reply_count=len(comment.replies)
+                    cmt.message = comment.body
+                    cmt.like_count = comment.score
+                    cmt.reply_count = len(comment.replies)
                     cmt.save()
                 # recursively process comment replies using threads
                 if len(comment.replies) > 0:
                     # save the reply comments
-                    processCommentReplies(comment_id=comment.id,replies=comment.replies,submission_op=submission_op) 
+                    processCommentReplies(comment_id=comment.id, replies=comment.replies, submission_op=submission_op)
 
-def processFacebookReplies(comment_id,page_access_token,page_id):
+
+def processFacebookReplies(comment_id, page_access_token, page_id):
     print('Get facebook replies')
     url = f"https://graph.facebook.com/v21.0/{comment_id}/comments"
     params = {
         'fields': 'id,message,from{id,name,picture},created_time,like_count,comment_count',
         'access_token': page_access_token
-    }  
+    }
     response = requests.get(url, params=params)
 
     if response.status_code == 200:
-        val=response.json()
-        datas=val['data']
+        val = response.json()
+        datas = val['data']
         for data in datas:
-            created_time_str=data['created_time']
+            created_time_str = data['created_time']
             created_time_naive = datetime.strptime(created_time_str, "%Y-%m-%dT%H:%M:%S%z")
 
             created_time_with_timezone = created_time_naive.astimezone(timezone.utc)
-            cpr=CompanyPostsCommentsReplies.objects.filter(comment_id=data['id']).first()
+            cpr = CompanyPostsCommentsReplies.objects.filter(comment_id=data['id']).first()
             if not cpr:
                 cpr = CompanyPostsCommentsReplies(
                     parent_comment_id=comment_id,
@@ -1651,36 +1691,34 @@ def processFacebookReplies(comment_id,page_access_token,page_id):
                     reply_count=data['comment_count'],
                     is_published=True,
                     date_updated=created_time_with_timezone
-                    )
+                )
                 cpr.save()
             else:
-                cpr.message=data['message']
-                cpr.like_count=data['like_count']
-                cpr.reply_count=data['comment_count']
+                cpr.message = data['message']
+                cpr.like_count = data['like_count']
+                cpr.reply_count = data['comment_count']
                 cpr.save()
-            if cpr.reply_count>0:
+            if cpr.reply_count > 0:
                 # fetch reply to reply
                 print('fetching reply to the reply')
-                processFacebookReplies(comment_id=data['id'],page_access_token=page_access_token,page_id=page_id) 
-            
-        
+                processFacebookReplies(comment_id=data['id'], page_access_token=page_access_token, page_id=page_id)
+
+
     else:
         print('error found')
         raise Exception(f"Error fetching data: {response.status_code} - {response.text}")
 
-      
-    
-def fetchFacebookComments(post,post_id):
-    print('Fetching facebook comments') 
-    cfbp=CompanyFacebookPosts.objects.filter(post_id=post_id).first()
+
+def fetchFacebookComments(post, post_id):
+    print('Fetching facebook comments')
+    cfbp = CompanyFacebookPosts.objects.filter(post_id=post_id).first()
     if cfbp:
-        platform='facebook'
-        cfb=CompanyFacebook.objects.filter(company=post.company).first()
+        platform = 'facebook'
+        cfb = CompanyFacebook.objects.filter(company=post.company).first()
         if not cfb:
-           
             return
         # Fields to fetch
-        url=f'https://graph.facebook.com/v21.0/{cfbp.content_id}/comments'
+        url = f'https://graph.facebook.com/v21.0/{cfbp.content_id}/comments'
         FIELDS = (
             'id,message,from{id,name,picture},created_time,comment_count,like_count'
         )
@@ -1691,95 +1729,99 @@ def fetchFacebookComments(post,post_id):
         response = requests.get(url, params=params)
 
         if response.status_code == 200:
-            val=response.json()
-            data=val['data']
+            val = response.json()
+            data = val['data']
             for d in data:
-                c_id=d['id']
-                created_time_str=d['created_time']
+                c_id = d['id']
+                created_time_str = d['created_time']
                 created_time_naive = datetime.strptime(created_time_str, "%Y-%m-%dT%H:%M:%S%z")
 
                 created_time_with_timezone = created_time_naive.astimezone(timezone.utc)
-                cpc=CompanyPostsComments.objects.filter(comment_id=c_id).first()
+                cpc = CompanyPostsComments.objects.filter(comment_id=c_id).first()
                 if not cpc:
-                    cpc=CompanyPostsComments(
-                            post=post,
-                            comment_id=c_id,
-                            platform=platform,
-                            author=d['from']['name'],
-                            message=d['message'],
-                            author_profile=d['from']['picture']['data']['url'],
-                            is_op=d['from']['id'] == cfb.page_id,
-                            like_count=d['like_count'],
-                            reply_count=d['comment_count'],
-                            is_published=True,
-                            date_updated=created_time_with_timezone
-                        )
+                    cpc = CompanyPostsComments(
+                        post=post,
+                        comment_id=c_id,
+                        platform=platform,
+                        author=d['from']['name'],
+                        message=d['message'],
+                        author_profile=d['from']['picture']['data']['url'],
+                        is_op=d['from']['id'] == cfb.page_id,
+                        like_count=d['like_count'],
+                        reply_count=d['comment_count'],
+                        is_published=True,
+                        date_updated=created_time_with_timezone
+                    )
                     cpc.save()
                 else:
-                    cpc.like_count=d['like_count']
-                    cpc.reply_count=d['comment_count']
-                    cpc.date_updated=created_time_with_timezone
+                    cpc.like_count = d['like_count']
+                    cpc.reply_count = d['comment_count']
+                    cpc.date_updated = created_time_with_timezone
                     cpc.save()
-                print('reply count',cpc.reply_count)
-                if cpc.reply_count>0:
+                print('reply count', cpc.reply_count)
+                if cpc.reply_count > 0:
                     # process the replies
-                    processFacebookReplies(comment_id=c_id,page_access_token=cfb.page_access_token,page_id=cfb.page_id) 
+                    processFacebookReplies(comment_id=c_id, page_access_token=cfb.page_access_token,
+                                           page_id=cfb.page_id)
         else:
             raise Exception(f"Error fetching data: {response.status_code} - {response.text}")
 
 
-def fetchInstagramComments(post,post_id):
-    pass          
-def fetchTiktokComments(post,post_id):
-    pass  
+def fetchInstagramComments(post, post_id):
+    pass
 
-def commentBackgroundUpdate(post,post_id):
-    rdCmtThread=threading.Thread(target=fetchRedditComments,daemon=True,kwargs={
-       'post_id':post_id,
-       'post':post 
+
+def fetchTiktokComments(post, post_id):
+    pass
+
+
+def commentBackgroundUpdate(post, post_id):
+    rdCmtThread = threading.Thread(target=fetchRedditComments, daemon=True, kwargs={
+        'post_id': post_id,
+        'post': post
     })
     rdCmtThread.start()
-    
-    fbCmtThread=threading.Thread(target=fetchFacebookComments,daemon=True,kwargs={
-       'post_id':post_id,
-       'post':post 
+
+    fbCmtThread = threading.Thread(target=fetchFacebookComments, daemon=True, kwargs={
+        'post_id': post_id,
+        'post': post
     })
     fbCmtThread.start()
-    
-    
+
+
 @api_view(['POST'])
 def likeComment(request):
     comment_id = request.POST.get('comment_id', None)
-    comment_level= request.POST.get('comment_level', None)
+    comment_level = request.POST.get('comment_level', None)
     company_id = request.POST.get('company_id', None)
-    if not all([comment_id,comment_id,comment_level]):
+    if not all([comment_id, comment_id, comment_level]):
         return Response({'error': 'Bad request'})
     cp = Company.objects.filter(company_id=company_id).first()
     if not cp:
         return Response({'error': 'Bad request'})
     # get the specific platform
-    pltform=''
+    pltform = ''
     if comment_level == 'comment_post':
-        cpst=CompanyPostsComments.objects.filter(comment_id=comment_id).first()
+        cpst = CompanyPostsComments.objects.filter(comment_id=comment_id).first()
         if cpst:
-            pltform=cpst.platform
+            pltform = cpst.platform
     elif comment_level == 'comment_sec_reply':
-        cprs=CompanyPostsCommentsReplies.objects.filter(comment_id=comment_id).first()
+        cprs = CompanyPostsCommentsReplies.objects.filter(comment_id=comment_id).first()
         if cprs:
-            pr_id=cprs.parent_comment_id
-            cprs=CompanyPostsCommentsReplies.objects.filter(comment_id=pr_id).first()
+            pr_id = cprs.parent_comment_id
+            cprs = CompanyPostsCommentsReplies.objects.filter(comment_id=pr_id).first()
             if cprs:
-                pr_id=cprs.parent_comment_id
-                cpst=CompanyPostsComments.objects.filter(comment_id=pr_id).first()
+                pr_id = cprs.parent_comment_id
+                cpst = CompanyPostsComments.objects.filter(comment_id=pr_id).first()
                 if cpst:
-                    pltform=cpst.platform
+                    pltform = cpst.platform
     else:
-        cprs=CompanyPostsCommentsReplies.objects.filter(comment_id=comment_id).first()
+        cprs = CompanyPostsCommentsReplies.objects.filter(comment_id=comment_id).first()
         if cprs:
-            pr_id=cprs.parent_comment_id
-            cpst=CompanyPostsComments.objects.filter(comment_id=pr_id).first()
+            pr_id = cprs.parent_comment_id
+            cpst = CompanyPostsComments.objects.filter(comment_id=pr_id).first()
             if cpst:
-                pltform=cpst.platform
+                pltform = cpst.platform
     print(pltform)
     if not pltform:
         return Response({'error': 'Bad request'})
@@ -1788,20 +1830,20 @@ def likeComment(request):
         try:
             cr = CompanyReddit.objects.filter(company=cp).first()
             reddit = praw.Reddit(
-                    client_id=settings.REDDIT_CLIENT_ID,
-                    client_secret=settings.REDDIT_CLIENT_SECRET,
-                    user_agent=settings.REDDIT_USER_AGENT,
-                    refresh_token=cr.refresh_token,
-                )
+                client_id=settings.REDDIT_CLIENT_ID,
+                client_secret=settings.REDDIT_CLIENT_SECRET,
+                user_agent=settings.REDDIT_USER_AGENT,
+                refresh_token=cr.refresh_token,
+            )
             comment = reddit.comment(id=comment_id)  # Replace with the comment ID
             # Upvote the comment
-            comment.upvote() 
+            comment.upvote()
             return Response({'success': 'Bad request'})
         except:
             return Response({'error': 'Could not upvote comment'})
     if pltform == 'facebook':
-        cfb=CompanyFacebook.objects.filter(company=cp).first()
-        if not cfb: 
+        cfb = CompanyFacebook.objects.filter(company=cp).first()
+        if not cfb:
             print('no facebook account')
             return Response({'error': 'Could not like comment'})
 
@@ -1831,49 +1873,49 @@ def getComments(request):
     if not post_id:
         return Response({'error': 'Bad request'})
     # get the ost from the post_id
-    pst=CompanyPosts.objects.filter(post_id=post_id).first()
+    pst = CompanyPosts.objects.filter(post_id=post_id).first()
     if not pst:
         return Response({'error': 'Bad request'})
     # try:
-    cpstcmt=CompanyPostsComments.objects.filter(post=pst)
+    cpstcmt = CompanyPostsComments.objects.filter(post=pst)
     if not cpstcmt:
         # reddit post comments
-        crp=CompanyRedditPosts.objects.filter(post_id=post_id).first()
+        crp = CompanyRedditPosts.objects.filter(post_id=post_id).first()
         if crp:
-            fetchRedditComments(post=pst,post_id=post_id)
-        cfbp=CompanyFacebookPosts.objects.filter(post_id=post_id).first()
+            fetchRedditComments(post=pst, post_id=post_id)
+        cfbp = CompanyFacebookPosts.objects.filter(post_id=post_id).first()
         if cfbp:
-            fetchFacebookComments(post=pst,post_id=post_id)
+            fetchFacebookComments(post=pst, post_id=post_id)
     else:
-        #return already present comments while updating in the background
-        thrd=threading.Thread(target=commentBackgroundUpdate,daemon=True,kwargs={
-            'post':pst, 
-            'post_id':post_id,
+        # return already present comments while updating in the background
+        thrd = threading.Thread(target=commentBackgroundUpdate, daemon=True, kwargs={
+            'post': pst,
+            'post_id': post_id,
         })
         thrd.start()
-        
-    cpstmt=CompanyPostsComments.objects.filter(post=pst).order_by('-like_count','-reply_count','-pk')
-    cmts=[] 
+
+    cpstmt = CompanyPostsComments.objects.filter(post=pst).order_by('-like_count', '-reply_count', '-pk')
+    cmts = []
     for cpm in cpstmt:
         cmts.append({
-            'author':cpm.author,
-            'id':cpm.comment_id,
-            'author_profile':cpm.author_profile,
-            'message_body':cpm.message,
-            'isOP':cpm.is_op,
-            'isReddit':True if cpm.platform == 'reddit' else False,
-            'isFacebook':True if cpm.platform == 'facebook' else False,
-            'isInstagram':True if cpm.platform == 'instagram' else False,
-            'isTiktok':True if cpm.platform == 'tiktok' else False,
-            'like_count':cpm.like_count,
-            'reply_count':cpm.reply_count,
-            'isPublished':cpm.is_published,
-            'date_updated':cpm.date_updated
-            
-        }) 
-    # cp=CompanyPosts.objects.all().order_by('-pk') # Execution time 4.7885 seconds
-    cp=CompanyPosts.objects.filter(id=pst.id) # Execution time 4.0257 seconds 
-    all_posts=[]
+            'author': cpm.author,
+            'id': cpm.comment_id,
+            'author_profile': cpm.author_profile,
+            'message_body': cpm.message,
+            'isOP': cpm.is_op,
+            'isReddit': True if cpm.platform == 'reddit' else False,
+            'isFacebook': True if cpm.platform == 'facebook' else False,
+            'isInstagram': True if cpm.platform == 'instagram' else False,
+            'isTiktok': True if cpm.platform == 'tiktok' else False,
+            'like_count': cpm.like_count,
+            'reply_count': cpm.reply_count,
+            'isPublished': cpm.is_published,
+            'date_updated': cpm.date_updated
+
+        })
+        # cp=CompanyPosts.objects.all().order_by('-pk') # Execution time 4.7885 seconds
+    cp = CompanyPosts.objects.filter(id=pst.id)  # Execution time 4.0257 seconds 
+    all_posts = []
     for p in cp:
         um = UploadedMedia.objects.filter(post=p)
         med = []
@@ -1882,207 +1924,212 @@ def getComments(request):
                 'media_url': m.media.url,
                 'is_video': False
             })
-        reds=[]
-        cover_image_link=''
-        
+        reds = []
+        cover_image_link = ''
+
         if 'reddit' in p.platforms:
-            cr=CompanyRedditPosts.objects.filter(post_id=p.post_id).first()
+            cr = CompanyRedditPosts.objects.filter(post_id=p.post_id).first()
             if cr:
-                k=cr.subs[0]
+                k = cr.subs[0]
                 cover_image_link = k['link']
             # use threading to update post and comments
             pass
-        eng_cnt=p.engagement_count
-        if eng_cnt>1000000:
-            eng_cnt=round(eng_cnt/1000000,1)
-        elif eng_cnt>1000:
-            eng_cnt=round(eng_cnt/1000,1)
-        cmt_cnt=p.comment_count
-        if cmt_cnt>1000:
-            cmt_cnt=round(cmt_cnt/1000,1)
-        elif cmt_cnt>1000:
-            cmt_cnt=round(cmt_cnt/1000,1)
+        eng_cnt = p.engagement_count
+        if eng_cnt > 1000000:
+            eng_cnt = round(eng_cnt / 1000000, 1)
+        elif eng_cnt > 1000:
+            eng_cnt = round(eng_cnt / 1000, 1)
+        cmt_cnt = p.comment_count
+        if cmt_cnt > 1000:
+            cmt_cnt = round(cmt_cnt / 1000, 1)
+        elif cmt_cnt > 1000:
+            cmt_cnt = round(cmt_cnt / 1000, 1)
         all_posts.append({
             'platforms': [pl.capitalize() for pl in p.platforms],
             'title': p.title,
             'content': p.description,
             'is_uploaded': p.is_published,
             'is_scheduled': p.is_scheduled,
-            'comment_count':cmt_cnt,
-            'engagement_count':eng_cnt,
+            'comment_count': cmt_cnt,
+            'engagement_count': eng_cnt,
             'tags': p.tags,
             'has_media': p.has_media,
-            'cover_image_link':p.media_thumbnail,
-            'media':None if not p.has_media else UploadedMedia.objects.filter(post=p).first(),
+            'cover_image_link': p.media_thumbnail,
+            'media': None if not p.has_media else UploadedMedia.objects.filter(post=p).first(),
             'date_uploaded': p.date_uploaded,
-            'date_scheduled':p.date_scheduled,
+            'date_scheduled': p.date_scheduled,
             'media': med,
-            'post_id':p.post_id,
-            'has_all':len(p.platforms)==4,
-            'has_reddit':'reddit' in p.platforms,
-            'has_tiktok':'tiktok' in p.platforms,
-            'has_facebook':'facebook' in p.platforms,
-            'has_instagram':'instagram' in p.platforms,
+            'post_id': p.post_id,
+            'has_all': len(p.platforms) == 4,
+            'has_reddit': 'reddit' in p.platforms,
+            'has_tiktok': 'tiktok' in p.platforms,
+            'has_facebook': 'facebook' in p.platforms,
+            'has_instagram': 'instagram' in p.platforms,
         })
 
-    context={
-        'success':True,
-        'comments_data':cmts,
+    context = {
+        'success': True,
+        'comments_data': cmts,
         'posts': all_posts,
-        }
+    }
     return render(request, 'dashboard.html', context=context)
-    
+
+
 @api_view(['POST'])
 def getCommentReplies(request):
     c_id = request.POST.get('comment_id', None)
     if not c_id:
         return Response({'error': 'Bad request'})
 
-    pstc=CompanyPostsComments.objects.filter(comment_id=c_id).first()
+    pstc = CompanyPostsComments.objects.filter(comment_id=c_id).first()
     if not pstc:
         return Response({'error': 'Bad request'})
     #  get the replies to this comment
-    pst=pstc.post
-    c_replies=[]
-    crp=CompanyPostsCommentsReplies.objects.filter(parent_comment_id=c_id).order_by('-like_count','-reply_count','-pk')
+    pst = pstc.post
+    c_replies = []
+    crp = CompanyPostsCommentsReplies.objects.filter(parent_comment_id=c_id).order_by('-like_count', '-reply_count',
+                                                                                      '-pk')
     for cpm in crp:
-        replies=[]
-        crps=CompanyPostsCommentsReplies.objects.filter(parent_comment_id=cpm.comment_id).order_by('-like_count','-reply_count','-pk')
-        for c_s in crps: 
+        replies = []
+        crps = CompanyPostsCommentsReplies.objects.filter(parent_comment_id=cpm.comment_id).order_by('-like_count',
+                                                                                                     '-reply_count',
+                                                                                                     '-pk')
+        for c_s in crps:
             replies.append({
-                'author':c_s.author,
-                'id':c_s.comment_id,
-                'author_profile':c_s.author_profile,
-                'message_body':c_s.message,
-                'isOP':c_s.is_op,
-                'like_count':c_s.like_count,
-                'reply_count':c_s.reply_count,
-                'isPublished':c_s.is_published,
-                'date_updated':c_s.date_updated,
+                'author': c_s.author,
+                'id': c_s.comment_id,
+                'author_profile': c_s.author_profile,
+                'message_body': c_s.message,
+                'isOP': c_s.is_op,
+                'like_count': c_s.like_count,
+                'reply_count': c_s.reply_count,
+                'isPublished': c_s.is_published,
+                'date_updated': c_s.date_updated,
             })
         c_replies.append({
-            'author':cpm.author,
-            'id':cpm.comment_id,
-            'author_profile':cpm.author_profile,
-            'message_body':cpm.message,
-            'isOP':cpm.is_op,
-            'like_count':cpm.like_count,
-            'reply_count':cpm.reply_count,
-            'isPublished':cpm.is_published,
-            'date_updated':cpm.date_updated,
-            'replies':replies
+            'author': cpm.author,
+            'id': cpm.comment_id,
+            'author_profile': cpm.author_profile,
+            'message_body': cpm.message,
+            'isOP': cpm.is_op,
+            'like_count': cpm.like_count,
+            'reply_count': cpm.reply_count,
+            'isPublished': cpm.is_published,
+            'date_updated': cpm.date_updated,
+            'replies': replies
         })
     # return that post alone
     # cp=CompanyPosts.objects.all().order_by('-pk')
-    cp=CompanyPosts.objects.filter(id=pst.id)
-    all_posts=[]
+    cp = CompanyPosts.objects.filter(id=pst.id)
+    all_posts = []
     for p in cp:
-            um = UploadedMedia.objects.filter(post=p)
-            med = []
-            for m in um:
-                med.append({
-                    'media_url': m.media.url,
-                    'is_video': False
-                })
-            reds=[]
-            cover_image_link=''
-            
-            if 'reddit' in p.platforms:
-                cr=CompanyRedditPosts.objects.filter(post_id=p.post_id).first()
-                if cr:
-                    k=cr.subs[0]
-                    cover_image_link = k['link']
-                # use threading to update post and comments
-                pass
-            eng_cnt=p.engagement_count
-            if eng_cnt>1000000:
-                eng_cnt=round(eng_cnt/1000000,1)
-            elif eng_cnt>1000:
-                eng_cnt=round(eng_cnt/1000,1)
-            cmt_cnt=p.comment_count
-            if cmt_cnt>1000:
-                cmt_cnt=round(cmt_cnt/1000,1)
-            elif cmt_cnt>1000:
-                cmt_cnt=round(cmt_cnt/1000,1)
-            all_posts.append({
-                'platforms': [pl.capitalize() for pl in p.platforms],
-                'title': p.title,
-                'content': p.description,
-                'is_uploaded': p.is_published,
-                'is_scheduled': p.is_scheduled,
-                'comment_count':cmt_cnt,
-                'engagement_count':eng_cnt,
-                'tags':p.tags,
-                'has_media': p.has_media,
-                'cover_image_link':p.media_thumbnail,
-                'media':None if not p.has_media else UploadedMedia.objects.filter(post=p).first(),
-                'date_uploaded': p.date_uploaded,
-                'date_scheduled':p.date_scheduled,
-                'media': med,
-                'post_id':p.post_id,
-                'has_all':len(p.platforms)==4,
-                'has_reddit':'reddit' in p.platforms,
-                'has_tiktok':'tiktok' in p.platforms,
-                'has_facebook':'facebook' in p.platforms,
-                'has_instagram':'instagram' in p.platforms,
+        um = UploadedMedia.objects.filter(post=p)
+        med = []
+        for m in um:
+            med.append({
+                'media_url': m.media.url,
+                'is_video': False
             })
-    cpstmt=CompanyPostsComments.objects.filter(post=pst, comment_id=c_id) # get only relevant comment optimise speed
-    cmts=[] 
+        reds = []
+        cover_image_link = ''
+
+        if 'reddit' in p.platforms:
+            cr = CompanyRedditPosts.objects.filter(post_id=p.post_id).first()
+            if cr:
+                k = cr.subs[0]
+                cover_image_link = k['link']
+            # use threading to update post and comments
+            pass
+        eng_cnt = p.engagement_count
+        if eng_cnt > 1000000:
+            eng_cnt = round(eng_cnt / 1000000, 1)
+        elif eng_cnt > 1000:
+            eng_cnt = round(eng_cnt / 1000, 1)
+        cmt_cnt = p.comment_count
+        if cmt_cnt > 1000:
+            cmt_cnt = round(cmt_cnt / 1000, 1)
+        elif cmt_cnt > 1000:
+            cmt_cnt = round(cmt_cnt / 1000, 1)
+        all_posts.append({
+            'platforms': [pl.capitalize() for pl in p.platforms],
+            'title': p.title,
+            'content': p.description,
+            'is_uploaded': p.is_published,
+            'is_scheduled': p.is_scheduled,
+            'comment_count': cmt_cnt,
+            'engagement_count': eng_cnt,
+            'tags': p.tags,
+            'has_media': p.has_media,
+            'cover_image_link': p.media_thumbnail,
+            'media': None if not p.has_media else UploadedMedia.objects.filter(post=p).first(),
+            'date_uploaded': p.date_uploaded,
+            'date_scheduled': p.date_scheduled,
+            'media': med,
+            'post_id': p.post_id,
+            'has_all': len(p.platforms) == 4,
+            'has_reddit': 'reddit' in p.platforms,
+            'has_tiktok': 'tiktok' in p.platforms,
+            'has_facebook': 'facebook' in p.platforms,
+            'has_instagram': 'instagram' in p.platforms,
+        })
+    cpstmt = CompanyPostsComments.objects.filter(post=pst, comment_id=c_id)  # get only relevant comment optimise speed
+    cmts = []
     for cpm in cpstmt:
         cmts.append({
-            'author':cpm.author,
-            'id':cpm.comment_id,
-            'author_profile':cpm.author_profile,
-            'message_body':cpm.message,
-            'isOP':cpm.is_op,
-            'isReddit':True if cpm.platform == 'reddit' else False,
-            'isFacebook':True if cpm.platform == 'facebook' else False,
-            'isInstagram':True if cpm.platform == 'instagram' else False,
-            'isTiktok':True if cpm.platform == 'tiktok' else False,
-            'like_count':cpm.like_count,
-            'reply_count':cpm.reply_count,
-            'isPublished':cpm.is_published,
-            'date_updated':cpm.date_updated,
-            
-        }) 
+            'author': cpm.author,
+            'id': cpm.comment_id,
+            'author_profile': cpm.author_profile,
+            'message_body': cpm.message,
+            'isOP': cpm.is_op,
+            'isReddit': True if cpm.platform == 'reddit' else False,
+            'isFacebook': True if cpm.platform == 'facebook' else False,
+            'isInstagram': True if cpm.platform == 'instagram' else False,
+            'isTiktok': True if cpm.platform == 'tiktok' else False,
+            'like_count': cpm.like_count,
+            'reply_count': cpm.reply_count,
+            'isPublished': cpm.is_published,
+            'date_updated': cpm.date_updated,
 
-    context={
-        'success':True,
-        'comments_replies':c_replies,
-        'comments_data':cmts,
+        })
+
+    context = {
+        'success': True,
+        'comments_replies': c_replies,
+        'comments_data': cmts,
         'posts': all_posts,
-        }
+    }
     return render(request, 'dashboard.html', context=context)
+
 
 @api_view(['POST'])
 def postComment(request):
     comment_id = request.POST.get('comment_id', None)
     post_id = request.POST.get('post_id', None)
-    comment_level= request.POST.get('comment_level', None)
+    comment_level = request.POST.get('comment_level', None)
     comment_rt = request.POST.get('comment', None)
     company_id = request.POST.get('company_id', None)
-    if not all([comment_id,comment_rt,comment_id,comment_level]):
+    if not all([comment_id, comment_rt, comment_id, comment_level]):
         return Response({'error': 'Bad request'})
     cp = Company.objects.filter(company_id=company_id).first()
     if not cp:
         return Response({'error': 'Bad request'})
-    
+
     # get the specific platform
     # post_id=''
-    pltform=''
+    pltform = ''
     if comment_level == 'comment-post':
-        cpst=CompanyPostsComments.objects.filter(comment_id=comment_id).first()
+        cpst = CompanyPostsComments.objects.filter(comment_id=comment_id).first()
         if cpst:
-            pltform=cpst.platform
+            pltform = cpst.platform
             # cps=cpst.post
             # post_id=cps.post_id
     else:
-        cprs=CompanyPostsCommentsReplies.objects.filter(comment_id=comment_id).first()
+        cprs = CompanyPostsCommentsReplies.objects.filter(comment_id=comment_id).first()
         if cprs:
-            pr_id=cprs.parent_comment_id
-            cpst=CompanyPostsComments.objects.filter(comment_id=pr_id).first()
+            pr_id = cprs.parent_comment_id
+            cpst = CompanyPostsComments.objects.filter(comment_id=pr_id).first()
             if cpst:
-                pltform=cpst.platform
+                pltform = cpst.platform
                 # cps=cpst.post
                 # post_id=cps.post_id
 
@@ -2095,70 +2142,70 @@ def postComment(request):
     if pltform == 'reddit':
         cr = CompanyReddit.objects.filter(company=cp).first()
         reddit = praw.Reddit(
-                client_id=settings.REDDIT_CLIENT_ID,
-                client_secret=settings.REDDIT_CLIENT_SECRET,
-                user_agent=settings.REDDIT_USER_AGENT,
-                refresh_token=cr.refresh_token,
-            )
+            client_id=settings.REDDIT_CLIENT_ID,
+            client_secret=settings.REDDIT_CLIENT_SECRET,
+            user_agent=settings.REDDIT_USER_AGENT,
+            refresh_token=cr.refresh_token,
+        )
         comment = reddit.comment(id=comment_id)
         # Submit a reply
         comment.reply(comment_rt)
         # fetch comments 
-    
+
     elif pltform == 'facebook':
-        cfb=CompanyFacebook.objects.filter(company=cp).first()
+        cfb = CompanyFacebook.objects.filter(company=cp).first()
         url = f"https://graph.facebook.com/v21.0/{comment_id}/comments"
         data = {
             'message': comment_rt,
             'access_token': cfb.page_access_token
         }
         response = requests.post(url, data=data)
-        
+
         if response.status_code == 200:
-            data= response.json()  # Returns the reply ID
+            data = response.json()  # Returns the reply ID
         else:
             return Response({'error': 'Could not submit comment'})
-            
+
     # get the post from the post_id
-    pst=CompanyPosts.objects.filter(post_id=post_id).first()
+    pst = CompanyPosts.objects.filter(post_id=post_id).first()
     if not pst:
         return Response({'error': 'Bad request'})
     # try:
     print('thread started')
     if pltform == 'facebook':
-        fetchFacebookComments(post=pst,post_id=post_id)
+        fetchFacebookComments(post=pst, post_id=post_id)
     elif pltform == 'tiktok':
-        fetchTiktokComments(post=pst,post_id=post_id)
+        fetchTiktokComments(post=pst, post_id=post_id)
     elif pltform == 'instagram':
-        fetchInstagramComments(post=pst,post_id=post_id)
+        fetchInstagramComments(post=pst, post_id=post_id)
     elif pltform == 'reddit':
-        fetchRedditComments(post=pst,post_id=post_id)
-    
+        fetchRedditComments(post=pst, post_id=post_id)
+
     # wait until update has been collected
-    
-    cpstmt=CompanyPostsComments.objects.filter(post=pst).order_by('-like_count','-reply_count','-pk')
-    cmts=[] 
+
+    cpstmt = CompanyPostsComments.objects.filter(post=pst).order_by('-like_count', '-reply_count', '-pk')
+    cmts = []
     for cpm in cpstmt:
         cmts.append({
-            'author':cpm.author,
-            'id':cpm.comment_id,
-            'author_profile':cpm.author_profile,
-            'message_body':cpm.message,
-            'isOP':cpm.is_op,
-            'isReddit':True if cpm.platform == 'reddit' else False,
-            'isFacebook':True if cpm.platform == 'facebook' else False,
-            'isInstagram':True if cpm.platform == 'instagram' else False,
-            'isTiktok':True if cpm.platform == 'tiktok' else False,
-            'like_count':cpm.like_count,
-            'reply_count':cpm.reply_count,
-            'isPublished':cpm.is_published,
-            'date_updated':cpm.date_updated
-            
-        }) 
-    # cp=CompanyPosts.objects.all().order_by('-pk') # Execution time 4.7885 seconds
+            'author': cpm.author,
+            'id': cpm.comment_id,
+            'author_profile': cpm.author_profile,
+            'message_body': cpm.message,
+            'isOP': cpm.is_op,
+            'isReddit': True if cpm.platform == 'reddit' else False,
+            'isFacebook': True if cpm.platform == 'facebook' else False,
+            'isInstagram': True if cpm.platform == 'instagram' else False,
+            'isTiktok': True if cpm.platform == 'tiktok' else False,
+            'like_count': cpm.like_count,
+            'reply_count': cpm.reply_count,
+            'isPublished': cpm.is_published,
+            'date_updated': cpm.date_updated
 
-    cp=CompanyPosts.objects.filter(id=pst.id) # Execution time 4.0257 seconds 
-    all_posts=[]
+        })
+        # cp=CompanyPosts.objects.all().order_by('-pk') # Execution time 4.7885 seconds
+
+    cp = CompanyPosts.objects.filter(id=pst.id)  # Execution time 4.0257 seconds 
+    all_posts = []
     for p in cp:
         um = UploadedMedia.objects.filter(post=p)
         med = []
@@ -2167,90 +2214,93 @@ def postComment(request):
                 'media_url': m.media.url,
                 'is_video': False
             })
-        reds=[]
-        cover_image_link=''
-        
+        reds = []
+        cover_image_link = ''
+
         if 'reddit' in p.platforms:
-            cr=CompanyRedditPosts.objects.filter(post_id=p.post_id).first()
+            cr = CompanyRedditPosts.objects.filter(post_id=p.post_id).first()
             if cr:
-                k=cr.subs[0]
+                k = cr.subs[0]
                 cover_image_link = k['link']
             # use threading to update post and comments
             pass
-        eng_cnt=p.engagement_count
-        if eng_cnt>1000000:
-            eng_cnt=round(eng_cnt/1000000,1)
-        elif eng_cnt>1000:
-            eng_cnt=round(eng_cnt/1000,1)
-        cmt_cnt=p.comment_count
-        if cmt_cnt>1000:
-            cmt_cnt=round(cmt_cnt/1000,1)
-        elif cmt_cnt>1000:
-            cmt_cnt=round(cmt_cnt/1000,1)
+        eng_cnt = p.engagement_count
+        if eng_cnt > 1000000:
+            eng_cnt = round(eng_cnt / 1000000, 1)
+        elif eng_cnt > 1000:
+            eng_cnt = round(eng_cnt / 1000, 1)
+        cmt_cnt = p.comment_count
+        if cmt_cnt > 1000:
+            cmt_cnt = round(cmt_cnt / 1000, 1)
+        elif cmt_cnt > 1000:
+            cmt_cnt = round(cmt_cnt / 1000, 1)
         all_posts.append({
             'platforms': [pl.capitalize() for pl in p.platforms],
             'title': p.title,
             'content': p.description,
             'is_uploaded': p.is_published,
             'is_scheduled': p.is_scheduled,
-            'comment_count':cmt_cnt,
-            'engagement_count':eng_cnt,
+            'comment_count': cmt_cnt,
+            'engagement_count': eng_cnt,
             'tags': p.tags,
             'has_media': p.has_media,
-            'cover_image_link':p.media_thumbnail,
-            'media':None if not p.has_media else UploadedMedia.objects.filter(post=p).first(),
+            'cover_image_link': p.media_thumbnail,
+            'media': None if not p.has_media else UploadedMedia.objects.filter(post=p).first(),
             'date_uploaded': p.date_uploaded,
-            'date_scheduled':p.date_scheduled,
+            'date_scheduled': p.date_scheduled,
             'media': med,
-            'post_id':p.post_id,
-            'has_all':len(p.platforms)==4,
-            'has_reddit':'reddit' in p.platforms,
-            'has_tiktok':'tiktok' in p.platforms,
-            'has_facebook':'facebook' in p.platforms,
-            'has_instagram':'instagram' in p.platforms,
+            'post_id': p.post_id,
+            'has_all': len(p.platforms) == 4,
+            'has_reddit': 'reddit' in p.platforms,
+            'has_tiktok': 'tiktok' in p.platforms,
+            'has_facebook': 'facebook' in p.platforms,
+            'has_instagram': 'instagram' in p.platforms,
         })
-    
-    c_replies=[]
-    crp=CompanyPostsCommentsReplies.objects.filter(parent_comment_id=comment_id).order_by('-like_count','-reply_count','-pk')
+
+    c_replies = []
+    crp = CompanyPostsCommentsReplies.objects.filter(parent_comment_id=comment_id).order_by('-like_count',
+                                                                                            '-reply_count', '-pk')
     for cpm in crp:
-        replies=[]
-        crps=CompanyPostsCommentsReplies.objects.filter(parent_comment_id=cpm.comment_id).order_by('-like_count','-reply_count','-pk')
-        for c_s in crps: 
+        replies = []
+        crps = CompanyPostsCommentsReplies.objects.filter(parent_comment_id=cpm.comment_id).order_by('-like_count',
+                                                                                                     '-reply_count',
+                                                                                                     '-pk')
+        for c_s in crps:
             replies.append({
-                'author':c_s.author,
-                'id':c_s.comment_id,
-                'author_profile':c_s.author_profile,
-                'message_body':c_s.message,
-                'isOP':c_s.is_op,
-                'like_count':c_s.like_count,
-                'reply_count':c_s.reply_count,
-                'isPublished':c_s.is_published,
-                'date_updated':c_s.date_updated,
+                'author': c_s.author,
+                'id': c_s.comment_id,
+                'author_profile': c_s.author_profile,
+                'message_body': c_s.message,
+                'isOP': c_s.is_op,
+                'like_count': c_s.like_count,
+                'reply_count': c_s.reply_count,
+                'isPublished': c_s.is_published,
+                'date_updated': c_s.date_updated,
             })
         c_replies.append({
-            'author':cpm.author,
-            'id':cpm.comment_id,
-            'author_profile':cpm.author_profile,
-            'message_body':cpm.message,
-            'isOP':cpm.is_op,
-            'like_count':cpm.like_count,
-            'reply_count':cpm.reply_count,
-            'isPublished':cpm.is_published,
-            'date_updated':cpm.date_updated,
-            'replies':replies
+            'author': cpm.author,
+            'id': cpm.comment_id,
+            'author_profile': cpm.author_profile,
+            'message_body': cpm.message,
+            'isOP': cpm.is_op,
+            'like_count': cpm.like_count,
+            'reply_count': cpm.reply_count,
+            'isPublished': cpm.is_published,
+            'date_updated': cpm.date_updated,
+            'replies': replies
         })
-    
-    context={
-        'success':True,
-        'comments_replies':c_replies,
-        'comments_data':cmts,
+
+    context = {
+        'success': True,
+        'comments_replies': c_replies,
+        'comments_data': cmts,
         'posts': all_posts,
-        }
+    }
     return render(request, 'dashboard.html', context=context)
-    
-    
+
     # return Response({'success': 'Bad request'})
-    
+
+
 @api_view(['POST'])
 def fetchTeams(request):
     company_id = request.POST.get('company_id', None)
@@ -2423,19 +2473,19 @@ def viewTeam(request):
         )
     t_actv = []
     for t_a in CompanyTeamActivity.objects.filter(team=ct).order_by('-pk'):
-        tm_bef = (timezone.now - t_a.date_created)
-        ti_b = ''
+        tm_bef = (timezone.now() - t_a.date_created).total_seconds()
+        ti_bk = ''
         if tm_bef < 86400:
             ti_b = tm_bef // 3600  # how many hours ago
-            ti_b = ti_b + ' hours ago'
+            ti_bk = str(int(ti_b)) + ' hours ago'
             if ti_b < 0:
                 ti_b = tm_bef // 60  # how many minutes ago
-                ti_b = ti_b + ' minutes ago'
+                ti_bk = str(int(ti_b)) + ' minutes ago'
         t_actv.append(
             {
                 'title': t_a.title,
                 'time_from': t_a.date_created,
-                'date_created': ti_b,
+                'date_created': ti_bk,
             }
         )
 
@@ -2464,10 +2514,146 @@ def viewTeam(request):
         'team_files': CompanyTeamFiles.objects.filter(team=ct).order_by('-pk'),
         'announcements': CompanyTeamAnnouncements.objects.filter(team=ct).order_by('-pk'),
         'activities': t_actv,
-        'chat_messages': chat_messages
+        'chat_messages': chat_messages,
+        'team_id': team_id
 
     }
     return render(request, 'dashboard.html', context=context)
+
+@api_view(['POST'])
+def deleteTeamFile(request):
+    company_id = request.POST.get('company_id', None)
+    # team_id = request.POST.get('team_id', None)
+    file_id = request.POST.get('file_id', None)
+    
+    if not all([company_id,file_id]):
+        return Response({'error': 'Bad request'})
+    cp = Company.objects.filter(company_id=company_id).first()
+    if not cp:
+        return Response({'error': 'Bad request'})
+    memberp=MemberProfile.objects.filter(user=request.user).first()
+    if not memberp:
+        return Response({'error': 'Unauthorized'})
+    cmp=CompanyMember.objects.filter(company=cp,member=memberp).first()
+    if not cmp:
+        return Response({'error': 'Access Denied'})
+    cfile=CompanyTeamFiles.objects.filter(id=file_id).first()
+    if not cfile:
+        return Response({'error': 'File not available'})
+    ct=cfile.team
+    if cmp.is_admin or cfile.creator_id == request.user.username:
+        who=''
+        if cmp.is_admin:
+            who='Admin'
+        if cfile.creator_id== request.user.username:
+            who='Owner'
+        ufile=UploadedFiles.objects.filter(team=cfile).first()
+        if ufile:
+            # remove the associated file
+            cact=CompanyTeamActivity(
+                    team=ct,
+                    title=f'<strong>File</strong>({cfile.file_name}) was <span style="color:red">deleted</span> by <strong>{request.user.username} ({who}) </strong> '
+            )
+            cact.save()
+
+            file_path = ufile.file.path  # Full file path
+            if os.path.exists(file_path):
+                os.remove(file_path)  # Remove the file            
+            ufile.delete()
+        # remove the file pointer
+        cfile.delete()
+        t_actv = []
+        for t_a in CompanyTeamActivity.objects.filter(team=ct).order_by('-pk'):
+            tm_bef = (timezone.now() - t_a.date_created).total_seconds()
+            ti_bk = ''
+            if tm_bef < 86400:
+                ti_b = tm_bef // 3600  # how many hours ago
+                ti_bk = str(int(ti_b)) + ' hours ago'
+                if ti_b < 0:
+                    ti_b = tm_bef // 60  # how many minutes ago
+                    ti_bk = str(int(ti_b)) + ' minutes ago'
+            t_actv.append(
+                {
+                    'title': t_a.title,
+                    'time_from': t_a.date_created,
+                    'date_created': ti_bk,
+                }
+            )
+        print(len(t_actv))    
+        context = {
+            'team_files': CompanyTeamFiles.objects.filter(team=ct).order_by('-pk'),
+            'activities':t_actv
+        }
+        return render(request, 'dashboard.html', context=context)
+    return Response({'error': 'Action denied'})
+    
+    
+@api_view(['POST'])
+def uploadTeamFile(request):
+    company_id = request.POST.get('company_id', None)
+    team_id = request.POST.get('team_id', None)
+    file_title = request.POST.get('file_title', None)
+    file_notes = request.POST.get('file_notes', None)
+    files = request.FILES  # Access uploaded files
+    if not all([company_id, files, file_notes, file_title, team_id]):
+        return Response({'error': 'Bad request'})
+    cp = Company.objects.filter(company_id=company_id).first()
+    if not cp:
+        return Response({'error': 'Bad request'})
+    ct = CompanyTeam.objects.filter(company=cp, id=team_id).first()
+    if not ct:
+        return Response({'error': 'Bad request'})
+
+    file_doc = []
+    for field_name, file in files.items():
+        file_doc.append(file)
+    mime_type, _ = mimetypes.guess_type(file_doc[0].name)
+    if mime_type not in ALLOWED_MIME_TYPES:
+        return Response({'error': 'File type not supported.'})
+    cact=CompanyTeamActivity(
+            team=ct,
+            title=f'A <strong>File</strong>({file_title}) was uploaded by <strong>{request.user.username}</strong> '
+    )
+    cact.save()
+    #  save in db 
+    ctf = CompanyTeamFiles(
+        team=ct,
+        creator_id=request.user.username,
+        file_name=file_title,
+        description=file_notes
+    )
+    ctf.save()
+
+    upl = UploadedFiles(
+        file=file_doc[0],
+        team=ctf
+    )
+    upl.save()
+    t_actv = []
+    for t_a in CompanyTeamActivity.objects.filter(team=ct).order_by('-pk'):
+        tm_bef = (timezone.now() - t_a.date_created).total_seconds()
+        ti_bk = ''
+        if tm_bef < 86400:
+            ti_b = tm_bef // 3600  # how many hours ago
+            ti_bk = str(int(ti_b)) + ' hours ago'
+            if ti_b < 0:
+                ti_b = tm_bef // 60  # how many minutes ago
+                ti_bk = str(int(ti_b)) + ' minutes ago'
+        t_actv.append(
+            {
+                'title': t_a.title,
+                'time_from': t_a.date_created,
+                'date_created': ti_bk,
+            }
+        )
+
+    context = {
+        'team_files': CompanyTeamFiles.objects.filter(team=ct).order_by('-pk'),
+        'activities':t_actv
+
+    }
+    return render(request, 'dashboard.html', context=context)
+
 
 def extract_text_from_pdf(pdf_path):
     with pdfplumber.open(pdf_path) as pdf:
@@ -2475,14 +2661,18 @@ def extract_text_from_pdf(pdf_path):
         for page in pdf.pages:
             text += page.extract_text()
     return text
+
+
 def trainChatbot(cmp):
-    cp=CompanyKnowledgeBase.objects.filter(company=cmp).first()
+    cp = CompanyKnowledgeBase.objects.filter(company=cmp).first()
     if not cp:
         print('no data')
-    pth=cp.file.path    
-    v=extract_text_from_pdf(pth)
+    pth = cp.file.path
+    v = extract_text_from_pdf(pth)
     print(v)
     pass
+
+
 # create invite link
 @api_view(['POST'])
 def uploadTrainDoc(request):
@@ -2491,44 +2681,46 @@ def uploadTrainDoc(request):
     files = request.FILES  # Access uploaded files
     if not all([company_id, files]):
         return Response({'error': 'Bad request'})
-    cp=Company.objects.filter(company_id=company_id).first()
+    cp = Company.objects.filter(company_id=company_id).first()
     if not cp:
-         return Response({'error': 'Bad request'})
-    print(erase,company_id)
+        return Response({'error': 'Bad request'})
     train_doc = []
     for field_name, file in files.items():
         train_doc.append(file)
-        # gallery_items.append({"image_path": absolute_file_path,'content_type':file.content_type,"file_size": file.size })
 
         break
-    fle=train_doc[0]
+    fle = train_doc[0]
     if fle.content_type != "application/pdf":
         return Response({'error': 'Bad request'})
 
     print(fle.content_type)
-    cpn_doc=CompanyKnowledgeBase.objects.filter(company=cp).first()
+    cpn_doc = CompanyKnowledgeBase.objects.filter(company=cp).first()
     if cpn_doc:
         if not cpn_doc.training_inprogress:
             return Response({'error': 'Training in progress. Try again after some time.'})
         if erase == 'true':
             print('erasing company doc')
+            file_path = cpn_doc.file.path  # Full file path
+            if os.path.exists(file_path):
+                os.remove(file_path)  # Remove the file            
             cpn_doc.delete()
 
-            
+
     else:
-        cpn_doc=CompanyKnowledgeBase(
-                company=cp,
-                training_inprogress=True,
-                file=file
-            )
+        cpn_doc = CompanyKnowledgeBase(
+            company=cp,
+            training_inprogress=True,
+            file=file
+        )
         cpn_doc.save()
-        
+
         # start thread to train
-        tc= threading.Thread(target=trainChatbot,daemon=True,kwargs={'cmp':cp})
+        tc = threading.Thread(target=trainChatbot, daemon=True, kwargs={'cmp': cp})
         tc.start()
-        
-        
+
     return Response({'success': 'Bad request'})
+
+
 # create invite link
 
 @api_view(['POST'])
@@ -2561,6 +2753,7 @@ def generateInviteLink(request):
 
     return Response({'result': url_link})
 
+
 # get team 
 @api_view(['POST'])
 def sendChat(request):
@@ -2577,7 +2770,6 @@ def sendChat(request):
         return Response({'error': 'Bad request'})
     # check if user is part of the team
     if not ct.members.filter(id=usr.id).exists():
-
         return Response({'error': 'Bad request'})
     ctc = CompanyTeamChat(
         team=ct,
@@ -2602,6 +2794,7 @@ def sendChat(request):
     }
     return render(request, 'dashboard.html', context=context)
 
+
 @api_view(['POST'])
 def gettiktokCreatorInfo(request):
     company_id = request.POST.get('company_id', None)
@@ -2610,24 +2803,23 @@ def gettiktokCreatorInfo(request):
     cp = Company.objects.filter(company_id=company_id).first()
     if not cp:
         return Response({'error': 'Tiktok Bad request'})
-    ctk=CompanyTiktok.objects.filter(company=cp).first()
+    ctk = CompanyTiktok.objects.filter(company=cp).first()
     if not ctk:
         return Response({'error': 'TikTok Bad request.Try again or remove TikTok '})
     sess = request.session.get('tiktok_creator_info', {})
     if sess:
-        ldta=sess.get('time_updated')
-        ldt=datetime.fromisoformat(ldta)
-        df=(timezone.now()-ldt).total_seconds()
-        dur=sess.get('max_video_post_duration_sec')
-        if df < 86400 and dur != None: # update after 24 hr only
+        ldta = sess.get('time_updated')
+        ldt = datetime.fromisoformat(ldta)
+        df = (timezone.now() - ldt).total_seconds()
+        dur = sess.get('max_video_post_duration_sec')
+        if df < 86400 and dur != None:  # update after 24 hr only
             return Response({
-                'max_video_post_duration_sec':sess.get('max_video_post_duration_sec'),
-                'stitch_disabled':sess.get('stitch_disabled'),
-                'comment_disabled':sess.get('comment_disabled'),
-                'duet_disabled':sess.get('duet_disabled')
-            }) 
+                'max_video_post_duration_sec': sess.get('max_video_post_duration_sec'),
+                'stitch_disabled': sess.get('stitch_disabled'),
+                'comment_disabled': sess.get('comment_disabled'),
+                'duet_disabled': sess.get('duet_disabled')
+            })
 
-        
     try:
         url = "https://open.tiktokapis.com/v2/post/publish/creator_info/query/"
         headers = {
@@ -2636,37 +2828,38 @@ def gettiktokCreatorInfo(request):
         }
 
         response = requests.post(url, headers=headers)
-        res=response.json().get('data')
+        res = response.json().get('data')
         print(response.json())
-        tk_data={
-            'max_video_post_duration_sec':res.get('max_video_post_duration_sec'),
-            'stitch_disabled':res.get('stitch_disabled'),
-            'comment_disabled':res.get('comment_disabled'),
-            'duet_disabled':res.get('duet_disabled'),
-            'time_updated':timezone.now().isoformat()
+        tk_data = {
+            'max_video_post_duration_sec': res.get('max_video_post_duration_sec'),
+            'stitch_disabled': res.get('stitch_disabled'),
+            'comment_disabled': res.get('comment_disabled'),
+            'duet_disabled': res.get('duet_disabled'),
+            'time_updated': timezone.now().isoformat()
         }
         request.session['tiktok_creator_info'] = tk_data
         return Response({
-            'max_video_post_duration_sec':res.get('max_video_post_duration_sec'),
-            'stitch_disabled':res.get('stitch_disabled'),
-            'comment_disabled':res.get('comment_disabled'),
-            'duet_disabled':res.get('duet_disabled')
-        }) 
+            'max_video_post_duration_sec': res.get('max_video_post_duration_sec'),
+            'stitch_disabled': res.get('stitch_disabled'),
+            'comment_disabled': res.get('comment_disabled'),
+            'duet_disabled': res.get('duet_disabled')
+        })
     except Exception as e:
         print(traceback.format_exc())
         return Response({'error': 'TikTok Bad request.Try again or remove TikTok '})
 
-def postTiktok(company,description,video,duet,comment,stitch,audience,post_id,mentions):
+
+def postTiktok(company, description, video, duet, comment, stitch, audience, post_id, mentions):
     """
     Initialize a chunked video upload to TikTok.
     """
-    
-    ctk=CompanyTiktok.objects.filter(company=company).first()
+
+    ctk = CompanyTiktok.objects.filter(company=company).first()
     if not ctk:
         return 'No Company Tiktok'
-    access_token=ctk.access_token
+    access_token = ctk.access_token
 
-    vid_ex='7212243560387726597'
+    vid_ex = '7212243560387726597'
     # vid_ex='7446787420933015558'
     # video_list_url = "https://open.tiktokapis.com/v2/video/list/"
     # params = {
@@ -2679,13 +2872,12 @@ def postTiktok(company,description,video,duet,comment,stitch,audience,post_id,me
         "Content-Type": "application/json"
     }
 
-
     # response = requests.post(video_list_url, headers=headers,params=params)
     # # print('')
     # print(response.content)
     # return
     url = "https://open.tiktokapis.com/v2/video/query/"
-    
+
     params = {
         "fields": "id,views"
     }
@@ -2702,31 +2894,30 @@ def postTiktok(company,description,video,duet,comment,stitch,audience,post_id,me
     print(response.json())  # Print the JSON response    
     return
 
-    cpst=CompanyPosts.objects.filter(post_id=post_id).first()
+    cpst = CompanyPosts.objects.filter(post_id=post_id).first()
     if not cpst:
         print('failed to retrieve post')
         return
     try:
-        ctk=CompanyTiktok.objects.filter(company=company).first()
+        ctk = CompanyTiktok.objects.filter(company=company).first()
         if not ctk:
-            cpst.has_failed=True
+            cpst.has_failed = True
             cpst.save()
             return 'No Company Tiktok'
-        
-        access_token=ctk.access_token
-        video_size=video['file_size']
+
+        access_token = ctk.access_token
+        video_size = video['file_size']
         # Get the necessary data from the request
-        chunk_size = 20* 1024 * 1024  # 10 MB in bytes
+        chunk_size = 20 * 1024 * 1024  # 10 MB in bytes
 
         # Adjust chunk size if the video is smaller than the chunk size
         if video_size < chunk_size:
-            chunk_size = video_size  
-            total_chunk_count=1
+            chunk_size = video_size
+            total_chunk_count = 1
         if video_size > chunk_size:
-            total_chunk_count=4
-            chunk_size = int(video_size/4)
-            
-        
+            total_chunk_count = 4
+            chunk_size = int(video_size / 4)
+
         url = "https://open.tiktokapis.com/v2/post/publish/creator_info/query/"
         headers = {
             "Authorization": f"Bearer {access_token}",
@@ -2745,17 +2936,17 @@ def postTiktok(company,description,video,duet,comment,stitch,audience,post_id,me
         # Prepare the JSON payload
         payload = {
             "post_info": {
-                "title": description,  
-                "privacy_level": audience,   
+                "title": description,
+                "privacy_level": audience,
                 "disable_duet": not duet,
                 "disable_comment": not comment,
                 "disable_stitch": not stitch
             },
             "source_info": {
                 "source": "FILE_UPLOAD",
-                "video_size": video_size,     
-                "chunk_size": chunk_size,     
-                "total_chunk_count": total_chunk_count  
+                "video_size": video_size,
+                "chunk_size": chunk_size,
+                "total_chunk_count": total_chunk_count
             }
         }
 
@@ -2763,24 +2954,24 @@ def postTiktok(company,description,video,duet,comment,stitch,audience,post_id,me
         response = requests.post(url, headers=headers, json=payload)
         # Check the response status and print the result
         if response.status_code == 200:
-            print("Upload initialized successfully.",response.content)
+            print("Upload initialized successfully.", response.content)
         else:
-            cpst.has_failed=True
+            cpst.has_failed = True
             cpst.save()
             print(f"Error: {response.status_code}")
             print(response.json())
 
             return
-            
+
         # Parse the response
         upload_data = response.json()
         publish_id = upload_data.get('data', {}).get('publish_id')
         chunk_upload_url = upload_data.get('data', {}).get('upload_url')
-        vide_id=publish_id.split('.')[-1]
-        print('videeeee',vide_id)
+        vide_id = publish_id.split('.')[-1]
+        print('videeeee', vide_id)
 
         if not all([publish_id, chunk_upload_url]):
-            cpst.has_failed=True
+            cpst.has_failed = True
             cpst.save()
             return print({'error': 'Missing publish_id or upload_url in response'})
 
@@ -2796,17 +2987,17 @@ def postTiktok(company,description,video,duet,comment,stitch,audience,post_id,me
             upload_response = requests.put(chunk_upload_url, headers=upload_headers, data=video_data)
 
             if upload_response.status_code == 201:
-                print("Video uploaded successfully!",upload_response.content)
+                print("Video uploaded successfully!", upload_response.content)
 
             else:
-                cpst.has_failed=True
+                cpst.has_failed = True
                 cpst.save()
                 print(f"Failed to upload video: {upload_response.status_code}")
                 print(upload_response.json())
                 return
 
-            #wait for the video to be published
-            published=False
+            # wait for the video to be published
+            published = False
             # Define the API endpoint and access token
             url = "https://open.tiktokapis.com/v2/post/publish/status/fetch/"
 
@@ -2818,19 +3009,19 @@ def postTiktok(company,description,video,duet,comment,stitch,audience,post_id,me
             # Send the request
             content_status = "PROCESSING_UPLOAD"
             while content_status == "PROCESSING_UPLOAD":
-                response = requests.post(url, headers=headers, json=data,verify=False)
+                response = requests.post(url, headers=headers, json=data, verify=False)
                 if response.status_code == 200:
                     status = response.json()
                     content_status = status.get("data", {}).get("status", "Unknown")
-                    print('processing status',content_status)
+                    print('processing status', content_status)
                     if content_status == "PUBLISH_COMPLETE":
-                        published=True
+                        published = True
                 time.sleep(10)
-        
+
             # get latest updated video
             if published:
                 url = "https://open.tiktokapis.com/v2/video/query/"
-                
+
                 params = {
                     "fields": "id,title,video_description,duration,cover_image_url,embed_link"
                 }
@@ -2842,24 +3033,24 @@ def postTiktok(company,description,video,duet,comment,stitch,audience,post_id,me
                     }
                 }
 
-                 # Print the JSON response    
-                
-                # Make the POST request
-                count=0
-                while count < 10: # query the 10 times with each failure
-                    response = requests.post(url, headers=headers, json=payload,params=params)
+                # Print the JSON response    
 
-                    print(response.json())   
+                # Make the POST request
+                count = 0
+                while count < 10:  # query the 10 times with each failure
+                    response = requests.post(url, headers=headers, json=payload, params=params)
+
+                    print(response.json())
                     # Display the list of videos
 
                     try:
                         videos = response.json()['videos'][0]
                         print('Found')
-                        video_id=videos['id']
-                        video_cover=videos['cover_image_url']
-                        video_link=videos['embed_link']
+                        video_id = videos['id']
+                        video_cover = videos['cover_image_url']
+                        video_link = videos['embed_link']
                         if not cpst.media_thumbnail:
-                            cpst.media_thumbnail=video_cover
+                            cpst.media_thumbnail = video_cover
                             cpst.save()
                         break
                         # return
@@ -2868,14 +3059,14 @@ def postTiktok(company,description,video,duet,comment,stitch,audience,post_id,me
 
                     except Exception as e:
                         time.sleep(10)
-                        count+=1
-                if count>=10:
+                        count += 1
+                if count >= 10:
                     print('maximum triLa')
-                    cpst.has_failed=True
+                    cpst.has_failed = True
                     cpst.save()
                     return
                 # save the tiktok post
-                ctkp=CompanyTiktokPosts(
+                ctkp = CompanyTiktokPosts(
                     post_id=post_id,
                     video_id=video_id,
                     is_published=published,
@@ -2885,37 +3076,37 @@ def postTiktok(company,description,video,duet,comment,stitch,audience,post_id,me
                 )
                 ctkp.save()
                 # update the post
-                cpst.is_published=True
+                cpst.is_published = True
                 cpst.save()
                 print('done')
                 return print({
                     'message': 'Video uploaded successfully',
                 })
             else:
-                if cpst.is_published and len(cpst.platforms)>1:
-                    cpst.partial_publish=True
+                if cpst.is_published and len(cpst.platforms) > 1:
+                    cpst.partial_publish = True
                 else:
-                    cpst.has_failed=True
+                    cpst.has_failed = True
                 cpst.failure_reasons.append('Uknown error')
                 cpst.save()
-                ctkp=CompanyTiktokPosts(
+                ctkp = CompanyTiktokPosts(
                     post_id=post_id,
                     is_published=published,
                 )
                 ctkp.save()
-            
+
     except Exception as e:
-        if cpst.is_published and len(cpst.platforms)>1:
-            cpst.partial_publish=True
+        if cpst.is_published and len(cpst.platforms) > 1:
+            cpst.partial_publish = True
         else:
-            cpst.has_failed=True
+            cpst.has_failed = True
         cpst.failure_reasons.append(str(e))
         cpst.save()
 
         return print({'error': 'An unexpected error occurred', 'details': str(e)})
 
 
-def postInstagram(account_id,media,access_token,description,has_media,post_id,to_stories,to_post,to_reels):
+def postInstagram(account_id, media, access_token, description, has_media, post_id, to_stories, to_post, to_reels):
     if not has_media:
         return
     # upload the media to s3 bucket
@@ -2927,14 +3118,14 @@ def postInstagram(account_id,media,access_token,description,has_media,post_id,to
     return
     # retrieve the media urls
     media_urls = [
-    "https://example.com/image1.jpg",
-    "https://example.com/image2.jpg",
-    "https://example.com/video1.mp4"
-        ]
+        "https://example.com/image1.jpg",
+        "https://example.com/image2.jpg",
+        "https://example.com/video1.mp4"
+    ]
     # post the media to instagram
-    is_carousel=False
-    if len(media_urls)>1:
-        is_carousel=True    
+    is_carousel = False
+    if len(media_urls) > 1:
+        is_carousel = True
     if is_carousel:
         # Step 1: Upload each media item individually and collect their media_ids
         media_ids = []
@@ -2945,7 +3136,7 @@ def postInstagram(account_id,media,access_token,description,has_media,post_id,to
                 "access_token": access_token
             }
             response = requests.post(f"https://graph.facebook.com/v21.0/{account_id}/media", data=payload)
-            
+
             if response.status_code == 200:
                 media_id = response.json().get("id")
                 media_ids.append(media_id)
@@ -2968,23 +3159,23 @@ def postInstagram(account_id,media,access_token,description,has_media,post_id,to
         else:
             print(f"Error creating carousel container: {carousel_response.json()}")
             exit()
-    else:    
+    else:
         # delete the media from s3 bucket to free storage
         url = f"https://graph.facebook.com/v21.0/{account_id}/media"
-        isImage=True 
+        isImage = True
         if media[0]['content_type'].startswith("video/"):
-            isImage=False
+            isImage = False
         payload = {
             "image_url" if isImage else "video_url": media_urls[0],
-            "caption": description, 
+            "caption": description,
             "access_token": access_token,
         }
         if not isImage and to_reels:
-            payload['media_type']=='REELS'
+            payload['media_type'] == 'REELS'
             response = requests.post(url, data=payload)
 
         if to_stories:
-            payload['media_type']=='STORIES'
+            payload['media_type'] == 'STORIES'
         response = requests.post(url, data=payload)
 
         if response.status_code == 200:
@@ -2998,25 +3189,26 @@ def postInstagram(account_id,media,access_token,description,has_media,post_id,to
         "creation_id": creation_id,
         "access_token": access_token
     }
-    publish_response = requests.post(f"https://graph.facebook.com/v16.0/{account_id}/media_publish", data=publish_payload)
+    publish_response = requests.post(f"https://graph.facebook.com/v16.0/{account_id}/media_publish",
+                                     data=publish_payload)
 
     if publish_response.status_code == 200:
         post_id = publish_response.json().get("id")
         print(f"post published successfully! Post ID: {post_id}")
     else:
         print(f"Error publishing carousel post: {publish_response.json()}")
-        
-        
-def postFacebook(page_id,media,access_token,title,description,is_video,has_media,post_id,to_stories,to_post):
+
+
+def postFacebook(page_id, media, access_token, title, description, is_video, has_media, post_id, to_stories, to_post):
     # API endpoint for creating a post
     url = f"https://graph.facebook.com/v21.0/{page_id}/feed"
-    cops=CompanyPosts.objects.filter(post_id=post_id).first()
+    cops = CompanyPosts.objects.filter(post_id=post_id).first()
     if not cops:
         print('Could not get the sending post')
         return
-        
+
     # save video post
-    cfb_pst=CompanyFacebookPosts(
+    cfb_pst = CompanyFacebookPosts(
         post_id=post_id,
         to_stories=to_stories,
         to_posts=to_post,
@@ -3025,14 +3217,14 @@ def postFacebook(page_id,media,access_token,title,description,is_video,has_media
     if is_video:
         # API URL for video uploads
         url = f"https://graph-video.facebook.com/v21.0/{page_id}/videos"
-        
+
         # Payload for video upload
         payload = {
             "title": title,
             "description": description,
             "access_token": access_token
         }
-        output_image_path='thumbnail.jpg'
+        output_image_path = 'thumbnail.jpg'
         if os.path.exists(output_image_path):
             os.remove(output_image_path)
         video_file_path = media[0]['image_path']
@@ -3046,7 +3238,7 @@ def postFacebook(page_id,media,access_token,title,description,is_video,has_media
                 .run_async(pipe_stdout=True, pipe_stderr=True)
             )
             process.communicate()  # Ensure the process completes
-            process.wait()   
+            process.wait()
             print(f"First frame extracted and saved to {output_image_path}")
         except Exception as e:
             print(f"Error extracting frame: {traceback.format_exc()}")
@@ -3061,13 +3253,13 @@ def postFacebook(page_id,media,access_token,title,description,is_video,has_media
 
             # Handle the response
             if response.status_code == 200:
-                print('the video id A1',response.json().get('id'))
+                print('the video id A1', response.json().get('id'))
 
-                video_id=response.json().get('id')
-                cfb_pst.content_id=video_id
-                cfb_pst.is_published=True
+                video_id = response.json().get('id')
+                cfb_pst.content_id = video_id
+                cfb_pst.is_published = True
                 cfb_pst.save()
-                cops.is_published=True
+                cops.is_published = True
                 cops.save()
                 print("Video uploaded successfully! post")
                 if not cops.media_thumbnail:
@@ -3080,7 +3272,7 @@ def postFacebook(page_id,media,access_token,title,description,is_video,has_media
                         if response.status_code == 200:
                             print("Thumbnail successfully updated!")
                             print(response.content)
-                            
+
                             url = f"https://graph.facebook.com/v21.0/{video_id}"
                             params = {
                                 "fields": "thumbnails",
@@ -3095,7 +3287,7 @@ def postFacebook(page_id,media,access_token,title,description,is_video,has_media
                                             thumbnails = data.get("thumbnails", {}).get("data", [])
                                             if thumbnails:
                                                 # Get the preferred thumbnail or the first one
-                                                cops.media_thumbnail=thumbnails[0].get("uri")
+                                                cops.media_thumbnail = thumbnails[0].get("uri")
                                                 cops.save()
                                             else:
                                                 continue
@@ -3103,14 +3295,14 @@ def postFacebook(page_id,media,access_token,title,description,is_video,has_media
                                     # return data['images'][0]['source'] if 'images' in data else None
                                     except:
                                         continue
-                            
+
                                 else:
                                     break
                         else:
                             print(f"Failed to set thumbnail: {response.text}")
 
                     # 
-                
+
                 # get parent host id 
                 url = f"https://graph.facebook.com/v21.0/{video_id}"
                 params = {
@@ -3118,21 +3310,21 @@ def postFacebook(page_id,media,access_token,title,description,is_video,has_media
                     "access_token": access_token
                 }
                 response = requests.get(url, params=params)
-                print('post iddd',response.content)
+                print('post iddd', response.content)
                 if response.status_code == 200:
                     data = response.json()['post']['id']
-                    cfb_pst.parent_post_id=data
+                    cfb_pst.parent_post_id = data
                     cfb_pst.save()
-                    print('save post id',data)
-                    
+                    print('save post id', data)
+
                 # delete the media
-                
+
                 if os.path.exists(video_file_path):
                     print('deleting already uploaded video')
                 os.remove(output_image_path)
                 # default_storage.delete(video_file_path)
-                
-                
+
+
             else:
                 print(f"Error uploading video: {response.status_code}")
                 print(response.json())
@@ -3141,21 +3333,21 @@ def postFacebook(page_id,media,access_token,title,description,is_video,has_media
             print('attempting to upload video to stories')
             # initialise upload 
             url = f"https://graph.facebook.com/v21.0/{page_id}/video_stories"
-            payload={
-                "upload_phase":"start",
+            payload = {
+                "upload_phase": "start",
                 "access_token": access_token
             }
-            response = requests.post(url,data=payload)
+            response = requests.post(url, data=payload)
             if response.status_code == 200:
-                video_id=response.json().get('video_id')
-                upload_url=response.json().get('upload_url')
-                print('initialisation successful, ',upload_url)
-                
+                video_id = response.json().get('video_id')
+                upload_url = response.json().get('upload_url')
+                print('initialisation successful, ', upload_url)
+
             else:
                 print(f"Error uploading video: {response.status_code}")
                 print(response.json())
                 return
-            
+
             # Open the video file in binary mode
             with open(media[0]['image_path'], "rb") as video_file:
                 # Make the POST request
@@ -3163,15 +3355,15 @@ def postFacebook(page_id,media,access_token,title,description,is_video,has_media
                 headers = {
                     "offset": "0",  # Start uploading from the beginning
                     "Authorization": f"OAuth {access_token}",
-                    "file_size": str(media[0]['file_size']) , # File size in bytes
+                    "file_size": str(media[0]['file_size']),  # File size in bytes
                 }
                 files = {
                     "source": video_file
                 }
 
-                print('attempting to upload',upload_url)
+                print('attempting to upload', upload_url)
                 response = requests.post(upload_url, headers=headers, data=files)
-                print(response.json())    
+                print(response.json())
                 # response = requests.post(url, headers=headers, data=video_file)
 
             # Handle the response
@@ -3188,16 +3380,16 @@ def postFacebook(page_id,media,access_token,title,description,is_video,has_media
                     status_data = status_response.json()
 
                     # Inspect status response
-                    p_phse=status_data.get('status').get('processing_phase').get('status')
-                    u_phse=status_data.get('status').get('publishing_phase').get('status')
-                    cright=status_data.get('status').get('copyright_check_status').get('status')
+                    p_phse = status_data.get('status').get('processing_phase').get('status')
+                    u_phse = status_data.get('status').get('publishing_phase').get('status')
+                    cright = status_data.get('status').get('copyright_check_status').get('status')
                     if cright == 'error':
                         print('Video did not pass copyright check')
                         break
                     print(status_data)
                     print()
                     time.sleep(10)
-                
+
                 # finish upload
                 url = f"https://graph.facebook.com/v21.0/{page_id}/video_stories"
                 payload = {
@@ -3207,17 +3399,17 @@ def postFacebook(page_id,media,access_token,title,description,is_video,has_media
                 }
                 response = requests.post(url, data=payload)
                 print(response.json())
-                content_id=response.json().get('id')
-                print('the video id B',video_id)
+                content_id = response.json().get('id')
+                print('the video id B', video_id)
 
-                cfb_pst.content_id=content_id
-                cfb_pst.is_published=True
+                cfb_pst.content_id = content_id
+                cfb_pst.is_published = True
                 cfb_pst.save()
-                cops.is_published=True
+                cops.is_published = True
                 cops.save()
 
                 print("Video uploaded successfully!")
-                    # retrieve the images for the display
+                # retrieve the images for the display
                 if not cops.media_thumbnail:
                     time.sleep(15)
                     url = f"https://graph.facebook.com/v21.0/{video_id}/thumbnails"
@@ -3228,7 +3420,7 @@ def postFacebook(page_id,media,access_token,title,description,is_video,has_media
                         if response.status_code == 200:
                             print("Thumbnail successfully updated!")
                             print(response.content)
-                            
+
                             url = f"https://graph.facebook.com/v21.0/{video_id}"
                             params = {
                                 "fields": "thumbnails",
@@ -3243,7 +3435,7 @@ def postFacebook(page_id,media,access_token,title,description,is_video,has_media
                                             thumbnails = data.get("thumbnails", {}).get("data", [])
                                             if thumbnails:
                                                 # Get the preferred thumbnail or the first one
-                                                cops.media_thumbnail=thumbnails[0].get("uri")
+                                                cops.media_thumbnail = thumbnails[0].get("uri")
                                                 cops.save()
                                             else:
                                                 continue
@@ -3251,7 +3443,7 @@ def postFacebook(page_id,media,access_token,title,description,is_video,has_media
                                     # return data['images'][0]['source'] if 'images' in data else None
                                     except:
                                         continue
-                            
+
                                 else:
                                     break
                         else:
@@ -3261,7 +3453,7 @@ def postFacebook(page_id,media,access_token,title,description,is_video,has_media
                 if os.path.exists(video_file_path):
                     print('deleting already uploaded video')
                 os.remove(output_image_path)
-                
+
             else:
                 print(f"Error uploading video: {response.status_code}")
                 print(response.json())
@@ -3273,7 +3465,7 @@ def postFacebook(page_id,media,access_token,title,description,is_video,has_media
         # Step 1: Upload photos to get attachment IDs
         photo_ids = []
         photo_upload_url = f"https://graph.facebook.com/v21.0/{page_id}/photos"
-        
+
         # check pages managed by users
         for photo_path in photo_paths:
             with open(photo_path, "rb") as photo:
@@ -3297,18 +3489,18 @@ def postFacebook(page_id,media,access_token,title,description,is_video,has_media
             }
             # Make the POST request to create the post
             if to_post:
-                response = requests.post(url,json=payload)
+                response = requests.post(url, json=payload)
 
                 if response.status_code == 200:
-                    content_id=response.json().get('id')
-                    cfb_pst.content_id=content_id
-                    cfb_pst.is_published=True
+                    content_id = response.json().get('id')
+                    cfb_pst.content_id = content_id
+                    cfb_pst.is_published = True
                     cfb_pst.save()
-                    cops.is_published=True
+                    cops.is_published = True
                     cops.save()
 
                     print("Post created successfully with multiple photos!")
-                    
+
                     # retrieve the images for the display
                     if not cops.media_thumbnail:
                         print('gettong thumbnail')
@@ -3323,10 +3515,10 @@ def postFacebook(page_id,media,access_token,title,description,is_video,has_media
                             data = response.json()
                             # Get the highest-resolution image URL
                             if data:
-                                cops.media_thumbnail=data['images'][0]['source']
+                                cops.media_thumbnail = data['images'][0]['source']
                                 cops.save()
                             # return data['images'][0]['source'] if 'images' in data else None
-                
+
                 else:
                     print(f"Error creating post: {response.status_code}")
                     print(response.json())
@@ -3337,17 +3529,17 @@ def postFacebook(page_id,media,access_token,title,description,is_video,has_media
                 for ph_id in photo_ids:
                     url = f"https://graph.facebook.com/v21.0/{page_id}/photo_stories"
                     payload = {
-                        "photo_id":ph_id['media_fbid'],
+                        "photo_id": ph_id['media_fbid'],
                         "access_token": access_token
                     }
-                # Make the POST request to create the post
-                    response = requests.post(url,json=payload)
+                    # Make the POST request to create the post
+                    response = requests.post(url, json=payload)
 
                 if response.status_code == 200:
-                    content_id=response.json().get('id')
-                    cfb_pst.content_id=content_id
-                    cfb_pst.is_published=True
-                    cops.is_published=True
+                    content_id = response.json().get('id')
+                    cfb_pst.content_id = content_id
+                    cfb_pst.is_published = True
+                    cops.is_published = True
                     cops.save()
 
                     cfb_pst.save()
@@ -3363,7 +3555,7 @@ def postFacebook(page_id,media,access_token,title,description,is_video,has_media
                             if response.status_code == 200:
                                 print("Thumbnail successfully updated!")
                                 print(response.content)
-                                
+
                                 url = f"https://graph.facebook.com/v21.0/{video_id}"
                                 params = {
                                     "fields": "thumbnails",
@@ -3378,7 +3570,7 @@ def postFacebook(page_id,media,access_token,title,description,is_video,has_media
                                                 thumbnails = data.get("thumbnails", {}).get("data", [])
                                                 if thumbnails:
                                                     # Get the preferred thumbnail or the first one
-                                                    cops.media_thumbnail=thumbnails[0].get("uri")
+                                                    cops.media_thumbnail = thumbnails[0].get("uri")
                                                     cops.save()
                                                 else:
                                                     continue
@@ -3386,7 +3578,7 @@ def postFacebook(page_id,media,access_token,title,description,is_video,has_media
                                         # return data['images'][0]['source'] if 'images' in data else None
                                         except:
                                             continue
-                                
+
                                     else:
                                         break
                             else:
@@ -3417,62 +3609,62 @@ def postFacebook(page_id,media,access_token,title,description,is_video,has_media
                     print("Link post created successfully!")
                     print(response.json())
                     print()
-                    content_id=response.json().get('id')
-                    cfb_pst.content_id=content_id
-                    cfb_pst.is_published=True
+                    content_id = response.json().get('id')
+                    cfb_pst.content_id = content_id
+                    cfb_pst.is_published = True
                     cfb_pst.save()
-                    cops.is_published=True
+                    cops.is_published = True
                     cops.save()
-                    cops.is_published=True
+                    cops.is_published = True
                     cops.save()
 
                     print(response.json())
                 else:
                     if not cops.partial_publish:
-                        cops.has_failed=True
+                        cops.has_failed = True
                         cops.failure_reasons.append('Failed to post to facebook')
                         cops.save()
                     print(f"Error creating post: {response.status_code}")
                     print(response.json())
             except:
                 if not cops.partial_publish:
-                    cops.has_failed=True
+                    cops.has_failed = True
                     cops.failure_reasons.append('Failed to post to facebook')
 
 
-def postReddit(title,description,subs,hasMedia,files,nsfw_tag,spoiler_tag,red_refresh_token,post_id,company):
-    cr=CompanyReddit.objects.filter(company=company).first()
-    pst=CompanyPosts.objects.filter(post_id=post_id).first()
+def postReddit(title, description, subs, hasMedia, files, nsfw_tag, spoiler_tag, red_refresh_token, post_id, company):
+    cr = CompanyReddit.objects.filter(company=company).first()
+    pst = CompanyPosts.objects.filter(post_id=post_id).first()
     if not pst:
         return
     reddit = praw.Reddit(
-            client_id=settings.REDDIT_CLIENT_ID,
-            client_secret=settings.REDDIT_CLIENT_SECRET,
-            user_agent=settings.REDDIT_USER_AGENT,
-            refresh_token=red_refresh_token,
-        )
-    sub_tr=[]
-    published=False
-    failed_publish=False
-    fail_reasons=[]
+        client_id=settings.REDDIT_CLIENT_ID,
+        client_secret=settings.REDDIT_CLIENT_SECRET,
+        user_agent=settings.REDDIT_USER_AGENT,
+        refresh_token=red_refresh_token,
+    )
+    sub_tr = []
+    published = False
+    failed_publish = False
+    fail_reasons = []
     for s in subs:
         for cs in cr.subs:
-            sb=s.split('r/')[-1]
-            default_flair=''
-            if sb==cs['sub']:
+            sb = s.split('r/')[-1]
+            default_flair = ''
+            if sb == cs['sub']:
                 for fl in cs['flairs']:
                     if fl['selected']:
-                        default_flair=fl['id']
+                        default_flair = fl['id']
                         break
                 # upload the post
                 subreddit = reddit.subreddit(sb)
                 if hasMedia:
                     # upload with media
-                    if len(files)==1:
+                    if len(files) == 1:
                         # check if image or video and upload accoordingly
-                        print('single file',files[0]['content_type'])
-                        f=files[0]['image_path']
-                        content_type=files[0]['content_type']
+                        print('single file', files[0]['content_type'])
+                        f = files[0]['image_path']
+                        content_type = files[0]['content_type']
                         if content_type.startswith("image/"):
                             # check image posting
                             if subreddit.allow_images:
@@ -3487,54 +3679,54 @@ def postReddit(title,description,subs,hasMedia,files,nsfw_tag,spoiler_tag,red_re
                                         spoiler=spoiler_tag
 
                                     )
-                                    published=True
+                                    published = True
                                     if not pst.media_thumbnail:
-                                        pst.media_thumbnail=submission.url
+                                        pst.media_thumbnail = submission.url
 
                                     sub_tr.append({
-                                        'sub_name':sb,
-                                        'id':submission.id,
-                                        'link':submission.url,
-                                        'permalink':f"https://www.reddit.com{submission.permalink}",
-                                        'published':True,
-                                        'failed':False,
-                                        'result':'Submission was successful',
-                                        'upvotes':0,
-                                        'comments':0,
-                                        'upvote_ratio':0,
-                                        'crossposts':0
+                                        'sub_name': sb,
+                                        'id': submission.id,
+                                        'link': submission.url,
+                                        'permalink': f"https://www.reddit.com{submission.permalink}",
+                                        'published': True,
+                                        'failed': False,
+                                        'result': 'Submission was successful',
+                                        'upvotes': 0,
+                                        'comments': 0,
+                                        'upvote_ratio': 0,
+                                        'crossposts': 0
                                     })
                                     default_storage.delete(files[0]['image_path'])
                                 except Exception as e:
-                                    failed_publish=True
-                                    print('failed to submit to reddit',str(traceback.format_exc()))
+                                    failed_publish = True
+                                    print('failed to submit to reddit', str(traceback.format_exc()))
                                     fail_reasons.append(f'Submission to r/{sb} Failed')
                                     sub_tr.append({
-                                        'sub_name':sb,
-                                        'id':'',
-                                        'link':'',
-                                        'published':False,
-                                        'failed':True,
-                                        'result':'Uknown reason. Contact sub MODs ',
-                                        'comments':0,
-                                        'upvotes':0,
-                                        'upvote_ratio':0,
-                                        'crossposts':0
+                                        'sub_name': sb,
+                                        'id': '',
+                                        'link': '',
+                                        'published': False,
+                                        'failed': True,
+                                        'result': 'Uknown reason. Contact sub MODs ',
+                                        'comments': 0,
+                                        'upvotes': 0,
+                                        'upvote_ratio': 0,
+                                        'crossposts': 0
                                     })
                             else:
-                                failed_publish=True
+                                failed_publish = True
                                 fail_reasons.append(f'Submission to r/{sb} Failed')
                                 sub_tr.append({
-                                    'sub_name':sb,
-                                    'id':'',
-                                    'link':'',
-                                    'published':False,
-                                    'failed':True,
-                                    'result':f'r/{sb} does not allow image sharing.',
-                                    'comments':0,
-                                    'upvotes':0,
-                                    'upvote_ratio':0,
-                                    'crossposts':0
+                                    'sub_name': sb,
+                                    'id': '',
+                                    'link': '',
+                                    'published': False,
+                                    'failed': True,
+                                    'result': f'r/{sb} does not allow image sharing.',
+                                    'comments': 0,
+                                    'upvotes': 0,
+                                    'upvote_ratio': 0,
+                                    'crossposts': 0
                                 })
                             cr.save()
 
@@ -3550,72 +3742,72 @@ def postReddit(title,description,subs,hasMedia,files,nsfw_tag,spoiler_tag,red_re
                                         spoiler=spoiler_tag
 
                                     )
-                                    published=True
+                                    published = True
                                     print(f"Video post created successfully: {submission.url}")
                                     if not pst.media_thumbnail:
-                                        pst.media_thumbnail=submission.url
+                                        pst.media_thumbnail = submission.url
 
                                     sub_tr.append({
-                                        'sub_name':sb,
-                                        'id':submission.id,
-                                        'link':submission.url,
-                                        'permalink':f"https://www.reddit.com{submission.permalink}",
-                                        'published':True,
-                                        'failed':False,
-                                        'result':'Submission was accepted',
-                                        'comments':0,
-                                        'upvotes':0,
-                                        'upvote_ratio':0,
-                                        'crossposts':0
+                                        'sub_name': sb,
+                                        'id': submission.id,
+                                        'link': submission.url,
+                                        'permalink': f"https://www.reddit.com{submission.permalink}",
+                                        'published': True,
+                                        'failed': False,
+                                        'result': 'Submission was accepted',
+                                        'comments': 0,
+                                        'upvotes': 0,
+                                        'upvote_ratio': 0,
+                                        'crossposts': 0
                                     })
                                     default_storage.delete(files[0]['image_path'])
                                 except Exception as e:
-                                    failed_publish=True
+                                    failed_publish = True
                                     fail_reasons.append(f'Submission to r/{sb} Failed')
                                     sub_tr.append({
-                                        'sub_name':sb,
-                                        'id':'',
-                                        'link':'',
-                                        'published':False,
-                                        'failed':True,
-                                        'result':'Uknown reason. Contact sub MODs ',
-                                        'comments':0,
-                                        'upvotes':0,
-                                        'upvote_ratio':0,
-                                        'crossposts':0
+                                        'sub_name': sb,
+                                        'id': '',
+                                        'link': '',
+                                        'published': False,
+                                        'failed': True,
+                                        'result': 'Uknown reason. Contact sub MODs ',
+                                        'comments': 0,
+                                        'upvotes': 0,
+                                        'upvote_ratio': 0,
+                                        'crossposts': 0
                                     })
                             else:
-                                failed_publish=True
+                                failed_publish = True
                                 fail_reasons.append(f'Submission to r/{sb} Failed')
                                 sub_tr.append({
-                                    'sub_name':sb,
-                                    'id':'',
-                                    'link':'',
-                                    'published':False,
-                                    'failed':True,
-                                    'result':f'r/{sb} does not allow video sharing.',
-                                    'comments':0,
-                                    'upvotes':0,
-                                    'upvote_ratio':0,
-                                    'crossposts':0
+                                    'sub_name': sb,
+                                    'id': '',
+                                    'link': '',
+                                    'published': False,
+                                    'failed': True,
+                                    'result': f'r/{sb} does not allow video sharing.',
+                                    'comments': 0,
+                                    'upvotes': 0,
+                                    'upvote_ratio': 0,
+                                    'crossposts': 0
                                 })
                             cr.save()
 
                         else:
-                            failed_publish=True
+                            failed_publish = True
                             fail_reasons.append(f'Submission to r/{sb} Failed')
                             sub_tr.append({
-                                    'sub_name':sb,
-                                    'id':'',
-                                    'link':'',
-                                    'published':False,
-                                    'failed':True,
-                                    'result':f'Unsupported media type {content_type}',
-                                    'comments':0,
-                                    'upvotes':0,
-                                    'upvote_ratio':0,
-                                    'crossposts':0
-                                })
+                                'sub_name': sb,
+                                'id': '',
+                                'link': '',
+                                'published': False,
+                                'failed': True,
+                                'result': f'Unsupported media type {content_type}',
+                                'comments': 0,
+                                'upvotes': 0,
+                                'upvote_ratio': 0,
+                                'crossposts': 0
+                            })
                             cr.save()
                             default_storage.delete(files[0]['image_path'])
                     else:
@@ -3630,108 +3822,109 @@ def postReddit(title,description,subs,hasMedia,files,nsfw_tag,spoiler_tag,red_re
                                     spoiler=spoiler_tag
 
                                 )
-                                published=True
-                                
-                                    # Get media metadata
+                                published = True
+
+                                # Get media metadata
                                 gallery_data = submission.media_metadata
-                                cover_image_url=''
+                                cover_image_url = ''
                                 if gallery_data:
                                     # Find the cover image
                                     cover_image_id = submission.gallery_data['items'][0]['media_id']
                                     print(len(gallery_data[cover_image_id]['p']))
-                                    cover_image_url = gallery_data[cover_image_id]['p'][-1]['u']  # Get the first preview
+                                    cover_image_url = gallery_data[cover_image_id]['p'][-1][
+                                        'u']  # Get the first preview
                                     # Reddit URLs may contain encoded characters like "&amp;", decode them
                                     cover_image_url = cover_image_url.replace("&amp;", "&")
                                 # clear the respective temporary files
                                 if not pst.media_thumbnail:
-                                    pst.media_thumbnail=cover_image_url
+                                    pst.media_thumbnail = cover_image_url
 
                                 sub_tr.append({
-                                    'sub_name':sb,
-                                    'id':submission.id,
-                                    'link':cover_image_url,
-                                    'permalink':f"https://www.reddit.com{submission.permalink}",
-                                    'published':True,
-                                    'failed':False,
-                                    
-                                    'result':'Submission was successful',
-                                    'comments':0,
-                                    'upvotes':0,
-                                    'upvote_ratio':0,
-                                    'crossposts':0
+                                    'sub_name': sb,
+                                    'id': submission.id,
+                                    'link': cover_image_url,
+                                    'permalink': f"https://www.reddit.com{submission.permalink}",
+                                    'published': True,
+                                    'failed': False,
+
+                                    'result': 'Submission was successful',
+                                    'comments': 0,
+                                    'upvotes': 0,
+                                    'upvote_ratio': 0,
+                                    'crossposts': 0
                                 })
                                 for f in files:
                                     default_storage.delete(f['image_path'])
                             except Exception as e:
                                 print(traceback.format_exc())
-                                failed_publish=True
+                                failed_publish = True
                                 fail_reasons.append(f'Submission to r/{sb} Failed')
                                 sub_tr.append({
-                                    'sub_name':sb,
-                                    'id':'',
-                                    'link':'',
-                                    'published':False,
-                                    'failed':True,
-                                    'result':'Uknown reason. Contact sub MODs ',
-                                    'comments':0,
-                                    'upvotes':0,
-                                    'upvote_ratio':0,
-                                    'crossposts':0
+                                    'sub_name': sb,
+                                    'id': '',
+                                    'link': '',
+                                    'published': False,
+                                    'failed': True,
+                                    'result': 'Uknown reason. Contact sub MODs ',
+                                    'comments': 0,
+                                    'upvotes': 0,
+                                    'upvote_ratio': 0,
+                                    'crossposts': 0
                                 })
                         else:
-                            failed_publish=True
+                            failed_publish = True
                             fail_reasons.append(f'Submission to r/{sb} Failed')
                             sub_tr.append({
-                                'sub_name':sb,
-                                'id':'',
-                                'link':'',
-                                'published':False,
-                                'failed':True,
-                                'result':f'r/{sb} does not allow image sharing.',
-                                'comments':0,
-                                'upvotes':0,
-                                'upvote_ratio':0,
-                                'crossposts':0
+                                'sub_name': sb,
+                                'id': '',
+                                'link': '',
+                                'published': False,
+                                'failed': True,
+                                'result': f'r/{sb} does not allow image sharing.',
+                                'comments': 0,
+                                'upvotes': 0,
+                                'upvote_ratio': 0,
+                                'crossposts': 0
                             })
                         cr.save()
 
                 else:
                     if subreddit.submission_type == 'any' or subreddit.submission_type == 'self':
                         submission = subreddit.submit(
-                            title, 
+                            title,
                             selftext=description,
-                            flair_id=default_flair, 
+                            flair_id=default_flair,
                             nsfw=nsfw_tag,
                             spoiler=spoiler_tag)
-                        published=True
+                        published = True
                         sub_tr.append({
-                            'sub_name':sb,
-                            'id':submission.id,
-                            'link':submission.url,
-                            'permalink':f"https://www.reddit.com{submission.permalink}",
-                            'published':True,
-                            'failed':False,
-                            'result':'Submission was successful',
-                            'comments':0,
-                            'upvotes':0,
-                            'upvote':0,
-                            'upvote_ratio':0,
-                            'crossposts':0
+                            'sub_name': sb,
+                            'id': submission.id,
+                            'link': submission.url,
+                            'permalink': f"https://www.reddit.com{submission.permalink}",
+                            'published': True,
+                            'failed': False,
+                            'result': 'Submission was successful',
+                            'comments': 0,
+                            'upvotes': 0,
+                            'upvote': 0,
+                            'upvote_ratio': 0,
+                            'crossposts': 0
                         })
                     else:
-                        failed_publish=True
+                        failed_publish = True
                         fail_reasons.append(f'Submission to r/{sb} Failed')
                         sub_tr.append({
-                            'sub_name':sb,
-                            'id':'',
-                            'link':'',
-                            'published':False,
-                            'failed':True,
-                            'result':f'r/{sb} does not allow text submissions.',
-                            'comments':0,
-                            'upvotes':0,
-                            'upvote_ratio':0,
-                            'crossposts':0
+                            'sub_name': sb,
+                            'id': '',
+                            'link': '',
+                            'published': False,
+                            'failed': True,
+                            'result': f'r/{sb} does not allow text submissions.',
+                            'comments': 0,
+                            'upvotes': 0,
+                            'upvote_ratio': 0,
+                            'crossposts': 0
                         })
                     cr.save()
                 break
@@ -3750,37 +3943,37 @@ def postReddit(title,description,subs,hasMedia,files,nsfw_tag,spoiler_tag,red_re
     cred.save()
 
     if failed_publish and published:
-        pst.is_published=True
-        pst.partial_publish=True
+        pst.is_published = True
+        pst.partial_publish = True
         for res in fail_reasons:
             pst.failure_reasons.append(res)
         pst.save()
     elif not failed_publish and published:
-        pst.is_published=True
+        pst.is_published = True
         pst.save()
     elif failed_publish and not published:
         if not pst.is_published:
-            pst.has_failed=True       
+            pst.has_failed = True
         pst.failure_reasons.extend(fail_reasons)
         pst.save()
-    
-    
+
+
 @api_view(['POST'])
 def deletePostComment(request):
     post_id = request.POST.get('post_id', None)
-    comment_id= request.POST.get('comment_id', None)
+    comment_id = request.POST.get('comment_id', None)
     action_type = request.POST.get('action_type', None)
     if not all([post_id, action_type]):
         return Response({'error': 'Bad request'})
-    cpst=CompanyPosts.objects.filter(post_id=post_id).first()
+    cpst = CompanyPosts.objects.filter(post_id=post_id).first()
     if not cpst:
         return Response({'error': 'Post unavailable or already deleted'})
-    
-    pltfrms=cpst.platforms
+
+    pltfrms = cpst.platforms
     for platform in pltfrms:
         if 'reddit' in platform.lower():
             # deleting reddit post /comment
-            cr=CompanyReddit.objects.filter(company=cpst.company).first()
+            cr = CompanyReddit.objects.filter(company=cpst.company).first()
             if not cr:
                 continue
             reddit = praw.Reddit(
@@ -3788,40 +3981,40 @@ def deletePostComment(request):
                 client_secret=settings.REDDIT_CLIENT_SECRET,
                 user_agent=settings.REDDIT_USER_AGENT,
                 refresh_token=cr.refresh_token,
-                        )
+            )
             if action_type == 'post':
-                crp=CompanyRedditPosts.objects.filter(post_id=post_id).first()
+                crp = CompanyRedditPosts.objects.filter(post_id=post_id).first()
                 if crp:
-                    sbs=crp.subs    
+                    sbs = crp.subs
                     for sb in sbs:
                         try:
-                            sb_id=sb['id']
+                            sb_id = sb['id']
                             submission = reddit.submission(id=sb_id)
                             submission.delete()
-                            print('deleted from ',sb['sub_name'])
+                            print('deleted from ', sb['sub_name'])
                         except:
                             continue
                     crp.delete()
         if 'facebook' in platform.lower():
-            cfbp=CompanyFacebook.objects.filter(company=cpst.company).first()
+            cfbp = CompanyFacebook.objects.filter(company=cpst.company).first()
             if not cfbp:
                 continue
             if action_type == 'post':
-                cfp=CompanyFacebookPosts.objects.filter(post_id=post_id).first()
+                cfp = CompanyFacebookPosts.objects.filter(post_id=post_id).first()
                 if cfp:
                     if cfp.content_id:
                         url = f"https://graph.facebook.com/v21.0//{cfp.content_id}"
                         payload = {
                             "access_token": cfbp.page_access_token,
                         }
-                        response =requests.delete(url, data=payload)
+                        response = requests.delete(url, data=payload)
                         if response.status_code == 200:
                             print("Post deleted successfully:", response.json())
                             cfp.delete()
                         else:
-                            print("Error deleting post:", response.json())           
+                            print("Error deleting post:", response.json())
     cp = CompanyPosts.objects.filter(company=cpst.company).order_by('-pk')
-    cpst.delete()         
+    cpst.delete()
     all_posts = []
     if not cp:
         for p in cp:
@@ -3832,68 +4025,68 @@ def deletePostComment(request):
                     'media_url': m.media.url,
                     'is_video': False
                 })
-            reds=[]
-            cover_image_link=''
-            
+            reds = []
+            cover_image_link = ''
+
             if 'reddit' in p.platforms:
-                cr=CompanyRedditPosts.objects.filter(post_id=p.post_id)
+                cr = CompanyRedditPosts.objects.filter(post_id=p.post_id)
                 if cr:
                     for c in cr:
-                        t_en=0
-                        t_com=0
+                        t_en = 0
+                        t_com = 0
                         for k in c.subs:
                             if k['published']:
-                                cover_image_link=k['link']
-                                p_id=k['id']
+                                cover_image_link = k['link']
+                                p_id = k['id']
                                 submission = reddit.submission(id=p_id)
-                                k['upvote_ratio']=submission.upvote_ratio*100
-                                k['upvotes']=submission.score
-                                k['comments']=submission.num_comments
-                                k['crossposts']=submission.num_crossposts
+                                k['upvote_ratio'] = submission.upvote_ratio * 100
+                                k['upvotes'] = submission.score
+                                k['comments'] = submission.num_comments
+                                k['crossposts'] = submission.num_crossposts
                                 reds.append(k)
-                                
-                                vlx=submission.score+submission.num_comments+submission.num_crossposts
-                                t_en+=vlx
-                                t_com+=submission.num_comments
-                        p.comment_count=t_com
-                        p.engagement_count=t_en
-                        p.save()   
-                        c.save()    
-                                
-            eng_cnt=p.engagement_count
-            if eng_cnt>1000000:
-                eng_cnt=round(eng_cnt/1000000,1)
-            elif eng_cnt>1000:
-                eng_cnt=round(eng_cnt/1000,1)
-            cmt_cnt=p.comment_count
-            if cmt_cnt>1000:
-                cmt_cnt=round(cmt_cnt/1000,1)
-            elif cmt_cnt>1000:
-                cmt_cnt=round(cmt_cnt/1000,1)
+
+                                vlx = submission.score + submission.num_comments + submission.num_crossposts
+                                t_en += vlx
+                                t_com += submission.num_comments
+                        p.comment_count = t_com
+                        p.engagement_count = t_en
+                        p.save()
+                        c.save()
+
+            eng_cnt = p.engagement_count
+            if eng_cnt > 1000000:
+                eng_cnt = round(eng_cnt / 1000000, 1)
+            elif eng_cnt > 1000:
+                eng_cnt = round(eng_cnt / 1000, 1)
+            cmt_cnt = p.comment_count
+            if cmt_cnt > 1000:
+                cmt_cnt = round(cmt_cnt / 1000, 1)
+            elif cmt_cnt > 1000:
+                cmt_cnt = round(cmt_cnt / 1000, 1)
             all_posts.append({
                 'platforms': [pl.capitalize() for pl in p.platforms],
                 'title': p.title,
                 'content': p.description,
                 'is_uploaded': p.is_published,
                 'is_scheduled': p.is_scheduled,
-                'comment_count':cmt_cnt,
-                'engagement_count':eng_cnt,
+                'comment_count': cmt_cnt,
+                'engagement_count': eng_cnt,
                 'tags': p.tags,
                 'has_media': p.has_media,
-                'cover_image_link':p.media_thumbnail,
-                'media':None if not p.has_media else UploadedMedia.objects.filter(post=p).first(),
+                'cover_image_link': p.media_thumbnail,
+                'media': None if not p.has_media else UploadedMedia.objects.filter(post=p).first(),
                 'date_uploaded': p.date_uploaded,
-                'date_scheduled':p.date_scheduled,
+                'date_scheduled': p.date_scheduled,
                 'media': med,
-                'post_id':p.post_id,
-                'has_all':len(p.platforms)==4,
-                'has_reddit':'reddit' in p.platforms,
-                'has_tiktok':'tiktok' in p.platforms,
-                'has_facebook':'facebook' in p.platforms,
-                'has_instagram':'instagram' in p.platforms,
+                'post_id': p.post_id,
+                'has_all': len(p.platforms) == 4,
+                'has_reddit': 'reddit' in p.platforms,
+                'has_tiktok': 'tiktok' in p.platforms,
+                'has_facebook': 'facebook' in p.platforms,
+                'has_instagram': 'instagram' in p.platforms,
 
             })
-    else:    
+    else:
         for p in cp:
             um = UploadedMedia.objects.filter(post=p)
             med = []
@@ -3902,25 +4095,25 @@ def deletePostComment(request):
                     'media_url': m.media.url,
                     'is_video': False
                 })
-            reds=[]
-            cover_image_link=''
-            
+            reds = []
+            cover_image_link = ''
+
             if 'reddit' in p.platforms:
-                cr=CompanyRedditPosts.objects.filter(post_id=p.post_id).first()
+                cr = CompanyRedditPosts.objects.filter(post_id=p.post_id).first()
                 if cr:
-                    k=cr.subs[0]
+                    k = cr.subs[0]
                     cover_image_link = k['link']
-                
-            eng_cnt=p.engagement_count
-            if eng_cnt>1000000:
-                eng_cnt=round(eng_cnt/1000000,1)
-            elif eng_cnt>1000:
-                eng_cnt=round(eng_cnt/1000,1)
-            cmt_cnt=p.comment_count
-            if cmt_cnt>1000:
-                cmt_cnt=round(cmt_cnt/1000,1)
-            elif cmt_cnt>1000:
-                cmt_cnt=round(cmt_cnt/1000,1)
+
+            eng_cnt = p.engagement_count
+            if eng_cnt > 1000000:
+                eng_cnt = round(eng_cnt / 1000000, 1)
+            elif eng_cnt > 1000:
+                eng_cnt = round(eng_cnt / 1000, 1)
+            cmt_cnt = p.comment_count
+            if cmt_cnt > 1000:
+                cmt_cnt = round(cmt_cnt / 1000, 1)
+            elif cmt_cnt > 1000:
+                cmt_cnt = round(cmt_cnt / 1000, 1)
             all_posts.append({
                 'platforms': [pl.capitalize() for pl in p.platforms],
                 'title': p.title,
@@ -3929,32 +4122,33 @@ def deletePostComment(request):
                 'is_scheduled': p.is_scheduled,
                 'is_published': p.is_published,
                 'has_failed': p.has_failed,
-                'comment_count':cmt_cnt,
-                'engagement_count':eng_cnt,
-                'tags':p.tags,
+                'comment_count': cmt_cnt,
+                'engagement_count': eng_cnt,
+                'tags': p.tags,
                 'has_media': p.has_media,
-                'cover_image_link':p.media_thumbnail,
-                'media':None if not p.has_media else UploadedMedia.objects.filter(post=p).first(),
+                'cover_image_link': p.media_thumbnail,
+                'media': None if not p.has_media else UploadedMedia.objects.filter(post=p).first(),
                 'date_uploaded': p.date_uploaded,
-                'date_scheduled':p.date_scheduled,
+                'date_scheduled': p.date_scheduled,
                 'media': med,
-                'post_id':p.post_id,
-                'has_all':len(p.platforms)==4,
-                'has_reddit':'reddit' in p.platforms,
-                'has_tiktok':'tiktok' in p.platforms,
-                'has_facebook':'facebook' in p.platforms,
-                'has_instagram':'instagram' in p.platforms,
+                'post_id': p.post_id,
+                'has_all': len(p.platforms) == 4,
+                'has_reddit': 'reddit' in p.platforms,
+                'has_tiktok': 'tiktok' in p.platforms,
+                'has_facebook': 'facebook' in p.platforms,
+                'has_instagram': 'instagram' in p.platforms,
 
             })
         # upd_pst=threading.Thread(target=updatePosts,daemon=True, kwargs={
         #         'company_id':company_id,
         #     })
         # upd_pst.start()
-  
+
     context = {
         'posts': all_posts,
     }
     return render(request, 'dashboard.html', context=context)
+
 
 @api_view(['POST'])
 def uploadPost(request):
@@ -3980,15 +4174,15 @@ def uploadPost(request):
     tk_to_everyone = request.POST.get('tk_to_everyone', 'false').lower() == 'true'
     tk_to_friends = request.POST.get('tk_to_friends', 'false').lower() == 'true'
     tk_to_only_me = request.POST.get('tk_to_only_me', 'false').lower() == 'true'
-    tk_tiktok_mentions = request.POST.get('tk_tiktok_mentions',  None)
+    tk_tiktok_mentions = request.POST.get('tk_tiktok_mentions', None)
 
-    tk_audience='PUBLIC_TO_EVERYONE'
+    tk_audience = 'PUBLIC_TO_EVERYONE'
     if tk_to_friends:
-        tk_audience='MUTUAL_FOLLOW_FRIENDS'
+        tk_audience = 'MUTUAL_FOLLOW_FRIENDS'
     elif tk_to_only_me:
-        tk_audience='SELF_ONLY'
-    tk_description=f'{description} {hashTags} {tk_tiktok_mentions}'
-        
+        tk_audience = 'SELF_ONLY'
+    tk_description = f'{description} {hashTags} {tk_tiktok_mentions}'
+
     # Instagram
     to_ig_stories = request.POST.get('to_ig_stories', 'false').lower() == 'true'
     to_ig_posts = request.POST.get('to_ig_posts', 'false').lower() == 'true'
@@ -4003,19 +4197,19 @@ def uploadPost(request):
     to_fb_reels = request.POST.get('to_fb_reels', 'false').lower() == 'true'
     fb_copyright = request.POST.get('fb_copyright', 'false').lower() == 'true'
     fb_location_tags = request.POST.get('fb_location_tags', None)
-    
-    fb_descr=f'{description} {hashTags} '
+
+    fb_descr = f'{description} {hashTags} '
     # Reddit
     red_is_nsfw = request.POST.get('red_is_nsfw', 'false').lower() == 'true'
     red_is_spoiler = request.POST.get('red_is_spoiler', 'false').lower() == 'true'
     target_subs = request.POST.get('red_sub_selected', None)
-    
+
     date_scheduled = request.POST.get('date_scheduled', None)
 
-    if not all([company_id,description]):
+    if not all([company_id, description]):
         return Response({'error': 'Bad request'})
-    
-    tsbs=target_subs.split(',')
+
+    tsbs = target_subs.split(',')
     cp = Company.objects.filter(company_id=company_id).first()
 
     files = request.FILES  # Access uploaded files
@@ -4023,9 +4217,10 @@ def uploadPost(request):
     for field_name, file in files.items():
         temp_file_path = default_storage.save(file.name, file)
         absolute_file_path = default_storage.path(temp_file_path)
-        gallery_items.append({"image_path": absolute_file_path,'content_type':file.content_type,"file_size": file.size })
-    datetime_object= timezone.now()
-    
+        gallery_items.append(
+            {"image_path": absolute_file_path, 'content_type': file.content_type, "file_size": file.size})
+    datetime_object = timezone.now()
+
     if isScheduled:
         time_format = "%A, %d %B %Y %I:%M %p"
         # Convert to datetime object
@@ -4042,13 +4237,13 @@ def uploadPost(request):
         platform.append('facebook')
     if redditSelected:
         platform.append('reddit')
-        
+
     post_id = uuid.uuid4()
-    is_video=False
-    if len(gallery_items)>0:
-        glctyp= gallery_items[0]['content_type']
+    is_video = False
+    if len(gallery_items) > 0:
+        glctyp = gallery_items[0]['content_type']
         if glctyp.startswith("video/"):
-            is_video=True
+            is_video = True
 
     cpst = CompanyPosts(
         company=cp,
@@ -4059,81 +4254,81 @@ def uploadPost(request):
         is_scheduled=isScheduled,
         has_media=hasMedia,
         is_video=is_video,
-        date_scheduled= datetime_object
+        date_scheduled=datetime_object
     )
-    ht=hashTags.split()
+    ht = hashTags.split()
     cpst.tags.extend(ht)
     cpst.save()
-  
+
     if not isScheduled:
         # post to the respective platforms
         if redditSelected:
-            crp=CompanyReddit.objects.filter(company=cp).first()
-            redThread=threading.Thread(target=postReddit,daemon=True,kwargs={
-                'title':title,
-                'description':description,
-                'subs':tsbs,
-                'hasMedia':hasMedia,
-                'files':gallery_items,
-                'nsfw_tag':red_is_nsfw,
-                'spoiler_tag':red_is_spoiler,
-                'red_refresh_token':crp.refresh_token,
-                'post_id':post_id,
-                'company':cp
-                
-                })
+            crp = CompanyReddit.objects.filter(company=cp).first()
+            redThread = threading.Thread(target=postReddit, daemon=True, kwargs={
+                'title': title,
+                'description': description,
+                'subs': tsbs,
+                'hasMedia': hasMedia,
+                'files': gallery_items,
+                'nsfw_tag': red_is_nsfw,
+                'spoiler_tag': red_is_spoiler,
+                'red_refresh_token': crp.refresh_token,
+                'post_id': post_id,
+                'company': cp
+
+            })
             redThread.start()
         if tiktokSelected:
-            glctyp= gallery_items[0]['content_type']
+            glctyp = gallery_items[0]['content_type']
             if not glctyp.startswith("video/"):
                 return 'Non video'
-            tkThread=threading.Thread(target=postTiktok,daemon=True,kwargs={
-                'company':cp,
-                'description':tk_description,
-                'video':gallery_items[0],
-                'duet':tk_allow_duet,
-                'comment':tk_allow_comment,
-                'stitch':tk_allow_stitch,
-                'audience':tk_audience, 
-                'post_id':post_id,          
-                'mentions':tk_tiktok_mentions          
+            tkThread = threading.Thread(target=postTiktok, daemon=True, kwargs={
+                'company': cp,
+                'description': tk_description,
+                'video': gallery_items[0],
+                'duet': tk_allow_duet,
+                'comment': tk_allow_comment,
+                'stitch': tk_allow_stitch,
+                'audience': tk_audience,
+                'post_id': post_id,
+                'mentions': tk_tiktok_mentions
             })
             tkThread.start()
         if facebookSelected:
-            cfb=CompanyFacebook.objects.filter(company=cp).first()
+            cfb = CompanyFacebook.objects.filter(company=cp).first()
             if not cfb:
                 return
-            isVideo= False
+            isVideo = False
             if hasMedia:
-                glctyp= gallery_items[0]['content_type']
+                glctyp = gallery_items[0]['content_type']
                 if glctyp.startswith("video/"):
-                    isVideo=True
-            fbThread=threading.Thread(target=postFacebook,daemon=True,kwargs={
-               'media':gallery_items,
-               'page_id':cfb.page_id,
-               'post_id':post_id,
-               'access_token':cfb.page_access_token,
-               'is_video':isVideo,
-               'description':description,
-               'has_media':hasMedia,
-               'title':title,
-               'to_stories':to_fb_stories,
-               'to_post':to_fb_posts
-                
+                    isVideo = True
+            fbThread = threading.Thread(target=postFacebook, daemon=True, kwargs={
+                'media': gallery_items,
+                'page_id': cfb.page_id,
+                'post_id': post_id,
+                'access_token': cfb.page_access_token,
+                'is_video': isVideo,
+                'description': description,
+                'has_media': hasMedia,
+                'title': title,
+                'to_stories': to_fb_stories,
+                'to_post': to_fb_posts
+
             })
             fbThread.start()
         if instagramSelected:
-            cig=CompanyInstagram.objects.filter(company=cp).first()
-            igThread=threading.Thread(target=postInstagram,daemon=True,kwargs={
-                'account_id':cig.account_id,
-                'media':gallery_items,
-                'access_token':cig.long_lived_token,
-                'description':description,
-                'has_media':hasMedia,
-                'post_id':post_id,
-                'to_stories':to_ig_stories,
-                'to_post':to_ig_posts,
-                'to_reels':to_ig_reels                
+            cig = CompanyInstagram.objects.filter(company=cp).first()
+            igThread = threading.Thread(target=postInstagram, daemon=True, kwargs={
+                'account_id': cig.account_id,
+                'media': gallery_items,
+                'access_token': cig.long_lived_token,
+                'description': description,
+                'has_media': hasMedia,
+                'post_id': post_id,
+                'to_stories': to_ig_stories,
+                'to_post': to_ig_posts,
+                'to_reels': to_ig_reels
             })
             igThread.start()
     else:
@@ -4162,14 +4357,14 @@ def uploadPost(request):
     #     )
     #     cigp.save()
     # if redditSelected:
-        # cred = CompanyRedditPosts(
-        #     post_id=post_id,
-        #     nsfw_tag=red_is_nsfw,
-        #     spoiler_flag=red_is_spoiler,
-        #     brand_flag=red_is_brand,
-        #     target_subs=target_subs
-        # )
-        # cred.save()
+    # cred = CompanyRedditPosts(
+    #     post_id=post_id,
+    #     nsfw_tag=red_is_nsfw,
+    #     spoiler_flag=red_is_spoiler,
+    #     brand_flag=red_is_brand,
+    #     target_subs=target_subs
+    # )
+    # cred.save()
 
     return Response({'success': 'success request'})
 
@@ -4345,8 +4540,7 @@ def instagram_callback(request):
     cm = Company.objects.filter(company_id=company_id).first()
     if not cm:
         return redirect('dashboard', company_id=company_id)
-    
-    
+
     pg_id = get_facebook_ig_page_id(access_token)
     ci = CompanyInstagram.objects.filter(company=cm).first()
     inst_id = get_instagram_account_id(access_token, pg_id)
@@ -4467,7 +4661,7 @@ def refresh_long_lived_token(current_long_lived_token):
     return new_long_lived_token, expires_in
 
 
-def get_instagram_account_insights(access_token, instagram_account_id,**kwargs):
+def get_instagram_account_insights(access_token, instagram_account_id, **kwargs):
     """
     Retrieves basic data, profile information, and analytics for an Instagram Business account.
 
@@ -4497,25 +4691,24 @@ def get_instagram_account_insights(access_token, instagram_account_id,**kwargs):
 
     insights_response = requests.get(insights_url, params=insights_params)
     insights_data = insights_response.json()
-    
 
     if "error" in insights_data:
         raise Exception(f"Error fetching insights data: {insights_data['error']['message']}")
 
     # Combine account data and insights for easier access
-    cp_id=kwargs.get('company_id',None)
+    cp_id = kwargs.get('company_id', None)
     if cp_id:
-        cp=Company.objects.filter(company_id=cp_id).first()
+        cp = Company.objects.filter(company_id=cp_id).first()
         if cp:
-            cig=CompanyInstagram.objects.filter(company=cp).first()
+            cig = CompanyInstagram.objects.filter(company=cp).first()
             if cig:
-                tnw=timezone.now()
-                tdiff=tnw-cig.last_update_time
-                if tdiff.total_seconds()>86400:
+                tnw = timezone.now()
+                tdiff = tnw - cig.last_update_time
+                if tdiff.total_seconds() > 86400:
                     # cig.followers_trend=[]
                     # cig.impressions=[]
                     # cig.reach=[]
-                    cig.last_update_time=timezone.now()
+                    cig.last_update_time = timezone.now()
                     cig.followers_trend.append(data.get("followers_count"))
                     cig.impressions.append(insights_data["data"][0]["values"][-1]['value'])
                     cig.reach.append(insights_data["data"][1]["values"][-1]['value'])
@@ -4550,51 +4743,51 @@ def get_facebook_page_insights(access_token, page_id, **kwargs):
     params2 = {
         "metric": "page_impressions,page_fans,page_views_total",
         "access_token": access_token,
-        'period':'day'
+        'period': 'day'
     }
 
     response = requests.get(url2, params=params2)
-    
+
     page_insights = response.json()
     print(response.json())
-    page_impress=0
-    page_fans=0
-    page_vws=0
+    page_impress = 0
+    page_fans = 0
+    page_vws = 0
     if page_insights:
         for pg in page_insights.get('data'):
-            pim=pg.get('name')
+            pim = pg.get('name')
             if pim == 'page_impressions':
-                prd=pg.get('period')
-                vll=pg.get('values')[-1].get('value')
-                page_impress=vll
-                
+                prd = pg.get('period')
+                vll = pg.get('values')[-1].get('value')
+                page_impress = vll
+
             if pim == 'page_views_total':
-                vll=pg.get('values')[-1].get('value')
-                page_vws=vll
-                
+                vll = pg.get('values')[-1].get('value')
+                page_vws = vll
+
             if pim == 'page_fans':
-                vll=pg.get('values')[-1].get('value')
-                page_fans=vll
-        
+                vll = pg.get('values')[-1].get('value')
+                page_fans = vll
+
     # print(page_insights.get('data').get('page_fans'))
-    vl_id=kwargs.get('company_id',None)
+    vl_id = kwargs.get('company_id', None)
     if vl_id:
-        cp=Company.objects.filter(company_id=vl_id).first()
+        cp = Company.objects.filter(company_id=vl_id).first()
         if cp:
-            cmf=CompanyFacebook.objects.filter(company=cp).first()
-            
+            cmf = CompanyFacebook.objects.filter(company=cp).first()
+
             if cmf:
-                tnw=timezone.now()
-                tdiff=tnw-cmf.last_update_time
-                if tdiff.total_seconds()>86400:
-                # cmf.page_fans=[]
-                # cmf.page_views_total=[]
-                # cmf.impressions=[]
+                tnw = timezone.now()
+                tdiff = tnw - cmf.last_update_time
+                if tdiff.total_seconds() > 86400:
+                    # cmf.page_fans=[]
+                    # cmf.page_views_total=[]
+                    # cmf.impressions=[]
 
                     cmf.page_fans.append(page_fans)
                     cmf.page_views_total.append(page_vws)
                     cmf.impressions.append(page_impress)
-                    cmf.last_update_time=timezone.now()
+                    cmf.last_update_time = timezone.now()
                     # cmf.page_fans.append(i for i in page_fans)
                     # cmf.page_views_total.append(i for i in page_vws)
                     # cmf.impressions.append(i for i in page_impress)
@@ -4640,15 +4833,15 @@ def facebook_callback(request):
     pg_id = get_facebook_ig_page_id(access_token)
     l_lived_token = get_long_lived_token(access_token)
     cf = CompanyFacebook.objects.filter(company=cm).first()
-    
+
     pages_url = f"https://graph.facebook.com/v21.0/me/accounts"
     headers = {"Authorization": f"Bearer {access_token}"}
     pages_response = requests.get(pages_url, headers=headers)
     pages_data = pages_response.json()
     if 'data' not in pages_data:
-        return 
+        return
 
-    # Extract Page ID and Page Access Token for the first Page
+        # Extract Page ID and Page Access Token for the first Page
     page = pages_data['data'][0]
     page_id = page.get('id')
     page_access_token = page.get('access_token')
@@ -4660,7 +4853,7 @@ def facebook_callback(request):
         cf.long_lived_token = l_lived_token
         cf.linked = True
         cf.active = True
-        cf.page_access_token=page_access_token
+        cf.page_access_token = page_access_token
         cf.page_id = page_id
         cf.account_name = insgts['page_name']
         cf.profile_url = insgts['p_picture']
@@ -4920,41 +5113,42 @@ def youtube_get_comments(request, video_id):
     response = request.execute()
     return JsonResponse(response)
 
-def getRedditSubInfo(subs,reddit):
-    print('getting subs analytics ',subs)
+
+def getRedditSubInfo(subs, reddit):
+    print('getting subs analytics ', subs)
     for sub in subs:
-        crs=CompanyRedditSubs.objects.filter(sub_name=sub).first()
+        crs = CompanyRedditSubs.objects.filter(sub_name=sub).first()
         if crs:
             # check the last time it was updated
-            lst_upd=crs.last_updated
-            dfr=(timezone.now()-lst_upd).total_seconds()
-            if dfr > 3600: # updated more than 1hr ago
-                sr=reddit.subreddit(sub)
-                crs.full_name=sr.name
-                crs.description=sr.description
-                crs.subscriber_count=sr.subscribers
-                crs.user_is_banned=sr.user_is_banned
-                pr=sr.rules() 
-                rules=pr['rules']
-                rls=[]
+            lst_upd = crs.last_updated
+            dfr = (timezone.now() - lst_upd).total_seconds()
+            if dfr > 3600:  # updated more than 1hr ago
+                sr = reddit.subreddit(sub)
+                crs.full_name = sr.name
+                crs.description = sr.description
+                crs.subscriber_count = sr.subscribers
+                crs.user_is_banned = sr.user_is_banned
+                pr = sr.rules()
+                rules = pr['rules']
+                rls = []
                 for r in rules:
                     rls.append(
-                        {'rule':r['short_name'],'description':r['description']}
+                        {'rule': r['short_name'], 'description': r['description']}
                     )
-                crs.sub_rules=rls
-                crs.last_updated-timezone.now()
+                crs.sub_rules = rls
+                crs.last_updated - timezone.now()
                 crs.save()
         else:
-            sr=reddit.subreddit(sub)
-            pr=sr.rules() 
-            rules=pr['rules']
-            rls=[]
+            sr = reddit.subreddit(sub)
+            pr = sr.rules()
+            rules = pr['rules']
+            rls = []
             for r in rules:
                 rls.append(
-                    {'rule':r['short_name'],'description':r['description']}
+                    {'rule': r['short_name'], 'description': r['description']}
                 )
 
-            crs=CompanyRedditSubs(
+            crs = CompanyRedditSubs(
                 sub_name=sub,
                 full_name=sr.name,
                 description=sr.description,
@@ -4963,6 +5157,7 @@ def getRedditSubInfo(subs,reddit):
                 sub_rules=rls
             )
             crs.save()
+
 
 @api_view(['POST'])
 def subRedInfo(request):
@@ -4975,28 +5170,28 @@ def subRedInfo(request):
         return Response({'error': 'Bad request'})
     subs = subs.split(',')
     subs = [r.split('r/')[-1] for r in subs]
-    dt=[]
+    dt = []
     for sub in subs:
-        crs=CompanyRedditSubs.objects.filter(sub_name=sub).first()
+        crs = CompanyRedditSubs.objects.filter(sub_name=sub).first()
         if crs:
             dt.append({
-                    'name': crs.sub_name,
-                    'description': crs.description,
-                    'subscribers': crs.subscriber_count,
-                    'isBanned': crs.user_is_banned,
-                    'rules':crs.sub_rules
-                    })
+                'name': crs.sub_name,
+                'description': crs.description,
+                'subscribers': crs.subscriber_count,
+                'isBanned': crs.user_is_banned,
+                'rules': crs.sub_rules
+            })
         else:
-            sr=reddit.subreddit(sub)
-            pr=sr.rules() 
-            rules=pr['rules']
-            rls=[]
+            sr = reddit.subreddit(sub)
+            pr = sr.rules()
+            rules = pr['rules']
+            rls = []
             for r in rules:
                 rls.append(
-                    {'rule':r['short_name'],'description':r['description']}
+                    {'rule': r['short_name'], 'description': r['description']}
                 )
 
-            crs=CompanyRedditSubs(
+            crs = CompanyRedditSubs(
                 sub_name=sub,
                 full_name=sr.name,
                 description=sr.description,
@@ -5006,17 +5201,18 @@ def subRedInfo(request):
             )
             crs.save()
             dt.append({
-                    'name': crs.sub_name,
-                    'description': crs.description,
-                    'subscribers': crs.subscriber_count,
-                    'isBanned': crs.user_is_banned,
-                    'rules':crs.sub_rules
-                    })
+                'name': crs.sub_name,
+                'description': crs.description,
+                'subscribers': crs.subscriber_count,
+                'isBanned': crs.user_is_banned,
+                'rules': crs.sub_rules
+            })
     context = {
         'sub_info': dt,
     }
     return render(request, 'dashboard.html', context=context)
-    
+
+
 @api_view(['POST'])
 def redditFlairs(request):
     subs = request.POST.get('subs', None)
@@ -5039,7 +5235,8 @@ def redditFlairs(request):
             refresh_token=cr.refresh_token,
         )
         # get sub trasssic analysis
-        sub_analyt_thrd=threading.Thread(target=getRedditSubInfo,daemon=True,kwargs={'subs':subs,'reddit':reddit})
+        sub_analyt_thrd = threading.Thread(target=getRedditSubInfo, daemon=True,
+                                           kwargs={'subs': subs, 'reddit': reddit})
         sub_analyt_thrd.start()
 
         # check if we have the flairs already
@@ -5049,14 +5246,14 @@ def redditFlairs(request):
                 if sr['sub'] == subreddit_name:
                     present = True
                     rt.append({'sub_r': subreddit_name,
-                               'optional':sr['flair_optional'],
+                               'optional': sr['flair_optional'],
                                'flairs_r': sr['flairs']})
             if not present:
                 vl = []
                 try:
                     subreddit = reddit.subreddit(subreddit_name)
                     flair_options = list(subreddit.flair.link_templates)
-                    optional=False
+                    optional = False
 
                     for f in flair_options:
                         if not f['mod_only']:
@@ -5066,10 +5263,10 @@ def redditFlairs(request):
                                 'selected': False
                             })
                 except:
-                    optional=True
+                    optional = True
                 rt.append({
                     'sub_r': subreddit_name,
-                    'optional':optional,
+                    'optional': optional,
                     'flairs_r': vl})
 
     context = {
@@ -5089,7 +5286,7 @@ def updateFlairs(request):
         return Response({'error': 'Bad request'})
     cr = CompanyReddit.objects.filter(company=cp).first()
     modified = False
-    init_sub=[]
+    init_sub = []
     if cr:
         init_sub = cr.subs
         for flr in json.loads(flairs):
@@ -5106,15 +5303,17 @@ def updateFlairs(request):
                         except:
                             return Response({'success': 'Updated successfully'})
     if modified:
-        cr.subs=init_sub
+        cr.subs = init_sub
         cr.save()
     return Response({'success': 'Updated successfully'})
 
 
 def reddit_auth_link(company_id):
     state = urllib.parse.quote_plus(str(company_id))  # Ensure URL encoding for special characters
-    authorization_url = reddit.auth.url(['identity', 'submit', 'read', 'mysubreddits', 'flair',"history",'modposts','vote','edit','privatemessages'], state=state,
-                                        duration='permanent', )
+    authorization_url = reddit.auth.url(
+        ['identity', 'submit', 'read', 'mysubreddits', 'flair', "history", 'modposts', 'vote', 'edit',
+         'privatemessages'], state=state,
+        duration='permanent', )
     return authorization_url
 
 

@@ -23,7 +23,12 @@ urlpatterns=[
     path('generate-invite-link/',views.generateInviteLink,name='generate-invite-link'),
     # send chat       
     path('send-chat/',views.sendChat,name='send-chat'),
+    # upload team file
+    path('upload-team-file/',views.uploadTeamFile,name='upload-team-file'),
     # delete post
+    path('delete-team-file/',views.deleteTeamFile,name='delete-team-file'),
+    
+    
     path('upload_train_doc/',views.uploadTrainDoc,name='upload_train_doc'),
     # fetch reviews
     path('get_reviews/',views.companyReviews,name='get_reviews'),
