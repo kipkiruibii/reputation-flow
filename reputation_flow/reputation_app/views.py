@@ -2100,6 +2100,24 @@ def getCommentReplies(request):
     }
     return render(request, 'dashboard.html', context=context)
 
+def socialProof(request,company_name):
+    cp=Company.objects.filter(company_name=company_name).first()
+    if not cp:
+        context = {
+            'success': False,
+            'status':404,
+            'search_autofill':'',
+            'company': company_name,
+        }
+        return render(request, 'review.html', context=context)
+
+    context = {
+        'success': True,
+        'search_autofill':'',
+        'company': company_name,
+    }
+
+    return render(request, 'review.html', context=context)
 
 @api_view(['POST'])
 def postComment(request):

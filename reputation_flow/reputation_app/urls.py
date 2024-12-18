@@ -8,6 +8,7 @@ urlpatterns=[
     path('logout/',views.logoutUser,name='logout'),
     path('b/<str:company_id>/dashboard',views.dashboard,name='dashboard'),
     path('profile/<str:company_name>/details/',views.companyProfile,name='company_profile'),
+    path('social-proof/<str:company_name>/',views.socialProof,name='social-proof'),
     path('update-profile/',views.updateBusinessProfile,name='update-profile'),
     # get posts
     path('fetch-posts/',views.fetchPosts,name='fetch-posts'),

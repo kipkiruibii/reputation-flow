@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+{% load static %}
+
+<head>
+    <!-- SEO Meta Tags -->
+    <meta name="description"
+        content="Discover the best social proof for {{ company }} provided by Insightlyze. Learn why people choose {{ company }}.">
+    <meta name="author" content="Hezron Bii">
+    <meta name="keywords"
+        content="{{ company }} customer feedback, {{ company }} social proof, {{ company }} reviews aggregator, {{ company }} customer engagement, {{ company }} reviews, {{ company }} social media reviews, {{ company }}, what is good about {{ company }}" />
+    <!-- OG Meta Tags to improve the way the post looks when you share the page on Facebook, Twitter, LinkedIn -->
+    <meta property="og:site_name" content="{{ company }}social proof" /> <!-- website name -->
+    <meta property="og:site" content="https://insightlyze.com/social-proof/{{ company }}/" /> <!-- website link -->
+    <meta property="og:title" content="Showcase Social Proof and Boost Your Business" />
+    <!-- title shown in the actual shared post -->
+    <meta property="og:description" content="About {{ company }}." />
+    <link rel="canonical" href="https://insightlyze.com/social-proof/{{ company }}/" />
+    <meta name="csrf-token" content="{{ csrf_token }}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{% static 'images/fav_icon.png' %}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'images/fav_icon.png' %}">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="{% static  'css/main.css' %}">
+
+    <!-- Webpage Title -->
+    <title>Social Proof - {{ company }} </title>
+    <style>
+        ::selection {
+            color: #fff;
+            background: #664AFF
+        }
+
+        .wrapper {
+            max-width: 500px;
+            margin: 150px auto;
+        }
+
+        .wrapper .search-input {
+            background: #ffffffdc;
+            width: 500px;
+            border-radius: 5px;
+            position: relative;
+            box-shadow: Opx 1px 5px 3px rgba(0, 0, 0, 0. 12);
+        }
+
+        .search-input input {
+            height: 40px;
+            width: 500px;
+            outline: none;
+            border: none;
+            border-radius: 5px;
+            padding: 0 60px 0 20px;
+            font-size: 18px;
+            box-shadoW: 0px 1px 5px rgba(0, 0, 0, 0.1);
+            z-index: 1;
+            position: relative;
+        }
+
+        .search-input.active input {
+            border-radius: 5px 5px 0 0;
+        }
+
+        .search-input .autocom-box {
+            padding: 0;
+            opacity: 0;
+            pointer-events: none;
+            max-height: 280px;
+            overflow-x: hidden;
+            overflow-y: auto;
+            background-color: #f8f8f8;
+            border-radius: 0 0 5px 5px;
+            position: absolute;
+            width: 500px;
+        }
+
+        .search-input.active .autocom-box {
+            padding: 10px 8px;
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .autocom-box li {
+            list-style: none;
+            padding: 8px 12px;
+            display: none;
+            width: 500px;
+            cursor: default;
+            border-radius: 3px;
+        }
+
+        .search-input.active .autocom-box li {
+            display: block;
+        }
+
+        .autocom-box li:hover {
+            background: #efefef;
+        }
+
+        .search-input .icon {
+            position: absolute;
+            right: 0px;
+            top: 0px;
+            height: 20px;
+            width: 20px;
+            text-align: center;
+            line-height: 20px;
+            font-size: 20px;
+            color: #0d6efd;
+            cursor: pointer;
+            z-index: 2;
+        }
+    </style>
+</head>
+
+<body style="background-color: rgb(233, 234, 234);height: 90vh;margin: 0;">
+    {% if request.user_agent.is_pc %}
+    <div
+        style="height: 10vh;display: flex;;align-items: center;justify-content: space-between;background-color: #000101e1;position: fixed;top: 0;width: 100%;overflow-y: scroll;">
+        <div style="display: flex;gap: 10px;align-items: center;padding: 5px;">
+            <img src="{% static 'images/fav_icon.png' %}" alt="insightlyze logo" style="height: 40px;width: 40px;">
+            <h3 style="color: white;">Insightlyze Social Proof</h3>
+        </div>
+        <div class="wrapper">
+            <div class="search-input">
+                <a href="" target="_blank" hidden></a>
+                <input type=" text" placeholder="Search company">
+                <div class="autocom-box"></div>
+                <div class="icon" style="color: rgb(0, 60, 180);"><i class=" fas fa-search"></i></div>
+            </div>
+        </div>
+    </div>
+    <div style="display: flex;gap: 10px;height: 100%;padding: 10px;margin-top: 10vh;">
+        <div style="width: 30%;background-color: rgb(255, 255, 255);height:100%;padding: 10px;">
+            <div style="display: flex;justify-content: center;">
+                <img src="https://media.istockphoto.com/id/933560094/vector/unique-logo-design-for-a-running-club-a-symbol-for-a-sports-organization-a-tournament-a.jpg?s=612x612&w=0&k=20&c=BMpXyrN7IXSGLoFFeakAUIUwU_1LEWt1maOuUJAvcgg="
+                    alt="{{ company }} logo" style="width: 150px;height: 150px;border-radius: 100%;">
+            </div>
+            <div style="align-items: center;display: flex;width: 100%;background-color: rgba(209, 250, 202, 0.429);justify-content: center;">
+                <h2 style="align-items: center;">{{ company }}</h2>
+            </div>
+
+        </div>
+        <div style="width: 70%;background-color: rgb(255, 255, 255);height:100%"></div>
+
+    </div>
+
+    {% else %}
+    <div style="display: flex;gap: 10px;height: 100%;">
+        <div style="width: 30%;background-color: yellow;height:100%"></div>
+        <div style="width: 70%;background-color: blue;height:100%"></div>
+
+    </div>
+
+    {% endif %}
+    <script type="application/ld+json">
+        {
+          "@context": "https://schema.org",
+          "@type": "WebPage",
+          "name": "{{ company }} Social Proof",
+          "description": "Discover social proof forr {{ company }} provided by Insightlyze.",
+          "url": "https://insightlyze.com/social-proof/{{ company }}/"
+        }
+        </script>
+    <script>
+        let suggestions = [
+            // ABC Normal Letters
+            "Codewithrandom Html Projects",
+            "Codewithrandom Css Projects",
+            "Codewithrandom JavaScript Projects ",
+            "TEnLOCRAFT",
+            "Codewithrandom Portfol io ",
+            "Codewithrandom Search on Google",
+            "YouTube",
+            "YouTuber",
+            "YouTube Channel",
+            "GTA",
+            "GTA 2",
+            "GTA 3",
+            "GTA 4",
+            "GTA 5",
+            "GTA 6",
+            "GTA 7",
+            "GTA 8",
+            "GTA 9",
+            "GTA 10",
+            "GTA 11"
+        ]
+
+        // getting all required elements
+        const searchWrapper = document.querySelector(".search-input");
+        const inputBox = searchWrapper.querySelector("input");
+        const suggBox = searchWrapper.querySelector(".autocom-box");
+        const icon = searchWrapper.querySelector(".icon");
+        let linkTag = searchWrapper.querySelector("a");
+        let webLink;
+
+        // if user press any key and release
+        inputBox.onkeyup = (e) => {
+            let userData = e.target.value; //user enetered data
+            let emptyArray = [];
+
+            if (userData) {
+                icon.onclick = () => {
+                    webLink = "https://www.google.com/search?q=" + userData + "&oq=" + userData
+                    linkTag.setAttribute("href", webLink);
+                    console.log(webLink);
+                    linkTag.click();
+                }
+                emptyArray = suggestions.filter((data) => {
+
+                    // Filtering array value and user characters to lowercase and return on ly those words which are start with user enetered chars
+                    return data.toLocaleLowerCase().includes(userData.toLocaleLowerCase());
+                });
+
+                emptyArray = emptyArray.map((data) => {
+                    // passing return data inside li tag
+                    return data = '<li>' + data + '</li>';
+                });
+
+                searchWrapper.classList.add("active"); //show autocomplete box
+
+                showSuggestions(emptyArray);
+
+                let allList = suggBox.querySelectorAll("li");
+
+                for (let i = 0; i < allList.length; i++) {
+                    //adding onclick attribute in all li tag
+                    allList[i].setAttribute("onclick", "select(this) ");
+                }
+            } else {
+                searchWrapper.classList.remove("active"); //hide autocomplete box
+            }
+        }
+
+        function select(element, event) {
+            let selectData = element.textContent;
+            inputBox.value = selectData;
+            icon.onclick = () => {
+                webLink = "https://www.google.com/search?q=" + selectData + "&oq=" + selectData
+                linkTag.setAttribute("href", webLink);
+                linkTag.click();
+            }
+            searchWrapper.classList.remove("active");
+        }
+
+        function showSuggestions(list) {
+            let listData;
+            if (!list.length) {
+                userValue = inputBox.value;
+                listData = '<li>' + userValue + '</li>';
+            } else {
+                listData = list.join('');
+            }
+            suggBox.innerHTML = listData;
+        }    </script>
+</body>
+
+</html>
