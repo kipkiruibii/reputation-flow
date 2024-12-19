@@ -435,9 +435,13 @@ def replyPM(request):
             }
             return render(request, 'dashboard.html', context=context)
         else:
+            print(response.json())
+            if response.json()['error']['code']==10:
+                message='This message is being sent outside the allowed window (24 hours).Kindly use official site/app to reply.'
+                return Response({'error': message})
+
             return Response({'error': 'Could not send message. Try again after sometime or use official site/app'})
 
-        print(response.json())
     return Response({'success': 'Bad request'})
 
 
@@ -2100,20 +2104,36 @@ def getCommentReplies(request):
     }
     return render(request, 'dashboard.html', context=context)
 
+@api_view(['POST','GET'])
 def socialProof(request,company_name):
     cp=Company.objects.filter(company_name=company_name).first()
+    all_cp=[]
+    cpo=Company.objects.all()
+    for c in cpo:
+        all_cp.append(c.company_name)
     if not cp:
         context = {
             'success': False,
             'status':404,
-            'search_autofill':'',
+            'search_autofill':json.dumps(all_cp),
             'company': company_name,
         }
         return render(request, 'review.html', context=context)
 
     context = {
         'success': True,
-        'search_autofill':'',
+        'search_autofill':all_cp,
+        'about':'',
+        'phone':'',
+        'email':'',
+        'address':'',
+        'website':'',
+        'instagram':'',
+        'facebook':'',
+        'twitter':'',
+        'linkedin':'',
+        'whatsapp':'',
+        'reviews':[],
         'company': company_name,
     }
 
