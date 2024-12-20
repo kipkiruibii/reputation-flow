@@ -2109,7 +2109,10 @@ def socialProof(request,company_name):
     cp=Company.objects.filter(company_name=company_name).first()
     all_cp=[]
     cpo=Company.objects.all()
+    
     for c in cpo:
+        if c.company_name.lower().strip() == company_name.lower().strip():
+            cp=c
         all_cp.append(c.company_name)
     if not cp:
         context = {
@@ -2119,22 +2122,35 @@ def socialProof(request,company_name):
             'company': company_name,
         }
         return render(request, 'review.html', context=context)
-
+    sc = CompanyContacts.objects.filter(company=cp).first()
+    eml=sc.email if sc else False
     context = {
         'success': True,
-        'search_autofill':all_cp,
-        'about':'',
-        'phone':'',
-        'email':'',
-        'address':'',
-        'website':'',
-        'instagram':'',
-        'facebook':'',
-        'twitter':'',
-        'linkedin':'',
-        'whatsapp':'',
-        'reviews':[],
+        'search_autofill':json.dumps(all_cp),
+        'about':cp.company_about,
+        'phone':cp.company_phone,
+        'email':eml if str(eml)!='None' else '' ,
+        'company_address': {
+            'address': cp.company_address,
+            'zip': cp.zipcode,
+            'city': cp.city,
+            'state': cp.state,
+            'country': cp.country
+        },
+        'website':cp.company_website,
+        'company_socials': {
+            'instagram': sc.instagram if sc else None,
+            'facebook': sc.facebook if sc else None,
+            'twitter': sc.twitter if sc else None,
+            'linkedin': sc.linkedin if sc else None,
+            'email': sc.email if sc else None,
+            'whatsapp': sc.whatsapp if sc else None,
+            'youtube': sc.youtube if sc else None,
+            'tiktok': sc.tiktok if sc else None,
+        },
+        'reviews':[1,2,3,4,5,6,7,8,9,0],
         'company': company_name,
+        'company_category':cp.company_category
     }
 
     return render(request, 'review.html', context=context)

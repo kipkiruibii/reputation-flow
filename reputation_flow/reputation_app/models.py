@@ -405,6 +405,7 @@ class UploadedMedia(models.Model):
 class CompanyReviews(models.Model):
     company=models.ForeignKey(Company,on_delete=models.CASCADE,null=True,blank=True)
     content=models.TextField(default='')
+    commentor_profile=models.TextField(default='')
     link=models.TextField(default='')
     commentor=models.CharField(max_length=100)
     is_published=models.BooleanField(default=False,null=True,blank=True)
