@@ -286,10 +286,24 @@
                             <div>
                                 <p
                                     style="font-size: 18px;font-weight: bold;padding: 0;margin-bottom: 5px;margin-top: 0">
-                                    Jery Luke <span style="font-size: 12px;font-weight: normal;">on <img
-                                            src="{% static 'images/facebook_logo.png' %}" alt=""
-                                            style="width: 10px;height: 10px;"></span></p>
-                                <p style="font-size: 12px;font-weight: bold;padding: 0;margin: 0;">12-08-2024</p>
+                                    {{ r.reviewer }} <span style="font-size: 12px;font-weight: normal;">on
+                                        {% if r.platform == 'Facebook' %}
+                                        <img src="{% static 'images/facebook_logo.png' %}" alt=""
+                                            style="width: 10px;height: 10px;">
+                                        {% elif r.platform == 'Instagram' %}
+                                        <img src="{% static 'images/instagram_logo.png' %}" alt=""
+                                            style="width: 10px;height: 10px;">
+                                        {% elif r.platform == 'Tiktok' %}
+                                        <img src="{% static 'images/tiktok_logo.png' %}" alt=""
+                                            style="width: 10px;height: 10px;">
+                                        {% elif r.platform == 'Reddit' %}
+                                        <img src="{% static 'images/reddit_logo.png' %}" alt=""
+                                            style="width: 10px;height: 10px;">
+                                        {% endif %}
+
+                                    </span></p>
+                                <p style="font-size: 12px;font-weight: bold;padding: 0;margin: 0;">{{ r.date_reviewed }}
+                                </p>
                             </div>
 
                         </div>
@@ -297,7 +311,7 @@
                             <div
                                 style="border: solid 1px rgb(195, 195, 195);border-radius: 5px;margin: auto;cursor: pointer;">
                                 <p style="font-size: 12px;color: rgb(96, 96, 96);padding: 5px;margin: auto;">View in
-                                    Facebook <i class="fa fa-external-link"></i></p>
+                                    {{ r.platform }} <i class="fa fa-external-link"></i></p>
 
                             </div>
                         </div>
@@ -306,79 +320,7 @@
                     <hr>
                     <div class="review-content">
                         <p class="text-review">
-                            I really love this product. Its cheap and intuitive. Inface i have switched from all
-                            traditional
-                            methods
-                            I really love this product. Its cheap and intuitive. Inface i have switched from all
-                            traditional
-                            methods
-                            I really love this product. Its cheap and intuitive. Inface i have switched from all
-                            traditional
-                            methods
-                        </p>
-                    </div>
-                </div>
-                <div
-                    style="margin:10px;width: 90%;padding: 20px;border: rgb(184, 184, 184) solid 1px; border-radius: 10px;background-color: rgb(255, 255, 255);">
-                    <div style="display: flex;justify-content: space-between;padding: 10px;">
-                        <div style="display: flex;gap: 10px;">
-                            <img src="https://images.ctfassets.net/h6goo9gw1hh6/2sNZtFAWOdP1lmQ33VwRN3/24e953b920a9cd0ff2e1d587742a2472/1-intro-photo-final.jpg?w=1200&h=992&fl=progressive&q=70&fm=jpg"
-                                alt="" style="width: 45px;height: 45px;border-radius: 100%;">
-                            <div>
-                                <p
-                                    style="font-size: 18px;font-weight: bold;padding: 0;margin-bottom: 5px;margin-top: 0">
-                                    Jery Luke <span style="font-size: 12px;font-weight: normal;">on <img
-                                            src="{% static 'images/reddit_logo.png' %}" alt=""
-                                            style="width: 10px;height: 10px;"></span></p>
-                                <p style="font-size: 12px;font-weight: bold;padding: 0;margin: 0;">12-08-2024</p>
-                            </div>
-
-                        </div>
-                        <div>
-                            <div
-                                style="border: solid 1px rgb(195, 195, 195);border-radius: 5px;margin: auto;cursor: pointer;">
-                                <p style="font-size: 12px;color: rgb(96, 96, 96);padding: 5px;margin: auto;">View in
-                                    Reddit <i class="fa fa-external-link"></i></p>
-
-                            </div>
-                        </div>
-
-                    </div>
-                    <hr>
-                    <div class="review-content">
-                        <p class="text-review">
-                            I really love this product. Its cheap and intuitive. Inface i have switched from all
-                            traditional
-                            methods
-                            I really love this product. Its cheap and intuitive. Inface i have switched from all
-                            traditional
-                            methods
-                            I really love this product. Its cheap and intuitive. Inface i have switched from all
-                            traditional
-                            methods
-                            I really love this product. Its cheap and intuitive. Inface i have switched from all
-                            traditional
-                            methods
-                            I really love this product. Its cheap and intuitive. Inface i have switched from all
-                            traditional
-                            methods
-                            I really love this product. Its cheap and intuitive. Inface i have switched from all
-                            traditional
-                            methods
-                            I really love this product. Its cheap and intuitive. Inface i have switched from all
-                            traditional
-                            methods
-                            I really love this product. Its cheap and intuitive. Inface i have switched from all
-                            traditional
-                            methods
-                            I really love this product. Its cheap and intuitive. Inface i have switched from all
-                            traditional
-                            methods
-                            I really love this product. Its cheap and intuitive. Inface i have switched from all
-                            traditional
-                            methods
-
-
+                            {{ r.body }}
                         </p>
                     </div>
                 </div>
@@ -386,6 +328,38 @@
             </div>
 
         </div>
+        <!-- chat container -->
+        <div id="chatPage" class="chat_page" style="background-color: black;">
+            <button onclick="openChatBox()" class="chat_button">
+                                                        <i id="chatOpen" class="fas fa-comments"></i>
+                                                    </button>
+
+
+            <div id="chatbar" class="chat_box animated fadeInUp">
+                <div class="chat_box_header" style="display: flex;justify-content: space-between;padding: 10;">
+                    <p style="padding: 0;margin: 0;">Test the AI Assistant</p>
+                    <i class="fa fa-times " onclick="openChatBox()"></i>
+                </div>
+                <div id="chatBody" class="chat_box_body">
+
+                </div>
+                <div style="align-items: center;background-color: rgb(201, 201, 201);">
+
+                    <div style="display: flex;margin: 0;padding: 0;">
+
+                        <input type="text" id="MsgInput" placeholder="Enter Message">
+                        <button class="btn btn-primary" onclick="send()" id="send-btn"><i
+                                class="fab fa-telegram-plane"></i></button>
+                    </div>
+                    <hr style="padding: 0;margin: 0;">
+                    <p style="font-size: 12px;margin: 0;display: flex;justify-content: center;">
+                        Powered by Insightlyze</p>
+
+                </div>
+            </div>
+        </div>
+
+
         {% endif %}
 
         {% else %}

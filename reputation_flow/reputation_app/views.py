@@ -814,24 +814,33 @@ def getPMs(request):
         return render(request, 'dashboard.html', context=context)
 
     return Response({'error': 'Bad request'})
-
+    
 
 @api_view(['POST', 'GET'])
 def companyReviews(request):
     company_id = request.POST.get('company_id', None)
     filters = request.POST.get('filters', [])
-    print(filters)
+    review_id_publish = request.POST.get('review_id_publish', None)
     if not company_id:
         return Response({'error': 'Bad request'})
     cp = Company.objects.filter(company_id=company_id).first()
     if not cp:
         return Response({'error': 'Bad request'})
     if not filters:
-        print('none filter', filters)
+        if review_id_publish:
+            cpx=CompanyReviews.objects.filter(company=cp,id=review_id_publish).first()
+            if cpx:
+                cpx.is_published = not cpx.is_published
+                cpx.save()
         cpr = CompanyReviews.objects.filter(company=cp)
     else:
+        if review_id_publish:
+            cpx=CompanyReviews.objects.filter(company=cp,id=review_id_publish).first()
+            if cpx:
+                cpx.is_published = not cpx.is_published
+                cpx.save()
+
         filters = [i.lower() for i in filters.split(',')]
-        print(filters)
 
         cpr = CompanyReviews.objects.filter(company=cp)
         if 'published' in filters:
@@ -868,7 +877,8 @@ def companyReviews(request):
             'negative': r.is_negative,
             'date_commented': r.date_commented,
             'category': r.category,
-            'platform': r.platform
+            'platform': r.platform,
+            'id': r.id
         })
 
     context = {
@@ -2124,6 +2134,17 @@ def socialProof(request,company_name):
         return render(request, 'review.html', context=context)
     sc = CompanyContacts.objects.filter(company=cp).first()
     eml=sc.email if sc else False
+    revs=[]
+    crevs=CompanyReviews.objects.filter(company=cp,is_published=True)
+    for r in crevs:
+        revs.append({
+            'reviewer':r.commentor,
+            'reviewer_profile':r.commentor_profile,
+            'date_reviewed':r.date_commented.strftime('%d-%m-%Y'),
+            'body':r.content,
+            'platform':r.platform.capitalize(),
+            'link':r.link
+        })
     context = {
         'success': True,
         'search_autofill':json.dumps(all_cp),
@@ -2148,7 +2169,7 @@ def socialProof(request,company_name):
             'youtube': sc.youtube if sc else None,
             'tiktok': sc.tiktok if sc else None,
         },
-        'reviews':[1,2,3,4,5,6,7,8,9,0],
+        'reviews':revs,
         'company': company_name,
         'company_category':cp.company_category
     }
@@ -3691,69 +3712,228 @@ def postReddit(title, description, subs, hasMedia, files, nsfw_tag, spoiler_tag,
     pst = CompanyPosts.objects.filter(post_id=post_id).first()
     if not pst:
         return
-    reddit = praw.Reddit(
-        client_id=settings.REDDIT_CLIENT_ID,
-        client_secret=settings.REDDIT_CLIENT_SECRET,
-        user_agent=settings.REDDIT_USER_AGENT,
-        refresh_token=red_refresh_token,
-    )
-    sub_tr = []
-    published = False
-    failed_publish = False
-    fail_reasons = []
-    for s in subs:
-        for cs in cr.subs:
-            sb = s.split('r/')[-1]
-            default_flair = ''
-            if sb == cs['sub']:
-                for fl in cs['flairs']:
-                    if fl['selected']:
-                        default_flair = fl['id']
-                        break
-                # upload the post
-                subreddit = reddit.subreddit(sb)
-                if hasMedia:
-                    # upload with media
-                    if len(files) == 1:
-                        # check if image or video and upload accoordingly
-                        print('single file', files[0]['content_type'])
-                        f = files[0]['image_path']
-                        content_type = files[0]['content_type']
-                        if content_type.startswith("image/"):
-                            # check image posting
+    try:
+        reddit = praw.Reddit(
+            client_id=settings.REDDIT_CLIENT_ID,
+            client_secret=settings.REDDIT_CLIENT_SECRET,
+            user_agent=settings.REDDIT_USER_AGENT,
+            refresh_token=red_refresh_token,
+        )
+        sub_tr = []
+        published = False
+        failed_publish = False
+        fail_reasons = []
+        for s in subs:
+            for cs in cr.subs:
+                sb = s.split('r/')[-1]
+                default_flair = ''
+                if sb == cs['sub']:
+                    for fl in cs['flairs']:
+                        if fl['selected']:
+                            default_flair = fl['id']
+                            break
+                    # upload the post
+                    subreddit = reddit.subreddit(sb)
+                    if hasMedia:
+                        # upload with media
+                        if len(files) == 1:
+                            # check if image or video and upload accoordingly
+                            print('single file', files[0]['content_type'])
+                            f = files[0]['image_path']
+                            content_type = files[0]['content_type']
+                            if content_type.startswith("image/"):
+                                # check image posting
+                                if subreddit.allow_images:
+                                    print('submitting image')
+                                    try:
+                                        submission = subreddit.submit_image(
+                                            title=description,
+                                            image_path=f,
+                                            flair_id=default_flair,
+                                            timeout=30,
+                                            nsfw=nsfw_tag,
+                                            spoiler=spoiler_tag
+
+                                        )
+                                        published = True
+                                        if not pst.media_thumbnail:
+                                            pst.media_thumbnail = submission.url
+
+                                        sub_tr.append({
+                                            'sub_name': sb,
+                                            'id': submission.id,
+                                            'link': submission.url,
+                                            'permalink': f"https://www.reddit.com{submission.permalink}",
+                                            'published': True,
+                                            'failed': False,
+                                            'result': 'Submission was successful',
+                                            'upvotes': 0,
+                                            'comments': 0,
+                                            'upvote_ratio': 0,
+                                            'crossposts': 0
+                                        })
+                                        default_storage.delete(files[0]['image_path'])
+                                    except Exception as e:
+                                        failed_publish = True
+                                        print('failed to submit to reddit', str(traceback.format_exc()))
+                                        fail_reasons.append(f'Submission to r/{sb} Failed')
+                                        sub_tr.append({
+                                            'sub_name': sb,
+                                            'id': '',
+                                            'link': '',
+                                            'published': False,
+                                            'failed': True,
+                                            'result': 'Uknown reason. Contact sub MODs ',
+                                            'comments': 0,
+                                            'upvotes': 0,
+                                            'upvote_ratio': 0,
+                                            'crossposts': 0
+                                        })
+                                else:
+                                    failed_publish = True
+                                    fail_reasons.append(f'Submission to r/{sb} Failed')
+                                    sub_tr.append({
+                                        'sub_name': sb,
+                                        'id': '',
+                                        'link': '',
+                                        'published': False,
+                                        'failed': True,
+                                        'result': f'r/{sb} does not allow image sharing.',
+                                        'comments': 0,
+                                        'upvotes': 0,
+                                        'upvote_ratio': 0,
+                                        'crossposts': 0
+                                    })
+                                cr.save()
+
+                            elif content_type.startswith("video/"):
+                                print('submitting video')
+                                if subreddit.allow_videos:
+                                    try:
+                                        submission = subreddit.submit_video(
+                                            title=title,
+                                            video_path=f,
+                                            timeout=30,
+                                            nsfw=nsfw_tag,
+                                            spoiler=spoiler_tag
+
+                                        )
+                                        published = True
+                                        print(f"Video post created successfully: {submission.url}")
+                                        if not pst.media_thumbnail:
+                                            pst.media_thumbnail = submission.url
+
+                                        sub_tr.append({
+                                            'sub_name': sb,
+                                            'id': submission.id,
+                                            'link': submission.url,
+                                            'permalink': f"https://www.reddit.com{submission.permalink}",
+                                            'published': True,
+                                            'failed': False,
+                                            'result': 'Submission was accepted',
+                                            'comments': 0,
+                                            'upvotes': 0,
+                                            'upvote_ratio': 0,
+                                            'crossposts': 0
+                                        })
+                                        default_storage.delete(files[0]['image_path'])
+                                    except Exception as e:
+                                        failed_publish = True
+                                        fail_reasons.append(f'Submission to r/{sb} Failed')
+                                        sub_tr.append({
+                                            'sub_name': sb,
+                                            'id': '',
+                                            'link': '',
+                                            'published': False,
+                                            'failed': True,
+                                            'result': 'Uknown reason. Contact sub MODs ',
+                                            'comments': 0,
+                                            'upvotes': 0,
+                                            'upvote_ratio': 0,
+                                            'crossposts': 0
+                                        })
+                                else:
+                                    failed_publish = True
+                                    fail_reasons.append(f'Submission to r/{sb} Failed')
+                                    sub_tr.append({
+                                        'sub_name': sb,
+                                        'id': '',
+                                        'link': '',
+                                        'published': False,
+                                        'failed': True,
+                                        'result': f'r/{sb} does not allow video sharing.',
+                                        'comments': 0,
+                                        'upvotes': 0,
+                                        'upvote_ratio': 0,
+                                        'crossposts': 0
+                                    })
+                                cr.save()
+
+                            else:
+                                failed_publish = True
+                                fail_reasons.append(f'Submission to r/{sb} Failed')
+                                sub_tr.append({
+                                    'sub_name': sb,
+                                    'id': '',
+                                    'link': '',
+                                    'published': False,
+                                    'failed': True,
+                                    'result': f'Unsupported media type {content_type}',
+                                    'comments': 0,
+                                    'upvotes': 0,
+                                    'upvote_ratio': 0,
+                                    'crossposts': 0
+                                })
+                                cr.save()
+                                default_storage.delete(files[0]['image_path'])
+                        else:
+                            # # Submit a gallery post
                             if subreddit.allow_images:
-                                print('submitting image')
                                 try:
-                                    submission = subreddit.submit_image(
-                                        title=description,
-                                        image_path=f,
+                                    submission = subreddit.submit_gallery(
+                                        title=title,
+                                        images=files,
                                         flair_id=default_flair,
-                                        timeout=30,
                                         nsfw=nsfw_tag,
                                         spoiler=spoiler_tag
 
                                     )
                                     published = True
+
+                                    # Get media metadata
+                                    gallery_data = submission.media_metadata
+                                    cover_image_url = ''
+                                    if gallery_data:
+                                        # Find the cover image
+                                        cover_image_id = submission.gallery_data['items'][0]['media_id']
+                                        print(len(gallery_data[cover_image_id]['p']))
+                                        cover_image_url = gallery_data[cover_image_id]['p'][-1][
+                                            'u']  # Get the first preview
+                                        # Reddit URLs may contain encoded characters like "&amp;", decode them
+                                        cover_image_url = cover_image_url.replace("&amp;", "&")
+                                    # clear the respective temporary files
                                     if not pst.media_thumbnail:
-                                        pst.media_thumbnail = submission.url
+                                        pst.media_thumbnail = cover_image_url
 
                                     sub_tr.append({
                                         'sub_name': sb,
                                         'id': submission.id,
-                                        'link': submission.url,
+                                        'link': cover_image_url,
                                         'permalink': f"https://www.reddit.com{submission.permalink}",
                                         'published': True,
                                         'failed': False,
+
                                         'result': 'Submission was successful',
-                                        'upvotes': 0,
                                         'comments': 0,
+                                        'upvotes': 0,
                                         'upvote_ratio': 0,
                                         'crossposts': 0
                                     })
-                                    default_storage.delete(files[0]['image_path'])
+                                    for f in files:
+                                        default_storage.delete(f['image_path'])
                                 except Exception as e:
+                                    print(traceback.format_exc())
                                     failed_publish = True
-                                    print('failed to submit to reddit', str(traceback.format_exc()))
                                     fail_reasons.append(f'Submission to r/{sb} Failed')
                                     sub_tr.append({
                                         'sub_name': sb,
@@ -3784,147 +3964,29 @@ def postReddit(title, description, subs, hasMedia, files, nsfw_tag, spoiler_tag,
                                 })
                             cr.save()
 
-                        elif content_type.startswith("video/"):
-                            print('submitting video')
-                            if subreddit.allow_videos:
-                                try:
-                                    submission = subreddit.submit_video(
-                                        title=title,
-                                        video_path=f,
-                                        timeout=30,
-                                        nsfw=nsfw_tag,
-                                        spoiler=spoiler_tag
-
-                                    )
-                                    published = True
-                                    print(f"Video post created successfully: {submission.url}")
-                                    if not pst.media_thumbnail:
-                                        pst.media_thumbnail = submission.url
-
-                                    sub_tr.append({
-                                        'sub_name': sb,
-                                        'id': submission.id,
-                                        'link': submission.url,
-                                        'permalink': f"https://www.reddit.com{submission.permalink}",
-                                        'published': True,
-                                        'failed': False,
-                                        'result': 'Submission was accepted',
-                                        'comments': 0,
-                                        'upvotes': 0,
-                                        'upvote_ratio': 0,
-                                        'crossposts': 0
-                                    })
-                                    default_storage.delete(files[0]['image_path'])
-                                except Exception as e:
-                                    failed_publish = True
-                                    fail_reasons.append(f'Submission to r/{sb} Failed')
-                                    sub_tr.append({
-                                        'sub_name': sb,
-                                        'id': '',
-                                        'link': '',
-                                        'published': False,
-                                        'failed': True,
-                                        'result': 'Uknown reason. Contact sub MODs ',
-                                        'comments': 0,
-                                        'upvotes': 0,
-                                        'upvote_ratio': 0,
-                                        'crossposts': 0
-                                    })
-                            else:
-                                failed_publish = True
-                                fail_reasons.append(f'Submission to r/{sb} Failed')
-                                sub_tr.append({
-                                    'sub_name': sb,
-                                    'id': '',
-                                    'link': '',
-                                    'published': False,
-                                    'failed': True,
-                                    'result': f'r/{sb} does not allow video sharing.',
-                                    'comments': 0,
-                                    'upvotes': 0,
-                                    'upvote_ratio': 0,
-                                    'crossposts': 0
-                                })
-                            cr.save()
-
-                        else:
-                            failed_publish = True
-                            fail_reasons.append(f'Submission to r/{sb} Failed')
+                    else:
+                        if subreddit.submission_type == 'any' or subreddit.submission_type == 'self':
+                            submission = subreddit.submit(
+                                title,
+                                selftext=description,
+                                flair_id=default_flair,
+                                nsfw=nsfw_tag,
+                                spoiler=spoiler_tag)
+                            published = True
                             sub_tr.append({
                                 'sub_name': sb,
-                                'id': '',
-                                'link': '',
-                                'published': False,
-                                'failed': True,
-                                'result': f'Unsupported media type {content_type}',
+                                'id': submission.id,
+                                'link': submission.url,
+                                'permalink': f"https://www.reddit.com{submission.permalink}",
+                                'published': True,
+                                'failed': False,
+                                'result': 'Submission was successful',
                                 'comments': 0,
                                 'upvotes': 0,
+                                'upvote': 0,
                                 'upvote_ratio': 0,
                                 'crossposts': 0
                             })
-                            cr.save()
-                            default_storage.delete(files[0]['image_path'])
-                    else:
-                        # # Submit a gallery post
-                        if subreddit.allow_images:
-                            try:
-                                submission = subreddit.submit_gallery(
-                                    title=title,
-                                    images=files,
-                                    flair_id=default_flair,
-                                    nsfw=nsfw_tag,
-                                    spoiler=spoiler_tag
-
-                                )
-                                published = True
-
-                                # Get media metadata
-                                gallery_data = submission.media_metadata
-                                cover_image_url = ''
-                                if gallery_data:
-                                    # Find the cover image
-                                    cover_image_id = submission.gallery_data['items'][0]['media_id']
-                                    print(len(gallery_data[cover_image_id]['p']))
-                                    cover_image_url = gallery_data[cover_image_id]['p'][-1][
-                                        'u']  # Get the first preview
-                                    # Reddit URLs may contain encoded characters like "&amp;", decode them
-                                    cover_image_url = cover_image_url.replace("&amp;", "&")
-                                # clear the respective temporary files
-                                if not pst.media_thumbnail:
-                                    pst.media_thumbnail = cover_image_url
-
-                                sub_tr.append({
-                                    'sub_name': sb,
-                                    'id': submission.id,
-                                    'link': cover_image_url,
-                                    'permalink': f"https://www.reddit.com{submission.permalink}",
-                                    'published': True,
-                                    'failed': False,
-
-                                    'result': 'Submission was successful',
-                                    'comments': 0,
-                                    'upvotes': 0,
-                                    'upvote_ratio': 0,
-                                    'crossposts': 0
-                                })
-                                for f in files:
-                                    default_storage.delete(f['image_path'])
-                            except Exception as e:
-                                print(traceback.format_exc())
-                                failed_publish = True
-                                fail_reasons.append(f'Submission to r/{sb} Failed')
-                                sub_tr.append({
-                                    'sub_name': sb,
-                                    'id': '',
-                                    'link': '',
-                                    'published': False,
-                                    'failed': True,
-                                    'result': 'Uknown reason. Contact sub MODs ',
-                                    'comments': 0,
-                                    'upvotes': 0,
-                                    'upvote_ratio': 0,
-                                    'crossposts': 0
-                                })
                         else:
                             failed_publish = True
                             fail_reasons.append(f'Submission to r/{sb} Failed')
@@ -3934,82 +3996,48 @@ def postReddit(title, description, subs, hasMedia, files, nsfw_tag, spoiler_tag,
                                 'link': '',
                                 'published': False,
                                 'failed': True,
-                                'result': f'r/{sb} does not allow image sharing.',
+                                'result': f'r/{sb} does not allow text submissions.',
                                 'comments': 0,
                                 'upvotes': 0,
                                 'upvote_ratio': 0,
                                 'crossposts': 0
                             })
                         cr.save()
+                    break
+            # get the selected flairs
 
-                else:
-                    if subreddit.submission_type == 'any' or subreddit.submission_type == 'self':
-                        submission = subreddit.submit(
-                            title,
-                            selftext=description,
-                            flair_id=default_flair,
-                            nsfw=nsfw_tag,
-                            spoiler=spoiler_tag)
-                        published = True
-                        sub_tr.append({
-                            'sub_name': sb,
-                            'id': submission.id,
-                            'link': submission.url,
-                            'permalink': f"https://www.reddit.com{submission.permalink}",
-                            'published': True,
-                            'failed': False,
-                            'result': 'Submission was successful',
-                            'comments': 0,
-                            'upvotes': 0,
-                            'upvote': 0,
-                            'upvote_ratio': 0,
-                            'crossposts': 0
-                        })
-                    else:
-                        failed_publish = True
-                        fail_reasons.append(f'Submission to r/{sb} Failed')
-                        sub_tr.append({
-                            'sub_name': sb,
-                            'id': '',
-                            'link': '',
-                            'published': False,
-                            'failed': True,
-                            'result': f'r/{sb} does not allow text submissions.',
-                            'comments': 0,
-                            'upvotes': 0,
-                            'upvote_ratio': 0,
-                            'crossposts': 0
-                        })
-                    cr.save()
-                break
-        # get the selected flairs
+            # subreddit = reddit.subreddit('test')
+            # # Submit the post to the chosen subreddit
+            # post = subreddit.submit(title, selftext=description)
+        cred = CompanyRedditPosts(
+            post_id=post_id,
+            nsfw_tag=nsfw_tag,
+            spoiler_flag=spoiler_tag,
+            target_subs=subs,
+            subs=sub_tr,
+        )
+        cred.save()
 
-        # subreddit = reddit.subreddit('test')
-        # # Submit the post to the chosen subreddit
-        # post = subreddit.submit(title, selftext=description)
-    cred = CompanyRedditPosts(
-        post_id=post_id,
-        nsfw_tag=nsfw_tag,
-        spoiler_flag=spoiler_tag,
-        target_subs=subs,
-        subs=sub_tr,
-    )
-    cred.save()
-
-    if failed_publish and published:
-        pst.is_published = True
-        pst.partial_publish = True
-        for res in fail_reasons:
-            pst.failure_reasons.append(res)
+        if failed_publish and published:
+            pst.is_published = True
+            pst.partial_publish = True
+            for res in fail_reasons:
+                pst.failure_reasons.append(res)
+            pst.save()
+        elif not failed_publish and published:
+            pst.is_published = True
+            pst.save()
+        elif failed_publish and not published:
+            if not pst.is_published:
+                pst.has_failed = True
+            pst.failure_reasons.extend(fail_reasons)
+            pst.save()
+        
+    except:
+        pst.is_published=False
+        pst.has_failed=True
         pst.save()
-    elif not failed_publish and published:
-        pst.is_published = True
-        pst.save()
-    elif failed_publish and not published:
-        if not pst.is_published:
-            pst.has_failed = True
-        pst.failure_reasons.extend(fail_reasons)
-        pst.save()
+        return
 
 
 @api_view(['POST'])
@@ -4049,6 +4077,7 @@ def deletePostComment(request):
                         except:
                             continue
                     crp.delete()
+                    
         if 'facebook' in platform.lower():
             cfbp = CompanyFacebook.objects.filter(company=cpst.company).first()
             if not cfbp:
@@ -4067,6 +4096,7 @@ def deletePostComment(request):
                             cfp.delete()
                         else:
                             print("Error deleting post:", response.json())
+                            
     cp = CompanyPosts.objects.filter(company=cpst.company).order_by('-pk')
     cpst.delete()
     all_posts = []
@@ -4791,7 +4821,7 @@ def get_facebook_page_insights(access_token, page_id, **kwargs):
 
     response = requests.get(url, params=params)
     profile_info = response.json()
-    print(profile_info)
+    # print(profile_info)
 
     url2 = f"https://graph.facebook.com/v21.0/{page_id}/insights"
     params2 = {
@@ -4803,7 +4833,7 @@ def get_facebook_page_insights(access_token, page_id, **kwargs):
     response = requests.get(url2, params=params2)
 
     page_insights = response.json()
-    print(response.json())
+    # print(response.json())
     page_impress = 0
     page_fans = 0
     page_vws = 0

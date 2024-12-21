@@ -3213,26 +3213,27 @@
 
 
                                         </div>
-                                        <p class="comments-reply-container" style="cursor: pointer;font-size: 12px;">
+                                        <!-- <p class="comments-reply-container" style="cursor: pointer;font-size: 12px;">
                                             Reply</span>
-                                        </p>
-                                        <div>
+                                        </p> -->
+                                        <!-- <div>
                                             <p
                                                 style="background-color: rgb(251, 216, 216);color: rgb(192, 8, 8);padding: 5px;border-radius:5px ;font-size: 12px;padding: 0;margin: 0;padding-left: 5px;padding-right: 5px;">
                                                 Review</p>
-                                        </div>
+                                        </div> -->
                                         <a href="{{ r.link }}" target="_blank"
                                             style="cursor: pointer;font-size: 12px;"><i class="fa fa-external-link"
                                                 aria-hidden="true"></i>
                                             Link</a>
                                         {% if r.published %}
-                                        <p style="cursor: pointer;font-size: 12px;color: red;"><i
-                                                class="fa fa-trash"></i>
+                                        <p style="cursor: pointer;font-size: 12px;color: red;" data-pub_id="{{ r.id }}"
+                                            class="pub-unpub"><i class="fa fa-trash "></i>
                                             Unpublish
                                         </p>
 
                                         {% else %}
-                                        <p style="cursor: pointer;font-size: 12px;"><i class="fa fa-mail-forward"></i>
+                                        <p style="cursor: pointer;font-size: 12px;" class="pub-unpub"
+                                            data-pub_id="{{ r.id }}"><i class="fa fa-mail-forward "></i>
                                             Publish
                                         </p>
                                         {% endif %}
@@ -3727,8 +3728,9 @@
                                                     <p class="mild-desc"
                                                         style="margin-left: 20px;font-size: 12px;font-weight: bold;">
                                                         {{ tf.date_created }}</p>
-                                                    <p class="zero-padding-margin pointer delete-team-file-btn" tooltip="Permanently remove"
-                                                        flow="up" data-file_id="{{ tf.id }}"><i class="fa fa-trash"></i></p>
+                                                    <p class="zero-padding-margin pointer delete-team-file-btn"
+                                                        tooltip="Permanently remove" flow="up"
+                                                        data-file_id="{{ tf.id }}"><i class="fa fa-trash"></i></p>
                                                     <p class="zero-padding-margin pointer"
                                                         tooltip="Save to local storage" flow="up"><i
                                                             class="fa fa-download"></i></p>
@@ -7016,12 +7018,13 @@
 
 
                 // ---------------------------------REVIEWS-------------------------------------- 
-                $(document).on('click', '#apply-filters', function () {
+                $(document).on('click', '#apply-filters,#reviews,.pub-unpub', function () {
                     const filterInstance = multiSelectInstances.find(instance => instance.selectElement.dataset.name === "filters");
                     if (!filterInstance) {
                         return;
 
                     }
+                    var review_id_publish = $(this).data('pub_id');
                     const selectedItems = filterInstance.selectedItems.map(item => item.text);
                     // getSelectedOptions();
                     $('#apply-filters').css('display', 'none');
@@ -7030,6 +7033,9 @@
                     var csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
                     formData.append('company_id', '{{ company_id }}');
                     formData.append('filters', selectedItems);
+                    if (review_id_publish) {
+                        formData.append('review_id_publish', review_id_publish);
+                    }
                     // Send the form data via AJAX
                     $.ajax({
                         url: '{% url "get_reviews" %}', // Replace with your Django endpoint URL
@@ -7074,48 +7080,6 @@
 
 
                 });
-                $(document).on('click', '#reviews', function () {
-                    var formData = new FormData();
-                    //get data frpm server 
-                    var csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-                    formData.append('company_id', '{{ company_id }}');
-                    // Send the form data via AJAX
-                    $.ajax({
-                        url: '{% url "get_reviews" %}', // Replace with your Django endpoint URL
-                        type: 'POST',
-                        headers: {
-                            'X-CSRFToken': csrfToken
-                        },
-                        data: formData,
-                        processData: false, // Prevent jQuery from processing the data
-                        contentType: false, // Prevent jQuery from setting the content type
-                        success: function (response) {
-                            if (response['error']) {
-                                toastr.error(response['error']);
-
-                            } else {
-                                $('.chat-content').hide();
-
-                                // update html
-                                var tempDiv = $('<div>').html(response);
-                                // Extract the specific element from the new HTML
-                                var newElementContent = tempDiv.find('#company-reviews').html();
-
-                                $('#company-reviews').html(newElementContent);
-                                // initializeMultiSelect();
-                                $('#reviews-content').show()
-
-                                return;
-                            }
-                        },
-                        error: function (jqXHR, textStatus, errorThrown) {
-                            toastr.error('Failed to submit form.');
-                            console.error(textStatus, errorThrown);
-                        }
-                    });
-
-                });
-
                 // ---------------------------------ISSUES & REQUESTS-------------------------------------- 
                 $(document).on('click', '#requests', function () {
                     $('.chat-content').hide();
@@ -8639,7 +8603,7 @@
                                 // Extract the specific element from the new HTML
                                 var newElementContent = tempDiv.find('#teams-files').html();
                                 var newActivityContent = tempDiv.find('#teams-activity').html();
-                                
+
                                 $('#teams-files').html(newElementContent);
                                 $('#teams-activity').html(newActivityContent);
                                 // initializeMultiSelect();
@@ -8658,13 +8622,13 @@
                 });
                 // delete file btn
                 $(document).on('click', '.delete-team-file-btn', function () {
-                    var deleting_file=$(this).data('file_id');
-                    $('#confirmModalDeleteTeamFileAction').data('file_id',deleting_file);
+                    var deleting_file = $(this).data('file_id');
+                    $('#confirmModalDeleteTeamFileAction').data('file_id', deleting_file);
                     $('#confirmModalTeamFileDeleteCenter').modal('show');
                 });
                 // confirm delete file 
                 $(document).on('click', '#confirmModalDeleteTeamFileAction', function () {
-                    var deleting_file=$('#confirmModalDeleteTeamFileAction').data('file_id');
+                    var deleting_file = $('#confirmModalDeleteTeamFileAction').data('file_id');
                     $('#confirmModalTeamFileDeleteCenter').modal('hide');
 
                     var formData = new FormData();
@@ -8694,7 +8658,7 @@
                                 // Extract the specific element from the new HTML
                                 var newElementContent = tempDiv.find('#teams-files').html();
                                 var newActivityContent = tempDiv.find('#teams-activity').html();
-                                
+
                                 $('#teams-files').html(newElementContent);
                                 $('#teams-activity').html(newActivityContent);
                                 // initializeMultiSelect();
@@ -9905,4 +9869,5 @@
         </script>
 
 </body>
+
 </html>

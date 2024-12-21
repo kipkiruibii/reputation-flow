@@ -75,6 +75,8 @@ urlpatterns=[
     path('like_comment/',views.likeComment,name='like_comment'),
     # delete post
     path('delete_comment/',views.deletePostComment,name='delete_comment'),
+    # publish unpublish reviews
+    # path('publish_unpublish_review/',views.publishUnpublishReviews,name='publish_unpublish_review'),
     
 ]
 # Serve media files during development
