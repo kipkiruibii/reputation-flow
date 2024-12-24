@@ -5235,7 +5235,7 @@
                                             {% if p.is_scheduled %}
                                             <div style="display:flex;justify-content: center;;">
                                                 <p class="font-12">This post will be published on
-                                                    <strong>{{ p.date_scheduled }}</strong>
+                                                    <strong>{{ p.date_scheduled_h }}</strong>
                                                 </p>
                                             </div>
                                             {% elif p.is_published %}
@@ -5251,7 +5251,7 @@
                                                         style="font-size: 12px;">{{ p.comment_count }}</span>
                                                 </p>
                                                 <p><i class="fa fa fa-calendar"></i>
-                                                    <span style="font-size: 12px;">{{ p.date_uploaded }}</span>
+                                                    <span style="font-size: 12px;">{{ p.date_uploaded_h }}</span>
                                                 </p>
                                             </div>
                                             {% endif %}
@@ -5749,7 +5749,7 @@
                                                 {% if p.is_scheduled %}
                                                 <div style="display:flex;justify-content: center;">
                                                     <p class="font-12">This post will be published on
-                                                        <strong>{{ p.date_scheduled }}</strong>
+                                                        <strong>{{ p.date_scheduled_h }}</strong>
                                                     </p>
                                                 </div>
                                                 {% elif p.is_published %}
@@ -5766,7 +5766,7 @@
                                                             style="font-size: 12px;">{{ p.comment_count }}</span>
                                                     </p>
                                                     <p><i class="fa fa fa-calendar"></i>
-                                                        <span style="font-size: 12px;">{{ p.date_uploaded }}</span>
+                                                        <span style="font-size: 12px;">{{ p.date_uploaded_h }}</span>
                                                     </p>
                                                 </div>
                                                 {% endif %}
@@ -7298,9 +7298,12 @@
 
                     // Create a new FormData object
                     var formData = new FormData();
+                    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
                     // Append other input fields to FormData
                     var csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
                     formData.append('company_id', '{{ company_id }}');
+                    formData.append('timezone', timezone);
                     // Send the form data via AJAX
                     $.ajax({
                         url: '{% url "fetch-posts" %}', // Replace with your Django endpoint URL
@@ -9303,11 +9306,14 @@
                             formData.append(`file${index}`, file);  // `file0`, `file1`, etc., as keys
                         });
                     }
+                    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
                     // Append other input fields to FormData
                     var csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
                     formData.append('company_id', '{{ company_id }}');
                     formData.append('title', title);
                     formData.append('description', description);
+                    formData.append('timezone', timezone);
                     formData.append('hashTags', hashTags);
                     formData.append('hasMedia', hasMedia);
                     formData.append('isScheduled', isScheduled);

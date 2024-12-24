@@ -61,7 +61,7 @@ urlpatterns=[
     path('check_sub_rules/',views.subRedInfo,name='check_sub_rules'),
     # reddit update saved flairs
     path('update_flairs/',views.updateFlairs,name='update_flairs'),
-    # get stats
+    # get statsde
     path('get_post_stats/',views.getStats,name='get_post_stats'),
     # get tiktok creator info
     path('get_tiktok_creator/',views.gettiktokCreatorInfo,name='get_tiktok_creator'),

@@ -1125,11 +1125,13 @@ def updatePosts(company_id):
 @api_view(['POST'])
 def fetchPosts(request):
     company_id = request.POST.get('company_id', None)
+    timezne = request.POST.get('timezone', None)
     if not company_id:
         return Response({'error': 'Bad request'})
     cp = Company.objects.filter(company_id=company_id).first()
     if not cp:
         return Response({'error': 'Bad request'})
+    target_timezone = pytz.timezone(timezne)
     cp = CompanyPosts.objects.filter(company=cp).order_by('-pk')
     all_posts = []
     if not cp:
@@ -1142,7 +1144,6 @@ def fetchPosts(request):
                     'is_video': False
                 })
             reds = []
-            cover_image_link = ''
 
             if 'reddit' in p.platforms:
                 cr = CompanyRedditPosts.objects.filter(post_id=p.post_id)
@@ -1152,7 +1153,6 @@ def fetchPosts(request):
                         t_com = 0
                         for k in c.subs:
                             if k['published']:
-                                cover_image_link = k['link']
                                 p_id = k['id']
                                 submission = reddit.submission(id=p_id)
                                 k['upvote_ratio'] = submission.upvote_ratio * 100
@@ -1179,6 +1179,9 @@ def fetchPosts(request):
                 cmt_cnt = round(cmt_cnt / 1000, 1)
             elif cmt_cnt > 1000:
                 cmt_cnt = round(cmt_cnt / 1000, 1)
+            upl_t=p.date_uploaded.astimezone(target_timezone).strftime('%d %b, %H:%M')
+            sch_t=p.date_scheduled.astimezone(target_timezone).strftime('%d %b, %H:%M')
+            
             all_posts.append({
                 'platforms': [pl.capitalize() for pl in p.platforms],
                 'title': p.title,
@@ -1191,8 +1194,8 @@ def fetchPosts(request):
                 'has_media': p.has_media,
                 'cover_image_link': p.media_thumbnail,
                 'media': None if not p.has_media else UploadedMedia.objects.filter(post=p).first(),
-                'date_uploaded': p.date_uploaded,
-                'date_scheduled': p.date_scheduled,
+                'date_uploaded_h': upl_t,
+                'date_scheduled_h': sch_t,
                 'media': med,
                 'post_id': p.post_id,
                 'has_all': len(p.platforms) == 4,
@@ -1200,7 +1203,6 @@ def fetchPosts(request):
                 'has_tiktok': 'tiktok' in p.platforms,
                 'has_facebook': 'facebook' in p.platforms,
                 'has_instagram': 'instagram' in p.platforms,
-
             })
     else:
         for p in cp:
@@ -1212,14 +1214,10 @@ def fetchPosts(request):
                     'is_video': False
                 })
             reds = []
-            cover_image_link = ''
-
-            if 'reddit' in p.platforms:
-                cr = CompanyRedditPosts.objects.filter(post_id=p.post_id).first()
-                if cr:
-                    k = cr.subs[0]
-                    cover_image_link = k['link']
-
+            upl_t=p.date_uploaded.astimezone(target_timezone).strftime('%d %b, %H:%M')
+            sch_t=p.date_scheduled.astimezone(target_timezone).strftime('%d %b, %H:%M')
+            
+            
             eng_cnt = p.engagement_count
             if eng_cnt > 1000000:
                 eng_cnt = round(eng_cnt / 1000000, 1)
@@ -1244,8 +1242,8 @@ def fetchPosts(request):
                 'has_media': p.has_media,
                 'cover_image_link': p.media_thumbnail,
                 'media': None if not p.has_media else UploadedMedia.objects.filter(post=p).first(),
-                'date_uploaded': p.date_uploaded,
-                'date_scheduled': p.date_scheduled,
+                'date_uploaded_h':upl_t,
+                'date_scheduled_h': sch_t,
                 'media': med,
                 'post_id': p.post_id,
                 'has_all': len(p.platforms) == 4,
@@ -1292,6 +1290,7 @@ def getStats(request):
     impr_conv = 0
 
     if cr:
+        print('reddit',cr.subs)
         has_reddit = True
         for c in cr.subs:
             k = c
@@ -1585,7 +1584,6 @@ def getStats(request):
             }
 
     sorted_dict = dict(sorted(my_dict.items(), key=lambda item: item[1], reverse=True))
-
     return Response({'result': 'success',
                      'has_reddit': has_reddit,
                      'reddit_total_engagement': f'{red_te}%',
@@ -1941,13 +1939,13 @@ def getComments(request):
         reds = []
         cover_image_link = ''
 
-        if 'reddit' in p.platforms:
-            cr = CompanyRedditPosts.objects.filter(post_id=p.post_id).first()
-            if cr:
-                k = cr.subs[0]
-                cover_image_link = k['link']
+        # if 'reddit' in p.platforms:
+        #     cr = CompanyRedditPosts.objects.filter(post_id=p.post_id).first()
+        #     if cr:
+        #         k = cr.subs[0]
+        #         cover_image_link = k['link']
             # use threading to update post and comments
-            pass
+            # pass
         eng_cnt = p.engagement_count
         if eng_cnt > 1000000:
             eng_cnt = round(eng_cnt / 1000000, 1)
@@ -3772,7 +3770,8 @@ def postReddit(title, description, subs, hasMedia, files, nsfw_tag, spoiler_tag,
                                             'upvote_ratio': 0,
                                             'crossposts': 0
                                         })
-                                        default_storage.delete(files[0]['image_path'])
+                                        # default_storage.delete(files[0]['image_path'])
+                                        
                                     except Exception as e:
                                         failed_publish = True
                                         print('failed to submit to reddit', str(traceback.format_exc()))
@@ -3804,7 +3803,7 @@ def postReddit(title, description, subs, hasMedia, files, nsfw_tag, spoiler_tag,
                                         'upvote_ratio': 0,
                                         'crossposts': 0
                                     })
-                                cr.save()
+                                # cr.save()
 
                             elif content_type.startswith("video/"):
                                 print('submitting video')
@@ -3867,7 +3866,7 @@ def postReddit(title, description, subs, hasMedia, files, nsfw_tag, spoiler_tag,
                                         'upvote_ratio': 0,
                                         'crossposts': 0
                                     })
-                                cr.save()
+                                # cr.save()
 
                             else:
                                 failed_publish = True
@@ -3884,8 +3883,8 @@ def postReddit(title, description, subs, hasMedia, files, nsfw_tag, spoiler_tag,
                                     'upvote_ratio': 0,
                                     'crossposts': 0
                                 })
-                                cr.save()
-                                default_storage.delete(files[0]['image_path'])
+                                # cr.save()
+                                # default_storage.delete(files[0]['image_path'])
                         else:
                             # # Submit a gallery post
                             if subreddit.allow_images:
@@ -3962,7 +3961,7 @@ def postReddit(title, description, subs, hasMedia, files, nsfw_tag, spoiler_tag,
                                     'upvote_ratio': 0,
                                     'crossposts': 0
                                 })
-                            cr.save()
+                            # cr.save()
 
                     else:
                         if subreddit.submission_type == 'any' or subreddit.submission_type == 'self':
@@ -4002,7 +4001,7 @@ def postReddit(title, description, subs, hasMedia, files, nsfw_tag, spoiler_tag,
                                 'upvote_ratio': 0,
                                 'crossposts': 0
                             })
-                        cr.save()
+                        # cr.save()
                     break
             # get the selected flairs
 
@@ -4055,6 +4054,7 @@ def deletePostComment(request):
     for platform in pltfrms:
         if 'reddit' in platform.lower():
             # deleting reddit post /comment
+            print('isreddit')
             cr = CompanyReddit.objects.filter(company=cpst.company).first()
             if not cr:
                 continue
@@ -4065,6 +4065,7 @@ def deletePostComment(request):
                 refresh_token=cr.refresh_token,
             )
             if action_type == 'post':
+                print('deleting post',post_id)
                 crp = CompanyRedditPosts.objects.filter(post_id=post_id).first()
                 if crp:
                     sbs = crp.subs
@@ -4075,8 +4076,12 @@ def deletePostComment(request):
                             submission.delete()
                             print('deleted from ', sb['sub_name'])
                         except:
+                            print('unable to delete')
+                            print(traceback.format_exc())
                             continue
                     crp.delete()
+                else:
+                    print('No post')  
                     
         if 'facebook' in platform.lower():
             cfbp = CompanyFacebook.objects.filter(company=cpst.company).first()
@@ -4239,6 +4244,7 @@ def uploadPost(request):
     company_id = request.POST.get('company_id', None)
     title = request.POST.get('title', None)
     description = request.POST.get('description', None)
+    timezonet = request.POST.get('timezone', None)
 
     # Platform selected
     instagramSelected = request.POST.get('instagramSelected', 'false').lower() == 'true'
@@ -4303,12 +4309,24 @@ def uploadPost(request):
         absolute_file_path = default_storage.path(temp_file_path)
         gallery_items.append(
             {"image_path": absolute_file_path, 'content_type': file.content_type, "file_size": file.size})
-    datetime_object = timezone.now()
+    utc_datetime = timezone.now()
 
     if isScheduled:
         time_format = "%A, %d %B %Y %I:%M %p"
         # Convert to datetime object
         datetime_object = datetime.strptime(date_scheduled, time_format)
+        
+         # Define the timezone (Africa/Nairobi in this case)
+        local_timezone = pytz.timezone(timezonet)
+
+        # Localize the datetime object to the specified timezone
+        localized_datetime = local_timezone.localize(datetime_object)
+
+        # Convert the localized datetime to UTC
+        utc_datetime = localized_datetime.astimezone(pytz.utc)
+
+        print(f"Localized datetime: {localized_datetime}")
+        print(f"UTC datetime: {utc_datetime}")
 
     platform = []
     if not cp:
@@ -4338,7 +4356,7 @@ def uploadPost(request):
         is_scheduled=isScheduled,
         has_media=hasMedia,
         is_video=is_video,
-        date_scheduled=datetime_object
+        date_scheduled=utc_datetime
     )
     ht = hashTags.split()
     cpst.tags.extend(ht)
@@ -4347,7 +4365,7 @@ def uploadPost(request):
     if not isScheduled:
         # post to the respective platforms
         if redditSelected:
-            crp = CompanyReddit.objects.filter(company=cp).first()
+            cr = CompanyReddit.objects.filter(company=cp).first()
             redThread = threading.Thread(target=postReddit, daemon=True, kwargs={
                 'title': title,
                 'description': description,
@@ -4356,7 +4374,7 @@ def uploadPost(request):
                 'files': gallery_items,
                 'nsfw_tag': red_is_nsfw,
                 'spoiler_tag': red_is_spoiler,
-                'red_refresh_token': crp.refresh_token,
+                'red_refresh_token': cr.refresh_token,
                 'post_id': post_id,
                 'company': cp
 
@@ -4417,16 +4435,15 @@ def uploadPost(request):
             igThread.start()
     else:
         # scheduled
-        pass
-        # if hasMedia:
-        #     for key,file in files.items():
-        #         up=UploadedMedia(
-        #             post=cpst,
-        #             media=file
-        #         )
-        #         up.save()
+        if hasMedia:
+            for key,file in files.items():
+                up=UploadedMedia(
+                    post=cpst,
+                    media=file
+                )
+                up.save()
 
-        #     pass
+            pass
     # if instagramSelected:
     #     cigp = CompanyInstagramPosts(
     #         post_id=post_id,
@@ -4440,15 +4457,21 @@ def uploadPost(request):
     #         product_tags=ig_product_tags
     #     )
     #     cigp.save()
-    # if redditSelected:
-    # cred = CompanyRedditPosts(
-    #     post_id=post_id,
-    #     nsfw_tag=red_is_nsfw,
-    #     spoiler_flag=red_is_spoiler,
-    #     brand_flag=red_is_brand,
-    #     target_subs=target_subs
-    # )
-    # cred.save()
+        if redditSelected:
+            cred = CompanyRedditPosts(
+                post_id=post_id,
+                nsfw_tag=red_is_nsfw,
+                spoiler_flag=red_is_spoiler,
+                target_subs=tsbs,
+                )
+            cred.save()
+        if facebookSelected:
+            cfb_pst = CompanyFacebookPosts(
+                post_id=post_id,
+                to_stories=to_fb_stories,
+                to_posts=to_fb_posts,
+            )
+            cfb_pst.save()
 
     return Response({'success': 'success request'})
 
