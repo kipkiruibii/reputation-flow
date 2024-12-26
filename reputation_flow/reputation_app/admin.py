@@ -16,7 +16,7 @@ admin.site.register(CompanyKnowledgeBase)
 admin.site.register(UploadedFiles)
 admin.site.register(CompanyTeamActivity)
 admin.site.register(CompanyFeatureRequest)
-
+admin.site.register(CompanyBotChats)
 
 
 # PM

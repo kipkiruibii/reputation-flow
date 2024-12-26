@@ -30,7 +30,8 @@ class Company(models.Model):
     company_free_trial_expiry=models.DateTimeField(default=timezone.now() + timezone.timedelta(days=5))
     company_subscription_date=models.DateTimeField(default=timezone.now())
     company_active_subscription=models.BooleanField(default=False)
-    company_show_page=models.BooleanField(default=False)
+    company_show_page=models.BooleanField(default=True)
+    company_enable_ai=models.BooleanField(default=False)
     date_created=models.DateField(default=timezone.now)
     company_about=models.TextField(default='',null=True,blank=True)
     company_phone=models.CharField(max_length=30,blank=True,null=True)
@@ -44,7 +45,17 @@ class Company(models.Model):
     
     def __str__(self) -> str:
         return self.company_name
- 
+
+class CompanyBotChats(models.Model):
+    company=models.ForeignKey(Company,on_delete=models.CASCADE)
+    sender=models.TextField(default='',null=True,blank=True)
+    message=models.TextField(default='',null=True,blank=True)
+    date_sent=models.DateTimeField(default=timezone.now())
+    conversation_id=models.TextField(default='',null=True,blank=True)
+    
+    def __str__(self) -> str:
+        return 'BOT CHAT '+self.company_name
+
 class CompanyProfilePicture(models.Model):
     company=models.ForeignKey(Company,on_delete=models.CASCADE)
     p_pic=models.ImageField(upload_to='company_profile/')

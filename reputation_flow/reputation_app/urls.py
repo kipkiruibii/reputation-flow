@@ -10,6 +10,8 @@ urlpatterns=[
     path('profile/<str:company_name>/details/',views.companyProfile,name='company_profile'),
     path('social-proof/<str:company_name>/',views.socialProof,name='social-proof'),
     path('update-profile/',views.updateBusinessProfile,name='update-profile'),
+    # setting profile
+    path('setting-profile/',views.settingProfile,name='setting-profile'),
     # get posts
     path('fetch-posts/',views.fetchPosts,name='fetch-posts'),
     # create team
@@ -76,6 +78,7 @@ urlpatterns=[
     path('like_comment/',views.likeComment,name='like_comment'),
     # delete post
     path('delete_comment/',views.deletePostComment,name='delete_comment'),
+    
     # publish unpublish reviews
     # path('publish_unpublish_review/',views.publishUnpublishReviews,name='publish_unpublish_review'),
     

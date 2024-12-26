@@ -1918,7 +1918,7 @@
                 <div class="chat-header container-right"
                     style="margin-top: 10px;margin-bottom: 10px;position: relative;">
                     <div class="logo-container">
-                        <h4>Request bug fix/ feature introduction
+                        <h4>Request new feature/ Report a problem
                         </h4>
                     </div>
                     <div class="user-details" tooltip="Me" flow="down">
@@ -1969,8 +1969,7 @@
                                 </div>
                             </div>
                         </div>
-                        <section id="requests-section" class="games"
-                            style="overflow-y:scroll;height:90%;display:block">
+                        <section id="requests-section" class="games" style="overflow-y:scroll;height:90%;display:block">
                             {% if freqs|length > 0 %}
                             <div class="container" id="all-feature-requests">
                                 <ul class="game-list">
@@ -2600,9 +2599,10 @@
                                         <ul style="list-style-type: none;">
                                             <li>
                                                 <div class="form-check form-switch" style="margin-left: 20px;">
-                                                    <input class="form-check-input" type="checkbox" role="switch"
-                                                        id="flexSwitchCheckChecked">
-                                                    <label class="form-check-label" for="flexSwitchCheckChecked">
+                                                    <input class="form-check-input" {% if company_show_page %} checked
+                                                        {% endif %} data-set_up="show_page" id="review_page_btn"
+                                                        type="checkbox" role="switch">
+                                                    <label class="form-check-label" for="review_page_btn">
                                                         Show review page
                                                     </label>
                                                 </div>
@@ -2627,8 +2627,11 @@
                                             </li> -->
 
                                             <li style="margin-top: 10px;">
-                                                <p tooltip="Add this link to your bio to showcase your customers reviews"
-                                                    flow="down">Link: <a href="{{ review_wall_link }}" target="_blank"></a>{{ review_wall_link }}</p>
+                                                <p tooltip="Click to  copy your page link"
+                                                    flow="down">Link: <span id="review_link"
+                                                        style="margin-right: 10px;cursor: pointer;">
+                                                        {{ review_wall_link }}</span><a href="{{ review_wall_link }}"
+                                                        target="_blank"><i class="fa fa-external-link"></i></a></p>
                                             </li>
                                         </ul>
 
@@ -2642,10 +2645,10 @@
                                         <div style="margin-left: 15px;">
                                             <div style="display: flex;justify-content: space-between;">
                                                 <div class="form-check form-switch" style="margin-left: 20px;">
-                                                    <input class="form-check-input" type="checkbox" role="switch"
-                                                        id="flexSwitchCheckChecked">
-                                                    <label class="form-check-label"
-                                                        for="flexSwitchCheckChecked">Enabled</label>
+                                                    <input class="form-check-input" {% if company_enable_ai %} checked
+                                                        {% endif %} type="checkbox" role="switch" id="ai_enable_btn"
+                                                        data-set_up="enable_ai">
+                                                    <label class="form-check-label" for="ai_enable_btn">Enabled</label>
                                                 </div>
                                                 <div class="form-group" onclick="openChatBox()"
                                                     style="text-align:center;font-size:20px;align-items:center;margin-top:10px;margin-bottom:20px">
@@ -3133,7 +3136,7 @@
 
                             </select>
                         </div>
-                        <div style="margin-top: 10px;">
+                        <div style="margin-top: 10px;margin-right:20px">
                             <div style="cursor: pointer;border-radius: 10px;" class="bx-shadow" id="apply-filters">
                                 <p style="padding: 5px;">Apply</p>
                             </div>
@@ -3143,10 +3146,10 @@
 
                             </div>
                         </div>
-                        <div style="margin-right: 10px;">
+                        <!-- <div style="margin-right: 10px;">
 
                             <a class="btn-solid-sm" href="#">AI Responses </a>
-                        </div>
+                        </div> -->
                     </div>
 
 
@@ -4207,6 +4210,37 @@
 
                                 </div>
                                 {% endif %}
+                                <div style="width: 100%;display: flex;justify-content: space-between;padding: 10px;border-radius: 10px;margin: 10px;"
+                                    class="bx-shadow pm-box" data-platform="chatbot">
+                                    <div style="display: flex;gap: 15px;">
+                                        <img src="{% static 'images/chat-bot.jpg' %}"
+                                            style="height: 60px;width: 60px;border-radius: 10px;" alt="">
+                                        <div>
+                                            <p>Chatbot</p>
+                                            <div style="display: flex;gap: 10px;">
+                                                {% if company_enable_ai %}
+                                                <p
+                                                    style="background-color: rgb(216, 251, 239);color: rgb(8, 192, 131);padding: 0px;border-radius:5px ;font-size:10px;padding-left:5px;padding-right: 5px;height: 25px;">
+                                                    Enabled
+                                                </p>
+                                                {% else %}
+                                                <p
+                                                    style="background-color: rgb(251, 216, 216);color: rgb(192, 8, 8);padding: 0px;border-radius:5px ;font-size:10px;padding-left:5px;padding-right: 5px;height: 25px;">
+                                                    Disabled
+                                                </p>
+                                                {% endif %}
+
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                    <p
+                                        style="color: #013653;padding: 5px;font-size: 15px;font-weight: bold;align-items: center;height: 100%;">
+                                        <i class="fa fa-caret-right"></i>
+                                    </p>
+
+
+                                </div>
 
                             </div>
                         </div>
@@ -6491,13 +6525,56 @@
                     $('#edit-business-page').css('display', 'block');
 
                 });
-                
+                $(document).on('click', '#ai_enable_btn,#review_page_btn', function () {
+                    var formData = new FormData();
+                    var csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                    formData.append('company_id', '{{ company_id }}');
+                    var set_p = $(this).data('set_up');
+                    formData.append('set_p', set_p);
+
+                    // Send the form data via AJAX
+                    $.ajax({
+                        url: '{% url "setting-profile" %}', // Replace with your Django endpoint URL
+                        type: 'POST',
+                        headers: {
+                            'X-CSRFToken': csrfToken
+                        },
+                        data: formData,
+                        processData: false, // Prevent jQuery from processing the data
+                        contentType: false, // Prevent jQuery from setting the content type
+                        success: function (response) {
+                            if (response['error']) {
+                                toastr.error(response['error']);
+
+                            } else {
+                                toastr.success('updated successfully');
+                                // update html
+                                // var tempDiv = $('<div>').html(response);
+                                // // Extract the specific element from the new HTML
+                                // var newElementContent = tempDiv.find('#feature-reqs').html();
+
+                                // $('#feature-reqs').html(newElementContent);
+                                // // initializeMultiSelect();
+                                // return;
+                            }
+                        },
+                        error: function (jqXHR, textStatus, errorThrown) {
+                            toastr.error('Failed');
+                            console.error(textStatus, errorThrown);
+                        }
+                    });
+
+
+
+                });
+
+
                 $(document).on('click', '#submit-request-form', function () {
-                    var reqTitle=$('#request-title').val();
-                    var reqBody=$('#request-details').val();
-                    if(reqBody==''|| reqTitle==''){
+                    var reqTitle = $('#request-title').val();
+                    var reqBody = $('#request-details').val();
+                    if (reqBody == '' || reqTitle == '') {
                         toastr.error('Please fill of the details');
-                        return ;
+                        return;
                     };
                     var formData = new FormData();
 
@@ -6538,7 +6615,7 @@
                         }
                     });
 
-                    
+
 
                 });
 
@@ -6910,6 +6987,9 @@
                                         break;
                                     case 'reddit':
                                         icn_type.addClass('fa fa-reddit');
+                                        break;
+                                    case 'chatbot':
+                                        icn_type.addClass('fas fa-robot');
                                         break;
                                 }
 
@@ -9236,6 +9316,20 @@
                     }
                     $('#submit_post').removeClass('post-btn-proceed-disabled');
 
+
+                });
+
+                $(document).on('click', '#review_link', function () {
+                    var rev_link = $(this).text();
+                    var tempInput = $("<input>");
+                    $("body").append(tempInput);
+                    tempInput.val(rev_link).select();
+                    try {
+                        document.execCommand("copy");
+                        toastr.success("Copied to clipboard.");
+                    } catch (err) {
+                        toastr.error("Failed to copy link.");
+                    }
 
                 });
                 // upload modal

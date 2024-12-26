@@ -181,8 +181,9 @@ def loginUser(request):
                                 status.HTTP_200_OK)
             comp = Company.objects.filter(company_name=businessName.strip()).exists()
             if comp:
-                return Response({'result': False, 'message': 'Company with the provided name already exists'},
+                return Response({'result': False, 'message': 'Company profile already exists'},
                                 status.HTTP_200_OK)
+            
             if cpassword != password:
                 return Response({'result': False, 'message': 'passwords do not match'},
                                 status.HTTP_200_OK)
@@ -197,7 +198,9 @@ def loginUser(request):
                 user=user,
                 email=email)
             mp.save()
-
+            bsn=businessName.strip().replace(' ','-')
+            current_url = request.build_absolute_uri()
+            fin_link=current_url+bsn
             c = Company(
                 company_name=businessName,
                 company_category=businessCategory,
@@ -205,6 +208,7 @@ def loginUser(request):
                 company_phone=telephone,
                 company_address=address1,
                 company_address2=address2,
+                company_review_link=fin_link,
                 city=city,
                 state=state,
                 country=country,
@@ -339,6 +343,23 @@ def format_datetime(timezone_str, datetime_str, platform):
         formatted = local_datetime.strftime("%a/%d/%m/%Y %I:%M %p")
 
     return formatted
+
+@api_view(['POST'])
+def settingProfile(request):
+    company_id = request.POST.get('company_id', None)
+    type_ = request.POST.get('set_p', None)
+    if not all([type_,company_id]):
+        return Response({'error': 'Bad request'})
+    cp = Company.objects.filter(company_id=company_id).first()
+    if not cp:
+        return Response({'error': 'Bad request'})
+    if type_=='show_page':
+        cp.company_show_page=not cp.company_show_page
+        cp.save()
+    if type_=='enable_ai':
+        cp.company_enable_ai=not cp.company_enable_ai
+        cp.save()
+    return Response({'success': 'Updated successfully'})
 
 
 @api_view(['POST', 'GET'])
@@ -817,7 +838,23 @@ def getPMs(request):
             })
         context = {'senders': senders}
         return render(request, 'dashboard.html', context=context)
+    elif platform == 'chatbot':
+        senders=[]
+        cp = Company.objects.filter(company_id=company_id).first()
+        if not cp:
+            return Response({'error': 'Bad request'})
 
+        conversations=CompanyBotChats.objects.filter(company=cp)
+        for c in conversations:
+            senders.append({
+                'sender': c.sender,
+                'conv_id': c.conversation_id,
+                'platform': 'chatbot',
+                'updated_time': format_datetime(datetime_str=c.date_sent, timezone_str=timezone_s,
+                                                platform='chatbot')
+            })
+        context = {'senders': senders}
+        return render(request, 'dashboard.html', context=context)
     return Response({'error': 'Bad request'})
     
 
@@ -907,6 +944,14 @@ def dashboard(request, company_id):
     cm = Company.objects.filter(company_id=company_id).first()
     if not cm:
         return render(request, '404error.html')
+    
+    if cm.company_review_link:
+        bnm=cm.company_name.strip().replace(' ','-')
+        current_url = f"{request.scheme}://{request.get_host()}/social-proof/"
+        fin_link=current_url+bnm.lower()
+        cm.company_review_link=fin_link
+        cm.save()
+
     mp = MemberProfile.objects.filter(user=usr).first()
     cmp = CompanyMember.objects.filter(member=mp, company=cm).first()
     exp_dif = (cm.company_free_trial_expiry - timezone.now()).days
@@ -972,6 +1017,9 @@ def dashboard(request, company_id):
         'company_name': cm.company_name,
         'company_category': cm.company_category,
         'company_link': cm.company_link,
+        'review_wall_link':cm.company_review_link,
+        'company_enable_ai':cm.company_enable_ai,
+        'company_show_page':cm.company_show_page,
         # 'company_profile':cpp.p_pic.url if cpp else 'https://pic.onlinewebfonts.com/thumbnails/icons_358304.svg' ,
         'company_profile': 'https://img.freepik.com/premium-vector/vector-logo-dance-club-that-says-dance-club_1107171-3823.jpg',
         'company_about': cm.company_about,
@@ -2120,14 +2168,21 @@ def getCommentReplies(request):
 
 @api_view(['POST','GET'])
 def socialProof(request,company_name):
-    cp=Company.objects.filter(company_name=company_name).first()
+    cmn=company_name.replace('-',' ')
+    cp=None
+    for cpy in Company.objects.all():
+        if cpy.company_name.strip().lower()==cmn:
+            if cpy.company_show_page:
+                cp=cpy
+                break
     all_cp=[]
     cpo=Company.objects.all()
     
     for c in cpo:
         if c.company_name.lower().strip() == company_name.lower().strip():
             cp=c
-        all_cp.append(c.company_name)
+        if c.company_show_page:
+            all_cp.append(c.company_name)
     if not cp:
         context = {
             'success': False,
