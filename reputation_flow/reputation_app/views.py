@@ -121,7 +121,6 @@ def loginUser(request):
     if request.user.is_authenticated:
         # grab the member and their company
         mp = MemberProfile.objects.filter(user=request.user).first()
-        print(mp)
         if not mp:
             return render(request, '404error.html')
         cm = CompanyMember.objects.filter(member=mp).first()
@@ -360,6 +359,12 @@ def replyPM(request):
         cp = Company.objects.filter(company_id=company_id).first()
         if not cp:
             return Response({'error': 'Bad request'})
+        
+        # check subscription
+        if not any([cp.company_free_trial, cp.company_active_subscription]):
+            return Response({'error': 'Kindly renew your subscription to continue.'})
+        
+        
         cfb = CompanyFacebook.objects.filter(company=cp).first()
         if not cfb:
             return Response({'error': 'Bad request'})
@@ -997,6 +1002,7 @@ def dashboard(request, company_id):
             'youtube': sc.youtube if sc else None,
             'tiktok': sc.tiktok if sc else None,
         },
+        'freqs': CompanyFeatureRequest.objects.filter(company=cm).order_by('-pk'),
         'company_id': company_id,
         'user_permissions': {
             'can_modify_ai_assistant': False if not cmp.permissions else cmp.permissions.get('can_modify_ai_assistant',
@@ -4238,7 +4244,30 @@ def deletePostComment(request):
     }
     return render(request, 'dashboard.html', context=context)
 
+@api_view(['POST'])
+def requestFeature(request):
+    company_id = request.POST.get('company_id', None)
+    title = request.POST.get('title', None)
+    description = request.POST.get('details', None)
+    cp = Company.objects.filter(company_id=company_id).first()
+    
+    # check subscription
+    if not any([cp, title,description]):
+        return Response({'error': 'Bad request'})
+    cfr=CompanyFeatureRequest(
+        company=cp,
+        title=title,
+        details=description
+    )
+    cfr.save()
+    context = {
+        'freqs': CompanyFeatureRequest.objects.filter(company=cp).order_by('-pk')
+    }
+    return render(request, 'dashboard.html', context=context)
 
+    
+    
+    
 @api_view(['POST'])
 def uploadPost(request):
     company_id = request.POST.get('company_id', None)
@@ -4301,6 +4330,10 @@ def uploadPost(request):
 
     tsbs = target_subs.split(',')
     cp = Company.objects.filter(company_id=company_id).first()
+    
+        # check subscription
+    if not any([cp.company_free_trial, cp.company_active_subscription]):
+        return Response({'error': 'Kindly renew your subscription to continue.'})
 
     files = request.FILES  # Access uploaded files
     gallery_items = []
@@ -4324,9 +4357,6 @@ def uploadPost(request):
 
         # Convert the localized datetime to UTC
         utc_datetime = localized_datetime.astimezone(pytz.utc)
-
-        print(f"Localized datetime: {localized_datetime}")
-        print(f"UTC datetime: {utc_datetime}")
 
     platform = []
     if not cp:
@@ -4436,13 +4466,12 @@ def uploadPost(request):
     else:
         # scheduled
         if hasMedia:
-            for key,file in files.items():
+            for key, file in files.items():
                 up=UploadedMedia(
                     post=cpst,
                     media=file
                 )
                 up.save()
-
             pass
     # if instagramSelected:
     #     cigp = CompanyInstagramPosts(
@@ -4462,15 +4491,13 @@ def uploadPost(request):
                 post_id=post_id,
                 nsfw_tag=red_is_nsfw,
                 spoiler_flag=red_is_spoiler,
-                target_subs=tsbs,
-                )
+                target_subs=tsbs)
             cred.save()
         if facebookSelected:
             cfb_pst = CompanyFacebookPosts(
                 post_id=post_id,
                 to_stories=to_fb_stories,
-                to_posts=to_fb_posts,
-            )
+                to_posts=to_fb_posts)
             cfb_pst.save()
 
     return Response({'success': 'success request'})
@@ -4549,9 +4576,7 @@ def updateBusinessProfile(request):
 
     return Response({'updated': True})
 
-
 # social platforms
-
 def instagram_upload_content(request):
     """View to handle content upload to Instagram."""
     if request.method == 'POST':

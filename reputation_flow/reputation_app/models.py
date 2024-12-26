@@ -24,9 +24,13 @@ class Company(models.Model):
     company_category=models.TextField(default='')
     company_storage=models.IntegerField(default=0)
     company_subscription=models.TextField(default='')
+    company_review_link=models.TextField(default='')
+    company_subscription_tier=models.IntegerField(default=1)
     company_free_trial=models.BooleanField(default=True)
     company_free_trial_expiry=models.DateTimeField(default=timezone.now() + timezone.timedelta(days=5))
+    company_subscription_date=models.DateTimeField(default=timezone.now())
     company_active_subscription=models.BooleanField(default=False)
+    company_show_page=models.BooleanField(default=False)
     date_created=models.DateField(default=timezone.now)
     company_about=models.TextField(default='',null=True,blank=True)
     company_phone=models.CharField(max_length=30,blank=True,null=True)
@@ -81,6 +85,16 @@ class CompanyTeamFiles(models.Model):
     date_created=models.DateTimeField(default=timezone.now)
     def __str__(self):
         return self.file_name
+
+class CompanyFeatureRequest(models.Model):
+    company=models.ForeignKey(Company,on_delete=models.CASCADE)
+    title=models.TextField(default='')
+    details=models.TextField(default='')
+    upvotes=models.IntegerField(default=0)
+    feature_introduced=models.BooleanField(default=False)
+    date_created=models.DateTimeField(default=timezone.now)
+    def __str__(self):
+        return self.company.company_name +' TITLE '+ self.title 
     
 class CompanyKnowledgeBase(models.Model):
     company=models.ForeignKey(Company,on_delete=models.CASCADE)

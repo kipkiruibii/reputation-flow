@@ -378,7 +378,6 @@ def exchangeFacebookToken(companyfacebook,access_token):
     response = requests.get(exchange_url, params=params)
     data = response.json()
     access_token=data['access_token']
-    print('After',access_token)
     companyfacebook.page_access_token=access_token
     companyfacebook.last_update_time=timezone.now()
     companyfacebook.save()
@@ -397,12 +396,10 @@ def exchangeTiktokToken(refresh_token,companytiktok):
         "Content-Type": "application/x-www-form-urlencoded"
     }
     response = requests.post(url, data=payload,verify=False,headers=headers)
-
     # Check the response status
     if response.status_code == 200:
         # If successful, parse the response JSON
         data = response.json()
-        print(data)
         new_access_token = data['access_token']
         new_refresh_token = data['refresh_token']
         expires_in = data['expires_in']
@@ -417,7 +414,6 @@ def exchangeTiktokToken(refresh_token,companytiktok):
                 'Authorization': f'Bearer {access_token}'
             }
             response = requests.get(url, headers=headers)
-            print(response.json())
             dta = response.json().get('data', {}).get('user')
             return {
                 'user_id': dta.get('union_id'),
@@ -440,10 +436,6 @@ def exchangeTiktokToken(refresh_token,companytiktok):
         ctk.likes_count.append(data['l_count'])
         ctk.save()
 
-        # Print the new tokens
-        print(f"New Access Token: {new_access_token}")
-        print(f"New Refresh Token: {new_refresh_token}")
-        print(f"Expires In: {expires_in} seconds")
     else:
         print(f"Error refreshing token: {response.status_code}")
         print(response.content)    
@@ -894,13 +886,14 @@ def postFacebook(media,post_id ):
 def postContent(post):
     gallery_items=[]
     if post.has_media:
-        print('post has media')
+        # print('post has media')
         ul=UploadedMedia.objects.filter(post=post)
         for p in ul:
             gallery_items.append(p.path.url)
-        print(gallery_items)
+        # print(gallery_items)
     else:
-        print('Has no media') 
+        pass
+        # print('Has no media') 
     pltforms=post.platforms
     if not post.is_scheduled:
         return
@@ -934,7 +927,10 @@ def postContent(post):
             })
             fbThread.start()
             print('FACEBOOK POSTED')
-
+        if 'tiktok' in pltfrm.lower():
+            pass
+        if 'instagram' in pltfrm.lower():
+            pass
 
 
         
@@ -951,6 +947,7 @@ class Command(BaseCommand):
         ''' calls all fuunctions below'''
         self.updateAccessTokens()
         self.uploadScheduledContent()
+        self.checkUsersSubscription()
         
     # updating the access tokens for every account
     def updateAccessTokens(self):
@@ -960,7 +957,7 @@ class Command(BaseCommand):
             lastupd = c.last_update_time
             
             tdiff=(timezone.now()-lastupd).total_seconds()/3600
-            if tdiff>12:
+            if tdiff>12: 
                 print('updating facebook access token')
                 tv=threading.Thread(target=exchangeFacebookToken,kwargs={'access_token':access_token,'companyfacebook':c},daemon=True)
                 tv.start()
@@ -987,12 +984,30 @@ class Command(BaseCommand):
             if tdiff <= 0:
                 tts= threading.Thread(target=postContent,daemon=True,kwargs={'post':sp})
                 tts.start()
-            
         pass
     
     def checkUsersSubscription(self):
         ''' updates users subscription status'''
-        pass
+        for cp in Company.objects.all():
+            if cp.company_active_subscription:
+                sub_dte=cp.company_subscription_date
+                tdiff=(tnw-sub_dte).total_seconds()
+                if tdiff/86400 <30:
+                    cp.company_active_subscription=False
+                    cp.save()
+                    # send subscription expiry email
+                if tdiff/86400 <23:
+                    # send subscription expiry reminder email 1 week before
+                    pass
+            if cp.company_free_trial:
+                # check if already expired
+                datex= cp.company_free_trial_expiry
+                tnw=timezone.now()
+                tdiff=(tnw-datex).total_seconds()
+                if tdiff>0:
+                    cp.company_free_trial=False
+                    cp.save()
+                
     def updatePostEngagement(self):
         ''' every 10 minutes, update the engagement in background, comments,likes notifications'''
         pass

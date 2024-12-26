@@ -15,6 +15,9 @@ admin.site.register(CompanyTeamAnnouncements)
 admin.site.register(CompanyKnowledgeBase)
 admin.site.register(UploadedFiles)
 admin.site.register(CompanyTeamActivity)
+admin.site.register(CompanyFeatureRequest)
+
+
 
 # PM
 admin.site.register(CompanyPrivateConversation)

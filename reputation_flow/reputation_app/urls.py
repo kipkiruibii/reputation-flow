@@ -13,12 +13,14 @@ urlpatterns=[
     # get posts
     path('fetch-posts/',views.fetchPosts,name='fetch-posts'),
     # create team
+    path('request-feature/',views.requestFeature,name='request-feature'),
+    # create team
     path('create-team/',views.createTeam,name='create-team'),
     # get teams
     path('fetch-team/',views.fetchTeams,name='fetch-team'),
     # delete team
     path('delete-team/',views.deleteTeam,name='delete-team'),
-    # view team
+    # view teams
     path('view-team/',views.viewTeam,name='view-team'),
     # generate invite link team
     path('generate-invite-link/',views.generateInviteLink,name='generate-invite-link'),
@@ -28,7 +30,6 @@ urlpatterns=[
     path('upload-team-file/',views.uploadTeamFile,name='upload-team-file'),
     # delete post
     path('delete-team-file/',views.deleteTeamFile,name='delete-team-file'),
-    
     
     path('upload_train_doc/',views.uploadTrainDoc,name='upload_train_doc'),
     # fetch reviews

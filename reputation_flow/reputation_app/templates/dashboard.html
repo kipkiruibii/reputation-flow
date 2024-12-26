@@ -1873,11 +1873,12 @@
                         <div style="width:80px;">
                             <p>Plan</p>
                         </div>
-                        {% if account_info.subscription_active %}
+                        {% if company_subs.subscription_active %}
                         <p style="color:rgb(53, 248, 95)">Active </p>
-
+                        {% elif not company_subs.free_trial_expired %}
+                        <p style="color:rgb(53, 248, 95)">Free trial </p>
                         {% else %}
-                        <p style="color:rgba(246, 22, 22, 1)">Free trial </p>
+                        <p style="color:rgba(246, 22, 22, 1)">Expired </p>
                         {% endif %}
 
                     </div>
@@ -1952,7 +1953,7 @@
                 </div>
                 <div style="display:block;">
 
-                    <div class="company-account-info container-right">
+                    <div class="company-account-info container-right" id="feature-reqs">
                         <div id="feature-request-placeholder">
                             <div style="display:flex;justify-content:space-between;">
                                 <div class="section-fun-fact">
@@ -1969,7 +1970,7 @@
                             </div>
                         </div>
                         <section id="requests-section" class="games"
-                            style="overflow-y:scroll;height:100%;display:block">
+                            style="overflow-y:scroll;height:90%;display:block">
                             {% if freqs|length > 0 %}
                             <div class="container" id="all-feature-requests">
                                 <ul class="game-list">
@@ -1980,14 +1981,14 @@
                                             <p class="req-id" hidden>{{ f.id }}</p>
                                             <span class="game-like-icon"><i class="fa fa-check" aria-hidden="true"
                                                     style="color:lime"></i></span>
-                                            <span class="game-like-count">{{ f.upvotes }}</span>
+                                            <span class="game-like-count">F</span>
                                         </div>
                                         {% else %}
                                         <div class="game-likes" data-id="{{ f.id }}">
                                             <p class="req-id" hidden>{{ f.id }}</p>
-                                            <span class="game-like-icon"><span
-                                                    class="material-symbols-outlined">arrow_drop_up</span></span>
-                                            <span class="game-like-count">{{ f.upvotes }}</span>
+                                            <!-- <span class="game-like-icon"><span
+                                                    class="material-symbols-outlined">arrow_drop_up</span></span> -->
+                                            <span class="game-like-count">B</span>
                                         </div>
 
                                         {% endif %}
@@ -1995,7 +1996,7 @@
                                             <h6 class="game-title">
                                                 <a>{{ f.title }}</a>
                                             </h6>
-                                            <span class="game-tagline" style="font-size:12px">{{ f.content }}</span>
+                                            <span class="game-tagline" style="font-size:12px">{{ f.details }}</span>
                                             <!--                            <span class="game-time-ago" data-bind="text: created">6 mins</span>-->
                                         </div>
                                     </li>
@@ -2595,17 +2596,18 @@
                                     </div>
                                     <hr>
                                     <div class="business-about">
-                                        <h6>Settings <i class="fa fa-cog " style="margin-left: 20px;"></i></h6>
+                                        <h6>Review wall <i class="fa fa-cog " style="margin-left: 20px;"></i></h6>
                                         <ul style="list-style-type: none;">
                                             <li>
                                                 <div class="form-check form-switch" style="margin-left: 20px;">
                                                     <input class="form-check-input" type="checkbox" role="switch"
                                                         id="flexSwitchCheckChecked">
-                                                    <label class="form-check-label" for="flexSwitchCheckChecked">Auto
-                                                        publish positive reviews</label>
+                                                    <label class="form-check-label" for="flexSwitchCheckChecked">
+                                                        Show review page
+                                                    </label>
                                                 </div>
                                             </li>
-                                            <li>
+                                            <!-- <li>
                                                 <div class="form-check form-switch" style="margin-left: 20px;">
                                                     <input class="form-check-input" type="checkbox" role="switch"
                                                         id="flexSwitchCheckChecked">
@@ -2622,11 +2624,11 @@
                                                         tooltip="Show your customers that you appreciate their comments"
                                                         flow="down">Auto like positive comments</label>
                                                 </div>
-                                            </li>
+                                            </li> -->
 
                                             <li style="margin-top: 10px;">
                                                 <p tooltip="Add this link to your bio to showcase your customers reviews"
-                                                    flow="down">Review Wall Link:</p>
+                                                    flow="down">Link: <a href="{{ review_wall_link }}" target="_blank"></a>{{ review_wall_link }}</p>
                                             </li>
                                         </ul>
 
@@ -6489,6 +6491,57 @@
                     $('#edit-business-page').css('display', 'block');
 
                 });
+                
+                $(document).on('click', '#submit-request-form', function () {
+                    var reqTitle=$('#request-title').val();
+                    var reqBody=$('#request-details').val();
+                    if(reqBody==''|| reqTitle==''){
+                        toastr.error('Please fill of the details');
+                        return ;
+                    };
+                    var formData = new FormData();
+
+                    // Append other input fields to FormData
+                    var csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                    formData.append('company_id', '{{ company_id }}');
+                    formData.append('title', reqTitle);
+                    formData.append('details', reqBody);
+                    // Send the form data via AJAX
+                    $.ajax({
+                        url: '{% url "request-feature" %}', // Replace with your Django endpoint URL
+                        type: 'POST',
+                        headers: {
+                            'X-CSRFToken': csrfToken
+                        },
+                        data: formData,
+                        processData: false, // Prevent jQuery from processing the data
+                        contentType: false, // Prevent jQuery from setting the content type
+                        success: function (response) {
+                            if (response['error']) {
+                                toastr.error(response['error']);
+
+                            } else {
+                                toastr.success('Submitted successfully');
+                                // update html
+                                var tempDiv = $('<div>').html(response);
+                                // Extract the specific element from the new HTML
+                                var newElementContent = tempDiv.find('#feature-reqs').html();
+
+                                $('#feature-reqs').html(newElementContent);
+                                // initializeMultiSelect();
+                                return;
+                            }
+                        },
+                        error: function (jqXHR, textStatus, errorThrown) {
+                            toastr.error('Failed');
+                            console.error(textStatus, errorThrown);
+                        }
+                    });
+
+                    
+
+                });
+
                 $(document).on('click', '#cancel-edit', function () {
 
                     $('#edit-business-page').css('display', 'none');
@@ -8807,16 +8860,18 @@
                 });
 
                 // ----------------------------------SUBMIT REQUEST----------------------------
-                // $(document).on('click', '#request-btn', function () {
-                //     alert('clicked req');
-                //     $('#request-form').css('display', 'flex');
-
-                //     $('#requests-section').css('display', 'none');
-                // });
-                // $(document).on('click', '#cancel-request-btn', function () {
-                //     $('#request-form').css('display', 'none');
-                //     $('#requests-section').css('display', 'flex');
-                // });
+                $(document).on('click', '#request-btn', function () {
+                    $('#request-form').css('display', 'flex');
+                    $('#request-btn').css('display', 'none');
+                    $('#cancel-request-btn').css('display', 'block');
+                    $('#requests-section').css('display', 'none');
+                });
+                $(document).on('click', '#cancel-request-btn', function () {
+                    $('#request-form').css('display', 'none');
+                    $('#requests-section').css('display', 'flex');
+                    $('#request-btn').css('display', 'block');
+                    $('#cancel-request-btn').css('display', 'none');
+                });
 
 
 
