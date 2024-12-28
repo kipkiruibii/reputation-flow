@@ -29,6 +29,7 @@ DEBUG = True
 CSRF_TRUSTED_ORIGINS = ['https://tiktok.com']
 
 ALLOWED_HOSTS = ['interstatemovers.pythonanywhere.com','127.0.0.1','b8b8-197-237-137-81.ngrok-free.app']
+ALLOWED_HOSTS.append(config.get('SERVER_IP'))
 
 # Application definition
 INSTALLED_APPS = [
