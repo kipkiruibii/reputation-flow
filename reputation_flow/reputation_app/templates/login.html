@@ -74,10 +74,15 @@
                     <span
                         class="self-center text-xl font-semibold whitespace-nowrap dark:text-white">Insightlyze</span>
                 </a> -->
-                <a href="{% url 'landing' %}" class="flex items-center" style="text-decoration: none;color: black;margin: 0;padding: 0;" >
+                <a href="{% url 'landing' %}" class="flex items-center"
+                    style="text-decoration: none;color: black;margin: 0;padding: 0;">
                     <!-- <img src="{% static 'images/Insightlyze_logo.png' %}"  style="border-radius: 100px;width: 40px;height: 40px;" alt="Insightlyze Logo" /> -->
-                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#ff9900"><path d="M120-120v-80l80-80v160h-80Zm160 0v-240l80-80v320h-80Zm160 0v-320l80 81v239h-80Zm160 0v-239l80-80v319h-80Zm160 0v-400l80-80v480h-80ZM120-327v-113l280-280 160 160 280-280v113L560-447 400-607 120-327Z"/></svg>
-                    
+                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"
+                        fill="#ff9900">
+                        <path
+                            d="M120-120v-80l80-80v160h-80Zm160 0v-240l80-80v320h-80Zm160 0v-320l80 81v239h-80Zm160 0v-239l80-80v319h-80Zm160 0v-400l80-80v480h-80ZM120-327v-113l280-280 160 160 280-280v113L560-447 400-607 120-327Z" />
+                    </svg>
+
                     <span style="font-weight: bold;"
                         class="self-center text-xl font-semibold whitespace-nowrap dark:text-white">Insightlyze</span>
                 </a>
@@ -134,15 +139,17 @@
     <section style="margin-top:5%;height: 80vh;">
         <!-- login form -->
         <div class="container-fluid h-custom" id="login_container" style="display: block;height: 100%;">
+            {% if request.user_agent.is_pc %}
             <div style="display: flex;flex-direction: column;justify-content: center;">
-            <div class="row d-flex justify-content-center align-items-center h-100" style="gap: 4rem;">
-                <div class="">
-                    <img src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-login-form/draw2.webp"
-                        class="img-fluid" alt="Sample image" style="width:500px">
-                </div>
-                <div style="height: 100%;width: 50%;margin-top: 5%;">
-                    <form style="width:70%;margin: auto;">
-                        <!-- <div class="d-flex flex-row align-items-center justify-content-center justify-content-lg-start">
+
+                <div class="row d-flex justify-content-center align-items-center h-100" style="gap: 4rem;">
+                    <div class="">
+                        <img src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-login-form/draw2.webp"
+                            class="img-fluid" alt="Sample image" style="width:500px">
+                    </div>
+                    <div style="height: 100%;width: 50%;margin-top: 5%;">
+                        <form style="width:70%;margin: auto;">
+                            <!-- <div class="d-flex flex-row align-items-center justify-content-center justify-content-lg-start">
                             <p class="lead fw-normal mb-0 me-3">Sign in with</p>
                             <button type="button" data-mdb-button-init data-mdb-ripple-init
                                 class="btn btn-primary btn-floating mx-1">
@@ -164,41 +171,98 @@
                             <p class="text-center fw-bold mx-3 mb-0">Or</p>
                         </div> -->
 
-                        <!-- Email input -->
-                        <div data-mdb-input-init class="form-outline mb-4">
-                            <input type="name" class="form-control " placeholder="Enter your username "
-                                id="usernameL" />
-                            <label class="form-label" for="usernameL">Username</label>
-                        </div>
-
-                        <!-- Password input -->
-                        <div data-mdb-input-init class="form-outline mb-3">
-                            <input type="password" class="form-control" placeholder="Enter password" id="passwL" />
-                            <label class="form-label" for="passwL">Password</label>
-                        </div>
-
-                        <div class="d-flex justify-content-between align-items-center">
-                            <!-- Checkbox -->
-                            <div class="form-check mb-0">
-                                <input class="form-check-input me-2" type="checkbox" value="" id="rememberMe" />
-                                <label class="form-check-label" for="rememberMe">
-                                    Remember me
-                                </label>
+                            <!-- Email input -->
+                            <div data-mdb-input-init class="form-outline mb-4">
+                                <input type="name" class="form-control " placeholder="Enter your username "
+                                    id="usernameL" />
+                                <label class="form-label" for="usernameL">Username</label>
                             </div>
-                            <a href="#!" class="text-body">Forgot password?</a>
-                        </div>
 
-                        <div class="text-center text-lg-start mt-4 pt-2">
-                            <button type="button" data-mdb-button-init data-mdb-ripple-init
-                                class="btn btn-primary btn-lg" style="padding-left: 2.5rem; padding-right: 2.5rem;"
-                                id="LoginBtn">Login</button>
-                            <p class="small fw-bold mt-2 pt-1 mb-0">Don't have an account? <a href="#" id="register-sc"
-                                    class="link-danger">Register</a></p>
-                        </div>
+                            <!-- Password input -->
+                            <div data-mdb-input-init class="form-outline mb-3">
+                                <input type="password" class="form-control" placeholder="Enter password" id="passwL" />
+                                <label class="form-label" for="passwL">Password</label>
+                            </div>
 
-                    </form>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <!-- Checkbox -->
+                                <div class="form-check mb-0">
+                                    <input class="form-check-input me-2" type="checkbox" value="" id="rememberMe" />
+                                    <label class="form-check-label" for="rememberMe">
+                                        Remember me
+                                    </label>
+                                </div>
+                                <a href="#!" class="text-body">Forgot password?</a>
+                            </div>
+
+                            <div class="text-center text-lg-start mt-4 pt-2">
+                                <button type="button" data-mdb-button-init data-mdb-ripple-init
+                                    class="btn btn-primary btn-lg" style="padding-left: 2.5rem; padding-right: 2.5rem;"
+                                    id="LoginBtn">Login</button>
+                                <p class="small fw-bold mt-2 pt-1 mb-0">Don't have an account? <a href="#"
+                                        id="register-sc" class="link-danger">Register</a></p>
+                            </div>
+
+                        </form>
+                    </div>
                 </div>
-            </div></div>
+            </div>
+            {% else %}
+            <form style="width:100%;margin: auto;">
+                <!-- <div class="d-flex flex-row align-items-center justify-content-center justify-content-lg-start">
+                <p class="lead fw-normal mb-0 me-3">Sign in with</p>
+                <button type="button" data-mdb-button-init data-mdb-ripple-init
+                    class="btn btn-primary btn-floating mx-1">
+                    <i class="fab fa-google"></i>
+                </button>
+
+                <button type="button" data-mdb-button-init data-mdb-ripple-init
+                    class="btn btn-primary btn-floating mx-1">
+                    <i class="fab fa-twitter"></i>
+                </button>
+
+                <button type="button" data-mdb-button-init data-mdb-ripple-init
+                    class="btn btn-primary btn-floating mx-1">
+                    <i class="fab fa-facebook-f"></i>
+                </button>
+            </div>
+
+            <div class="divider d-flex align-items-center my-4">
+                <p class="text-center fw-bold mx-3 mb-0">Or</p>
+            </div> -->
+
+                <!-- Email input -->
+                <div data-mdb-input-init class="form-outline mb-4">
+                    <input type="name" class="form-control " placeholder="Enter your username " id="usernameL" />
+                    <label class="form-label" for="usernameL">Username</label>
+                </div>
+
+                <!-- Password input -->
+                <div data-mdb-input-init class="form-outline mb-3">
+                    <input type="password" class="form-control" placeholder="Enter password" id="passwL" />
+                    <label class="form-label" for="passwL">Password</label>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center">
+                    <!-- Checkbox -->
+                    <div class="form-check mb-0">
+                        <input class="form-check-input me-2" type="checkbox" value="" id="rememberMe" />
+                        <label class="form-check-label" for="rememberMe">
+                            Remember me
+                        </label>
+                    </div>
+                    <a href="#!" class="text-body">Forgot password?</a>
+                </div>
+
+                <div class="text-center text-lg-start mt-4 pt-2">
+                    <button type="button" data-mdb-button-init data-mdb-ripple-init class="btn btn-primary btn-lg"
+                        style="padding-left: 2.5rem; padding-right: 2.5rem;" id="LoginBtn">Login</button>
+                    <p class="small fw-bold mt-2 pt-1 mb-0">Don't have an account? <a href="#" id="register-sc"
+                            class="link-danger">Register</a></p>
+                </div>
+
+            </form>
+            {% endif %}
         </div>
         <!-- account register form -->
         <div class="container-fluid h-custom" id="register_container" style="display: none;margin-bottom:50px">
@@ -226,7 +290,7 @@
                                 <i class="fab fa-facebook-f"></i>
                             </button>
                         </div> -->
-<!-- 
+                        <!-- 
                         <div class="divider d-flex align-items-center my-4">
                             <p class="text-center fw-bold mx-3 mb-0">Or</p>
                         </div> -->
@@ -398,7 +462,8 @@
                             <span class="form-label d-block">Telephone</span>
 
                         </label>
-                        <p style="font-size: 12;align-items: center;">You can choose what information to disclose in the dashboard</p>
+                        <p style="font-size: 12;align-items: center;">You can choose what information to disclose in the
+                            dashboard</p>
                         <div class="d-flex justify-content-between align-items-center">
                             <!-- Checkbox -->
                             <div class="form-check mb-0">
@@ -627,12 +692,12 @@
                 var postal = $('#postalCode').val();
                 var telephone = $('#telephone').val();
                 var terms = $('#termsAgree').is(':checked');
-                
+
                 if (businessName == '' || address1 == '' || city == '' || country == '' || postal == '' || telephone == '') {
                     toastr.error('Ensure all fields are filled');
                     return;
                 }
-                if(!terms){
+                if (!terms) {
                     toastr.error('Agree to the terms before continuing');
 
                     return;
@@ -650,15 +715,15 @@
                         password: passw,
                         cpassword: cpassw,
                         email: email,
-                        businessCategory:businessCategory,
-                        businessName:businessName,
-                        address1:address1,
-                        address2:address2,
-                        city:city,
-                        state:state,
-                        country:country,
-                        postal:postal,
-                        telephone:telephone,
+                        businessCategory: businessCategory,
+                        businessName: businessName,
+                        address1: address1,
+                        address2: address2,
+                        city: city,
+                        state: state,
+                        country: country,
+                        postal: postal,
+                        telephone: telephone,
                         type: 'signup',
                         next: next,
 
