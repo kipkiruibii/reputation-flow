@@ -331,7 +331,7 @@
                 </div>
             </div>
             {% else %}
-            <div style="height: 100%;width: 100%;margin-top: 10%;">
+            <div style="height: 100%;width: 100%;margin-top: 10%;overflow-y: scroll;">
                 <div style="width: 100%;margin: auto;">
                     <img src="https://png.pngtree.com/element_our/png/20181228/building-vector-icon-png_296032.jpg"
                         style="height:150px" class="img-fluid" alt="Sample image">
@@ -409,6 +409,7 @@
         </div>
         <!-- business register form -->
         <div class="container-fluid h-custom" id="register_business_container" style="height: 100%;display: none;">
+            {% if request.user_agent.is_pc %}
             <div class="row d-flex justify-content-center align-items-center h-100" style="gap: 4rem;">
                 <div class="">
                     <img src="https://png.pngtree.com/element_our/png/20181228/building-vector-icon-png_296032.jpg"
@@ -551,6 +552,148 @@
                     </form>
                 </div>
             </div>
+            {% else %}
+            <div style="overflow-y: scroll;height: 100%;width: 100%;margin-top: 10%;">
+                <div style="width: 100%;margin: auto;">
+                    <img src="https://png.pngtree.com/element_our/png/20181228/building-vector-icon-png_296032.jpg"
+                        style="height:150px" class="img-fluid" alt="Sample image">
+                </div>
+
+                <form style="width:90%;margin: auto;">
+                    <div class="d-flex flex-row align-items-center justify-content-center justify-content-lg-start">
+                        <p class="lead fw-normal mb-0 me-3">Tell us about your business</p>
+                    </div>
+                    <hr>
+                    <!-- business category -->
+                    <div data-mdb-input-init class="form-outline mb-4">
+                        <div class="border card">
+
+                            <!-- AUTO COMPLETE DROPDOWN -->
+                            <select class="selectpicker form-control rounded " id="businessCategory">
+                                <option value="Accounting">Accounting</option>
+                                <option value="Advertising">Advertising</option>
+                                <option value="Agriculture">Agriculture</option>
+                                <option value="Apparel">Apparel</option>
+                                <option value="Architecture">Architecture</option>
+                                <option value="Automotive">Automotive</option>
+                                <option value="Banking">Banking</option>
+                                <option value="Construction">Construction</option>
+                                <option value="Consulting">Consulting</option>
+                                <option value="Consumer Goods">Consumer Goods</option>
+                                <option value="Content Creator">Content Creation</option>
+                                <option value="Cybersecurity">Cybersecurity</option>
+                                <option value="Digital Marketing">Digital Marketing</option>
+                                <option value="Ecommerce">E-Commerce</option>
+                                <option value="Education">Education</option>
+                                <option value="Energy">Energy</option>
+                                <option value="Entertainment">Entertainment</option>
+                                <option value="Entertainment (Adult)">Entertainment (Adult)</option>
+                                <option value="Environmental">Environmental</option>
+                                <option value="Finance">Finance</option>
+                                <option value="Freelance">Freelance</option>
+                                <option value="Food & Beverage">Food & Beverage</option>
+                                <option value="Healthcare">Healthcare</option>
+                                <option value="Hospitality">Hospitality</option>
+                                <option value="Information Technology">Information Technology</option>
+                                <option value="Insurance">Insurance</option>
+                                <option value="Influencer">Influencer</option>
+                                <option value="Law">Law</option>
+                                <option value="Logistics">Logistics</option>
+                                <option value="Manufacturing">Manufacturing</option>
+                                <option value="Marketing">Marketing</option>
+                                <option value="Media">Media</option>
+                                <option value="Nonprofit">Nonprofit</option>
+                                <option value="Pharmaceuticals">Pharmaceuticals</option>
+                                <option value="Real Estate">Real Estate</option>
+                                <option value="Retail">Retail</option>
+                                <option value="Telecommunications">Telecommunications</option>
+                                <option value="Transportation">Transportation</option>
+                                <option value="Travel">Travel</option>
+                                <option value="Utilities">Utilities</option>
+
+                            </select>
+                        </div>
+                        <label class="form-label" for="businessCategory">Business Category</label>
+
+                    </div>
+                    <!-- business name input -->
+                    <div data-mdb-input-init class="form-outline mb-4">
+                        <input type="text" id="businessName" class="form-control " placeholder="Enter business name" />
+                        <label class="form-label" for="businessName">Business Name</label>
+                    </div>
+
+                    <!-- address info -->
+                    <label class="d-block mb-4">
+                        <input name="address1" type="text" class="form-control" placeholder="Enter address 1"
+                            id="address1" />
+                        <span class="form-label d-block">Address line 1</span>
+
+                    </label>
+
+                    <label class="d-block mb-4">
+                        <input name="address2" type="text" class="form-control" placeholder="Enter address 2"
+                            id="address2" />
+                        <span class="form-label d-block">Address line 2</span>
+
+                    </label>
+
+                    <label class="d-block mb-4">
+                        <input name="city" type="text" class="form-control" placeholder="Enter City" id="city" />
+                        <span class="form-label d-block">City</span>
+
+                    </label>
+
+                    <label class="d-block mb-4">
+                        <input name="state" type="text" class="form-control" placeholder="Enter State/Province"
+                            id="state" />
+                        <span class="form-label d-block">State/Province</span>
+
+                    </label>
+
+                    <label class="d-block mb-4">
+                        <input name="zip" type="text" class="form-control" placeholder="Enter Zip/Postal code"
+                            id="postalCode" />
+                        <span class="form-label d-block">Zip/Postal code</span>
+
+                    </label>
+
+                    <label class="d-block mb-4">
+                        <input name="country" type="text" class="form-control" placeholder=" Enter Country"
+                            id="country" />
+                        <span class="form-label d-block">Country</span>
+
+                    </label>
+
+                    <label class="d-block mb-4">
+                        <input name="telephone" type="text" class="form-control" id="telephone"
+                            placeholder="Enter Telephone" />
+                        <span class="form-label d-block">Telephone</span>
+
+                    </label>
+                    <p style="font-size: 12;align-items: center;">You can choose what information to disclose in the
+                        dashboard</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <!-- Checkbox -->
+                        <div class="form-check mb-0">
+                            <input class="form-check-input me-2" type="checkbox" value="" id="termsAgree" required />
+                            <label class="form-check-label" for="termsAgree">
+                                I agree to terms of service
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="text-center text-lg-start mt-4 pt-2">
+                        <button type="button" data-mdb-button-init data-mdb-ripple-init id="signup-btn"
+                            class="btn btn-primary btn-lg"
+                            style="padding-left: 2.5rem; padding-right: 2.5rem;">Register</button>
+                        <p class="small fw-bold mt-2 pt-1 mb-0"><a href="#!" id="back-reg" class="link-danger">Back</a>
+                        </p>
+                    </div>
+
+                </form>
+            </div>
+
+            {% endif %}
         </div>
     </section>
 
