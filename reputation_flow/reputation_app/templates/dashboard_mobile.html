@@ -1812,10 +1812,12 @@
     <p style="color:white" id="firebase-user" hidden>{{firebase_user}}</p>
 
     <div style="display:flex;justify-content:space-between;width:100%;height:100%">
-        <div id="sidebar-menu" class="sidebar bg-dark-left " style="height:100%;position: relative;z-index:2;display:none;width:70vw">
+        <div id="sidebar-menu" class="sidebar bg-dark-left "
+            style="height:100%;position: relative;z-index:2;display:none;width:70vw">
             <div class="sidebar-content"
                 style="justify-content:space-between;display:flex;flex-direction: column;height:100%;padding-bottom:20px">
-                <div class="bg-dark-left" style="width:100%;">
+                <div class="bg-dark-left"
+                    style="width:100%;display: flex;justify-content: space-between;padding-right: 15px;">
                     <div class="conversation bx-shadow bg-dark-left"
                         style="position:fixed;top:0;padding:10px;z-index:5;width:100%;margin:0;display: flex;gap: 5px;">
                         <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"
@@ -1826,6 +1828,9 @@
                         <p class="conversation-text">
                             <span style="font-size:18px;text-align:center;color: #ffffff;">Insightlyze</span>
                         </p>
+                    </div>
+                    <div>
+                        <i class="fa fa-close close-sidebar" style="color: red;"></i>
                     </div>
                 </div>
 
@@ -2194,7 +2199,8 @@
                                         <h6>Social Channels</h6>
                                         <div>
                                             <!-- INSTAGRAM -->
-                                            <div class="bx-shadow" style="padding: 10px;border-radius: 10px;margin-bottom: 15px;">
+                                            <div class="bx-shadow"
+                                                style="padding: 10px;border-radius: 10px;margin-bottom: 15px;">
                                                 <div style="height:30px;display: flex;gap: 10px;">
                                                     <img src="{% static 'images/instagram_logo.png' %}"
                                                         style="height: 20px;width: 20px;border-radius: 10px;" alt="">
@@ -2290,7 +2296,8 @@
                                             </div>
 
                                             <!-- FACEBOOK -->
-                                            <div class="bx-shadow" style="padding: 10px;border-radius: 10px;margin-bottom: 15px;">
+                                            <div class="bx-shadow"
+                                                style="padding: 10px;border-radius: 10px;margin-bottom: 15px;">
                                                 <div style="height:30px;display: flex;gap: 10px;">
                                                     <img src="{% static 'images/facebook_logo.png' %}"
                                                         style="height: 20px;width: 20px;border-radius: 10px;" alt="">
@@ -2383,7 +2390,8 @@
                                             </div>
 
                                             <!-- TIKTOK -->
-                                            <div class="bx-shadow" style="padding: 10px;border-radius: 10px;margin-bottom: 15px;">
+                                            <div class="bx-shadow"
+                                                style="padding: 10px;border-radius: 10px;margin-bottom: 15px;">
                                                 <div style="height:30px;display: flex;gap: 10px;">
                                                     <img src="{% static 'images/tiktok_logo.png' %}"
                                                         style="height: 20px;width: 20px;border-radius: 10px;" alt="">
@@ -2471,7 +2479,8 @@
                                             </div>
 
                                             <!-- REDDIT  -->
-                                            <div class="bx-shadow" style="padding: 10px;border-radius: 10px;margin-bottom: 15px;">
+                                            <div class="bx-shadow"
+                                                style="padding: 10px;border-radius: 10px;margin-bottom: 15px;">
                                                 <div style="height:30px;display: flex;gap: 10px;">
                                                     <img src="{% static 'images/reddit_logo.png' %}"
                                                         style="height: 20px;width: 20px;border-radius: 10px;" alt="">
@@ -2783,12 +2792,11 @@
                                 <div style="display: flex;margin: 0;padding: 0;">
 
                                     <input type="text" id="MsgInput" placeholder="Enter Message">
-                                    <button class="btn btn-primary" onclick="send()"
-                                        id="send-btn"><i class="fab fa-telegram-plane"></i></button>
+                                    <button class="btn btn-primary" onclick="send()" id="send-btn"><i
+                                            class="fab fa-telegram-plane"></i></button>
                                 </div>
                                 <hr style="padding: 0;margin: 0;">
-                                <p
-                                    style="font-size: 12px;margin: 0;display: flex;justify-content: center;">
+                                <p style="font-size: 12px;margin: 0;display: flex;justify-content: center;">
                                     Powered by Insightlyze</p>
 
                             </div>
@@ -9532,8 +9540,14 @@
                 }
                 // open side menu
                 $(document).on('click', '.menu_bar', function () {
-                    $('#sidebar-menu').css('display','block');
-                    $('#main-content').css('display','none');
+                    $('#sidebar-menu').css('display', 'block');
+                    $('#main-content').css('display', 'none');
+
+                });
+
+                $(document).on('click', '.close-sidebar', function () {
+                    $('#sidebar-menu').css('display', 'none');
+                    $('#main-content').css('display', 'block');
 
                 });
 
