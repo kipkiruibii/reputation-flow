@@ -7035,9 +7035,9 @@
                                 // update html
                                 var tempDiv = $('<div>').html(response);
                                 // Extract the specific element from the new HTML
-                                var newElementContent = tempDiv.find('#company-reviews').html();
+                                var newElementContent = tempDiv.find('#reviews-content').html();
 
-                                $('#company-reviews').html(newElementContent);
+                                $('#reviews-content').html(newElementContent);
                                 // initializeMultiSelect();
                                 $('#reviews-content').show()
                                 $('#apply-filters').css('display', 'block');
