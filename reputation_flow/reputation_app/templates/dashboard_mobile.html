@@ -3155,108 +3155,13 @@
                 </div>
                 <div id="company-reviews" style="background-color: white;">
                     <div style="width: 100%;background-color: white;">
-                        <div style="padding-top: 250px;">
+                        <div style="padding-top: 20px;">
                             {% if not reviews %}
                             <div style="display: flex;justify-content: center;margin-top: 25%;">
                                 <p>No Reviews Yet.</p>
                             </div>
                             {% else %}
                             {% for r in reviews %}
-                            <div class="post-comment-box bx-shadow" style="padding: 10px;background-color: white;width: 90%; ">
-                                <div
-                                    style="border-radius: 10px;border: 1px solid rgb(219, 219, 219);padding: 10px;margin-bottom: 10px;background-color: white;">
-                                    <div class="d-flex flex-start align-items-center">
-                                        <img class="rounded-circle shadow-1-strong me-3"
-                                            src="https://mdbcdn.b-cdn.net/img/Photos/Avatars/img%20(19).webp"
-                                            alt="avatar" width="60" height="60" />
-                                        <div>
-                                            <h6 class="fw-bold text-primary mb-1">{{ r.commentor }}</h6>
-                                            <p class="text-muted small mb-0">
-                                                {{ r.date_commented }}
-                                            </p>
-                                        </div>
-                                    </div>
-                                    <p class="mt-3 mb-4 pb-2">
-                                        {{ r.content }}
-                                    </p>
-                                    <div class="thisparent"
-                                        style="display: flex;justify-content: space-between;font-size: 12px;width: 80%;gap: 10px">
-                                        {% if r.positive %}
-                                        <p style="font-size: 12px;padding: 0;margin: 0;color: rgb(21, 164, 116);"><i
-                                                class="fa fa-check" aria-hidden="true"></i> Positive</p>
-                                        {% elif r.negative %}
-                                        <p style="font-size: 12px;padding: 0;margin: 0;color: rgb(164, 21, 21);"><i
-                                                class="fa fa-cancel" aria-hidden="true"></i> Negative</p>
-                                        {% elif r.neutral %}
-                                        <p style="font-size: 12px;padding: 0;margin: 0;color: rgb(21, 133, 164);"><i
-                                                class="fa fa-circle-notch" aria-hidden="true"></i> Neutral</p>
-                                        {% endif %}
-                                        <div>
-                                            {% if r.platform == 'instagram' %}
-                                            <p
-                                                style="font-size: 12px;padding: 0;margin: 0;background-color: rgb(251, 216, 251);color: rgb(158, 15, 105);border-radius: 5px;padding-left: 5px;padding-right: 5px;align-items: center;margin-bottom: 10px;">
-                                                <i class="fa fa-instagram"></i> Instagram
-                                            </p>
-                                            {% elif r.platform == 'tiktok' %}
-                                            <p
-                                                style="font-size: 12px;padding: 0;margin: 0;background-color: rgb(251, 250, 216);color: rgb(0, 0, 0);border-radius: 5px;padding-left: 5px;padding-right: 5px;align-items: center;margin-bottom: 10px;">
-                                                <i class="fa fa-tiktok"></i> TikTok
-                                            </p>
-                                            {% elif r.platform == 'reddit' %}
-                                            <p
-                                                style="font-size: 12px;padding: 0;margin: 0;background-color: rgb(251, 216, 216);color: rgb(255, 2, 2);border-radius: 5px;padding-left: 5px;padding-right: 5px;align-items: center;margin-bottom: 10px;">
-                                                <i class="fa fa-reddit"></i> Reddit
-                                            </p>
-                                            {% elif r.platform == 'facebook' %}
-                                            <p
-                                                style="font-size: 12px;padding: 0;margin: 0;background-color: rgb(216, 222, 251);color: rgb(5, 63, 255);border-radius: 5px;padding-left: 5px;padding-right: 5px;align-items: center;margin-bottom: 10px;">
-                                                <i class="fa fa-facebook"></i> Facebook
-                                            </p>
-                                            {% endif %}
-
-
-
-                                        </div>
-                                        <!-- <p class="comments-reply-container" style="cursor: pointer;font-size: 12px;">
-                                            Reply</span>
-                                        </p> -->
-                                        <!-- <div>
-                                            <p
-                                                style="background-color: rgb(251, 216, 216);color: rgb(192, 8, 8);padding: 5px;border-radius:5px ;font-size: 12px;padding: 0;margin: 0;padding-left: 5px;padding-right: 5px;">
-                                                Review</p>
-                                        </div> -->
-                                        <a href="{{ r.link }}" target="_blank"
-                                            style="cursor: pointer;font-size: 12px;"><i class="fa fa-external-link"
-                                                aria-hidden="true"></i>
-                                            Link</a>
-                                        {% if r.published %}
-                                        <p style="cursor: pointer;font-size: 12px;color: red;" data-pub_id="{{ r.id }}"
-                                            class="pub-unpub"><i class="fa fa-trash "></i>
-                                            Unpublish
-                                        </p>
-
-                                        {% else %}
-                                        <p style="cursor: pointer;font-size: 12px;" class="pub-unpub"
-                                            data-pub_id="{{ r.id }}"><i class="fa fa-mail-forward "></i>
-                                            Publish
-                                        </p>
-                                        {% endif %}
-                                    </div>
-                                    <div class="comment-reply-container-box" style="display: none;">
-                                        <div class="comment-post-box">
-                                            <div data-mdb-input-init class="form-outline" style="width: 90%;">
-                                                <textarea class="form-control" id="comment-text-" rows="4"
-                                                    style="background: #fff;"
-                                                    placeholder="Type your response"></textarea>
-                                                <button type="button" data-mdb-button-init data-mdb-ripple-init
-                                                    class="btn btn-primary btn-sm "
-                                                    style="margin: 10px;">comment</button>
-                                            </div>
-                                        </div>
-
-                                    </div>
-                                </div>
-                            </div>
                             {% endfor %}
                             {% endif %}
 
