@@ -135,7 +135,7 @@ STATIC_URL = 'static/'
 LOGIN_URL='/login'
 
 STATIC_URL = '/static/'  # Already present, defines the URL for static files
-STATIC_ROOT = os.path.join(BASE_DIR, 'static') 
+STATIC_ROOT = '/home/ubuntu/reputation-flow/reputation_flow/static/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
