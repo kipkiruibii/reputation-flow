@@ -2037,8 +2037,7 @@
             </div>
             <!-- business page -->
             <div class="chat-content" id="business-page" style="display:block;width:100%">
-                <div class="chat-header "
-                    style="margin-top: 10px;margin-bottom: 10px;position: relative;">
+                <div class="chat-header " style="margin-top: 10px;margin-bottom: 10px;position: relative;">
                     <div class="logo-container">
                         <h4>
 
@@ -2075,11 +2074,10 @@
 
                 </div>
 
-                <div id="intro-placeholder" style="display:block;background-color: white;">
+                <div id="intro-placeholder" style="display:block;background-color: white;padding: 15px;">
                     <div class="">
                         <div class="business-analytics">
-                            <div 
-                                style="display: flex;justify-content: center;overflow-y: scroll;">
+                            <div style="display: flex;justify-content: center;overflow-y: scroll;">
                                 <div>
                                     <div class="business-pfp"
                                         style="background-color: rgb(250, 250, 250);display: flex;justify-content: center;">
@@ -2203,7 +2201,6 @@
                                                         style="height: 20px;width: 20px;border-radius: 10px;" alt="">
                                                     <p style="font-size: 12px;">Instagram</p>
                                                 </div>
-                                                <hr style="margin: 2px;padding: 0;">
                                                 <div>
                                                     {% if instagram.linked %}
 
@@ -2292,6 +2289,8 @@
                                                 </div>
 
                                             </div>
+                                            <hr style="margin: 2px;padding: 0;">
+
                                             <!-- FACEBOOK -->
                                             <div class="">
                                                 <div style="height:30px;display: flex;gap: 10px;">
@@ -2299,7 +2298,6 @@
                                                         style="height: 20px;width: 20px;border-radius: 10px;" alt="">
                                                     <p style="font-size: 12px;">Facebook</p>
                                                 </div>
-                                                <hr style="margin: 2px;padding: 0;">
                                                 <div>
                                                     {% if facebook.linked %}
                                                     <div style="display: flex;gap: 30px;">
@@ -2385,6 +2383,8 @@
                                                 </div>
 
                                             </div>
+                                            <hr style="margin: 2px;padding: 0;">
+
                                             <!-- TIKTOK -->
                                             <div class="">
                                                 <div style="height:30px;display: flex;gap: 10px;">
@@ -2392,7 +2392,6 @@
                                                         style="height: 20px;width: 20px;border-radius: 10px;" alt="">
                                                     <p style="font-size: 12px;">TikTok</p>
                                                 </div>
-                                                <hr style="margin: 2px;padding: 0;">
                                                 <div>
                                                     {% if tiktok.linked %}
                                                     <div style="display: flex;gap: 30px;">
@@ -2473,6 +2472,7 @@
                                                     {% endif %}
                                                 </div>
                                             </div>
+                                            <hr style="margin: 2px;padding: 0;">
 
                                             <!-- REDDIT  -->
                                             <div class="">
@@ -2627,9 +2627,8 @@
                                             </li> -->
 
                                             <li style="margin-top: 10px;">
-                                                <p tooltip="Click to  copy your page link"
-                                                    flow="down">Link: <span id="review_link"
-                                                        style="margin-right: 10px;cursor: pointer;">
+                                                <p tooltip="Click to  copy your page link" flow="down">Link: <span
+                                                        id="review_link" style="margin-right: 10px;cursor: pointer;">
                                                         {{ review_wall_link }}</span><a href="{{ review_wall_link }}"
                                                         target="_blank"><i class="fa fa-external-link"></i></a></p>
                                             </li>
