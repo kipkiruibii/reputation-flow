@@ -1912,7 +1912,7 @@
                 </div>
             </div>
         </div>
-        <div class=" light-mode" id="" style="z-index:3;">
+        <div id="main-content" class=" light-mode" id="" style="z-index:3;">
             <!-- request feature/bug fix -->
             <div class="chat-content" id="feature-request" style="display:none;width: 100%;">
                 <div class="chat-header container-right"
@@ -9533,6 +9533,7 @@
                 // open side menu
                 $(document).on('click', '.menu_bar', function () {
                     $('#sidebar-menu').css('display','block');
+                    $('#main-content').css('display','none');
 
                 });
 
