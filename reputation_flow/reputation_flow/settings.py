@@ -25,7 +25,7 @@ with open("../config.json","r") as file:
 SECRET_KEY = config.get('DJANGO_SECURITY_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 CSRF_TRUSTED_ORIGINS = ['https://tiktok.com']
 
 ALLOWED_HOSTS = ['127.0.0.1','insightlyze.com','www.insightlyze.com']
