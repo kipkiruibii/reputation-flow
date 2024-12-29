@@ -3162,15 +3162,15 @@
                             </div>
                             {% else %}
                             {% for r in reviews %}
-                            <div class="post-comment-box bx-shadow" style="background-color: white;width: 90vw; ">
+                            <div class="post-comment-box bx-shadow" style="background-color: white;width: 90vw;border-radius: 10px; ">
                                 <div
-                                    style="border-radius: 10px;border: 1px solid rgb(219, 219, 219);padding: 10px;margin-bottom: 10px;background-color: white;">
+                                    style="border-radius: 10px;padding: 10px;margin-bottom: 10px;background-color: white;">
                                     <div class="d-flex flex-start align-items-center">
                                         <img class="rounded-circle shadow-1-strong me-3"
                                             src="https://mdbcdn.b-cdn.net/img/Photos/Avatars/img%20(19).webp"
                                             alt="avatar" width="60" height="60" />
                                         <div>
-                                            <h6 class="fw-bold text-primary mb-1">{{ r.commentor }}hgjghjgh</h6>
+                                            <h6 class="fw-bold text-primary mb-1">{{ r.commentor }}</h6>
                                             <p class="text-muted small mb-0">
                                                 {{ r.date_commented }}
                                             </p>
