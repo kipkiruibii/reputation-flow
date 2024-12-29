@@ -28,8 +28,16 @@ SECRET_KEY = config.get('DJANGO_SECURITY_KEY')
 DEBUG = True
 CSRF_TRUSTED_ORIGINS = ['https://tiktok.com']
 
-ALLOWED_HOSTS = ['interstatemovers.pythonanywhere.com','127.0.0.1','b8b8-197-237-137-81.ngrok-free.app']
+ALLOWED_HOSTS = ['127.0.0.1','insightlyze.com','www.insightlyze.com']
 ALLOWED_HOSTS.append(config.get('SERVER_IP'))
+SECURE_SSL_REDIRECT = True
+SECURE_HSTS_SECONDS = 31536000  # One year
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_HSTS_PRELOAD = True
+SECURE_REFERRER_POLICY = "no-referrer-when-downgrade"
+SECURE_BROWSER_XSS_FILTER = True
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
 
 # Application definition
 INSTALLED_APPS = [

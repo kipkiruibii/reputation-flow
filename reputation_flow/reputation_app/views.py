@@ -1134,7 +1134,10 @@ def dashboard(request, company_id):
             'active': False
         },
     }
-    return render(request, 'dashboard.html', context=context)
+    if request.user_agent.is_pc:
+        return render(request, 'dashboard.html', context=context)
+    else:
+        return render(request, 'dashboard_mobile.html', context=context)
 
 
 def updatePosts(company_id):
