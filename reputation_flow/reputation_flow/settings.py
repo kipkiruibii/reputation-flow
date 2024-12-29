@@ -134,7 +134,7 @@ USE_TZ = True
 STATIC_URL = 'static/'
 LOGIN_URL='/login'
 
-STATIC_URL = '/static/'  # Already present, defines the URL for static files
+# STATIC_URL = '/static/'  # Already present, defines the URL for static files
 STATIC_ROOT = '/home/ubuntu/reputation-flow/reputation_flow/static/'
 
 # Default primary key field type
