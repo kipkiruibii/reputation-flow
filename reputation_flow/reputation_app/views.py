@@ -459,7 +459,10 @@ def replyPM(request):
                 'pm_recipient_id': recipient_id,
                 'pm_reply_supported': True
             }
-            return render(request, 'dashboard.html', context=context)
+            if request.user_agent.is_pc:
+                return render(request, 'dashboard.html', context=context)
+            else:
+                return render(request, 'dashboard_mobile.html', context=context)
         else:
             print(response.json())
             if response.json()['error']['code']==10:
@@ -551,7 +554,10 @@ def getMessages(request):
             'pm_recipient_id': sender_id,
             'pm_reply_supported': True
         }
-        return render(request, 'dashboard.html', context=context)
+        if request.user_agent.is_pc:
+            return render(request, 'dashboard.html', context=context)
+        else:
+            return render(request, 'dashboard_mobile.html', context=context)
     if platform.strip() == 'reddit':
         rcv = ConversationMessages.objects.filter(conversation_id=conv_id).order_by('created_at')
         for r in rcv:
@@ -570,7 +576,10 @@ def getMessages(request):
             'pm_platform': platform,
             'pm_reply_supported': False
         }
-        return render(request, 'dashboard.html', context=context)
+        if request.user_agent.is_pc:
+            return render(request, 'dashboard.html', context=context)
+        else:
+            return render(request, 'dashboard_mobile.html', context=context)
     if platform.strip() == 'instagram':
         cp = Company.objects.filter(company_id=company_id).first()
         if not cp:
@@ -634,7 +643,10 @@ def getMessages(request):
             'pm_platform': platform,
             'pm_reply_supported': False
         }
-        return render(request, 'dashboard.html', context=context)
+        if request.user_agent.is_pc:
+            return render(request, 'dashboard.html', context=context)
+        else:
+            return render(request, 'dashboard_mobile.html', context=context)
     return Response({'success': 'Bad request'})
 
 
@@ -704,7 +716,10 @@ def getPMs(request):
             })
         request.session['red_convos'] = senders
         context = {'senders': senders}
-        return render(request, 'dashboard.html', context=context)
+        if request.user_agent.is_pc:
+            return render(request, 'dashboard.html', context=context)
+        else:
+            return render(request, 'dashboard_mobile.html', context=context)
     elif platform == 'facebook':
         cp = Company.objects.filter(company_id=company_id).first()
         if not cp:
@@ -771,7 +786,10 @@ def getPMs(request):
             })
 
         context = {'senders': senders}
-        return render(request, 'dashboard.html', context=context)
+        if request.user_agent.is_pc:
+            return render(request, 'dashboard.html', context=context)
+        else:
+            return render(request, 'dashboard_mobile.html', context=context)
     elif platform == 'instagram':
         cp = Company.objects.filter(company_id=company_id).first()
         if not cp:
@@ -837,7 +855,10 @@ def getPMs(request):
                                                 platform='facebook')
             })
         context = {'senders': senders}
-        return render(request, 'dashboard.html', context=context)
+        if request.user_agent.is_pc:
+            return render(request, 'dashboard.html', context=context)
+        else:
+            return render(request, 'dashboard_mobile.html', context=context)
     elif platform == 'chatbot':
         senders=[]
         cp = Company.objects.filter(company_id=company_id).first()
@@ -854,7 +875,10 @@ def getPMs(request):
                                                 platform='chatbot')
             })
         context = {'senders': senders}
-        return render(request, 'dashboard.html', context=context)
+        if request.user_agent.is_pc:
+            return render(request, 'dashboard.html', context=context)
+        else:
+            return render(request, 'dashboard_mobile.html', context=context)
     return Response({'error': 'Bad request'})
     
 
@@ -926,7 +950,10 @@ def companyReviews(request):
     context = {
         'reviews': reviews
     }
-    return render(request, 'dashboard.html', context=context)
+    if request.user_agent.is_pc:
+        return render(request, 'dashboard.html', context=context)
+    else:
+        return render(request, 'dashboard_mobile.html', context=context)
 
 
 @login_required
@@ -1318,7 +1345,10 @@ def fetchPosts(request):
     context = {
         'posts': all_posts,
     }
-    return render(request, 'dashboard.html', context=context)
+    if request.user_agent.is_pc:
+        return render(request, 'dashboard.html', context=context)
+    else:
+        return render(request, 'dashboard_mobile.html', context=context)
 
 
 # retrieve the stats of a given post
@@ -2041,7 +2071,10 @@ def getComments(request):
         'comments_data': cmts,
         'posts': all_posts,
     }
-    return render(request, 'dashboard.html', context=context)
+    if request.user_agent.is_pc:
+        return render(request, 'dashboard.html', context=context)
+    else:
+        return render(request, 'dashboard_mobile.html', context=context)
 
 
 @api_view(['POST'])
@@ -2167,7 +2200,10 @@ def getCommentReplies(request):
         'comments_data': cmts,
         'posts': all_posts,
     }
-    return render(request, 'dashboard.html', context=context)
+    if request.user_agent.is_pc:
+        return render(request, 'dashboard.html', context=context)
+    else:
+        return render(request, 'dashboard_mobile.html', context=context)
 
 @api_view(['POST','GET'])
 def socialProof(request,company_name):
@@ -2433,7 +2469,10 @@ def postComment(request):
         'comments_data': cmts,
         'posts': all_posts,
     }
-    return render(request, 'dashboard.html', context=context)
+    if request.user_agent.is_pc:
+        return render(request, 'dashboard.html', context=context)
+    else:
+        return render(request, 'dashboard_mobile.html', context=context)
 
     # return Response({'success': 'Bad request'})
 
@@ -2471,7 +2510,10 @@ def fetchTeams(request):
         },
         'all_teams': CompanyTeam.objects.filter(company=cp).order_by('-pk'),
     }
-    return render(request, 'dashboard.html', context=context)
+    if request.user_agent.is_pc:
+        return render(request, 'dashboard.html', context=context)
+    else:
+        return render(request, 'dashboard_mobile.html', context=context)
 
 
 #  create team
@@ -2525,7 +2567,10 @@ def createTeam(request):
         'all_teams': CompanyTeam.objects.filter(company=cp).order_by('-pk'),
         'invite_links': CompanyTeamInviteLinks.objects.filter(team=ct).order_by('-pk')
     }
-    return render(request, 'dashboard.html', context=context)
+    if request.user_agent.is_pc:
+        return render(request, 'dashboard.html', context=context)
+    else:
+        return render(request, 'dashboard_mobile.html', context=context)
 
 
 # delete team 
@@ -2568,7 +2613,10 @@ def deleteTeam(request):
         'invite_links': CompanyTeamInviteLinks.objects.filter(team=ct).order_by('-pk')
 
     }
-    return render(request, 'dashboard.html', context=context)
+    if request.user_agent.is_pc:
+        return render(request, 'dashboard.html', context=context)
+    else:
+        return render(request, 'dashboard_mobile.html', context=context)
 
 
 # get team 
@@ -2655,7 +2703,10 @@ def viewTeam(request):
         'team_id': team_id
 
     }
-    return render(request, 'dashboard.html', context=context)
+    if request.user_agent.is_pc:
+        return render(request, 'dashboard.html', context=context)
+    else:
+        return render(request, 'dashboard_mobile.html', context=context)
 
 @api_view(['POST'])
 def deleteTeamFile(request):
@@ -2721,7 +2772,10 @@ def deleteTeamFile(request):
             'team_files': CompanyTeamFiles.objects.filter(team=ct).order_by('-pk'),
             'activities':t_actv
         }
-        return render(request, 'dashboard.html', context=context)
+        if request.user_agent.is_pc:
+            return render(request, 'dashboard.html', context=context)
+        else:
+            return render(request, 'dashboard_mobile.html', context=context)
     return Response({'error': 'Action denied'})
     
     
@@ -2789,7 +2843,10 @@ def uploadTeamFile(request):
         'activities':t_actv
 
     }
-    return render(request, 'dashboard.html', context=context)
+    if request.user_agent.is_pc:
+        return render(request, 'dashboard.html', context=context)
+    else:
+        return render(request, 'dashboard_mobile.html', context=context)
 
 
 def extract_text_from_pdf(pdf_path):
@@ -2929,7 +2986,10 @@ def sendChat(request):
     context = {
         'chat_messages': chat_messages
     }
-    return render(request, 'dashboard.html', context=context)
+    if request.user_agent.is_pc:
+        return render(request, 'dashboard.html', context=context)
+    else:
+        return render(request, 'dashboard_mobile.html', context=context)
 
 
 @api_view(['POST'])
@@ -4300,7 +4360,10 @@ def deletePostComment(request):
     context = {
         'posts': all_posts,
     }
-    return render(request, 'dashboard.html', context=context)
+    if request.user_agent.is_pc:
+        return render(request, 'dashboard.html', context=context)
+    else:
+        return render(request, 'dashboard_mobile.html', context=context)
 
 @api_view(['POST'])
 def requestFeature(request):
@@ -4321,7 +4384,10 @@ def requestFeature(request):
     context = {
         'freqs': CompanyFeatureRequest.objects.filter(company=cp).order_by('-pk')
     }
-    return render(request, 'dashboard.html', context=context)
+    if request.user_agent.is_pc:
+        return render(request, 'dashboard.html', context=context)
+    else:
+        return render(request, 'dashboard_mobile.html', context=context)
 
     
     
@@ -5400,7 +5466,10 @@ def subRedInfo(request):
     context = {
         'sub_info': dt,
     }
-    return render(request, 'dashboard.html', context=context)
+    if request.user_agent.is_pc:
+        return render(request, 'dashboard.html', context=context)
+    else:
+        return render(request, 'dashboard_mobile.html', context=context)
 
 
 @api_view(['POST'])
@@ -5462,7 +5531,10 @@ def redditFlairs(request):
     context = {
         'flair_results': rt,
     }
-    return render(request, 'dashboard.html', context=context)
+    if request.user_agent.is_pc:
+        return render(request, 'dashboard.html', context=context)
+    else:
+        return render(request, 'dashboard_mobile.html', context=context)
 
 
 @api_view(['POST'])
