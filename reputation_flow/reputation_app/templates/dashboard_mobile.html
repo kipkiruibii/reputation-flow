@@ -3291,7 +3291,7 @@
 
                         <div tooltip="Forbidden. Contact Admin" flow="down">
                             <a class="btn-solid-sm"
-                                style="background-color: grey;color: white;border: none;cursor: not-allowed;"
+                                style="color: white;border: none;cursor: not-allowed;"
                                 href="#">Create Team</a>
                         </div>
 
@@ -3349,8 +3349,8 @@
 
                                 {% for t in all_teams %}
                                 <div class="bx-shadow br-10"
-                                    style="display: flex;gap: 10px;border: 1px rgb(211, 211, 211) solid;margin: 20px;margin-left: 30px;margin-right: 30px;">
-                                    <div class="team-details" style="width: 30%;padding: 10px;">
+                                    style="margin: 20px;margin-left: 30px;margin-right: 30px;">
+                                    <div class="team-details" style="padding: 10px;">
                                         <p class="title" style="font-size: 20px;"><strong>{{ t.team_name }}</strong>
                                         </p>
                                         <p>Created {{ t.date_created }}</p>
@@ -3369,7 +3369,7 @@
 
                                         </div>
                                     </div>
-                                    <div style="width: 70%;height: 75px;padding: 10px;">
+                                    <div style="height: 75px;padding: 10px;">
                                         <p class="font-12 zero-padding-margin">About</p>
                                         <p style="height: 120px;overflow-y: scroll;">
                                             {{ t.team_about }}
