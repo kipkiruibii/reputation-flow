@@ -5195,8 +5195,8 @@
 
                                             <div class="d-flex flex-start align-items-center">
                                                 <img class="rounded-circle shadow-1-strong me-3"
-                                                    src="{{ comment.author_profile }}" alt="avatar" width="60"
-                                                    height="60" />
+                                                    src="{{ comment.author_profile }}" alt="avatar" width="40"
+                                                    height="40" />
                                                 <div>
                                                     <h6 class="fw-bold text-primary mb-1">
                                                         {{ comment.author }}
@@ -5211,16 +5211,16 @@
                                             </div>
                                             <div>
                                                 {% if comment.isReddit %}
-                                                <img src="{% static 'images/reddit_logo.png '%}" alt=""
+                                                <img src="{% static 'images/reddit_logo.png '%}" alt="reddit"
                                                     style="width:20px;height: 20px;">
                                                 {% elif comment.isFacebook %}
-                                                <img src="{% static 'images/facebook_logo.png '%}" alt=""
+                                                <img src="{% static 'images/facebook_logo.png '%}" alt="faccebook"
                                                     style="width:20px;height: 20px;">
                                                 {% elif comment.isInstagram %}
-                                                <img src="{% static 'images/instagram_logo.png '%}" alt=""
+                                                <img src="{% static 'images/instagram_logo.png '%}" alt="instagram"
                                                     style="width:20px;height: 20px;">
                                                 {% elif comment.isTiktok %}
-                                                <img src="{% static 'images/tiktok_logo.png '%}" alt=""
+                                                <img src="{% static 'images/tiktok_logo.png '%}" alt="tiktok"
                                                     style="width:20px;height: 20px;">
 
                                                 {% endif %}
@@ -5292,8 +5292,8 @@
                                                 style="margin-left: 20px;border-radius: 10px;border: 1px solid rgb(207, 173, 4);padding: 10px;margin-bottom: 10px;">
                                                 <div class="d-flex flex-start align-items-center">
                                                     <img class="rounded-circle shadow-1-strong me-3"
-                                                        src="{{ cr.author_profile }}" alt="avatar" width="60"
-                                                        height="60" />
+                                                        src="{{ cr.author_profile }}" alt="avatar" width="40"
+                                                        height="40" />
                                                     <div>
                                                         <h6 class="fw-bold text-primary mb-1">
                                                             {{ cr.author }}
@@ -5349,8 +5349,8 @@
                                                         style="margin-left: 20px;border-radius: 10px;border: 1px solid rgb(211, 5, 5);padding: 10px;margin-bottom: 10px;">
                                                         <div class="d-flex flex-start align-items-center">
                                                             <img class="rounded-circle shadow-1-strong me-3"
-                                                                src="{{ cpl.author_profile }}" alt="avatar" width="60"
-                                                                height="60" />
+                                                                src="{{ cpl.author_profile }}" alt="avatar" width="40"
+                                                                height="40" />
                                                             <div>
                                                                 <h6 class="fw-bold text-primary mb-1">
                                                                     {{ cpl.author }}
@@ -5366,7 +5366,7 @@
                                                             {{ cpl.message_body }}
                                                         </p>
                                                         <div class="thisparent"
-                                                            style="display: flex;gap:4px;font-size: 12px;width: 80%;gap: 10px">
+                                                            style="display: flex;gap:4px;font-size: 12px;width:100%;gap: 10px">
                                                             <p class="like-comment" style="cursor: pointer;"
                                                                 data-id="{{ cpl.id }}"
                                                                 data-comment_level="comment_sec_reply"><i
@@ -5709,8 +5709,8 @@
                                         <div style="display: flex;justify-content: space-between;">
                                             <div class="d-flex flex-start align-items-center">
                                                 <img class="rounded-circle shadow-1-strong me-3"
-                                                    src="{{ comment.author_profile }}" alt="avatar" width="60"
-                                                    height="60" />
+                                                    src="{{ comment.author_profile }}" alt="avatar" width="40"
+                                                    height="40" />
                                                 <div>
                                                     <h6 class="fw-bold text-primary mb-1">
                                                         {{ comment.author }}
@@ -5744,7 +5744,7 @@
                                             {{ comment.message_body }}
                                         </p>
                                         <div class="thisparent"
-                                            style="display: flex;justify-content: space-between;font-size: 12px;width: 80%;gap: 10px">
+                                            style="display: flex;justify-content: space-between;font-size: 12px;width: 100%;gap: 10px">
 
                                             <div>
                                                 {% if isInstagram %}
@@ -5807,8 +5807,8 @@
                                                 style="margin-left: 20px;border-radius: 10px;border: 1px solid rgb(207, 173, 4);padding: 10px;margin-bottom: 10px;">
                                                 <div class="d-flex flex-start align-items-center">
                                                     <img class="rounded-circle shadow-1-strong me-3"
-                                                        src="{{ cr.author_profile }}" alt="avatar" width="60"
-                                                        height="60" />
+                                                        src="{{ cr.author_profile }}" alt="avatar" width="40"
+                                                        height="40" />
                                                     <div>
                                                         <h6 class="fw-bold text-primary mb-1">
                                                             {{ cr.author }}
@@ -5825,7 +5825,7 @@
                                                 </p>
 
                                                 <div class="thisparent"
-                                                    style="display: flex;gap:4px;font-size: 12px;width: 80%;gap: 10px">
+                                                    style="display: flex;gap:4px;font-size: 12px;width: 100%;gap: 10px">
                                                     <p class="second-reply-comment"
                                                         style="cursor: pointer;font-size: 12px;">
 
@@ -5865,8 +5865,8 @@
                                                         style="margin-left: 20px;border-radius: 10px;border: 1px solid rgb(211, 5, 5);padding: 10px;margin-bottom: 10px;">
                                                         <div class="d-flex flex-start align-items-center">
                                                             <img class="rounded-circle shadow-1-strong me-3"
-                                                                src="{{ cpl.author_profile }}" alt="avatar" width="60"
-                                                                height="60" />
+                                                                src="{{ cpl.author_profile }}" alt="avatar" width="40"
+                                                                height="40" />
                                                             <div>
                                                                 <h6 class="fw-bold text-primary mb-1">
                                                                     {{ cpl.author }}
@@ -5882,7 +5882,7 @@
                                                             {{ cpl.message_body }}
                                                         </p>
                                                         <div class="thisparent"
-                                                            style="display: flex;gap:4px;font-size: 12px;width: 80%;gap: 10px">
+                                                            style="display: flex;gap:4px;font-size: 12px;width: 100%;gap: 10px">
                                                             <p class="like-comment" style="cursor: pointer;"
                                                                 data-id="{{ cpl.id }}"
                                                                 data-comment_level="comment_sec_reply"><i
