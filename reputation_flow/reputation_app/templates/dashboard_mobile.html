@@ -3466,11 +3466,9 @@
                                     </div>
                                 </div>
                             </div>
-                            <div style="height: 100%;width: 100%;background-color: #f0f0f06d;" class="bx-shadow">
-
+                            <div style="height: 100%;width: 100%;background-color: #f0f0f06d;padding: 20px;" class="bx-shadow">
                                 <!-- chat -->
                                 {% if team.members.count == 1 %}
-
                                 <div id="teams-chats" class="t-c">
                                     <div class="center-div">
                                         <p>You are the only one here. Add members to start a conversation</p>
@@ -3558,7 +3556,7 @@
                                 </div>
                                 {% endif %}
                                 <!-- files -->
-                                <div id="teams-files" style="margin: 20px;height: 100%;" class="t-c">
+                                <div id="teams-files" style="margin: 20px;height: 100%;display: none;" class="t-c">
                                     <div class="flex-space-between">
                                         <p style="font-weight: bold;"><i class="fa fa-files-o"></i> Files</p>
                                         <p class="hover-active" id="add-files-btn" style="display: block;"><i
@@ -3663,7 +3661,7 @@
                                 </div>
 
                                 <!-- show announcements -->
-                                <div id="teams-announcements" class="t-c" style="margin: 20px;height: 100%;">
+                                <div id="teams-announcements" class="t-c" style="margin: 20px;height: 100%;display: none;">
                                     <div class="flex-space-between">
                                         <p style="font-weight: bold;"><i class="fa fa-bell-o"></i> Announcements</p>
                                         <p class="hover-active" id="new-announce-btn" style="display: block;"><i
@@ -3730,7 +3728,7 @@
                                 </div>
 
                                 <!-- activity -->
-                                <div id="teams-activity" class="t-c" style="margin: 20px;height: 100%;">
+                                <div id="teams-activity" class="t-c" style="margin: 20px;height: 100%;display: none;">
                                     {% if not activities %}
                                     <div class="center-div">
                                         <p>There are no recent activities</p>
@@ -3756,7 +3754,7 @@
                                     {% endif %}
                                 </div>
                                 <!-- members -->
-                                <div id="team-members" class="t-c">
+                                <div id="team-members" class="t-c" style="display: none;">
                                     <p style="padding: 10px;">Members ({{ team_members|length }})</p>
                                     <div style="height: 80%;overflow-y: scroll;background-color: white;">
                                         {% for tm in team_members %}
@@ -3786,7 +3784,7 @@
                                     </div>
                                 </div>
                                 <!-- generate invite link -->
-                                <div id="generate-link" class="t-c">
+                                <div id="generate-link" class="t-c" style="display: none;">
                                     <div style="margin-left: 10%;margin-right: 10%;height: 80%;">
                                         <div style="display:flex;justify-content:space-between;margin: 20px;">
                                             <div class="section-fun-fact">
