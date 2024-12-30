@@ -4351,8 +4351,8 @@
                     <div class="logo-container">
                         <i class="fa fa-bars menu_bar" style="font-size:24px"></i>
                     </div>
-                    <div class="logo-container" style="width: 70vw;overflow-x: scroll;white-space: nowrap;" >
-                        <div class="">
+                    <div class="logo-container" style="width: 70vw;overflow-x: scroll;white-space: nowrap;">
+                        <div class="" style="display: flex;overflow-x: scroll;">
                             <div id="step1" class="step current">
                                 <span class="step-number">1</span>
                                 <p class="step-text">Add platforms</p>
@@ -4377,41 +4377,11 @@
                             </div> -->
                         </div>
                     </div>
-                    <div class="user-details" tooltip="Me" flow="down">
-
-                    </div>
-                    <div class="popup" style="width: 250px;">
-                        <div style="display: flex;gap: 10px;">
-                            <div
-                                style="width: 70px;height: 70px;border-radius: 70px;background-color: rgb(255, 145, 0);">
-                            </div>
-                            <div>
-                                <p class="font-12">{{ request.user.username }} </p>
-                                <p class="font-12">Change Picture</p>
-                            </div>
-                        </div>
-                        <hr>
-                        <p>Permissions</p>
-                        <ul style="max-height: 100px;overflow-y: scroll;list-style-type: none;">
-                            <li class="font-12" style="color: green;"><i class="fa fa-check"></i> Can update business
-                                profile
-                            </li>
-                            <li class="font-12" style="color: red;"><i class="fa fa-times"></i> Can update profile</li>
-                        </ul>
-                        <a href="{% url 'logout' %}" style="text-decoration: none;">
-                            <div class="logout-btn"
-                                style="background-color: red;display: flex;margin-left: 30%;margin-right: 30%;align-items: center;justify-content: center;border-radius: 30px;color: white;">
-                                <span style="margin-right: 10px;">Log out</span> <i class="fas fa-sign-out"></i>
-                            </div>
-                        </a>
-                    </div>
-
                 </div>
-                <div class="company-account-info container-right"
-                    style="display: flex; justify-content: center;height: 100%;">
+                <div class="" style="display: flex; justify-content: center;height: 100%;margin-top: 20%;">
                     <!-- SELECT PLATFORM -->
-                    <div id="platform_select" class="bx-shadow"
-                        style="margin-top: 20px;width: 500px;padding: 20px;display: block;height: 100%;">
+                    <div id="platform_select"
+                        style="margin-top: 20px;padding: 20px;display: block;height: 100%;">
 
                         <p>Select the platforms to upload to </p>
                         <div class="form-check" style="margin-left: 10px;">
