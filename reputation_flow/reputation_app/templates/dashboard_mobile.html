@@ -86,9 +86,10 @@
     </script>
 
     <style>
-        body{
+        body {
             background-color: white;
         }
+
         .loader {
             width: 48px;
             height: 48px;
@@ -3290,8 +3291,7 @@
                         {% else %}
 
                         <div tooltip="Forbidden. Contact Admin" flow="down">
-                            <a class="btn-solid-sm"
-                                style="color: white;border: none;cursor: not-allowed;"
+                            <a class="btn-solid-sm" style="color: white;border: none;cursor: not-allowed;"
                                 href="#">Create Team</a>
                         </div>
 
@@ -3348,14 +3348,20 @@
                             <div style="height: 90%;overflow-y: scroll;display: block;width:100vw;">
 
                                 {% for t in all_teams %}
-                                <div class="bx-shadow br-10"
-                                    style="margin: 10px;margin-left: 10px;margin-right: 10px;">
+                                <div class="bx-shadow br-10" style="margin: 10px;margin-left: 10px;margin-right: 10px;">
                                     <div class="team-details" style="padding: 10px;">
                                         <p class="title" style="font-size: 20px;"><strong>{{ t.team_name }}</strong>
                                         </p>
-                                        <p>Created {{ t.date_created }}</p>
-                                        <p>{{ t.members.count }} members</p>
+                                        <p style="font-size: 12px;">Created {{ t.date_created }}</p>
+                                        <p style="font-size: 12px;">{{ t.members.count }} members</p>
                                         <hr>
+                                        <div style="height: 75px;padding: 10px;">
+                                            <p class="font-12 zero-padding-margin">About</p>
+                                            <p style="height: 120px;overflow-y: scroll;">
+                                                {{ t.team_about }}
+                                            </p>
+                                        </div>
+
                                         <div class="flex-space-between" style="height: 30px;">
 
                                             <p class="pointer"
@@ -3368,12 +3374,6 @@
                                                 class="btn btn-primary btn-sm view-team-btn">View</button>
 
                                         </div>
-                                    </div>
-                                    <div style="height: 75px;padding: 10px;">
-                                        <p class="font-12 zero-padding-margin">About</p>
-                                        <p style="height: 120px;overflow-y: scroll;">
-                                            {{ t.team_about }}
-                                        </p>
                                     </div>
 
                                 </div>
@@ -4347,7 +4347,8 @@
 
             </div>
             <!-- create post -->
-            <div class="chat-content" id="create-post-content" style="display:none;width: 100%;background-color: white;">
+            <div class="chat-content" id="create-post-content"
+                style="display:none;width: 100%;background-color: white;">
                 <div class="chat-header "
                     style="margin-top: 10px;margin-bottom: 10px;position: fixed;top:0;width:100%;border-radius: 10px;padding-right: 10px;background-color: white;z-index: 100;margin-right: 10px;">
                     <div class="logo-container">
@@ -4375,10 +4376,10 @@
                         </div>
                     </div>
                 </div>
-                <div class="" style="display: flex; justify-content: center;padding-top: 25%;padding-left: 10px;padding-right: 10px;">
+                <div class=""
+                    style="display: flex; justify-content: center;padding-top: 25%;padding-left: 10px;padding-right: 10px;">
                     <!-- SELECT PLATFORM -->
-                    <div id="platform_select"
-                        style="margin-top: 20px;padding: 20px;display: block;height: 100%;">
+                    <div id="platform_select" style="margin-top: 20px;padding: 20px;display: block;height: 100%;">
 
                         <p>Select the platforms to upload to </p>
                         <div class="form-check" style="margin-left: 10px;">
