@@ -5922,8 +5922,8 @@
                                                 <div class="card-body card-body px-3 pt-lg-6 pb-lg-5"
                                                     style="display: flex;justify-content: center;">
                                                     <div class="row h-100">
-                                                        <div
-                                                            class="col-lg-5 my-auto text-center d-lg-block d-flex justify-content-center">
+                                                        <div class="col-lg-5 my-auto text-center d-lg-block d-flex justify-content-center"
+                                                            style="overflow-x: hidden;">
                                                             <div id="chart-pie-{{p.post_id}}" class="chart-pie">
                                                             </div>
                                                         </div>
@@ -5961,7 +5961,7 @@
                                                             </p>
 
                                                         </div>
-                                                        <div class="d-flex" >
+                                                        <div class="d-flex">
                                                             <p>Upvote Ratio:</p>
                                                             <h5 class="font-weight-bolder" id="rte-{{p.post_id}}">36K
                                                             </h5>
@@ -7766,7 +7766,7 @@
                                 var ctx = document.getElementById(`chart-pie-${post_id}`);
                                 var chartPie = new ApexCharts(ctx, {
                                     chart: {
-                                        width: 250,
+                                        width: 10,
                                         type: 'donut',
                                     },
                                     dataLabels: {
