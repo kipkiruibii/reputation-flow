@@ -7763,10 +7763,10 @@
                                 $(`#impression-analysis-${post_id}`).css('display', 'block');
                                 $(`#post-comment-box-${post_id}`).css('display', 'none');
                                 $(`#chart-pie-${post_id}`).empty();
-                                var ctx = document.getElementById(`chart-piehh-${post_id}`);
+                                var ctx = document.getElementById(`chart-pie-${post_id}`);
                                 var chartPie = new ApexCharts(ctx, {
                                     chart: {
-                                        width: 10,
+                                        width: 250,
                                         type: 'donut',
                                     },
                                     dataLabels: {
@@ -7777,7 +7777,7 @@
                                             customScale: 1,
                                             expandOnClick: false,
                                             donut: {
-                                                size: "80%",
+                                                size: "60%",
                                             }
                                         },
                                     },
@@ -7800,7 +7800,7 @@
                                             breakpoint: 1550,
                                             options: {
                                                 chart: {
-                                                    width: 340,
+                                                    width: 200,
                                                 },
                                                 legend: {
                                                     position: "bottom",
@@ -7816,7 +7816,7 @@
                                             breakpoint: 1450,
                                             options: {
                                                 chart: {
-                                                    width: 300,
+                                                    width: 250,
                                                 },
                                             }
                                         }
