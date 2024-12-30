@@ -5595,8 +5595,8 @@
                                 style="width: 100vw;border: 1px solid rgb(209, 209, 209);border-radius: 10px;box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1), 0px 2px 4px rgba(0, 0, 0, 0.06);margin-left: 10px;margin-right: 10px;">
                                 <div style="display: flex;gap:2px;" class="action-bar">
                                     <div style="width:100%;padding: 15px;" class="grandparent">
-                                        <div style="width: 40%;padding-top: 20px;padding-bottom: 20px;">
-                                            <div style="display: flex;justify-content: space-between;padding: 10px;">
+                                        <div style="width:100%;">
+                                            <div style="display: flex;justify-content: space-between;width: 100%;">
                                                 <div>
                                                     {% if p.is_scheduled %}
                                                     <p
@@ -5647,7 +5647,7 @@
                                             <strong>{{ p.title }} </strong>
                                         </p>
                                         <div
-                                            style="display: flex;flex-direction: column;height:80%;justify-content: space-between;">
+                                            style="display: flex;flex-direction: column;justify-content: space-between;">
                                             <p style="max-height: 200px;overflow-y: scroll;">{{ p.content }}
                                             </p>
                                             <div>
@@ -5664,7 +5664,7 @@
                                                 </div>
                                                 {% if p.tags %}
                                                 <div
-                                                    style="display: flex;gap: 5px;flex-wrap: wrap;padding-top: 0px;padding-bottom:10px;">
+                                                    style="display: flex;gap: 5px;flex-wrap: wrap;padding-top: 0px;">
                                                     {% for t in p.tags %}
                                                     <p style="font-size: 12px;font-weight: bold"><i>{{ t }}</i></p>
 
