@@ -3274,8 +3274,11 @@
             <div class="chat-content" id="teams-content" style="display:none;background-color: white;">
                 <div class="chat-header"
                     style="margin-top: 10px;margin-bottom: 10px;position: fixed;top:0;width:100%;border-radius: 10px;padding-right: 10px;background-color: white;z-index: 100;">
+                    <div class="logo-container">
+                        <i class="fa fa-bars menu_bar" style="font-size:24px"></i>
+                    </div>
                     <div
-                        style="border-radius: 10px;display: flex;justify-content: space-between;padding:3px;align-items: center;">
+                        style="margin-left:10px;margin-right: 10px;border-radius: 10px;display: flex;justify-content: space-between;padding:3px;align-items: center;">
                         <span style="width:30px"></span>
                         {% if user_permissions.can_create_team_add_member %}
                         <div>
@@ -3295,9 +3298,8 @@
                         {% endif %}
 
                     </div>
-                    <div class="logo-container" style="margin-left:10px;margin-right: 10px;">
-                        <i class="fa fa-bars team_menu_bar" style="font-size:24px"></i>
-                    </div>
+
+
                 </div>
                 <div style="display:block;margin-top: 25%;">
 
@@ -3464,7 +3466,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div style="height: 100%;width: 100%;background-color: #f0f0f06d;padding: 20px;">
+                            <div style="height: 100%;width: 100%;background-color: #f0f0f06d;padding: 20px;" >
                                 <!-- chat -->
                                 {% if team.members.count == 1 %}
                                 <div id="teams-chats" class="t-c">
