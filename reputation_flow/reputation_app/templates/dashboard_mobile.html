@@ -3489,7 +3489,7 @@
                                                     {% else %}
                                                     <div class="chat-history">
                                                         <ul id="chat-elem"
-                                                            style="height: 66vh;overflow-y: scroll;overflow-x: hidden; ">
+                                                            style="overflow-y: scroll;overflow-x: hidden; ">
                                                             {% for chat_message in chat_messages %}
                                                             {% if not chat_message.me %}
                                                             <li class="clearfix">
@@ -3538,7 +3538,7 @@
                                                     </div>
                                                     {% endif %}
                                                     <div class="chat-message zero-padding-margin"
-                                                        style="padding: 1px;width: 95%;">
+                                                        style="padding: 1px;width: 80%;position: fixed;bottom: 0;">
                                                         <div class="input-group mb-0">
                                                             <div class="input-group-prepend" id="send-chat">
                                                                 <span class="input-group-text"><i
