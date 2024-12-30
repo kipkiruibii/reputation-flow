@@ -5135,7 +5135,6 @@
                                         <p style="max-height: 200px;overflow-y: scroll;margin-top: 20px;">
                                             {{ p.content }}
                                         </p>
-
                                         <div>
                                             <hr>
                                             <div style="display: flex;gap: 5px;flex-wrap: wrap;padding: 0;">
@@ -5191,7 +5190,7 @@
                                     {% if comments_data|length > 0 %}
                                     {% for comment in comments_data %}
                                     <div
-                                        style="margin-left: 20px;border-radius: 10px;border: 1px solid rgb(5, 189, 209);padding: 10px;margin-bottom: 10px;">
+                                        style="margin-left: 10px;border-radius: 10px;border: 1px solid rgb(5, 189, 209);padding: 10px;margin-bottom: 10px;">
                                         <div style="display: flex;justify-content: space-between;">
 
                                             <div class="d-flex flex-start align-items-center">
@@ -5231,7 +5230,7 @@
                                             {{ comment.message_body }}
                                         </p>
                                         <div class="thisparent"
-                                            style="display: flex;justify-content: space-between;font-size: 12px;width: 80%;gap: 10px">
+                                            style="display: flex;justify-content: space-between;font-size: 12px;width: 100%;gap: 2px">
 
                                             <div>
                                                 {% if isInstagram %}
