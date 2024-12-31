@@ -4737,6 +4737,7 @@ def updateBusinessProfile(request):
                 company=cm,
                 size=fvo
             )
+            cfs.save()
         
     cc = CompanyContacts.objects.filter(company=cm).first()
     if cc:
