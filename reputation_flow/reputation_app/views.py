@@ -2988,8 +2988,6 @@ def uploadTrainDoc(request):
 
             if os.path.exists(file_path):
                 os.remove(file_path)  # Remove the file            
-
-
     else:
         cpn_doc = CompanyKnowledgeBase(
             company=cp,
@@ -4687,7 +4685,10 @@ def uploadPost(request):
         # scheduled
         if hasMedia:
             f_size=0
-            for _, file in files.items():
+            fles=[]
+            for field_name, file in files.items():
+                fles.append(file)
+            for file in fles:
                 up=UploadedMedia(
                     post=cpst,
                     media=file
