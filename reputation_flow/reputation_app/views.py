@@ -42,6 +42,33 @@ import os
 import pdfplumber
 import pytz
 import mimetypes
+from django.contrib.gis.geoip2 import GeoIP2
+
+def get_client_ip(request):
+    """Extract client IP address from request."""
+    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    if x_forwarded_for:
+        ip = x_forwarded_for.split(',')[0]
+    else:
+        ip = request.META.get('REMOTE_ADDR')
+    return ip
+
+def get_user_location(request):
+    """Get user's location using GeoIP2."""
+    ip = get_client_ip(request)
+    geo = GeoIP2()
+    try:
+        # Get location data
+        location = geo.city(ip)
+        return {
+            'ip': ip,
+            'country': location['country_name'],
+            'city': location['city'],
+            'latitude': location['latitude'],
+            'longitude': location['longitude'],
+        }
+    except Exception as e:
+        return {'error': str(e)}  # Handle any exceptions gracefully
 
 # import magic 
 ALLOWED_MIME_TYPES = [
@@ -109,7 +136,23 @@ def index(request):
     """
     Landing page
     """
-    return render(request, 'index.html')
+    ip = get_client_ip(request)
+    geo = GeoIP2()
+    try:
+        # Get location data
+        location = geo.city(ip)
+        context= {
+            'result':{
+                'ip': ip,
+                'country': location['country_name'],
+                'city': location['city'],
+                'latitude': location['latitude'],
+                'longitude': location['longitude']
+            }
+        }
+    except Exception as e:
+        context={'result':{'error': str(e)}}  # Handle any exceptions gracefully
+    return render(request, 'index.html',context=context)
 
 
 @api_view(['POST', 'GET'])

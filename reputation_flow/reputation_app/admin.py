@@ -17,6 +17,7 @@ admin.site.register(UploadedFiles)
 admin.site.register(CompanyTeamActivity)
 admin.site.register(CompanyFeatureRequest)
 admin.site.register(CompanyBotChats)
+admin.site.register(SiteAnalytics)
 
 
 # PM

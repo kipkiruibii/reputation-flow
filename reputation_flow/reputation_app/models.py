@@ -2,7 +2,19 @@ from django.db import models
 from django.contrib.auth.models import User 
 from django.utils import timezone
 from datetime import timedelta,datetime
- 
+
+class SiteAnalytics(models.Model):
+    page_visited=models.TextField(default='')
+    device=models.TextField(default='')
+    date_visited=models.DateTimeField(default=timezone.now())
+    request_header=models.TextField(default='')    
+    country=models.TextField(default='')    
+    location=models.JSONField(default='')  # {latitude:1222,longitude:133}  
+    is_vpn=models.BooleanField(default=False)  
+    def __str__(self) -> str:
+        return self.user.username
+    
+    
 class MemberProfile(models.Model):
     user=models.ForeignKey(User,on_delete=models.CASCADE)
     email=models.CharField(max_length=100)
