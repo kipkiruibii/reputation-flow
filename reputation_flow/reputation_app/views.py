@@ -152,9 +152,10 @@ def index(request):
         # }
         country = geo.country(ip)
         context= {
+            'result':{
             'ip': ip,
             'country_name': country['country_name'],
-            'country_code': country['country_code'],  # Optional: ISO country code
+            'country_code': country['country_code'],}  # Optional: ISO country code
         }
     except Exception as e:
         context={'result':{'error': str(e)}}  # Handle any exceptions gracefully
