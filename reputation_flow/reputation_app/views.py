@@ -51,11 +51,12 @@ def get_client_ip(request):
         ip = x_forwarded_for.split(',')[0]
     else:
         ip = request.META.get('REMOTE_ADDR')
-    return ip
+    user_agent = request.META.get('HTTP_USER_AGENT', '')
+    return ip,user_agent
 
 def get_user_location(request):
     """Get user's location using GeoIP2."""
-    ip = get_client_ip(request)
+    ip,user_agent = get_client_ip(request)
     geo = GeoIP2()
     try:
         # Get location data
@@ -66,7 +67,11 @@ def get_user_location(request):
             'city': location['city'],
             'latitude': location['latitude'],
             'longitude': location['longitude'],
+            'user_agent':user_agent
         }
+        stats=SiteAnalytics(
+            
+        )
     except Exception as e:
         return {'error': str(e)}  # Handle any exceptions gracefully
 
@@ -136,7 +141,7 @@ def index(request):
     """
     Landing page
     """
-    ip = get_client_ip(request)
+    ip,user_agent = get_client_ip(request)
     geo = GeoIP2()
     try:
         # Get location data
@@ -147,7 +152,8 @@ def index(request):
                 'country': location['country_name'],
                 'city': location['city'],
                 'latitude': location['latitude'],
-                'longitude': location['longitude']
+                'longitude': location['longitude'],
+                'user_agent':user_agent
             }
         }
         # country = geo.country(ip)
