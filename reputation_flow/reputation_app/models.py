@@ -37,7 +37,7 @@ class MemberPP(models.Model):
         return self.member.user.username + ' Profile Picture'
     def delete(self, *args, **kwargs):
             # Delete the file from S3
-            self.file.delete(save=False)
+            self.pic.delete(save=False)
             # Call the parent class's delete method
             super().delete(*args, **kwargs)    
     
@@ -88,7 +88,7 @@ class CompanyProfilePicture(models.Model):
         return self.company.company_name + ' Profile Picture'
     def delete(self, *args, **kwargs):
             # Delete the file from S3
-            self.file.delete(save=False)
+            self.p_pic.delete(save=False)
             # Call the parent class's delete method
             super().delete(*args, **kwargs)    
   
@@ -467,7 +467,7 @@ class UploadedMedia(models.Model):
         return self.post.title
     def delete(self, *args, **kwargs):
             # Delete the file from S3
-            self.file.delete(save=False)
+            self.media.delete(save=False)
             # Call the parent class's delete method
             super().delete(*args, **kwargs)    
 
