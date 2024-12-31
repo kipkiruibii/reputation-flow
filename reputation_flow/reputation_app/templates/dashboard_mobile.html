@@ -2606,6 +2606,16 @@
                                     <div class="business-about">
                                         <h6>Review wall <i class="fa fa-cog " style="margin-left: 20px;"></i></h6>
                                         <ul style="list-style-type: none;">
+                                            <li>
+                                                <div class="form-check form-switch" style="margin-left: 20px;">
+                                                    <input class="form-check-input" {% if company_show_page %} checked
+                                                        {% endif %} data-set_up="show_page" id="review_page_btn"
+                                                        type="checkbox" role="switch">
+                                                    <label class="form-check-label" for="review_page_btn">
+                                                        Show review page
+                                                    </label>
+                                                </div>
+                                            </li>
                                             <!-- <li>
                                                 <div class="form-check form-switch" style="margin-left: 20px;">
                                                     <input class="form-check-input" type="checkbox" role="switch"
