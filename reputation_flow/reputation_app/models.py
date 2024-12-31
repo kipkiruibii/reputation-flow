@@ -87,7 +87,7 @@ class CompanyFileSizes(models.Model):
     size=models.FloatField(default=0.0)# bytes
     allocated=models.FloatField(default=0.0)# bytes
     def getPerc(self) -> float:
-        if self.allocated>0:
+        if self.allocated > 0:
             pp=round((self.size/self.allocated)*100,2)
             return pp
         return 0

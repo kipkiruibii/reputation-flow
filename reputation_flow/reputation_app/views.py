@@ -4713,8 +4713,12 @@ def updateBusinessProfile(request):
     if not cm:
         return Response({'updated': False})
     if image:
+        file_size = image.size
+        inv=0
         cpp = CompanyProfilePicture.objects.filter(company=cm).first()
+        
         if cpp:
+            inv=cpp.p_pic.size 
             cpp.p_pic = image
         else:
             cpp = CompanyProfilePicture(
@@ -4722,6 +4726,18 @@ def updateBusinessProfile(request):
                 p_pic=image
             )
         cpp.save()
+        cfs=CompanyFileSizes.objects.filter(company=cm).first()
+        fvo=file_size-inv
+
+        if cfs:
+            cfs.size+=fvo
+            cfs.save()
+        else:
+            cfs=CompanyFileSizes(
+                company=cm,
+                size=fvo
+            )
+        
     cc = CompanyContacts.objects.filter(company=cm).first()
     if cc:
         cc.instagram = instagram
