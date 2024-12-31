@@ -43,6 +43,7 @@ import pdfplumber
 import pytz
 import mimetypes
 from django.contrib.gis.geoip2 import GeoIP2
+from user_agents import parse
 
 def get_client_ip(request):
     """Extract client IP address from request."""
@@ -54,26 +55,35 @@ def get_client_ip(request):
     user_agent = request.META.get('HTTP_USER_AGENT', '')
     return ip,user_agent
 
-def get_user_location(request):
+def get_user_location(request,page):
     """Get user's location using GeoIP2."""
     ip,user_agent = get_client_ip(request)
+    user_agent_obj = parse(user_agent)
     geo = GeoIP2()
     try:
-        # Get location data
         location = geo.city(ip)
-        return {
-            'ip': ip,
-            'country': location['country_name'],
-            'city': location['city'],
-            'latitude': location['latitude'],
-            'longitude': location['longitude'],
-            'user_agent':user_agent
-        }
         stats=SiteAnalytics(
-            
+            page_visited=page,
+            request_header=user_agent,   
+            country=location['country_name'],  
+            ip_address=ip,  
+            city=location['city'], 
+            browser=user_agent_obj.browser.family,  
+            os=user_agent_obj.os.family,   
+            location={'latitiude':location['latitude'], 'longitude': location['longitude']}, # {latitude:1222,longitude:133}  
+            is_mobile=user_agent_obj.is_mobile, 
+            is_tablet=user_agent_obj.is_tablet, 
+            is_pc=user_agent_obj.is_pc 
         )
+        stats.save()
     except Exception as e:
-        return {'error': str(e)}  # Handle any exceptions gracefully
+        stats=SiteAnalytics(
+            page_visited=page,
+            request_header=user_agent,   
+            error= str(e), 
+            is_error=True  
+        )
+        stats.save()
 
 # import magic 
 ALLOWED_MIME_TYPES = [
