@@ -2985,12 +2985,6 @@ def uploadTrainDoc(request):
             if cfs:
                 cfs.size-=inv
                 cfs.save()
-            else:
-                cfs=CompanyFileSizes(
-                    company=cp,
-                    # size=fvo,
-                )
-                cfs.save()
 
             if os.path.exists(file_path):
                 os.remove(file_path)  # Remove the file            
@@ -3003,6 +2997,12 @@ def uploadTrainDoc(request):
             file=file
         )
         cpn_doc.save()
+        
+        cfs=CompanyFileSizes.objects.filter(company=cp).first()
+        if cfs:
+            cfs.size+=file.size
+            cfs.save()
+
 
         # start thread to train
         tc = threading.Thread(target=trainChatbot, daemon=True, kwargs={'cmp': cp})
@@ -4686,12 +4686,14 @@ def uploadPost(request):
     else:
         # scheduled
         if hasMedia:
+            f_size=0
             for _, file in files.items():
                 up=UploadedMedia(
                     post=cpst,
                     media=file
                 )
                 up.save()
+                f_size+=file.size
             cfs=CompanyFileSizes.objects.filter(company=cp).first()
             if not cfs:
                 alct=0
@@ -4706,12 +4708,12 @@ def uploadPost(request):
                     
                 cfs = CompanyFileSizes(
                         company=cp,
-                        size=file.size,
+                        size=f_size,
                         allocated=alct
                         )
                 cfs.save()
             else:
-                cfs.size+=file.size()
+                cfs.size+=f_size
                 cfs.save()
             
     # if instagramSelected:
