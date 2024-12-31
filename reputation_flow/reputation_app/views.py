@@ -140,23 +140,23 @@ def index(request):
     geo = GeoIP2()
     try:
         # Get location data
-        # location = geo.city(ip)
-        # context= {
-        #     'result':{
-        #         'ip': ip,
-        #         'country': location['country_name'],
-        #         # 'city': location['city'],
-        #         'latitude': location['latitude'],
-        #         'longitude': location['longitude']
-        #     }
-        # }
-        country = geo.country(ip)
+        location = geo.city(ip)
         context= {
             'result':{
-            'ip': ip,
-            'country_name': country['country_name'],
-            'country_code': country['country_code'],}  # Optional: ISO country code
+                'ip': ip,
+                'country': location['country_name'],
+                'city': location['city'],
+                'latitude': location['latitude'],
+                'longitude': location['longitude']
+            }
         }
+        # country = geo.country(ip)
+        # context= {
+        #     'result':{
+        #     'ip': ip,
+        #     'country_name': country['country_name'],
+        #     'country_code': country['country_code'],}  # Optional: ISO country code
+        # }
     except Exception as e:
         context={'result':{'error': str(e)}}  # Handle any exceptions gracefully
     return render(request, 'index.html',context=context)

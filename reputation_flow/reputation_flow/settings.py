@@ -136,7 +136,7 @@ LOGIN_URL='/login'
 
 # STATIC_URL = '/static/'  # Already present, defines the URL for static files
 STATIC_ROOT = '/home/ubuntu/reputation-flow/reputation_flow/static/'
-GEOIP_PATH = '/home/ubuntu/reputation-flow/reputation_flow/geoip/GeoLite2-Country.mmdb'  #
+GEOIP_PATH = '/home/ubuntu/reputation-flow/reputation_flow/geoip/GeoLite2-City.mmdb'  #
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
