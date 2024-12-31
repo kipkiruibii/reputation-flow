@@ -46,7 +46,12 @@ from django.contrib.gis.geoip2 import GeoIP2
 from user_agents import parse
 import boto3
 
-
+s3_client = boto3.client(
+    's3',
+    aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+    aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+    region_name=settings.AWS_S3_REGION_NAME,
+)
 def get_client_ip(request):
     """Extract client IP address from request."""
     x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
@@ -87,8 +92,19 @@ def get_user_location(request,page):
         )
         stats.save()
 
-
-# import magic 
+def delete_file_from_s3(file_key):
+    try:
+        # Delete the file from S3
+        s3_client.delete_object(
+            Bucket=settings.AWS_STORAGE_BUCKET_NAME,
+            Key=file_key,
+        )
+                
+        return JsonResponse({"message": "File deleted successfully."})
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
+    
+    # import magic 
 ALLOWED_MIME_TYPES = [
     "image/jpeg", "image/png", "image/gif", "image/webp",
     "video/mp4", "video/quicktime", "video/x-msvideo", "video/x-matroska", "video/webm",
@@ -4719,6 +4735,7 @@ def updateBusinessProfile(request):
         
         if cpp:
             inv=cpp.p_pic.size 
+            delete_file_from_s3(file_key=cpp.p_pic.name)
             cpp.p_pic = image
         else:
             cpp = CompanyProfilePicture(
