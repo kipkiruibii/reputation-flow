@@ -4730,6 +4730,8 @@ def updateBusinessProfile(request):
         return Response({'updated': False})
     if image:
         file_size = image.size
+        if file_size>100:
+            return Response({'error': 'File exceeds size limit of 5MB'})
         inv=0
         cpp = CompanyProfilePicture.objects.filter(company=cm).first()
         
