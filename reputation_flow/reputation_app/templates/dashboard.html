@@ -2596,44 +2596,29 @@
                                     <hr>
                                     <div class="business-about">
                                         <h6>Review wall <i class="fa fa-cog " style="margin-left: 20px;"></i></h6>
-                                        <ul style="list-style-type: none;">
-                                            <li>
-                                                <div class="form-check form-switch" style="margin-left: 20px;">
-                                                    <input class="form-check-input" {% if company_show_page %} checked
-                                                        {% endif %} data-set_up="show_page" id="review_page_btn"
-                                                        type="checkbox" role="switch">
-                                                    <label class="form-check-label" for="review_page_btn">
-                                                        Show review page
-                                                    </label>
-                                                </div>
-                                            </li>
-                                            <!-- <li>
-                                                <div class="form-check form-switch" style="margin-left: 20px;">
-                                                    <input class="form-check-input" type="checkbox" role="switch"
-                                                        id="flexSwitchCheckChecked">
-                                                    <label class="form-check-label" for="flexSwitchCheckChecked"
-                                                        tooltip="Respond to comments using your AI Knowledgebase"
-                                                        flow="down">Auto respond to queries</label>
-                                                </div>
-                                            </li>
-                                            <li>
-                                                <div class="form-check form-switch" style="margin-left: 20px;">
-                                                    <input class="form-check-input" type="checkbox" role="switch"
-                                                        id="flexSwitchCheckChecked">
-                                                    <label class="form-check-label" for="flexSwitchCheckChecked"
-                                                        tooltip="Show your customers that you appreciate their comments"
-                                                        flow="down">Auto like positive comments</label>
-                                                </div>
-                                            </li> -->
-
-                                            <li style="margin-top: 10px;">
-                                                <p tooltip="Click to  copy your page link"
-                                                    flow="down">Link: <span id="review_link"
-                                                        style="margin-right: 10px;cursor: pointer;">
-                                                        {{ review_wall_link }}</span><a href="{{ review_wall_link }}"
-                                                        target="_blank"><i class="fa fa-external-link"></i></a></p>
-                                            </li>
-                                        </ul>
+                                        {% if user_permissions.can_update_profile %}
+                                        <li>
+                                            <div class="form-check form-switch" style="margin-left: 20px;">
+                                                <input class="form-check-input" {% if company_show_page %} checked
+                                                    {% endif %} data-set_up="show_page" id="review_page_btn" 
+                                                    type="checkbox" role="switch">
+                                                <label class="form-check-label" for="review_page_btn">
+                                                    Show review page
+                                                </label>
+                                            </div>
+                                        </li>
+                                        {% else %}
+                                        <li>
+                                            <div class="form-check form-switch" style="margin-left: 20px;">
+                                                <input class="form-check-input" {% if company_show_page %} checked
+                                                    {% endif %} data-set_up="show_page" id="review_page_btn" 
+                                                    type="checkbox" role="switch" disabled>
+                                                <label class="form-check-label" for="review_page_btn" style="color: rgba(128, 128, 128, 0.712);">
+                                                    Show review page
+                                                </label>
+                                            </div>
+                                        </li>
+                                        {% endif %}
 
 
                                     </div>
