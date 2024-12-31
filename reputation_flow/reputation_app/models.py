@@ -29,13 +29,17 @@ class MemberProfile(models.Model):
     email=models.CharField(max_length=100)
     def __str__(self) -> str:
         return self.user.username
-    
+ 
 class MemberPP(models.Model):
     member=models.ForeignKey(MemberProfile,on_delete=models.CASCADE)
     pic=  models.ImageField(upload_to='member_profile_picture/')  
     def __str__(self):
         return self.member.user.username + ' Profile Picture'
-    
+    def delete(self, *args, **kwargs):
+            # Delete the file from S3
+            self.file.delete(save=False)
+            # Call the parent class's delete method
+            super().delete(*args, **kwargs)    
     
 class Company(models.Model):
     company_name=models.CharField(max_length=255)
@@ -82,6 +86,11 @@ class CompanyProfilePicture(models.Model):
     p_pic=models.ImageField(upload_to='company_profile/')
     def __str__(self) -> str: 
         return self.company.company_name + ' Profile Picture'
+    def delete(self, *args, **kwargs):
+            # Delete the file from S3
+            self.file.delete(save=False)
+            # Call the parent class's delete method
+            super().delete(*args, **kwargs)    
   
 class CompanyTeam(models.Model):
     company=models.ForeignKey(Company,on_delete=models.CASCADE)
@@ -136,12 +145,21 @@ class CompanyKnowledgeBase(models.Model):
     file=models.FileField(upload_to='training_data/')
     def __str__(self):
         return 'Training: '+ self.company.company_name
-    
+    def delete(self, *args, **kwargs):
+            # Delete the file from S3
+            self.file.delete(save=False)
+            # Call the parent class's delete method
+            super().delete(*args, **kwargs)    
     
 class UploadedFiles(models.Model):
     file=models.FileField(upload_to='uploaded_files/')
     team=models.ForeignKey(CompanyTeamFiles,on_delete=models.CASCADE) 
-    
+    def delete(self, *args, **kwargs):
+            # Delete the file from S3
+            self.file.delete(save=False)
+            # Call the parent class's delete method
+            super().delete(*args, **kwargs)    
+            
 class CompanyTeamAnnouncements(models.Model):
     team=models.ForeignKey(CompanyTeam,on_delete=models.CASCADE)
     title=models.TextField(default='')
@@ -447,6 +465,12 @@ class UploadedMedia(models.Model):
     media=models.FileField(upload_to='scheduled_media/')
     def __str__(self):
         return self.post.title
+    def delete(self, *args, **kwargs):
+            # Delete the file from S3
+            self.file.delete(save=False)
+            # Call the parent class's delete method
+            super().delete(*args, **kwargs)    
+
 
 class CompanyReviews(models.Model):
     company=models.ForeignKey(Company,on_delete=models.CASCADE,null=True,blank=True)

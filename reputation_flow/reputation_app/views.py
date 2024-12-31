@@ -44,6 +44,8 @@ import pytz
 import mimetypes
 from django.contrib.gis.geoip2 import GeoIP2
 from user_agents import parse
+import boto3
+
 
 def get_client_ip(request):
     """Extract client IP address from request."""
@@ -84,6 +86,7 @@ def get_user_location(request,page):
             is_error=True  
         )
         stats.save()
+
 
 # import magic 
 ALLOWED_MIME_TYPES = [

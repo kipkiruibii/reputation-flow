@@ -6974,7 +6974,8 @@
                         formData.append('image', imageFile);
 
                     } catch (e) {
-                        alert(e);
+                        toastr.error('Failed');
+                        // alert(e);
 
                     }
 
@@ -7016,8 +7017,9 @@
                             }
                         },
                         error: function (jqXHR, textStatus, errorThrown) {
-                            alert('Failed to submit form.');
-                            console.error(textStatus, errorThrown);
+                            // alert('Failed to submit form.');
+                            toastr.error('Failed, Try again ')
+                            // console.error(textStatus, errorThrown);
                         }
                     });
                 })
@@ -9177,7 +9179,9 @@
                 });
                 // fb_stories
                 $(document).on('select', '#fb_stories', function () {
-                    alert('clicked fb')
+                    // toastr.error('Failed, Try again ')
+
+                    // alert('clicked fb')
                 });
             });
 

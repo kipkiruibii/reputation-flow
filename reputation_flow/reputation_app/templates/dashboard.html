@@ -7373,7 +7373,7 @@
                         formData.append('image', imageFile);
 
                     } catch (e) {
-                        alert(e);
+                        toastr.error('Failed, Try again ')
 
                     }
 
@@ -7415,7 +7415,7 @@
                             }
                         },
                         error: function (jqXHR, textStatus, errorThrown) {
-                            alert('Failed to submit form.');
+                            toastr.error('Failed, Try again ')
                             console.error(textStatus, errorThrown);
                         }
                     });
@@ -9564,7 +9564,6 @@
                 });
                 // fb_stories
                 $(document).on('select', '#fb_stories', function () {
-                    alert('clicked fb')
                 });
             });
 
