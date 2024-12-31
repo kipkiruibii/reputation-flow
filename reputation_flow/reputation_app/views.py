@@ -2984,7 +2984,6 @@ def uploadTrainDoc(request):
             if cfs:
                 cfs.size-=inv
                 cfs.save()
-                
             delete_file_from_s3(cpn_doc.file.name)
             if os.path.exists(file_path):
                 os.remove(file_path)  # Remove the file            
@@ -2999,14 +2998,11 @@ def uploadTrainDoc(request):
         if cfs:
             cfs.size+=file.size
             cfs.save()
-
-
         # start thread to train
         tc = threading.Thread(target=trainChatbot, daemon=True, kwargs={'cmp': cp})
         tc.start()
 
     return Response({'success': 'Bad request'})
-
 
 # create invite link
 
@@ -4688,11 +4684,11 @@ def uploadPost(request):
             for field_name, file in files.items():
                 fles.append(file)
             for file in fles:
-                up=UploadedMedia(
-                    post=cpst,
-                    media=file
-                )
-                up.save()
+                # up=UploadedMedia(
+                #     post=cpst,
+                #     media=file
+                # )
+                # up.save()
                 f_size+=file.size
             cfs=CompanyFileSizes.objects.filter(company=cp).first()
             if not cfs:
