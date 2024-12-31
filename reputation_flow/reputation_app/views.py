@@ -1041,6 +1041,24 @@ def dashboard(request, company_id):
     if not cm:
         return render(request, '404error.html')
     
+    cfs=CompanyFileSizes.objects.filter(company=cm).first()
+    if not cfs:
+        alct=0
+        if cm.company_free_trial:
+            alct=500000
+        elif cm.company_subscription_tier == 1:
+            alct=1000000
+        elif cm.company_subscription_tier == 2:
+            alct=10000000
+        elif cm.company_subscription_tier == 3:
+            alct=100000000
+            
+        cfs = CompanyFileSizes(
+           company=cm,
+           allocated=alct
+        )
+        cfs.save()
+    
     if cm.company_review_link:
         bnm=cm.company_name.strip().replace(' ','-')
         current_url = f"{request.scheme}://{request.get_host()}/social-proof/"
@@ -2950,23 +2968,32 @@ def uploadTrainDoc(request):
     train_doc = []
     for field_name, file in files.items():
         train_doc.append(file)
-
         break
     fle = train_doc[0]
     if fle.content_type != "application/pdf":
         return Response({'error': 'Bad request'})
 
-    print(fle.content_type)
     cpn_doc = CompanyKnowledgeBase.objects.filter(company=cp).first()
     if cpn_doc:
         if not cpn_doc.training_inprogress:
             return Response({'error': 'Training in progress. Try again after some time.'})
         if erase == 'true':
-            print('erasing company doc')
             file_path = cpn_doc.file.path  # Full file path
+            inv = cpn_doc.file.size
+            
+            cfs=CompanyFileSizes.objects.filter(company=cp).first()
+            if cfs:
+                cfs.size-=inv
+                cfs.save()
+            else:
+                cfs=CompanyFileSizes(
+                    company=cp,
+                    # size=fvo,
+                )
+                cfs.save()
+
             if os.path.exists(file_path):
                 os.remove(file_path)  # Remove the file            
-            cpn_doc.delete()
 
 
     else:
@@ -4730,7 +4757,7 @@ def updateBusinessProfile(request):
         return Response({'updated': False})
     if image:
         file_size = image.size
-        if file_size>100:
+        if file_size>5000000:
             return Response({'error': 'File exceeds size limit of 5MB'})
         inv=0
         cpp = CompanyProfilePicture.objects.filter(company=cm).first()
@@ -4745,18 +4772,6 @@ def updateBusinessProfile(request):
                 p_pic=image
             )
         cpp.save()
-        cfs=CompanyFileSizes.objects.filter(company=cm).first()
-        fvo=file_size-inv
-
-        if cfs:
-            cfs.size+=fvo
-            cfs.save()
-        else:
-            cfs=CompanyFileSizes(
-                company=cm,
-                size=fvo
-            )
-            cfs.save()
         
     cc = CompanyContacts.objects.filter(company=cm).first()
     if cc:

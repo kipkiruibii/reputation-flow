@@ -7012,6 +7012,10 @@
                                 }, 1000);
 
                             } else {
+                                if (response['error']) {
+                                    toastr.error(response['error']);
+                                    return;
+                                }
                                 toastr.error('Failed to update profile');
                                 return;
                             }
