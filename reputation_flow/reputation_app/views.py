@@ -145,7 +145,7 @@ def index(request):
             'result':{
                 'ip': ip,
                 'country': location['country_name'],
-                'city': location['city'],
+                # 'city': location['city'],
                 'latitude': location['latitude'],
                 'longitude': location['longitude']
             }
