@@ -18,9 +18,11 @@ class SiteAnalytics(models.Model):
     is_mobile=models.BooleanField(default=False)  
     is_tablet=models.BooleanField(default=False)  
     is_pc=models.BooleanField(default=False)  
+    error=models.TextField(default='')    
+    is_error=models.BooleanField(default=False)  
     
     def __str__(self) -> str:
-        return self.user.username
+        return self.country
     
     
 class MemberProfile(models.Model):
