@@ -9,6 +9,8 @@ class SiteAnalytics(models.Model):
     date_visited=models.DateTimeField(default=timezone.now())
     request_header=models.TextField(default='')    
     country=models.TextField(default='')    
+    ip_address=models.TextField(default='')    
+    city=models.TextField(default='')    
     location=models.JSONField(default='')  # {latitude:1222,longitude:133}  
     is_vpn=models.BooleanField(default=False)  
     def __str__(self) -> str:
