@@ -80,7 +80,21 @@ class CompanyBotChats(models.Model):
     
     def __str__(self) -> str:
         return 'BOT CHAT '+self.company_name
-
+    
+    
+class CompanyFileSizes(models.Model):
+    company=models.ForeignKey(Company,on_delete=models.CASCADE)
+    size=models.FloatField(default=0.0)# bytes
+    allocated=models.FloatField(default=0.0)# bytes
+    def getPerc(self) -> float:
+        if self.allocated>0:
+            pp=round((self.size/self.allocated)*100,2)
+            return pp
+        return 0
+    
+    def __str__(self) -> str:
+        return f'{self.company.company_name} : SIZE {self.size} of {self.allocated} ({self.getPerc()}%)'
+    
 class CompanyProfilePicture(models.Model):
     company=models.ForeignKey(Company,on_delete=models.CASCADE)
     p_pic=models.ImageField(upload_to='company_profile/')
