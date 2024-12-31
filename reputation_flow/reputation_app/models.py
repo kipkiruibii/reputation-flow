@@ -22,8 +22,7 @@ class SiteAnalytics(models.Model):
     is_error=models.BooleanField(default=False)  
     
     def __str__(self) -> str:
-        return self.country
-    
+        return f'{self.country} > {self.ip_address} > {self.page_visited}'
     
 class MemberProfile(models.Model):
     user=models.ForeignKey(User,on_delete=models.CASCADE)
