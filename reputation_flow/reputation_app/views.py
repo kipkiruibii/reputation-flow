@@ -4686,13 +4686,34 @@ def uploadPost(request):
     else:
         # scheduled
         if hasMedia:
-            for key, file in files.items():
+            for _, file in files.items():
                 up=UploadedMedia(
                     post=cpst,
                     media=file
                 )
                 up.save()
-            pass
+            cfs=CompanyFileSizes.objects.filter(company=cp).first()
+            if not cfs:
+                alct=0
+                if cp.company_free_trial:
+                    alct=500000
+                elif cp.company_subscription_tier == 1:
+                    alct=1000000
+                elif cp.company_subscription_tier == 2:
+                    alct=10000000
+                elif cp.company_subscription_tier == 3:
+                    alct=100000000
+                    
+                cfs = CompanyFileSizes(
+                        company=cp,
+                        size=file.size,
+                        allocated=alct
+                        )
+                cfs.save()
+            else:
+                cfs.size+=file.size()
+                cfs.save()
+            
     # if instagramSelected:
     #     cigp = CompanyInstagramPosts(
     #         post_id=post_id,
