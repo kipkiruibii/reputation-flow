@@ -4329,6 +4329,12 @@ def deletePostComment(request):
                             print("Error deleting post:", response.json())
                             
     cp = CompanyPosts.objects.filter(company=cpst.company).order_by('-pk')
+    
+    # delete uploaded media from s3 if present
+    upm=UploadedMedia.objects.filter(post=cp)
+    for up in upm:
+        delete_file_from_s3(file_key=up.media.name)
+    
     cpst.delete()
     all_posts = []
     if not cp:
@@ -4724,13 +4730,13 @@ def uploadPost(request):
             if not cfs:
                 alct=0
                 if cp.company_free_trial:
-                    alct=500000
+                    alct=524288000
                 elif cp.company_subscription_tier == 1:
-                    alct=1000000
+                    alct=1073741824
                 elif cp.company_subscription_tier == 2:
-                    alct=10000000
+                    alct=10737418240
                 elif cp.company_subscription_tier == 3:
-                    alct=100000000
+                    alct=107374182400
                     
                 cfs = CompanyFileSizes(
                         company=cp,
