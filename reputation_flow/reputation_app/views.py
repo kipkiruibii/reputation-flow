@@ -3955,7 +3955,6 @@ def postReddit(title, description, subs, hasMedia, files, nsfw_tag, spoiler_tag,
                         # upload with media
                         if len(files) == 1:
                             # check if image or video and upload accoordingly
-                            print('single file', files[0]['content_type'])
                             f = files[0]['image_path']
                             content_type = files[0]['content_type']
                             if content_type.startswith("image/"):
@@ -4711,12 +4710,13 @@ def uploadPost(request):
             for field_name, file in files.items():
                 fles.append(file)
             for file in fles:
-                up=UploadedMedia(
-                    post=cpst,
-                    media=file
-                )
-                up.save()
-                f_size+=file.size
+                pass
+                # up=UploadedMedia(
+                #     post=cpst,
+                #     media=file
+                # )
+                # up.save()
+                # f_size+=file.size
             cfs=CompanyFileSizes.objects.filter(company=cp).first()
             if not cfs:
                 alct=0
