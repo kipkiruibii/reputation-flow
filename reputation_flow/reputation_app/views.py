@@ -2128,9 +2128,6 @@ def getComments(request):
 
         # if 'reddit' in p.platforms:
         #     cr = CompanyRedditPosts.objects.filter(post_id=p.post_id).first()
-        #     if cr:
-        #         k = cr.subs[0]
-        #         cover_image_link = k['link']
             # use threading to update post and comments
             # pass
         eng_cnt = p.engagement_count
@@ -2237,9 +2234,6 @@ def getCommentReplies(request):
 
         if 'reddit' in p.platforms:
             cr = CompanyRedditPosts.objects.filter(post_id=p.post_id).first()
-            if cr:
-                k = cr.subs[0]
-                cover_image_link = k['link']
             # use threading to update post and comments
             pass
         eng_cnt = p.engagement_count
@@ -2492,9 +2486,6 @@ def postComment(request):
 
         if 'reddit' in p.platforms:
             cr = CompanyRedditPosts.objects.filter(post_id=p.post_id).first()
-            if cr:
-                k = cr.subs[0]
-                cover_image_link = k['link']
             # use threading to update post and comments
             pass
         eng_cnt = p.engagement_count
@@ -4424,9 +4415,6 @@ def deletePostComment(request):
 
             if 'reddit' in p.platforms:
                 cr = CompanyRedditPosts.objects.filter(post_id=p.post_id).first()
-                if cr:
-                    k = cr.subs[0]
-                    cover_image_link = k['link']
 
             eng_cnt = p.engagement_count
             if eng_cnt > 1000000:
