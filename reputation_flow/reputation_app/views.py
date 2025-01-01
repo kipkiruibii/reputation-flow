@@ -45,7 +45,8 @@ import mimetypes
 from django.contrib.gis.geoip2 import GeoIP2
 from user_agents import parse
 import boto3
-
+import tempfile
+            
 s3_client = boto3.client(
     's3',
     aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
@@ -105,6 +106,18 @@ def delete_file_from_s3(file_key):
         return JsonResponse({"error": str(e)}, status=500)
     
     # import magic 
+
+def delete_temp_files(file_path):
+    try:
+        if os.path.exists(file_path):
+            os.remove(file_path)  # Deletes the file
+            print(f"Deleted temp file: {file_path}")
+        else:
+            print(f"File not found: {file_path}")
+    except Exception as e:
+        print(f"Error deleting file {file_path}: {str(e)}")
+            
+
 ALLOWED_MIME_TYPES = [
     "image/jpeg", "image/png", "image/gif", "image/webp",
     "video/mp4", "video/quicktime", "video/x-msvideo", "video/x-matroska", "video/webm",
@@ -4551,10 +4564,22 @@ def uploadPost(request):
     files = request.FILES  # Access uploaded files
     gallery_items = []
     for field_name, file in files.items():
-        temp_file_path = default_storage.save(file.name, file)
-        absolute_file_path = default_storage.path(temp_file_path)
-        gallery_items.append(
-            {"image_path": absolute_file_path, 'content_type': file.content_type, "file_size": file.size})
+        # temp_file_path = default_storage.save(file.name, file)
+        # absolute_file_path = default_storage.path(temp_file_path)
+        # gallery_items.append(
+        #     {"image_path": absolute_file_path, 'content_type': file.content_type, "file_size": file.size})
+        with tempfile.NamedTemporaryFile(delete=False) as temp_file:
+            for chunk in file.chunks():
+                temp_file.write(chunk)
+            
+            temp_file_path = temp_file.name  # Absolute path to the temp file
+            
+        # Add details to gallery_items
+        gallery_items.append({
+            "image_path": temp_file_path,  # Local path to the file
+            "content_type": file.content_type,
+            "file_size": file.size,
+        })        
     utc_datetime = timezone.now()
 
     if isScheduled:
@@ -4677,6 +4702,10 @@ def uploadPost(request):
             })
             igThread.start()
     else:
+        # delete temporarily stored files
+        for f in gallery_items:
+            delete_temp_files(f['image_path'])
+            
         # scheduled
         if hasMedia:
             f_size=0
@@ -4684,11 +4713,11 @@ def uploadPost(request):
             for field_name, file in files.items():
                 fles.append(file)
             for file in fles:
-                # up=UploadedMedia(
-                #     post=cpst,
-                #     media=file
-                # )
-                # up.save()
+                up=UploadedMedia(
+                    post=cpst,
+                    media=file
+                )
+                up.save()
                 f_size+=file.size
             cfs=CompanyFileSizes.objects.filter(company=cp).first()
             if not cfs:
