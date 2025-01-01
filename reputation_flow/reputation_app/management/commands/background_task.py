@@ -50,7 +50,7 @@ def postReddit(title, description, subs, hasMedia,spoiler_tag,nsfw_tag, files,  
         bucket_name = settings.AWS_STORAGE_BUCKET_NAME
         print('files',files)
         for file in files: 
-            s3_file_key = file.name  
+            s3_file_key = file
             # Temporary file download
             with tempfile.NamedTemporaryFile(delete=False, suffix=os.path.splitext(s3_file_key)[-1]) as temp_file:
                 local_file_path = temp_file.name
@@ -911,7 +911,7 @@ def postContent(post):
         # print('post has media')
         ul=UploadedMedia.objects.filter(post=post)
         for p in ul:
-            gallery_items.append(p.media.url)
+            gallery_items.append(p.media.name)
         # print(gallery_items)
     else:
         pass
