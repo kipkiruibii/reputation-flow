@@ -149,49 +149,49 @@ def postReddit(title, description, subs, hasMedia,spoiler_tag,nsfw_tag, files,  
                         elif content_type.startswith("video/"):
                             print('submitting video')
                             if subreddit.allow_videos:
-                                # try:
-                                submission = subreddit.submit_video(
-                                    title=description,
-                                    video_path=f,
-                                    timeout=60,
-                                    nsfw=nsfw_tag,
-                                    spoiler=spoiler_tag
+                                try:
+                                    submission = subreddit.submit_video(
+                                        title=description,
+                                        video_path=f,
+                                        timeout=60,
+                                        nsfw=nsfw_tag,
+                                        spoiler=spoiler_tag
 
-                                )
-                                published = True
-                                print(f"Video post created successfully: {submission.url}")
-                                if not pst.media_thumbnail:
-                                    pst.media_thumbnail = submission.url
+                                    )
+                                    published = True
+                                    print(f"Video post created successfully: {submission.url}")
+                                    if not pst.media_thumbnail:
+                                        pst.media_thumbnail = submission.url
 
-                                sub_tr.append({
-                                    'sub_name': sb,
-                                    'id': submission.id,
-                                    'link': submission.url,
-                                    'permalink': f"https://www.reddit.com{submission.permalink}",
-                                    'published': True,
-                                    'failed': False,
-                                    'result': 'Submission was accepted',
-                                    'comments': 0,
-                                    'upvotes': 0,
-                                    'upvote_ratio': 0,
-                                    'crossposts': 0
-                                })
-                                    
-                                # except Exception as e:
-                                #     failed_publish = True
-                                #     fail_reasons.append(f'Submission to r/{sb} Failed')
-                                #     sub_tr.append({
-                                #         'sub_name': sb,
-                                #         'id': '',
-                                #         'link': '',
-                                #         'published': False,
-                                #         'failed': True,
-                                #         'result': 'Uknown reason. Contact sub MODs ',
-                                #         'comments': 0,
-                                #         'upvotes': 0,
-                                #         'upvote_ratio': 0,
-                                #         'crossposts': 0
-                                #     })
+                                    sub_tr.append({
+                                        'sub_name': sb,
+                                        'id': submission.id,
+                                        'link': submission.url,
+                                        'permalink': f"https://www.reddit.com{submission.permalink}",
+                                        'published': True,
+                                        'failed': False,
+                                        'result': 'Submission was accepted',
+                                        'comments': 0,
+                                        'upvotes': 0,
+                                        'upvote_ratio': 0,
+                                        'crossposts': 0
+                                    })
+                                        
+                                except Exception as e:
+                                    failed_publish = True
+                                    fail_reasons.append(f'Submission to r/{sb} Failed')
+                                    sub_tr.append({
+                                        'sub_name': sb,
+                                        'id': '',
+                                        'link': '',
+                                        'published': False,
+                                        'failed': True,
+                                        'result': 'Uknown reason. Contact sub MODs ',
+                                        'comments': 0,
+                                        'upvotes': 0,
+                                        'upvote_ratio': 0,
+                                        'crossposts': 0
+                                    })
 
                             else:
                                 failed_publish = True
