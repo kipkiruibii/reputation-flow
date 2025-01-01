@@ -153,7 +153,7 @@ def postReddit(title, description, subs, hasMedia,spoiler_tag,nsfw_tag, files,  
                                 submission = subreddit.submit_video(
                                     title=description,
                                     video_path=f,
-                                    timeout=30,
+                                    timeout=60,
                                     nsfw=nsfw_tag,
                                     spoiler=spoiler_tag
 
