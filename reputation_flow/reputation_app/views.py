@@ -4703,8 +4703,8 @@ def uploadPost(request):
             igThread.start()
     else:
         # delete temporarily stored files
-        for f in gallery_items:
-            delete_temp_files(f['image_path'])
+        # for f in gallery_items:
+        #     delete_temp_files(f['image_path'])
             
         # scheduled
         if hasMedia:
@@ -4712,7 +4712,7 @@ def uploadPost(request):
             fles=[]
             for field_name, file in files.items():
                 fles.append(file)
-            for file in fles:
+            for file in gallery_items:
                 up=UploadedMedia(
                     post=cpst,
                     media=file
