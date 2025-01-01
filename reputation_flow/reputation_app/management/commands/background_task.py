@@ -20,7 +20,7 @@ parent_dir = os.path.abspath(os.path.join(current_dir, '../../..'))
 
 # Add the parent directory to sys.path
 sys.path.append(parent_dir)
-
+import mimetypes
 from reputation_app.models import *
 from django.conf import settings
 
@@ -51,10 +51,11 @@ def postReddit(title, description, subs, hasMedia,spoiler_tag,nsfw_tag, files,  
         print('files',files)
         for file in files: 
             s3_file_key = file
+            content_type = mimetypes.guess_type(s3_file_key)[0] 
             # Temporary file download
             with tempfile.NamedTemporaryFile(delete=False, suffix=os.path.splitext(s3_file_key)[-1]) as temp_file:
                 local_file_path = temp_file.name
-                all_files.append({'image_path':local_file_path,'content_type':temp_file.content_type})
+                all_files.append({'image_path':local_file_path,'content_type':content_type})
                 s3.download_file(bucket_name, s3_file_key, local_file_path)        
     print('all F')
     print(all_files)
