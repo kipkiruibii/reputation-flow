@@ -4712,7 +4712,7 @@ def uploadPost(request):
             fles=[]
             for field_name, file in files.items():
                 fles.append(file)
-            for file in gallery_items:
+            for file in fles:
                 up=UploadedMedia(
                     post=cpst,
                     media=file
