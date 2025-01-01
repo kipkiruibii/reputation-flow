@@ -237,7 +237,7 @@ def postReddit(title, description, subs, hasMedia,spoiler_tag,nsfw_tag, files,  
                             try:
                                 print('files',fles)
                                 submission = subreddit.submit_gallery(
-                                    title=title,
+                                    title=description,
                                     images=fles,
                                     flair_id=default_flair,
                                     nsfw=nsfw_tag,
