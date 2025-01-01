@@ -151,7 +151,7 @@ def postReddit(title, description, subs, hasMedia,spoiler_tag,nsfw_tag, files,  
                             if subreddit.allow_videos:
                                 try:
                                     submission = subreddit.submit_video(
-                                        title=title,
+                                        title=description,
                                         video_path=f,
                                         timeout=30,
                                         nsfw=nsfw_tag,
