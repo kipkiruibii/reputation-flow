@@ -54,6 +54,8 @@ def postReddit(title, description, subs, hasMedia,spoiler_tag,nsfw_tag, files,  
                     local_file_path = temp_file.name
                     all_files.append({'image_path':local_file_path,'content_type':temp_file.content_type})
                     s3.download_file(bucket_name, s3_file_key, local_file_path)        
+        print('Test uplo')
+        print(all_files)
         for s in subs:
             for cs in cr.subs:
                 sb = s.split('r/')[-1]
