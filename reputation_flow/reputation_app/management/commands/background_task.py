@@ -44,7 +44,12 @@ def postReddit(title, description, subs, hasMedia,spoiler_tag,nsfw_tag, files,  
         print('has media')
         # save to local file
         # Initialize your S3 client
-        s3 = boto3.client('s3')
+        s3 =  boto3.client(
+            's3',
+            aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+            aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+            region_name=settings.AWS_S3_REGION_NAME,
+        )
         
         # Bucket and file details
         bucket_name = settings.AWS_STORAGE_BUCKET_NAME
