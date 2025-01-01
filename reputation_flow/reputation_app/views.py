@@ -1058,13 +1058,13 @@ def dashboard(request, company_id):
     if not cfs:
         alct=0
         if cm.company_free_trial:
-            alct=500000
+            alct=524288000 
         elif cm.company_subscription_tier == 1:
-            alct=1000000
+            alct=1073741824
         elif cm.company_subscription_tier == 2:
-            alct=10000000
+            alct=10737418240
         elif cm.company_subscription_tier == 3:
-            alct=100000000
+            alct=107374182400
             
         cfs = CompanyFileSizes(
            company=cm,
@@ -4328,6 +4328,8 @@ def deletePostComment(request):
     if action_type == 'post':
         upm=UploadedMedia.objects.filter(post=cpst)
         for up in upm:
+            # free up spaces
+            
             delete_file_from_s3(file_key=up.media.name)
         cpst.delete()
 
