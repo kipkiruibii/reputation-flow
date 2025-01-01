@@ -4710,13 +4710,12 @@ def uploadPost(request):
             for field_name, file in files.items():
                 fles.append(file)
             for file in fles:
-                pass
-                # up=UploadedMedia(
-                #     post=cpst,
-                #     media=file
-                # )
-                # up.save()
-                # f_size+=file.size
+                up=UploadedMedia(
+                    post=cpst,
+                    media=file
+                )
+                up.save()
+                f_size+=file.size
             cfs=CompanyFileSizes.objects.filter(company=cp).first()
             if not cfs:
                 alct=0
