@@ -53,6 +53,8 @@ s3_client = boto3.client(
     aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
     region_name=settings.AWS_S3_REGION_NAME,
 )
+
+
 def get_client_ip(request):
     """Extract client IP address from request."""
     x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
@@ -4107,12 +4109,11 @@ def postReddit(title, description, subs, hasMedia, files, nsfw_tag, spoiler_tag,
                             if subreddit.allow_images:
                                 try:
                                     submission = subreddit.submit_gallery(
-                                        title=title,
+                                        title=description,
                                         images=files,
                                         flair_id=default_flair,
                                         nsfw=nsfw_tag,
                                         spoiler=spoiler_tag
-
                                     )
                                     published = True
 

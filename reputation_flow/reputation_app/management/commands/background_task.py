@@ -84,7 +84,6 @@ def postReddit(title, description, subs, hasMedia,spoiler_tag,nsfw_tag, files,  
                         if content_type.startswith("image/"):
                             # check image posting
                             if subreddit.allow_images:
-                                print('submitting image')
                                 try:
                                     submission = subreddit.submit_image(
                                         title=description,
@@ -228,14 +227,11 @@ def postReddit(title, description, subs, hasMedia,spoiler_tag,nsfw_tag, files,  
                             
                     else:
                         # # Submit a gallery post
-                        print('submitting images')
                         if subreddit.allow_images:
                             fles=all_files
-                            print('All files',all_files)
                             # for fle in all_files:
                             #     fles.append(fle['image_path'])
                             try:
-                                print('files',fles)
                                 submission = subreddit.submit_gallery(
                                     title=description,
                                     images=fles,
