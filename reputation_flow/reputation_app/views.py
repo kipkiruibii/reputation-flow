@@ -4703,9 +4703,10 @@ def uploadPost(request):
             igThread.start()
     else:
         # delete temporarily stored files
-        # for f in gallery_items:
-        #     delete_temp_files(f['image_path'])
-            
+        for f in gallery_items:
+            # use threads
+            delThread=threading.Thread(target=delete_temp_files,kwargs={'file_path':f['image_path']},daemon=True)
+            delThread.start()
         # scheduled
         if hasMedia:
             f_size=0
