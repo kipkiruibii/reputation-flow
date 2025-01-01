@@ -4277,65 +4277,68 @@ def deletePostComment(request):
         return Response({'error': 'Post unavailable or already deleted'})
 
     pltfrms = cpst.platforms
-    for platform in pltfrms:
-        if 'reddit' in platform.lower():
-            # deleting reddit post /comment
-            print('isreddit')
-            cr = CompanyReddit.objects.filter(company=cpst.company).first()
-            if not cr:
-                continue
-            reddit = praw.Reddit(
-                client_id=settings.REDDIT_CLIENT_ID,
-                client_secret=settings.REDDIT_CLIENT_SECRET,
-                user_agent=settings.REDDIT_USER_AGENT,
-                refresh_token=cr.refresh_token,
-            )
-            if action_type == 'post':
-                print('deleting post',post_id)
-                crp = CompanyRedditPosts.objects.filter(post_id=post_id).first()
-                if crp:
-                    sbs = crp.subs
-                    for sb in sbs:
-                        try:
-                            sb_id = sb['id']
-                            submission = reddit.submission(id=sb_id)
-                            submission.delete()
-                            print('deleted from ', sb['sub_name'])
-                        except:
-                            print('unable to delete')
-                            print(traceback.format_exc())
-                            continue
-                    crp.delete()
-                else:
-                    print('No post')  
-                    
-        if 'facebook' in platform.lower():
-            cfbp = CompanyFacebook.objects.filter(company=cpst.company).first()
-            if not cfbp:
-                continue
-            if action_type == 'post':
-                cfp = CompanyFacebookPosts.objects.filter(post_id=post_id).first()
-                if cfp:
-                    if cfp.content_id:
-                        url = f"https://graph.facebook.com/v21.0//{cfp.content_id}"
-                        payload = {
-                            "access_token": cfbp.page_access_token,
-                        }
-                        response = requests.delete(url, data=payload)
-                        if response.status_code == 200:
-                            print("Post deleted successfully:", response.json())
-                            cfp.delete()
-                        else:
-                            print("Error deleting post:", response.json())
-                            
-    cp = CompanyPosts.objects.filter(company=cpst.company).order_by('-pk')
+    
+    # check if already uploaded
+    if cpst.is_published:
+        for platform in pltfrms:
+            if 'reddit' in platform.lower():
+                # deleting reddit post /comment
+                print('isreddit')
+                cr = CompanyReddit.objects.filter(company=cpst.company).first()
+                if not cr:
+                    continue
+                reddit = praw.Reddit(
+                    client_id=settings.REDDIT_CLIENT_ID,
+                    client_secret=settings.REDDIT_CLIENT_SECRET,
+                    user_agent=settings.REDDIT_USER_AGENT,
+                    refresh_token=cr.refresh_token,
+                )
+                if action_type == 'post':
+                    print('deleting post',post_id)
+                    crp = CompanyRedditPosts.objects.filter(post_id=post_id).first()
+                    if crp:
+                        sbs = crp.subs
+                        for sb in sbs:
+                            try:
+                                sb_id = sb['id']
+                                submission = reddit.submission(id=sb_id)
+                                submission.delete()
+                                print('deleted from ', sb['sub_name'])
+                            except:
+                                print('unable to delete')
+                                print(traceback.format_exc())
+                                continue
+                        crp.delete()
+                    else:
+                        print('No post')  
+                        
+            if 'facebook' in platform.lower():
+                cfbp = CompanyFacebook.objects.filter(company=cpst.company).first()
+                if not cfbp:
+                    continue
+                if action_type == 'post':
+                    cfp = CompanyFacebookPosts.objects.filter(post_id=post_id).first()
+                    if cfp:
+                        if cfp.content_id:
+                            url = f"https://graph.facebook.com/v21.0//{cfp.content_id}"
+                            payload = {
+                                "access_token": cfbp.page_access_token,
+                            }
+                            response = requests.delete(url, data=payload)
+                            if response.status_code == 200:
+                                print("Post deleted successfully:", response.json())
+                                cfp.delete()
+                            else:
+                                print("Error deleting post:", response.json())
+                                
     
     # delete uploaded media from s3 if present
-    upm=UploadedMedia.objects.filter(post=cp)
+    upm=UploadedMedia.objects.filter(post=cpst)
     for up in upm:
         delete_file_from_s3(file_key=up.media.name)
-    
     cpst.delete()
+
+    cp = CompanyPosts.objects.filter(company=cpst.company).order_by('-pk')
     all_posts = []
     if not cp:
         for p in cp:
