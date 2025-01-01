@@ -147,6 +147,7 @@ def postReddit(title, description, subs, hasMedia,spoiler_tag,nsfw_tag, files,  
                             cr.save()
 
                         elif content_type.startswith("video/"):
+                            print('submitting video')
                             if subreddit.allow_videos:
                                 # try:
                                 submission = subreddit.submit_video(

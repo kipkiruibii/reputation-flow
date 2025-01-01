@@ -4565,10 +4565,6 @@ def uploadPost(request):
     files = request.FILES  # Access uploaded files
     gallery_items = []
     for field_name, file in files.items():
-        # temp_file_path = default_storage.save(file.name, file)
-        # absolute_file_path = default_storage.path(temp_file_path)
-        # gallery_items.append(
-        #     {"image_path": absolute_file_path, 'content_type': file.content_type, "file_size": file.size})
         with tempfile.NamedTemporaryFile(delete=False) as temp_file:
             for chunk in file.chunks():
                 temp_file.write(chunk)
