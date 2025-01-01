@@ -228,11 +228,14 @@ def postReddit(title, description, subs, hasMedia,spoiler_tag,nsfw_tag, files,  
                             
                     else:
                         # # Submit a gallery post
+                        print('submitting images')
                         if subreddit.allow_images:
-                            fles=[]
-                            for fle in all_files:
-                                fles.append(fle['image_path'])
+                            fles=all_files
+                            print('All files',all_files)
+                            # for fle in all_files:
+                            #     fles.append(fle['image_path'])
                             try:
+                                print('files',fles)
                                 submission = subreddit.submit_gallery(
                                     title=title,
                                     images=fles,
@@ -250,8 +253,7 @@ def postReddit(title, description, subs, hasMedia,spoiler_tag,nsfw_tag, files,  
                                     # Find the cover image
                                     cover_image_id = submission.gallery_data['items'][0]['media_id']
                                     print(len(gallery_data[cover_image_id]['p']))
-                                    cover_image_url = gallery_data[cover_image_id]['p'][-1][
-                                        'u']  # Get the first preview
+                                    cover_image_url = gallery_data[cover_image_id]['p'][-1]['u']  # Get the first preview
                                     # Reddit URLs may contain encoded characters like "&amp;", decode them
                                     cover_image_url = cover_image_url.replace("&amp;", "&")
                                 # clear the respective temporary files
