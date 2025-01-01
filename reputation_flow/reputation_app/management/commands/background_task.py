@@ -933,7 +933,6 @@ def postContent(post):
             pass
 
 
-        
 class Command(BaseCommand):
     help = 'Runs a background task'
 
@@ -957,7 +956,7 @@ class Command(BaseCommand):
             lastupd = c.last_update_time
             
             tdiff=(timezone.now()-lastupd).total_seconds()/3600
-            if tdiff>12: 
+            if tdiff>12: # update every 12 hours
                 print('updating facebook access token')
                 tv=threading.Thread(target=exchangeFacebookToken,kwargs={'access_token':access_token,'companyfacebook':c},daemon=True)
                 tv.start()
@@ -967,7 +966,7 @@ class Command(BaseCommand):
             ref=t.refresh_token
             lastupd = c.last_update_time
             tdiff=(timezone.now()-lastupd).total_seconds()/3600
-            if tdiff>12:
+            if tdiff>12:# update every 12hours
                 tv=threading.Thread(target=exchangeTiktokToken,kwargs={'refresh_token':ref,'companytiktok':t},daemon=True)
                 tv.start()
             
@@ -984,7 +983,7 @@ class Command(BaseCommand):
             if tdiff <= 0:
                 tts= threading.Thread(target=postContent,daemon=True,kwargs={'post':sp})
                 tts.start()
-        pass
+        
     
     def checkUsersSubscription(self):
         ''' updates users subscription status'''
