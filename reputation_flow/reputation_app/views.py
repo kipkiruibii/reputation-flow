@@ -4270,24 +4270,24 @@ def deletePostComment(request):
     pltfrms = cpst.platforms
     
     # check if already uploaded
-    if cpst.is_published:
-        for platform in pltfrms:
-            if 'reddit' in platform.lower():
-                # deleting reddit post /comment
-                print('isreddit')
-                cr = CompanyReddit.objects.filter(company=cpst.company).first()
-                if not cr:
-                    continue
-                reddit = praw.Reddit(
-                    client_id=settings.REDDIT_CLIENT_ID,
-                    client_secret=settings.REDDIT_CLIENT_SECRET,
-                    user_agent=settings.REDDIT_USER_AGENT,
-                    refresh_token=cr.refresh_token,
-                )
-                if action_type == 'post':
-                    print('deleting post',post_id)
-                    crp = CompanyRedditPosts.objects.filter(post_id=post_id).first()
-                    if crp:
+    for platform in pltfrms:
+        if 'reddit' in platform.lower():
+            # deleting reddit post /comment
+            print('isreddit')
+            cr = CompanyReddit.objects.filter(company=cpst.company).first()
+            if not cr:
+                continue
+            reddit = praw.Reddit(
+                client_id=settings.REDDIT_CLIENT_ID,
+                client_secret=settings.REDDIT_CLIENT_SECRET,
+                user_agent=settings.REDDIT_USER_AGENT,
+                refresh_token=cr.refresh_token,
+            )
+            if action_type == 'post':
+                print('deleting post',post_id)
+                crp = CompanyRedditPosts.objects.filter(post_id=post_id).first()
+                if crp:
+                    if cpst.is_published:
                         sbs = crp.subs
                         for sb in sbs:
                             try:
@@ -4299,17 +4299,18 @@ def deletePostComment(request):
                                 print('unable to delete')
                                 print(traceback.format_exc())
                                 continue
-                        crp.delete()
-                    else:
-                        print('No post')  
-                        
-            if 'facebook' in platform.lower():
-                cfbp = CompanyFacebook.objects.filter(company=cpst.company).first()
-                if not cfbp:
-                    continue
-                if action_type == 'post':
-                    cfp = CompanyFacebookPosts.objects.filter(post_id=post_id).first()
-                    if cfp:
+                    crp.delete()
+                else:
+                    print('No post')  
+                    
+        if 'facebook' in platform.lower():
+            cfbp = CompanyFacebook.objects.filter(company=cpst.company).first()
+            if not cfbp:
+                continue
+            if action_type == 'post':
+                cfp = CompanyFacebookPosts.objects.filter(post_id=post_id).first()
+                if cfp:
+                    if cpst.is_published:
                         if cfp.content_id:
                             url = f"https://graph.facebook.com/v21.0//{cfp.content_id}"
                             payload = {
@@ -4321,13 +4322,14 @@ def deletePostComment(request):
                                 cfp.delete()
                             else:
                                 print("Error deleting post:", response.json())
-                                
-    
+                            
+
     # delete uploaded media from s3 if present
-    upm=UploadedMedia.objects.filter(post=cpst)
-    for up in upm:
-        delete_file_from_s3(file_key=up.media.name)
-    cpst.delete()
+    if action_type == 'post':
+        upm=UploadedMedia.objects.filter(post=cpst)
+        for up in upm:
+            delete_file_from_s3(file_key=up.media.name)
+        cpst.delete()
 
     cp = CompanyPosts.objects.filter(company=cpst.company).order_by('-pk')
     all_posts = []
@@ -4351,7 +4353,6 @@ def deletePostComment(request):
                         t_com = 0
                         for k in c.subs:
                             if k['published']:
-                                cover_image_link = k['link']
                                 p_id = k['id']
                                 submission = reddit.submission(id=p_id)
                                 k['upvote_ratio'] = submission.upvote_ratio * 100
