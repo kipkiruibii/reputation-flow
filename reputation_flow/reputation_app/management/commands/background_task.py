@@ -8,6 +8,8 @@ import requests
 import traceback
 import praw
 import ffmpeg
+import boto3
+import tempfile
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'reputation_fow.settings')
 django.setup()
 # Get the current directory of the script
@@ -21,6 +23,7 @@ sys.path.append(parent_dir)
 
 from reputation_app.models import *
 from django.conf import settings
+
 
 def postReddit(title, description, subs, hasMedia,spoiler_tag,nsfw_tag, files,  red_refresh_token,pst,cr):
     if not pst:
@@ -36,6 +39,21 @@ def postReddit(title, description, subs, hasMedia,spoiler_tag,nsfw_tag, files,  
         published = False
         failed_publish = False
         fail_reasons = []
+        all_files = []
+        if hasMedia:
+            # save to local file
+            # Initialize your S3 client
+            s3 = boto3.client('s3')
+            
+            # Bucket and file details
+            bucket_name = settings.AWS_STORAGE_BUCKET_NAME
+            for file in files: 
+                s3_file_key = file.name  
+                # Temporary file download
+                with tempfile.NamedTemporaryFile(delete=False, suffix=os.path.splitext(s3_file_key)[-1]) as temp_file:
+                    local_file_path = temp_file.name
+                    all_files.append({'image_path':local_file_path,'content_type':temp_file.content_type})
+                    s3.download_file(bucket_name, s3_file_key, local_file_path)        
         for s in subs:
             for cs in cr.subs:
                 sb = s.split('r/')[-1]
@@ -49,11 +67,11 @@ def postReddit(title, description, subs, hasMedia,spoiler_tag,nsfw_tag, files,  
                     subreddit = reddit.subreddit(sb)
                     if hasMedia:
                         # upload with media
-                        if len(files) == 1:
+                        if len(all_files) == 1:
                             # check if image or video and upload accoordingly
                             print('single file', files[0]['content_type'])
-                            f = files[0]['image_path']
-                            content_type = files[0]['content_type']
+                            f = all_files[0]['image_path']
+                            content_type = all_files[0]['content_type']
                             if content_type.startswith("image/"):
                                 # check image posting
                                 if subreddit.allow_images:
@@ -121,7 +139,6 @@ def postReddit(title, description, subs, hasMedia,spoiler_tag,nsfw_tag, files,  
                                 cr.save()
 
                             elif content_type.startswith("video/"):
-                                print('submitting video')
                                 if subreddit.allow_videos:
                                     try:
                                         submission = subreddit.submit_video(
@@ -203,10 +220,13 @@ def postReddit(title, description, subs, hasMedia,spoiler_tag,nsfw_tag, files,  
                         else:
                             # # Submit a gallery post
                             if subreddit.allow_images:
+                                fles=[]
+                                for fle in all_files:
+                                    fles.append(fle['image_path'])
                                 try:
                                     submission = subreddit.submit_gallery(
                                         title=title,
-                                        images=files,
+                                        images=fles,
                                         flair_id=default_flair,
                                         nsfw=nsfw_tag,
                                         spoiler=spoiler_tag
@@ -279,8 +299,6 @@ def postReddit(title, description, subs, hasMedia,spoiler_tag,nsfw_tag, files,  
                             cr.save()
 
                     else:
-                        print('herrre reddit',sb)
-                        print('submission',subreddit.submission_type)
                         if subreddit.submission_type == 'any' or subreddit.submission_type == 'self':
                             submission = subreddit.submit(
                                 title,
@@ -889,7 +907,7 @@ def postContent(post):
         # print('post has media')
         ul=UploadedMedia.objects.filter(post=post)
         for p in ul:
-            gallery_items.append(p.path.url)
+            gallery_items.append(p.media.url)
         # print(gallery_items)
     else:
         pass
@@ -960,7 +978,7 @@ class Command(BaseCommand):
                 print('updating facebook access token')
                 tv=threading.Thread(target=exchangeFacebookToken,kwargs={'access_token':access_token,'companyfacebook':c},daemon=True)
                 tv.start()
-        
+
         # update tiktok
         for t in CompanyTiktok.objects.all():
             ref=t.refresh_token
