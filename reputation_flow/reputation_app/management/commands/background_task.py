@@ -79,7 +79,6 @@ def postReddit(title, description, subs, hasMedia,spoiler_tag,nsfw_tag, files,  
                     # upload with media
                     if len(all_files) == 1:
                         # check if image or video and upload accoordingly
-                        print('single file', files[0]['content_type'])
                         f = all_files[0]['image_path']
                         content_type = all_files[0]['content_type']
                         if content_type.startswith("image/"):
