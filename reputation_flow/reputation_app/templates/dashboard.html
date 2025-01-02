@@ -7198,7 +7198,13 @@
 
 
                 // ---------------------------------REVIEWS-------------------------------------- 
+                $(document).on('click', '#reviews,', function () {
+                    $('#chat_load').css('display', 'block');
+                    $('#main-content').css('display', 'none');
+                });
+
                 $(document).on('click', '#apply-filters,#reviews,.pub-unpub', function () {
+
                     const filterInstance = multiSelectInstances.find(instance => instance.selectElement.dataset.name === "filters");
                     if (!filterInstance) {
                         return;
@@ -7498,7 +7504,12 @@
                         }
                     });
                 })
+
                 // grab post content fetch comments
+                $(document).on('click', '#post-btn,', function () {
+                    $('#chat_load').css('display', 'block');
+                    $('#main-content').css('display', 'none');
+                });
                 $(document).on('click', '#post-btn,.refresh-post', function () {
                     // Create a new FormData object
                     var formData = new FormData();
