@@ -185,7 +185,7 @@ def index(request):
     """
     Landing page
     """
-    trd=threading.Thread(target=get_user_location,daemon=True, kwargs={'request':request,'page':'dashboard'})
+    trd=threading.Thread(target=get_user_location,daemon=True, kwargs={'request':request,'page':'landing'})
     trd.start()
     return render(request, 'index.html')
 
