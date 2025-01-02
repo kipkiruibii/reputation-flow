@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path, include
 from . import views
 from django.conf import settings
 from django.conf.urls.static import static
@@ -79,6 +79,12 @@ urlpatterns=[
     # delete post
     path('delete_comment/',views.deletePostComment,name='delete_comment'),
     
+    
+    path('paypal/ipn/', include("paypal.standard.ipn.urls")),
+
+    path('payment-success/', views.successful_payment, name='payment-success'),
+    path('payment-failed/', views.failed_payment, name='payment-failed'),
+    path('paypal_notification/', views.paypal_notification, name='paypal_notification'),
     # publish unpublish reviews
     # path('publish_unpublish_review/',views.publishUnpublishReviews,name='publish_unpublish_review'),
     

@@ -46,7 +46,8 @@ from django.contrib.gis.geoip2 import GeoIP2
 from user_agents import parse
 import boto3
 import tempfile
-            
+from paypal.standard.forms import PayPalPaymentsForm
+           
 s3_client = boto3.client(
     's3',
     aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
@@ -180,6 +181,78 @@ def clean_html(input_html):
     return clean_html
 
 
+@csrf_exempt
+def successful_payment(request):
+    print('payment successful')
+    if request.method == "POST":
+        data = request.POST
+        print(data)
+
+    # save the client payment database
+    return render(request, 'payment_successful.html')
+
+
+@csrf_exempt
+def failed_payment(request):
+    print('payment failed')
+    return render(request, 'payment_failed.html')
+
+
+@csrf_exempt
+def paypal_notification(request):
+    if request.method == "POST":
+        data = request.POST
+        try:
+            payment_status = data.get('payment_status', '')
+            currency = data.get('mc_currency', '')
+            amount = data.get('mc_gross', '')
+            email = data.get('payer_email', '')
+            transaction_id = data.get('txn_id', '')
+            transaction_subject = data.get('transaction_subject', '')
+            payment_date = data.get('payment_date', '')
+            receiver_email = data.get('receiver_email', '')
+            profile_id = data.get('subscr_id', '')
+            userDetails = request.POST.get('custom', '')
+
+            if payment_status == 'Completed':
+                if userDetails:
+                    user_paying = User.objects.filter(username=userDetails).first()
+                    if user_paying:
+                        if currency == 'USD':
+                            request_remaining = None
+                            subscription_type = None
+                            if float(amount) >= 29:
+                                pass
+                                # request_remaining = 10
+                                # subscription_type = 'One Time'
+                            # elif float(amount) >= 9.99:
+                            #     request_remaining = 2000
+                            #     subscription_type = 'Personal Monthly'
+                            # if request_remaining:
+                            #     u = UserDetails.objects.filter(user=user_paying).first()
+                            #     u.subscription_active = True
+                            #     u.request_remaining += request_remaining
+                            #     u.subscription_expiry = timezone.now() + timedelta(days=30)
+                            #     u.subscription_type = subscription_type
+                            #     u.save()
+                            # us = UserTransactions(
+                            #     user=user_paying,
+                            #     subscriber_id=profile_id,
+                            #     receiver_email=email,
+                            #     payment_date=payment_date,
+                            #     transactionId=transaction_id,
+                            #     subscription_type=subscription_type,
+                            #     amount=amount,
+                            #     is_successful=True
+                            # )
+                            # us.save()
+
+        except:
+            traceback.print_exc()
+
+    return render(request, "index.html")
+
+
 # Create your views here.
 def index(request):
     """
@@ -187,6 +260,37 @@ def index(request):
     """
     trd=threading.Thread(target=get_user_location,daemon=True, kwargs={'request':request,'page':'landing'})
     trd.start()
+
+    if request.user.is_authenticated:
+        # grab the member and their company
+        mp = MemberProfile.objects.filter(user=request.user).first()
+        if mp:
+            cm = CompanyMember.objects.filter(member=mp).first()
+            if cm:
+                user_comp = cm.company.company_id
+                host = request.get_host()
+                starter_paypal_checkout = {
+                    'business': settings.PAYPAL_RECEIVER_EMAIL,
+                    'a3': '29',  # Recurring price
+                    'p3': '1',  # Payment interval (every 1 month)
+                    't3': 'M',  # Time unit (M for months)
+                    'item_name': 'Monthly Subscription Plan(Starter)',
+                    'src': '1',  # Recurring payments enabled
+                    'sra': '1',  # Reattempt on payment failure
+                    "custom": user_comp,
+                    'currency_code': 'USD',
+                    'invoice': str(uuid.uuid4()),  # unique identifier for each transaction
+                    'notify_url': request.build_absolute_uri(reverse('paypal_notification')),
+                    'return_url': f"http://{host}{reverse('payment-success')}",
+                    'cancel_return': f"http://{host}{reverse('payment-failed')}",
+                    'cmd': '_xclick-subscriptions',  # Specify that this is a subscription button
+                }
+                starter_plan = PayPalPaymentsForm(initial=starter_paypal_checkout, button_type='subscribe')
+                context = {
+                    'starter_plan': starter_plan,
+                }
+    
+                return render(request, 'index.html',context=context)
     return render(request, 'index.html')
 
 
