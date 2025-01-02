@@ -1912,7 +1912,7 @@
                 </div>
             </div>
         </div>
-        <div class="chat-container light-mode" id="main_container" style="z-index:3;display: none;">
+        <div class="chat-container light-mode" id="main-content" style="z-index:3;display: none;">
             <!-- request feature/bug fix -->
             <div class="chat-content" id="feature-request" style="display:none;width: 100%;">
                 <div class="chat-header container-right"
@@ -6232,12 +6232,18 @@
                 </div>
             </div>
         </div>
-        <div id="chat_load" class="chat-container light-mode"  style="z-index:3;">
-            <!-- <div style="display: flex;justify-content: center;margin-top:25%;padding: 30px;"> -->
-                <span class="loader"></span>
-                        <!-- </div> -->
+        <div id="chat_load" class="light-mode"
+            style="z-index:3;background-color: rgb(255, 255, 255);width: 100%;display: none;">
+            <div class="chat-header "
+                style="margin-top: 10px;margin-bottom: 10px;position: fixed;top:0;width:100%;border-radius: 10px;padding-right: 10px;background-color: white;z-index: 100;">
+                <div class="logo-container">
+                    <i class="fa fa-bars menu_bar" style="font-size:24px"></i>
+                </div>
 
+            </div>
+            <span class="loader"></span>
         </div>
+
         <script src="{% static 'js/main.js' %}"></script>
         <script src="{% static 'js/website-scan.js' %}"></script>
         <script src="{% static 'js/verify-contact.js' %}"></script>
@@ -6635,9 +6641,13 @@
                     $('#business-page').css('display', 'block');
                 });
                 $(document).on('click', '#create-post', function () {
-                    $('.chat-content').css('display', 'none');
-                    $('.quick_links li').each(function () { $(this).removeClass('active') })
-                    $('#create-post-content').css('display', 'block');
+                    setTimeout(function () {
+                        $('#chat_load').css('display', 'none');
+                        $('#main-content').css('display', 'block');
+                        $('.quick_links li').each(function () { $(this).removeClass('active') })
+                        $('.chat-content').hide();
+                        $('#create-post-content').css('display', 'block');
+                    }, 2000);
                 });
                 // toggle between showing links and creating new link
                 $(document).on('click', '#new-link', function () {
@@ -6927,19 +6937,36 @@
                 };
                 // ---------------------------------HELP-------------------------------------- 
                 $(document).on('click', '#help', function () {
-                    $('.chat-content').hide();
-                    $('#help-content').show()
+                    setTimeout(function () {
+                        $('#chat_load').css('display', 'none');
+                        $('#main-content').css('display', 'block');
+
+                        $('.chat-content').hide();
+                        $('#help-content').show()
+                    }, 2000);
+
                 });
+
 
                 // ---------------------------------INTEGRATION GUIDE-------------------------------------- 
                 $(document).on('click', '#integration', function () {
-                    $('.chat-content').hide();
-                    $('#integration-content').show()
+                    setTimeout(function () {
+                        $('#chat_load').css('display', 'none');
+                        $('#main-content').css('display', 'block');
+
+                        $('.chat-content').hide();
+                        $('#integration-content').show()
+                    }, 2000);
                 });
                 // ---------------------------------DRAFTS-------------------------------------- 
                 $(document).on('click', '#drafts', function () {
-                    $('.chat-content').hide();
-                    $('#drafts-content').show()
+                    setTimeout(function () {
+                        $('#chat_load').css('display', 'none');
+                        $('#main-content').css('display', 'block');
+
+                        $('.chat-content').hide();
+                        $('#drafts-content').show()
+                    }, 2000);
                 });
                 // -----------------------------------PRIVATE MESSAGES-----------------------------
 
@@ -7022,6 +7049,7 @@
 
 
                 });
+
                 $(document).on('click', '#pm-back-platforms', function () {
                     $('#pm-container').css('display', 'block');
                     $('#pm-inbox').css('display', 'none');
@@ -7193,9 +7221,14 @@
                                 toastr.error(response['error']);
                                 $('#apply-filters').css('display', 'block');
                                 $('#apply-loading').css('display', 'none');
+                                $('#chat_load').css('display', 'none');
+                                $('#main-content').css('display', 'block');
+
 
                             } else {
                                 $('.chat-content').hide();
+                                $('#chat_load').css('display', 'none');
+                                $('#main-content').css('display', 'block');
 
                                 // update html
                                 var tempDiv = $('<div>').html(response);
@@ -7215,7 +7248,8 @@
                             toastr.error('Failed to submit form.');
                             $('#apply-filters').css('display', 'block');
                             $('#apply-loading').css('display', 'none');
-
+                            $('#chat_load').css('display', 'none');
+                            $('#main-content').css('display', 'block');
                             console.error(textStatus, errorThrown);
                         }
                     });
@@ -7224,16 +7258,28 @@
                 });
                 // ---------------------------------ISSUES & REQUESTS-------------------------------------- 
                 $(document).on('click', '#requests', function () {
-                    $('.chat-content').hide();
-                    $('#feature-request').show()
+                    // wait for 3 seconds
+                    setTimeout(function () {
+                        $('#chat_load').css('display', 'none');
+                        $('#main-content').css('display', 'block');
+
+                        $('.chat-content').hide();
+                        $('#feature-request').show();
+                    }, 2000);
+
                 });
 
                 // -----------------------------------BUSINESS PROFILE ---------------------------------------
                 $(document).on('click', '#business-prof', function () {
-                    $('.chat-content').hide();
-                    $('#business-page').show()
-                });
+                    setTimeout(function () {
+                        $('#chat_load').css('display', 'none');
+                        $('#main-content').css('display', 'block');
 
+                        $('.chat-content').hide();
+                        $('#business-page').show()
+                    }, 2000);
+
+                });
 
                 $('#image-input').on('change', function (event) {
                     const file = event.target.files[0]; // Get the selected file
@@ -7438,10 +7484,8 @@
                         }
                     });
                 })
-
                 // grab post content fetch comments
                 $(document).on('click', '#post-btn,.refresh-post', function () {
-
                     // Create a new FormData object
                     var formData = new FormData();
                     const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
@@ -7463,10 +7507,14 @@
                         success: function (response) {
                             if (response['error']) {
                                 toastr.error('Failed to get current posts');
+                                $('#chat_load').css('display', 'none');
+                                $('#main-content').css('display', 'block');
 
                             } else {
                                 // update html
                                 var tempDiv = $('<div>').html(response);
+                                $('#chat_load').css('display', 'none');
+                                $('#main-content').css('display', 'block');
 
                                 // Extract the specific element from the new HTML
                                 var newElementContent = tempDiv.find('#post-content').html();
@@ -7480,6 +7528,9 @@
                         error: function (jqXHR, textStatus, errorThrown) {
                             toastr.error('Failed to submit form.');
                             console.error(textStatus, errorThrown);
+                            $('#chat_load').css('display', 'none');
+                            $('#main-content').css('display', 'block');
+
                         }
                     });
                 });
@@ -7502,11 +7553,15 @@
                         contentType: false, // Prevent jQuery from setting the content type
                         success: function (response) {
                             if (response['error']) {
+                                $('#chat_load').css('display', 'none');
+                                $('#main-content').css('display', 'block');
 
                             } else {
                                 // update html
-                                var tempDiv = $('<div>').html(response);
+                                $('#chat_load').css('display', 'none');
+                                $('#main-content').css('display', 'block');
 
+                                var tempDiv = $('<div>').html(response);
                                 // Extract the specific element from the new HTML
                                 var newElementContent = tempDiv.find('#teams-content').html();
                                 $('#teams-content').html(newElementContent);
@@ -7519,9 +7574,12 @@
                         error: function (jqXHR, textStatus, errorThrown) {
                             toastr.error('Failed to submit form.');
                             console.error(textStatus, errorThrown);
+                            $('#chat_load').css('display', 'none');
+                            $('#main-content').css('display', 'block');
                         }
                     });
                 });
+
 
                 $(document).on('scrollToBottom', function () {
                     var scrollableDiv = $('#chat-elem');
