@@ -1923,7 +1923,7 @@
                 </div>
             </div>
         </div>
-        <div id="main-content" class=" light-mode"
+        <div id="main_content" class=" light-mode"
             style="z-index:3;background-color: rgb(255, 255, 255);width: 100%;display: block;">
             <!-- request feature/bug fix -->
             <div class="chat-content" id="feature-request" style="display:none;width: 100%;">
@@ -7050,10 +7050,9 @@
                 })
 
                 // grab post content fetch comments
-                $(document).on('click', '#post-btn', function () {
-                    $('#main-content').css('display','none');
-                    // $('#chat_load').css('display','block');
-                    return;
+                $(document).on('click', '#post-btn,.refresh-post', function () {
+                    $('#main_content').css('display','none');
+                    $('#chat_load').css('display','block');
                     // Create a new FormData object
                     var formData = new FormData();
                     const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
