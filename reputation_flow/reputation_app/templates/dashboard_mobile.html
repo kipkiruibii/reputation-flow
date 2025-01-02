@@ -1927,42 +1927,18 @@
             style="z-index:3;background-color: rgb(255, 255, 255);width: 100%;display: block;">
             <!-- request feature/bug fix -->
             <div class="chat-content" id="feature-request" style="display:none;width: 100%;">
-                <div class="chat-header container-right"
-                    style="margin-top: 10px;margin-bottom: 10px;position: relative;">
+                <div class="chat-header"
+                    style="margin-top: 10px;margin-bottom: 10px;position: fixed;top:0;width:100%;border-radius: 10px;padding-right: 10px;background-color: white;z-index: 100;">
+                    <div class="logo-container">
+                        <i class="fa fa-bars menu_bar" style="font-size:24px"></i>
+                    </div>
                     <div class="logo-container">
                         <h4>Request new feature/ Report a problem
                         </h4>
                     </div>
-                    <div class="user-details" tooltip="Me" flow="down">
-
-                    </div>
-                    <div class="popup" style="width: 250px;">
-                        <div style="display: flex;gap: 10px;">
-                            <div
-                                style="width: 70px;height: 70px;border-radius: 70px;background-color: rgb(255, 145, 0);">
-                            </div>
-                            <div>
-                                <p class="font-12">{{ request.user.username }} </p>
-                                <p class="font-12">Change Picture</p>
-                            </div>
-                        </div>
-                        <hr>
-                        <p>Permissions</p>
-                        <ul style="max-height: 100px;overflow-y: scroll;list-style-type: none;">
-                            <li class="font-12" style="color: green;"><i class="fa fa-check"></i> Can update business
-                                profile
-                            </li>
-                            <li class="font-12" style="color: red;"><i class="fa fa-times"></i> Can update profile</li>
-                        </ul>
-                        <a href="{% url 'logout' %}" style="text-decoration: none;">
-                            <div class="logout-btn"
-                                style="background-color: red;display: flex;margin-left: 30%;margin-right: 30%;align-items: center;justify-content: center;border-radius: 30px;color: white;">
-                                <span style="margin-right: 10px;">Log out</span> <i class="fas fa-sign-out"></i>
-                            </div>
-                        </a>
-                    </div>
 
                 </div>
+
                 <div style="display:block;">
 
                     <div class="company-account-info container-right" id="feature-reqs">
@@ -6567,7 +6543,7 @@
                         $('#drafts-content').show()
                     }, 2000);
                 });
-                
+
                 // -----------------------------------PRIVATE MESSAGES-----------------------------
 
                 $(document).on('click', '.pm-box', function () {
@@ -6649,7 +6625,7 @@
 
 
                 });
-                
+
                 $(document).on('click', '#pm-back-platforms', function () {
                     $('#pm-container').css('display', 'block');
                     $('#pm-inbox').css('display', 'none');

@@ -2003,7 +2003,7 @@
                                 </ul>
                             </div>
                             {% else %}
-                            <div style="display:flex;justify-content:center;margin-top:20%">
+                            <div style="display:flex;justify-content:center;margin-top:20%;width: 100%;">
                                 <p>There are no feature requests at the moment. Create one now</p>
                             </div>
                             {% endif %}
@@ -7191,12 +7191,7 @@
                             toastr.error('Failed to send');
                         }
                     });
-
-
-
                 });
-
-
                 // ---------------------------------REVIEWS-------------------------------------- 
                 $(document).on('click', '#reviews', function () {
                     $('#chat_load').css('display', 'block');
