@@ -7500,8 +7500,15 @@
                             console.error(textStatus, errorThrown);
                         }
                     });
-                })
+                });
                 // grab post content fetch comments
+                $(document).on('click', '#post-btn', function () {
+                    $('#chat_load').css('display', 'block');
+                    $('#main-content').css('display', 'none');
+
+
+                });
+
                 $(document).on('click', '#post-btn,.refresh-post', function () {
                     // Create a new FormData object
                     var formData = new FormData();
