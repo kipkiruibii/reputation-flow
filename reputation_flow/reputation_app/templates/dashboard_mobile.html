@@ -6760,7 +6760,9 @@
 
                 // ---------------------------------REVIEWS-------------------------------------- 
                 $(document).on('click', '#apply-filters,#reviews,.pub-unpub', function () {
-                    $('#main-content').css('display', 'none');
+                    $('.chat-content').each(function(){
+                        $(this).hide();
+                    });
                     $('#chat_load').css('display','block');
                     const filterInstance = multiSelectInstances.find(instance => instance.selectElement.dataset.name === "filters");
                     if (!filterInstance) {
