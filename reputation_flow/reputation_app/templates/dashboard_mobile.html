@@ -1924,7 +1924,7 @@
             </div>
         </div>
         <div id="main-content" class=" light-mode" id=""
-            style="z-index:3;background-color: rgb(255, 255, 255);width: 100%;display: none;">
+            style="z-index:3;background-color: rgb(255, 255, 255);width: 100%;">
             <!-- request feature/bug fix -->
             <div class="chat-content" id="feature-request" style="display:none;width: 100%;">
                 <div class="chat-header container-right"
@@ -5834,7 +5834,7 @@
                 </div>
             </div>
         </div>
-        <div id="chat_load" class="light-mode" style="z-index:3;background-color: rgb(255, 255, 255);width: 100%;">
+        <div id="chat_load" class="light-mode" style="z-index:3;background-color: rgb(255, 255, 255);width: 100%;display: none;">
             <div class="chat-header "
                 style="margin-top: 10px;margin-bottom: 10px;position: fixed;top:0;width:100%;border-radius: 10px;padding-right: 10px;background-color: white;z-index: 100;">
                 <div class="logo-container">
@@ -6795,6 +6795,8 @@
 
                 // ---------------------------------REVIEWS-------------------------------------- 
                 $(document).on('click', '#apply-filters,#reviews,.pub-unpub', function () {
+                    $('#main_content').css('display','none');
+                    $('#chat_load').css('display','block');
                     const filterInstance = multiSelectInstances.find(instance => instance.selectElement.dataset.name === "filters");
                     if (!filterInstance) {
                         return;
@@ -6827,6 +6829,9 @@
                                 toastr.error(response['error']);
                                 $('#apply-filters').css('display', 'block');
                                 $('#apply-loading').css('display', 'none');
+                                $('#main_content').css('display','block');
+                                $('#chat_load').css('display','none');
+
 
                             } else {
                                 $('.chat-content').hide();
