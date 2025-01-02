@@ -4597,11 +4597,19 @@
                                     {% elif reddit.subs|length == 0 %}( No subs) {% endif %}</p>
                             </label>
                         </div>
+                        {% if user_permissions.can_post %}
                         <div style="margin-top: 20px;">
                             <a id="to_upload_content" class="btn-solid-sm post-btn-proceed-disabled" href="#">NEXT
                                 (Upload content) <i class="fa fa-caret-right"></i></a>
 
                         </div>
+                        {% else %}
+                        <div style="margin-top: 20px;cursor: not-allowed;">
+                            <a  class="post-btn-proceed-disabled" href="#" tooltip="Action forbidden. Contact admin" flow="down">NEXT
+                                (Upload content) <i class="fa fa-caret-right" ></i></a>
+
+                        </div>
+                        {% endif %}
                         <div style="display: none;justify-content: center;margin-top: 10px;margin-bottom: 10px;"
                             id="wait-upload-spinner">
                             <i class="fa fa-spinner fa-spin"></i>
