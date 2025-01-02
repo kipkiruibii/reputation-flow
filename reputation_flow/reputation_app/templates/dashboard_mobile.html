@@ -1923,7 +1923,7 @@
                 </div>
             </div>
         </div>
-        <div id="main-content" class=" light-mode"
+        <div id="main-content" class="maincont light-mode"
             style="z-index:3;background-color: rgb(255, 255, 255);width: 100%;display: block;">
             <!-- request feature/bug fix -->
             <div class="chat-content" id="feature-request" style="display:none;width: 100%;">
@@ -6760,8 +6760,8 @@
 
                 // ---------------------------------REVIEWS-------------------------------------- 
                 $(document).on('click', '#apply-filters,#reviews,.pub-unpub', function () {
-                    $('.chat-content').each(function(){
-                        $('#main-content').css('display','none');
+                    $('.maincont').each(function(){
+                        $(this).css('display','none');
                     });
                     $('#chat_load').css('display','block');
                     const filterInstance = multiSelectInstances.find(instance => instance.selectElement.dataset.name === "filters");
