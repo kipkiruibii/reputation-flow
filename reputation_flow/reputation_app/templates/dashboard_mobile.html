@@ -6835,6 +6835,8 @@
 
                             } else {
                                 $('.chat-content').hide();
+                                $('#main_content').css('display','block');
+                                $('#chat_load').css('display','none');
 
                                 // update html
                                 var tempDiv = $('<div>').html(response);
@@ -6854,7 +6856,8 @@
                             toastr.error('Failed to submit form.');
                             $('#apply-filters').css('display', 'block');
                             $('#apply-loading').css('display', 'none');
-
+                            $('#main_content').css('display','block');
+                            $('#chat_load').css('display','none');
                             console.error(textStatus, errorThrown);
                         }
                     });
@@ -6864,7 +6867,8 @@
                 // ---------------------------------ISSUES & REQUESTS-------------------------------------- 
                 $(document).on('click', '#requests', function () {
                     $('.chat-content').hide();
-                    $('#feature-request').show()
+                    $('#feature-request').show();
+
                 });
 
                 // -----------------------------------BUSINESS PROFILE ---------------------------------------
@@ -7082,6 +7086,8 @@
 
                 // grab post content fetch comments
                 $(document).on('click', '#post-btn,.refresh-post', function () {
+                    $('#main_content').css('display','none');
+                    $('#chat_load').css('display','block');
 
                     // Create a new FormData object
                     var formData = new FormData();
@@ -7104,10 +7110,14 @@
                         success: function (response) {
                             if (response['error']) {
                                 toastr.error('Failed to get current posts');
+                                $('#main_content').css('display','block');
+                                $('#chat_load').css('display','none');
 
                             } else {
                                 // update html
                                 var tempDiv = $('<div>').html(response);
+                                $('#main_content').css('display','block');
+                                $('#chat_load').css('display','none');
 
                                 // Extract the specific element from the new HTML
                                 var newElementContent = tempDiv.find('#post-content').html();
@@ -7121,11 +7131,16 @@
                         error: function (jqXHR, textStatus, errorThrown) {
                             toastr.error('Failed to submit form.');
                             console.error(textStatus, errorThrown);
+                            $('#main_content').css('display','block');
+                                $('#chat_load').css('display','none');
+
                         }
                     });
                 });
 
                 $(document).on('click', '#teams-btn', function () {
+                    $('#main_content').css('display','none');
+                    $('#chat_load').css('display','block');
                     // Create a new FormData object
                     var formData = new FormData();
                     // Append other input fields to FormData
@@ -7143,10 +7158,14 @@
                         contentType: false, // Prevent jQuery from setting the content type
                         success: function (response) {
                             if (response['error']) {
+                                $('#main_content').css('display','block');
+                                $('#chat_load').css('display','none');
 
                             } else {
                                 // update html
                                 var tempDiv = $('<div>').html(response);
+                                $('#main_content').css('display','block');
+                                $('#chat_load').css('display','none');
 
                                 // Extract the specific element from the new HTML
                                 var newElementContent = tempDiv.find('#teams-content').html();
@@ -7160,6 +7179,8 @@
                         error: function (jqXHR, textStatus, errorThrown) {
                             toastr.error('Failed to submit form.');
                             console.error(textStatus, errorThrown);
+                            $('#main_content').css('display','block');
+                            $('#chat_load').css('display','none');
                         }
                     });
                 });
