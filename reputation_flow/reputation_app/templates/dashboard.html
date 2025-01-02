@@ -1912,7 +1912,7 @@
                 </div>
             </div>
         </div>
-        <div class="chat-container light-mode" id="" style="z-index:3;">
+        <div class="chat-container light-mode" id="" style="z-index:3;display: none;">
             <!-- request feature/bug fix -->
             <div class="chat-content" id="feature-request" style="display:none;width: 100%;">
                 <div class="chat-header container-right"
@@ -4604,9 +4604,10 @@
 
                         </div>
                         {% else %}
-                        <div style="margin-top: 20px;cursor: not-allowed;" tooltip="Action forbidden. Contact admin" flow="down">
-                            <a  class="btn-solid-sm post-btn-proceed-disabled" href="#" >NEXT
-                                (Upload content) <i class="fa fa-caret-right" ></i></a>
+                        <div style="margin-top: 20px;cursor: not-allowed;" tooltip="Action forbidden. Contact admin"
+                            flow="down">
+                            <a class="btn-solid-sm post-btn-proceed-disabled" href="#">NEXT
+                                (Upload content) <i class="fa fa-caret-right"></i></a>
 
                         </div>
                         {% endif %}
@@ -6231,6 +6232,12 @@
                 </div>
             </div>
         </div>
+        <div id="chat_load">
+            <div style="display: flex;justify-content: center;margin:auto;padding: 30px;">
+                <i class="fa fa-spinner fa-spin"></i>
+            </div>
+
+        </div>
         <script src="{% static 'js/main.js' %}"></script>
         <script src="{% static 'js/website-scan.js' %}"></script>
         <script src="{% static 'js/verify-contact.js' %}"></script>
@@ -6628,7 +6635,6 @@
                     $('#business-page').css('display', 'block');
                 });
                 $(document).on('click', '#create-post', function () {
-
                     $('.chat-content').css('display', 'none');
                     $('.quick_links li').each(function () { $(this).removeClass('active') })
                     $('#create-post-content').css('display', 'block');
