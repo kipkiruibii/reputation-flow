@@ -7198,7 +7198,10 @@
 
 
                 // ---------------------------------REVIEWS-------------------------------------- 
-
+                $(document).on('click', '#reviews', function () {
+                    $('#chat_load').css('display', 'block');
+                    $('#main-content').css('display', 'none');
+                });
                 
                 $(document).on('click', '#apply-filters,#reviews,.pub-unpub', function () {
 
@@ -7505,8 +7508,6 @@
                 $(document).on('click', '#post-btn', function () {
                     $('#chat_load').css('display', 'block');
                     $('#main-content').css('display', 'none');
-
-
                 });
 
                 $(document).on('click', '#post-btn,.refresh-post', function () {
