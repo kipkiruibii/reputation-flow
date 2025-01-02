@@ -6534,17 +6534,24 @@
                 // ---------------------------------HELP-------------------------------------- 
                 $(document).on('click', '#help', function () {
                     $('.chat-content').hide();
+                    $('#chat_load').css('display','none');
+                    $('#main-content').css('display','block');
+
                     $('#help-content').show()
                 });
 
                 // ---------------------------------INTEGRATION GUIDE-------------------------------------- 
                 $(document).on('click', '#integration', function () {
                     $('.chat-content').hide();
+                    $('#chat_load').css('display','none');
+                    $('#main-content').css('display','block');
                     $('#integration-content').show()
                 });
                 // ---------------------------------DRAFTS-------------------------------------- 
                 $(document).on('click', '#drafts', function () {
                     $('.chat-content').hide();
+                    $('#chat_load').css('display','none');
+                    $('#main-content').css('display','block');
                     $('#drafts-content').show()
                 });
                 // -----------------------------------PRIVATE MESSAGES-----------------------------
@@ -6760,10 +6767,6 @@
 
                 // ---------------------------------REVIEWS-------------------------------------- 
                 $(document).on('click', '#apply-filters,#reviews,.pub-unpub', function () {
-                    $('.chat-content').each(function(){
-                        $(this).css('display','none');
-                    });
-                    $('#chat_load').css('display','block');
                     const filterInstance = multiSelectInstances.find(instance => instance.selectElement.dataset.name === "filters");
                     if (!filterInstance) {
                         return;
@@ -6796,14 +6799,14 @@
                                 toastr.error(response['error']);
                                 $('#apply-filters').css('display', 'block');
                                 $('#apply-loading').css('display', 'none');
-                                $('#main-content').css('display','block');
                                 $('#chat_load').css('display','none');
+                                $('#main-content').css('display','block');
 
 
                             } else {
                                 $('.chat-content').hide();
-                                $('#main-content').css('display','block');
                                 $('#chat_load').css('display','none');
+                                $('#main-content').css('display','block');
 
                                 // update html
                                 var tempDiv = $('<div>').html(response);
@@ -6823,8 +6826,8 @@
                             toastr.error('Failed to submit form.');
                             $('#apply-filters').css('display', 'block');
                             $('#apply-loading').css('display', 'none');
-                            $('#main-content').css('display','block');
                             $('#chat_load').css('display','none');
+                            $('#main-content').css('display','block');
                             console.error(textStatus, errorThrown);
                         }
                     });
@@ -6834,6 +6837,8 @@
                 // ---------------------------------ISSUES & REQUESTS-------------------------------------- 
                 $(document).on('click', '#requests', function () {
                     $('.chat-content').hide();
+                    $('#chat_load').css('display','none');
+                    $('#main-content').css('display','block');
                     $('#feature-request').show();
 
                 });
@@ -7053,8 +7058,6 @@
 
                 // grab post content fetch comments
                 $(document).on('click', '#post-btn,.refresh-post', function () {
-                    $('#main_content').css('display','none');
-                    $('#chat_load').css('display','block');
                     // Create a new FormData object
                     var formData = new FormData();
                     const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
@@ -7076,14 +7079,14 @@
                         success: function (response) {
                             if (response['error']) {
                                 toastr.error('Failed to get current posts');
-                                $('#main-content').css('display','block');
                                 $('#chat_load').css('display','none');
+                                $('#main-content').css('display','block');
 
                             } else {
                                 // update html
                                 var tempDiv = $('<div>').html(response);
-                                $('#main-content').css('display','block');
                                 $('#chat_load').css('display','none');
+                                $('#main-content').css('display','block');
 
                                 // Extract the specific element from the new HTML
                                 var newElementContent = tempDiv.find('#post-content').html();
@@ -7097,16 +7100,14 @@
                         error: function (jqXHR, textStatus, errorThrown) {
                             toastr.error('Failed to submit form.');
                             console.error(textStatus, errorThrown);
+                            $('#chat_load').css('display','none');
                             $('#main-content').css('display','block');
-                                $('#chat_load').css('display','none');
 
                         }
                     });
                 });
 
                 $(document).on('click', '#teams-btn', function () {
-                    $('#main-content').css('display','none');
-                    $('#chat_load').css('display','block');
                     // Create a new FormData object
                     var formData = new FormData();
                     // Append other input fields to FormData
@@ -7124,15 +7125,15 @@
                         contentType: false, // Prevent jQuery from setting the content type
                         success: function (response) {
                             if (response['error']) {
-                                $('#main-content').css('display','block');
                                 $('#chat_load').css('display','none');
+                                $('#main-content').css('display','block');
 
                             } else {
                                 // update html
-                                var tempDiv = $('<div>').html(response);
-                                $('#main-content').css('display','block');
                                 $('#chat_load').css('display','none');
+                                $('#main-content').css('display','block');
 
+                                var tempDiv = $('<div>').html(response);
                                 // Extract the specific element from the new HTML
                                 var newElementContent = tempDiv.find('#teams-content').html();
                                 $('#teams-content').html(newElementContent);
@@ -7145,8 +7146,8 @@
                         error: function (jqXHR, textStatus, errorThrown) {
                             toastr.error('Failed to submit form.');
                             console.error(textStatus, errorThrown);
-                            $('#main-content').css('display','block');
                             $('#chat_load').css('display','none');
+                            $('#main-content').css('display','block');
                         }
                     });
                 });
@@ -9186,8 +9187,7 @@
 
                 $(document).on('click', '.close-sidebar', function () {
                     $('#sidebar-menu').css('display', 'none');
-                    $('#main-content').css('display', 'block');
-
+                    $('#chat_load').css('display', 'block');
                 });
 
                 // schedule post
