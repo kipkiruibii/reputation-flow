@@ -6241,10 +6241,13 @@
                     $('#business-page').css('display', 'block');
                 });
                 $(document).on('click', '#create-post', function () {
-
-                    $('.chat-content').css('display', 'none');
-                    $('.quick_links li').each(function () { $(this).removeClass('active') })
-                    $('#create-post-content').css('display', 'block');
+                    setTimeout(function () {
+                        $('#chat_load').css('display', 'none');
+                        $('#main-content').css('display', 'block');
+                        $('.quick_links li').each(function () { $(this).removeClass('active') })
+                        $('.chat-content').hide();
+                        $('#create-post-content').css('display', 'block');
+                    }, 2000);
                 });
                 // toggle between showing links and creating new link
                 $(document).on('click', '#new-link', function () {
