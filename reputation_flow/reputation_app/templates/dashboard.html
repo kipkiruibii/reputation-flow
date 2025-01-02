@@ -86,25 +86,46 @@
     </script>
 
     <style>
-.loader {
-  width: 48px;
-  height: 48px;
-  border: 5px dotted #FFF;
-  border-radius: 50%;
-  display: inline-block;
-  position: relative;
-  box-sizing: border-box;
-  animation: rotation 2s linear infinite;
-}
+        .loader {
+            width: 48px;
+            height: 48px;
+            display: inline-block;
+            position: relative;
+            display: block;
+            margin-left: 45%;
+            margin-top: 200px;
+        }
 
-@keyframes rotation {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
-} 
+        .loader::after,
+        .loader::before {
+            content: '';
+            box-sizing: border-box;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            border: 2px solid grey;
+            position: absolute;
+            left: 0;
+            top: 0;
+            animation: animloader 2s linear infinite;
+        }
+
+        .loader::after {
+            animation-delay: 1s;
+        }
+
+        @keyframes animloader {
+            0% {
+                transform: scale(0);
+                opacity: 1;
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 0;
+            }
+        }
+
 
         /* Container for the grid */
         .grid-container {
@@ -1066,7 +1087,7 @@
             overflow-y: auto;
             /* Enable scrolling for content overflow */
         }
-     </style>
+    </style>
 
 </head>
 
@@ -6212,9 +6233,9 @@
             </div>
         </div>
         <div id="chat_load" class="chat-container light-mode"  style="z-index:3;">
-            <div style="display: flex;justify-content: center;margin-top:25%;padding: 30px;">
+            <!-- <div style="display: flex;justify-content: center;margin-top:25%;padding: 30px;"> -->
                 <span class="loader"></span>
-            </div>
+                        <!-- </div> -->
 
         </div>
         <script src="{% static 'js/main.js' %}"></script>
