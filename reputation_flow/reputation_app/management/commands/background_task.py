@@ -974,6 +974,7 @@ class Command(BaseCommand):
         self.updateAccessTokens()
         self.uploadScheduledContent()
         self.checkUsersSubscription()
+        self.removes3Media()
         
     # updating the access tokens for every account
     def updateAccessTokens(self):
@@ -1036,4 +1037,10 @@ class Command(BaseCommand):
                 
     def updatePostEngagement(self):
         ''' every 10 minutes, update the engagement in background, comments,likes notifications'''
+        pass
+    def removes3Media(self):
+        for cp in CompanyPosts.objects.filter(is_published=True):
+            for upl in UploadedMedia.objects.filter(post=cp):
+                print(upl.media.url)
+            
         pass
