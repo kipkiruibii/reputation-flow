@@ -975,9 +975,9 @@ def delete_file_from_s3(file_key):
             Key=file_key,
         )
                 
-        return JsonResponse({"message": "File deleted successfully."})
+        return {"message": "File deleted successfully."}
     except Exception as e:
-        return JsonResponse({"error": str(e)}, status=500)
+        return {"error": str(e)}
     
     # import magic 
 
@@ -1063,17 +1063,17 @@ class Command(BaseCommand):
     def removes3Media(self):
         for cp in CompanyPosts.objects.filter(is_published=True):
             for upl in UploadedMedia.objects.filter(post=cp):
-                print(upl.media.url)
+                delThead=threading.Thread(target=delete_file_from_s3,kwargs={'file_key':upl.media.name},daemon=True)
+                delThead.start()
         
         # check for failed and greater than 5 days schedule period
         for cps in CompanyPosts.objects.filter(has_failed=True):
-            
             for upl in UploadedMedia.objects.filter(post=cp):
                 dt_uplded=cps.date_uploaded
                 tnw=(timezone.now()-dt_uplded).total_seconds()/86400
                 if tnw >=7:
-                    
+                    delThead=threading.Thread(target=delete_file_from_s3,kwargs={'file_key':upl.media.name},daemon=True)
+                    delThead.start()
 
-                print(upl.media.url)
             
         pass
