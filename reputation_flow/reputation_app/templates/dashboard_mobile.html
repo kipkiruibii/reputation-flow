@@ -5840,33 +5840,6 @@
                 <div class="logo-container">
                     <i class="fa fa-bars menu_bar" style="font-size:24px"></i>
                 </div>
-                <div class="user-details" tooltip="Me" flow="down">
-
-                </div>
-                <div class="popup" style="width: 250px;">
-                    <div style="display: flex;gap: 10px;">
-                        <div style="width: 70px;height: 70px;border-radius: 70px;background-color: rgb(255, 145, 0);">
-                        </div>
-                        <div>
-                            <p class="font-12">{{ request.user.username }} </p>
-                            <p class="font-12">Change Picture</p>
-                        </div>
-                    </div>
-                    <hr>
-                    <p>Permissions</p>
-                    <ul style="max-height: 100px;overflow-y: scroll;list-style-type: none;">
-                        <li class="font-12" style="color: green;"><i class="fa fa-check"></i> Can update business
-                            profile
-                        </li>
-                        <li class="font-12" style="color: red;"><i class="fa fa-times"></i> Can update profile</li>
-                    </ul>
-                    <a href="{% url 'logout' %}" style="text-decoration: none;">
-                        <div class="logout-btn"
-                            style="background-color: red;display: flex;margin-left: 30%;margin-right: 30%;align-items: center;justify-content: center;border-radius: 30px;color: white;">
-                            <span style="margin-right: 10px;">Log out</span> <i class="fas fa-sign-out"></i>
-                        </div>
-                    </a>
-                </div>
 
             </div>
             <span class="loader"></span>
