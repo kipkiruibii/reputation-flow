@@ -6238,7 +6238,6 @@
                     style="margin-top: 10px;margin-bottom: 10px;position: relative;">
                     <div class="logo-container">
                         <h4>
-
                         </h4>
                     </div>
                 </div>
@@ -6640,11 +6639,12 @@
                 });
 
                 $(document).on('click', '#cancel-edit', function () {
-
                     $('#edit-business-page').css('display', 'none');
                     $('#business-page').css('display', 'block');
                 });
                 $(document).on('click', '#create-post', function () {
+                    $('#chat_load').css('display', 'block');
+                    $('#main-content').css('display', 'none');
                     setTimeout(function () {
                         $('#chat_load').css('display', 'none');
                         $('#main-content').css('display', 'block');
@@ -7268,6 +7268,8 @@
                 });
                 // ---------------------------------ISSUES & REQUESTS-------------------------------------- 
                 $(document).on('click', '#requests', function () {
+                    $('#chat_load').css('display', 'block');
+                    $('#main-content').css('display', 'none');
                     // wait for 3 seconds
                     setTimeout(function () {
                         $('#chat_load').css('display', 'none');
