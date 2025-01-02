@@ -5833,7 +5833,8 @@
                 </div>
             </div>
         </div>
-        <div id="chat_load" class="light-mode" style="z-index:3;background-color: rgb(255, 255, 255);width: 100%;display: none;">
+        <div id="chat_load" class="light-mode"
+            style="z-index:3;background-color: rgb(255, 255, 255);width: 100%;display: none;">
             <div class="chat-header "
                 style="margin-top: 10px;margin-bottom: 10px;position: fixed;top:0;width:100%;border-radius: 10px;padding-right: 10px;background-color: white;z-index: 100;">
                 <div class="logo-container">
@@ -6533,26 +6534,35 @@
                 };
                 // ---------------------------------HELP-------------------------------------- 
                 $(document).on('click', '#help', function () {
-                    $('.chat-content').hide();
-                    $('#chat_load').css('display','none');
-                    $('#main-content').css('display','block');
+                    setTimeout(function () {
+                        $('#chat_load').css('display', 'none');
+                        $('#main-content').css('display', 'block');
 
-                    $('#help-content').show()
+                        $('.chat-content').hide();
+                        $('#help-content').show()
+                    }, 3000);
+
                 });
 
                 // ---------------------------------INTEGRATION GUIDE-------------------------------------- 
                 $(document).on('click', '#integration', function () {
-                    $('.chat-content').hide();
-                    $('#chat_load').css('display','none');
-                    $('#main-content').css('display','block');
-                    $('#integration-content').show()
+                    setTimeout(function () {
+                        $('#chat_load').css('display', 'none');
+                        $('#main-content').css('display', 'block');
+
+                        $('.chat-content').hide();
+                        $('#integration-content').show()
+                    }, 3000);
                 });
                 // ---------------------------------DRAFTS-------------------------------------- 
                 $(document).on('click', '#drafts', function () {
-                    $('.chat-content').hide();
-                    $('#chat_load').css('display','none');
-                    $('#main-content').css('display','block');
-                    $('#drafts-content').show()
+                    setTimeout(function () {
+                        $('#chat_load').css('display', 'none');
+                        $('#main-content').css('display', 'block');
+
+                        $('.chat-content').hide();
+                        $('#drafts-content').show()
+                    }, 3000);
                 });
                 // -----------------------------------PRIVATE MESSAGES-----------------------------
 
@@ -6799,14 +6809,14 @@
                                 toastr.error(response['error']);
                                 $('#apply-filters').css('display', 'block');
                                 $('#apply-loading').css('display', 'none');
-                                $('#chat_load').css('display','none');
-                                $('#main-content').css('display','block');
+                                $('#chat_load').css('display', 'none');
+                                $('#main-content').css('display', 'block');
 
 
                             } else {
                                 $('.chat-content').hide();
-                                $('#chat_load').css('display','none');
-                                $('#main-content').css('display','block');
+                                $('#chat_load').css('display', 'none');
+                                $('#main-content').css('display', 'block');
 
                                 // update html
                                 var tempDiv = $('<div>').html(response);
@@ -6826,8 +6836,8 @@
                             toastr.error('Failed to submit form.');
                             $('#apply-filters').css('display', 'block');
                             $('#apply-loading').css('display', 'none');
-                            $('#chat_load').css('display','none');
-                            $('#main-content').css('display','block');
+                            $('#chat_load').css('display', 'none');
+                            $('#main-content').css('display', 'block');
                             console.error(textStatus, errorThrown);
                         }
                     });
@@ -6836,17 +6846,27 @@
                 });
                 // ---------------------------------ISSUES & REQUESTS-------------------------------------- 
                 $(document).on('click', '#requests', function () {
-                    $('.chat-content').hide();
-                    $('#chat_load').css('display','none');
-                    $('#main-content').css('display','block');
-                    $('#feature-request').show();
+                    // wait for 3 seconds
+                    setTimeout(function () {
+                        $('#chat_load').css('display', 'none');
+                        $('#main-content').css('display', 'block');
+
+                        $('.chat-content').hide();
+                        $('#feature-request').show();
+                    }, 3000);
 
                 });
 
                 // -----------------------------------BUSINESS PROFILE ---------------------------------------
                 $(document).on('click', '#business-prof', function () {
-                    $('.chat-content').hide();
-                    $('#business-page').show()
+                    setTimeout(function () {
+                        $('#chat_load').css('display', 'none');
+                        $('#main-content').css('display', 'block');
+
+                        $('.chat-content').hide();
+                        $('#business-page').show()
+                    }, 3000);
+
                 });
 
 
@@ -7079,14 +7099,14 @@
                         success: function (response) {
                             if (response['error']) {
                                 toastr.error('Failed to get current posts');
-                                $('#chat_load').css('display','none');
-                                $('#main-content').css('display','block');
+                                $('#chat_load').css('display', 'none');
+                                $('#main-content').css('display', 'block');
 
                             } else {
                                 // update html
                                 var tempDiv = $('<div>').html(response);
-                                $('#chat_load').css('display','none');
-                                $('#main-content').css('display','block');
+                                $('#chat_load').css('display', 'none');
+                                $('#main-content').css('display', 'block');
 
                                 // Extract the specific element from the new HTML
                                 var newElementContent = tempDiv.find('#post-content').html();
@@ -7100,8 +7120,8 @@
                         error: function (jqXHR, textStatus, errorThrown) {
                             toastr.error('Failed to submit form.');
                             console.error(textStatus, errorThrown);
-                            $('#chat_load').css('display','none');
-                            $('#main-content').css('display','block');
+                            $('#chat_load').css('display', 'none');
+                            $('#main-content').css('display', 'block');
 
                         }
                     });
@@ -7125,13 +7145,13 @@
                         contentType: false, // Prevent jQuery from setting the content type
                         success: function (response) {
                             if (response['error']) {
-                                $('#chat_load').css('display','none');
-                                $('#main-content').css('display','block');
+                                $('#chat_load').css('display', 'none');
+                                $('#main-content').css('display', 'block');
 
                             } else {
                                 // update html
-                                $('#chat_load').css('display','none');
-                                $('#main-content').css('display','block');
+                                $('#chat_load').css('display', 'none');
+                                $('#main-content').css('display', 'block');
 
                                 var tempDiv = $('<div>').html(response);
                                 // Extract the specific element from the new HTML
@@ -7146,8 +7166,8 @@
                         error: function (jqXHR, textStatus, errorThrown) {
                             toastr.error('Failed to submit form.');
                             console.error(textStatus, errorThrown);
-                            $('#chat_load').css('display','none');
-                            $('#main-content').css('display','block');
+                            $('#chat_load').css('display', 'none');
+                            $('#main-content').css('display', 'block');
                         }
                     });
                 });
