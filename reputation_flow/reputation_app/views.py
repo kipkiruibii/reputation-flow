@@ -200,8 +200,10 @@ def failed_payment(request):
 
 @csrf_exempt
 def paypal_notification(request):
+    print('Received notification')
     if request.method == "POST":
         data = request.POST
+        print('Received paypal',data)
         try:
             payment_status = data.get('payment_status', '')
             currency = data.get('mc_currency', '')
