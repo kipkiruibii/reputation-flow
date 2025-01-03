@@ -90,7 +90,7 @@ class CompanyTransactionHistory(models.Model):
     subscription_period=models.JSONField(default=dict) # {start_date:<dte>,'end_date':<dte>}
     
     def __str__(self) -> str:
-        return f'{self.company_name} SUB {self.subscription_type} PERIOD {self.subscription_date.strftime("%a/%d/%m/%Y %I:%M %p")} '
+        return f'{self.company.company_name} SUB {self.subscription_type} PERIOD {self.subscription_date.strftime("%a/%d/%m/%Y %I:%M %p")} '
     
 
 class CompanyBotChats(models.Model):
