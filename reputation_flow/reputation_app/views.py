@@ -215,11 +215,10 @@ def paypal_notification(request):
             receiver_email = data.get('receiver_email', '')
             profile_id = data.get('subscr_id', '')
             company_id = request.POST.get('custom', '')
-
-            if payment_status == 'Completed':
-                if company_id:
-                    cpn = Company.objects.filter(company_id=company_id).first()
-                    if cpn:
+            cpn = Company.objects.filter(company_id=company_id).first()
+            if cpn:
+                if payment_status == 'Completed':
+                    if company_id:
                         if currency == 'USD':
                             if float(amount) >= 29:
                                 cth=CompanyTransactionHistory(
@@ -233,7 +232,7 @@ def paypal_notification(request):
                                     payer_email=email,
                                     subscriber_id=profile_id,
                                     subscription_notes=f'Subscription successfull on {payment_date}',
-                                    subscription_period={'start_date':timezone.now(),'end_date':timezone.now()+timedelta(days=30)}
+                                    subscription_period={'start_date':timezone.now().isoformat(),'end_date':(timezone.now()+timedelta(days=30)).isoformat()}
                                 )
                                 cth.save()
                                 
@@ -268,23 +267,22 @@ def paypal_notification(request):
                             #     is_successful=True
                             # )
                             # us.save()
-
+                cth=CompanyTransactionHistory(
+                    company=cpn,
+                    subscription_type='starter',# eg starter company or enterprise
+                    subscription_tier=-1, # 1- starter 2-company 3-enterprise
+                    subscription_amount=int(amount),
+                    subscription_currency=currency,
+                    subscription_failed=True,
+                    transaction_id=transaction_id,
+                    payer_email=email,
+                    subscriber_id=profile_id,
+                    subscription_notes=f'Subscription of {currency} {amount} Failed : {payment_status}',
+                    subscription_period={'start_date':timezone.now().isoformat(),'end_date':(timezone.now()+timedelta(days=30)).isoformat()}
+                )
+                cth.save()
         except:
             traceback.print_exc()
-        cth=CompanyTransactionHistory(
-            company=cpn,
-            subscription_type='starter',# eg starter company or enterprise
-            subscription_tier=1, # 1- starter 2-company 3-enterprise
-            subscription_amount=29,
-            subscription_currency='USD',
-            subscription_success=True,
-            transaction_id=transaction_id,
-            payer_email=email,
-            subscriber_id=profile_id,
-            subscription_notes=f'Subscription successfull on {payment_date}',
-            subscription_period={'start_date':timezone.now(),'end_date':timezone.now()+timedelta(days=30)}
-        )
-        cth.save()
         return JsonResponse({'result':500})
 
 
