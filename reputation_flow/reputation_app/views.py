@@ -267,21 +267,21 @@ def paypal_notification(request):
                             #     is_successful=True
                             # )
                             # us.save()
-                # else:
-                cth=CompanyTransactionHistory(
-                    company=cpn,
-                    subscription_type='starter',# eg starter company or enterprise
-                    subscription_tier=-1, # 1- starter 2-company 3-enterprise
-                    subscription_amount=float(amount) if amount else 0.0,
-                    subscription_currency=currency,
-                    subscription_failed=True,
-                    transaction_id=transaction_id,
-                    payer_email=email,
-                    subscriber_id=profile_id,
-                    subscription_notes=f'Subscription of {currency} {amount} Failed : {payment_status}',
-                    subscription_period={'start_date':timezone.now().isoformat(),'end_date':(timezone.now()+timedelta(days=30)).isoformat()}
-                )
-                cth.save()
+                else:
+                    cth=CompanyTransactionHistory(
+                        company=cpn,
+                        subscription_type='starter',# eg starter company or enterprise
+                        subscription_tier=-1, # 1- starter 2-company 3-enterprise
+                        subscription_amount=float(amount) if amount else 0.0,
+                        subscription_currency=currency,
+                        subscription_failed=True,
+                        transaction_id=transaction_id,
+                        payer_email=email,
+                        subscriber_id=profile_id,
+                        subscription_notes=f'Subscription of {currency} {amount} Failed : {payment_status}',
+                        subscription_period={'start_date':timezone.now().isoformat(),'end_date':(timezone.now()+timedelta(days=30)).isoformat()}
+                    )
+                    cth.save()
         except:
             traceback.print_exc()
         return JsonResponse({'result':500})
