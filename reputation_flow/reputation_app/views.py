@@ -212,19 +212,39 @@ def paypal_notification(request):
             payment_date = data.get('payment_date', '')
             receiver_email = data.get('receiver_email', '')
             profile_id = data.get('subscr_id', '')
-            userDetails = request.POST.get('custom', '')
+            company_id = request.POST.get('custom', '')
 
             if payment_status == 'Completed':
-                if userDetails:
-                    user_paying = User.objects.filter(username=userDetails).first()
-                    if user_paying:
+                if company_id:
+                    cpn = Company.objects.filter(company_id=company_id).first()
+                    if cpn:
                         if currency == 'USD':
-                            request_remaining = None
-                            subscription_type = None
                             if float(amount) >= 29:
-                                pass
-                                # request_remaining = 10
-                                # subscription_type = 'One Time'
+                                cth=CompanyTransactionHistory(
+                                    company=cpn,
+                                    subscription_type='Starter',# eg starter company or enterprise
+                                    subscription_tier=1, # 1- starter 2-company 3-enterprise
+                                    subscription_amount=29,
+                                    subscription_currency='USD',
+                                    subscription_success=True,
+                                    transaction_id=transaction_id,
+                                    payer_email=email,
+                                    subscriber_id=profile_id,
+                                    subscription_notes=f'Subscription successfull on {payment_date}',
+                                    subscription_period={'start_date':timezone.now(),'end_date':timezone.now()+timedelta(days=30)}
+                                )
+                                cth.save()
+                                
+                                # update the company profile
+                                
+                                cpn.company_free_trial=False
+                                cpn.company_subscription_date=timezone.now()
+                                cpn.company_active_subscription=True
+                                cpn.company_subscription_tier=1
+                                cpn.company_subscription='Starter'
+                                cpn.save()
+                                
+                                return JsonResponse({'result':200})
                             # elif float(amount) >= 9.99:
                             #     request_remaining = 2000
                             #     subscription_type = 'Personal Monthly'
@@ -249,8 +269,21 @@ def paypal_notification(request):
 
         except:
             traceback.print_exc()
-
-    return render(request, "index.html")
+        cth=CompanyTransactionHistory(
+            company=cpn,
+            subscription_type='starter',# eg starter company or enterprise
+            subscription_tier=1, # 1- starter 2-company 3-enterprise
+            subscription_amount=29,
+            subscription_currency='USD',
+            subscription_success=True,
+            transaction_id=transaction_id,
+            payer_email=email,
+            subscriber_id=profile_id,
+            subscription_notes=f'Subscription successfull on {payment_date}',
+            subscription_period={'start_date':timezone.now(),'end_date':timezone.now()+timedelta(days=30)}
+        )
+        cth.save()
+        return JsonResponse({'result':500})
 
 
 # Create your views here.

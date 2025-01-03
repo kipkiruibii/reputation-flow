@@ -29,7 +29,9 @@ class MemberProfile(models.Model):
     email=models.CharField(max_length=100)
     def __str__(self) -> str:
         return self.user.username
- 
+
+    
+    
 class MemberPP(models.Model):
     member=models.ForeignKey(MemberProfile,on_delete=models.CASCADE)
     pic=  models.ImageField(upload_to='member_profile_picture/')  
@@ -50,7 +52,7 @@ class Company(models.Model):
     company_storage=models.IntegerField(default=0)
     company_subscription=models.TextField(default='')
     company_review_link=models.TextField(default='')
-    company_subscription_tier=models.IntegerField(default=1)
+    company_subscription_tier=models.IntegerField(default=1) #1 -basic 2- 3 enterprise
     company_free_trial=models.BooleanField(default=True)
     company_free_trial_expiry=models.DateTimeField(default=timezone.now() + timezone.timedelta(days=5))
     company_subscription_date=models.DateTimeField(default=timezone.now())
@@ -70,6 +72,24 @@ class Company(models.Model):
     
     def __str__(self) -> str:
         return self.company_name
+    
+class CompanyTransactionHistory(models.Model):
+    company=models.ForeignKey(Company,on_delete=models.CASCADE)
+    subscription_type=models.CharField(max_length=255,default='')# eg starter company or enterprise
+    subscription_tier=models.IntegerField(default=1) # 1- starter 2-company 3-eenterprise
+    subscription_date=models.DateTimeField(default=timezone.now())
+    subscription_amount=models.IntegerField(default=0)
+    subscription_currency=models.CharField(default='')
+    subscription_success=models.BooleanField(default=False)
+    transaction_id=models.CharField(max_length=255,default='')
+    payer_email=models.TextField(default='')
+    subscriber_id=models.TextField(default='')
+    subscription_notes=models.TextField(default='')
+    subscription_period=models.JSONField(default=dict) # {start_date:<dte>,'end_date':<dte>}
+    
+    def __str__(self) -> str:
+        return f'{self.company_name} SUB {self.subscription_type} PERIOD {self.subscription_date.strftime("%a/%d/%m/%Y %I:%M %p")} '
+    
 
 class CompanyBotChats(models.Model):
     company=models.ForeignKey(Company,on_delete=models.CASCADE)

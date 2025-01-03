@@ -19,6 +19,8 @@ admin.site.register(CompanyFeatureRequest)
 admin.site.register(CompanyBotChats)
 admin.site.register(SiteAnalytics)
 admin.site.register(CompanyFileSizes)
+admin.site.register(CompanyTransactionHistory)
+
 
 # PM
 admin.site.register(CompanyPrivateConversation)
