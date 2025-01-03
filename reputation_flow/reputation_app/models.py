@@ -81,6 +81,8 @@ class CompanyTransactionHistory(models.Model):
     subscription_amount=models.IntegerField(default=0)
     subscription_currency=models.CharField(default='')
     subscription_success=models.BooleanField(default=False)
+    subscription_pending=models.BooleanField(default=False)
+    subscription_failed=models.BooleanField(default=False)
     transaction_id=models.CharField(max_length=255,default='')
     payer_email=models.TextField(default='')
     subscriber_id=models.TextField(default='')
