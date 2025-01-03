@@ -245,7 +245,7 @@ def paypal_notification(request):
                                 cpn.company_subscription='Starter'
                                 cpn.save()
                                 
-                                return JsonResponse({'result':200})
+                    return JsonResponse({'result':200})
                             # elif float(amount) >= 9.99:
                             #     request_remaining = 2000
                             #     subscription_type = 'Personal Monthly'
@@ -267,6 +267,8 @@ def paypal_notification(request):
                             #     is_successful=True
                             # )
                             # us.save()
+                elif payment_status == '':
+                    pass
                 else:
                     cth=CompanyTransactionHistory(
                         company=cpn,
