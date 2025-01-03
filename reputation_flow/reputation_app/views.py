@@ -272,7 +272,7 @@ def paypal_notification(request):
                     company=cpn,
                     subscription_type='starter',# eg starter company or enterprise
                     subscription_tier=-1, # 1- starter 2-company 3-enterprise
-                    subscription_amount=float(amount),
+                    subscription_amount=float(amount) if amount else 0.0,
                     subscription_currency=currency,
                     subscription_failed=True,
                     transaction_id=transaction_id,
