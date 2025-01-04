@@ -4468,7 +4468,7 @@
                 <div class="company-account-info container-right">
                     <div id="tx-history" style="display: block;">
                         <div class="bx-shadow" style="width: 100%;border-radius: 15px;padding: 10px;">
-                            <div style="display: flex;justify-content: space-between;">
+                            <div style="display: flex;justify-content: space-between;width: 100%;">
 
                                 <div style="display: flex;width: 60%;gap: 30px;">
                                     <div>
@@ -4511,9 +4511,9 @@
                             </div>
 
                             <div style="height:20px">
-                                <a class="btn-solid-sm" id="request-btn" href="#" style="padding:8px">Create New
+                                <a class="btn-solid-sm" id="dispute-btn" href="#" style="padding:8px">Create New
                                     <i class="fa fa-plus"></i></a>
-                                <a class="btn-solid-sm" id="cancel-request-btn" href="#"
+                                <a class="btn-solid-sm" id="cancel-dispute-btn" href="#"
                                     style="padding:8px;display:none">Discard
                                     & Close <i class="fa fa-close"></i></a>
                             </div>
@@ -4533,7 +4533,15 @@
                     </div>
 
                     <div id="new-disputes"
+                    
                         style="display:none;justify-content:center;width:100%;height:100%;margin-top:5%">
+                        <div style="display: flex;justify-content: space-between;width: 100%;">
+                            <span style="width: 20px;"></span>
+                            <a class="btn-solid-sm" id="cancel-dispute-btn" href="#"
+                                style="padding:8px;">Discard
+                                & Close <i class="fa fa-close"></i></a>
+                        </div>
+
                         <form style="width:70%" id="request-input-form">
                             <div class="form-group">
                                 <input type="text" class="form-control-input" id="dispute-title"
@@ -9790,9 +9798,19 @@
                 });
 
                 $(document).on('click', '#raise-dispute', function () {
-                    $('#tx-history').css('display','none');
-                    $('#dispts-history').css('display','flex');
+                    $('#tx-history').css('display', 'none');
+                    $('#dispts-history').css('display', 'flex');
                 });
+                $(document).on('click', '#dispute-btn', function () {
+                    $('#dispts-history').css('display', 'none');
+                    $('#new-disputes').css('display', 'flex');
+                });
+                $(document).on('click', '#cancel-dispute-btn', function () {
+                    $('#new-disputes').css('display', 'none');
+                    $('#dispts-history').css('display', 'block');
+                    // change the values
+                });
+                
 
 
 
