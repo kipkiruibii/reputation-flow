@@ -1336,6 +1336,7 @@ def dashboard(request, company_id):
         'company_profile':cpp.p_pic.url if cpp else 'https://pic.onlinewebfonts.com/thumbnails/icons_358304.svg' ,
         # 'company_profile': 'https://img.freepik.com/premium-vector/vector-logo-dance-club-that-says-dance-club_1107171-3823.jpg',
         'company_about': cm.company_about,
+        'disputes':dispts,
         'company_subs': {
             'subscription_active': cm.company_active_subscription,
             'subscription_type': cm.company_subscription,
