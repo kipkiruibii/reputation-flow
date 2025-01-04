@@ -1895,9 +1895,10 @@
                     </div>
 
                     <div style="width:100%;display:flex;justify-content:center;align-items:center">
-                        <div style="width:100%;display:flex;justify-content:center;align-items:center">
+                        <div style="width:100%;display:flex;justify-content:center;align-items:center"
+                            id="manage-account-btn" data-target="#manage-account">
 
-                            <a class="btn-solid-sm" href="{% url 'landing' %}#pricing">UPGRADE</a>
+                            <a class="btn-solid-sm" href="#">MANAGE</a>
                         </div>
 
                     </div>
@@ -4241,6 +4242,127 @@
                 </div>
 
                 <div class="">
+
+                </div>
+
+            </div>
+            <!-- manage subscription -->
+            <div class="chat-content" id="manage-account" style="display:none;width: 100%;">
+                <div class="chat-header container-right"
+                    style="margin-top: 10px;margin-bottom: 10px;position: relative;">
+                    <div class="logo-container">
+                        <h4>
+                            Manage Subscriptions
+                        </h4>
+                    </div>
+
+                </div>
+                <div>
+                    <div id="tx-history" style="display: block;">
+                        <div class="bx-shadow" style="width: 100%;border-radius: 15px;padding: 10px;">
+                            <div style="display: flex;justify-content: space-between;width: 100%;">
+
+                                <div style="display: flex;width: 60%;gap: 30px;">
+                                    <div>
+                                        <p style="font-size: 12px;padding: 0;margin: 0;">Subscription Plan</p>
+                                        <p>Starter</p>
+
+                                    </div>
+                                    <div>
+                                        <p style="font-size: 12px;padding: 0;margin: 0;">Status </p>
+                                        <p>Active</p>
+
+                                    </div>
+                                    <div>
+                                        <p style="font-size: 12px;padding: 0;margin: 0;">Period </p>
+                                        <p>Jan 3 - Feb 3 </p>
+                                    </div>
+                                </div>
+                                <div style="width:40%;gap: 20px;">
+                                    <a class="btn-solid-sm" href="{% url 'landing' %}#pricing">Upgrade Plan</a>
+                                    <a class="btn-solid-sm" href="#" id="raise-dispute">Disputes</a>
+                                </div>
+
+                            </div>
+
+                        </div>
+                        <div style="padding-top: 25px;">
+                            <h5>Transaction History</h5>
+                            <div style="margin-left: 30px;">
+                                <div style="margin: auto;">
+                                    <p>No transactions yet</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="dispts-history" style="display: none;">
+                        <div style="display:flex;justify-content:space-between;width: 100%;">
+                            <div class="section-fun-fact">
+                                <p>Are you unhappy with one or more transactions? Raise a dispute and we will look into
+                                    it</p>
+                            </div>
+
+                            <div style="height:20px">
+                                <a class="btn-solid-sm" id="dispute-btn" href="#" style="padding:8px">Create New
+                                    <i class="fa fa-plus"></i></a>
+                                <a class="btn-solid-sm" id="close-dispute-btn" href="#" style="padding:8px">Close <i
+                                        class="fa fa-close"></i></a>
+                            </div>
+                        </div>
+                        <div
+                            style="padding: 15px;display: block;justify-content: center;width:100%;height: 70vh;overflow-y: scroll;">
+                            {% if disputes %}
+                            <div style="padding-left: 10px;">
+
+                                {% for d in disputes %}
+
+                                <p style="padding: 0;margin: 0;"><strong>{{ d.title }}</strong></p>
+                                <p>{{ d.description }}</p>
+                                <p style="font-size: 12px;">{{ d.date_sent }}</p>
+                                <hr>
+                                {% endfor %}
+                            </div>
+
+                            {% else %}
+                            <p>No raised disputes</p>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div id="new-disputes"
+                        style="display:none;justify-content:center;width:100%;height:100%;margin-top:5%">
+
+
+                        <form style="width:70%" id="request-input-form">
+                            <div style="display: flex;justify-content: space-between;width: 100%;margin-bottom: 20px;">
+                                <span style="width: 20px;"></span>
+                                <a class="btn-solid-sm" id="cancel-dispute-btn" href="#" style="padding:8px;">Discard
+                                    & Close <i class="fa fa-close"></i></a>
+                            </div>
+                            <div class="form-group">
+                                <input type="text" class="form-control-input" id="dispute-title"
+                                    style="border: 1px solid #ced4da;border-radius:4px;width: 100%;box-sizing: border-box;background-color: white;font-size: 15px;padding-left:15px"
+                                    placeholder="Title" required>
+                            </div>
+                            <div class="form-group">
+                                <textarea class="form-control-textarea"
+                                    placeholder="Tell us more, include the transaction id for faster reponses"
+                                    id="dispute-details"
+                                    style="border: 1px solid #ced4da;border-radius:4px;width:100%;box-sizing: border-box;background-color: white;font-size: 15px;padding-left:15px"
+                                    required></textarea>
+                            </div>
+                            <div style="text-align:center;font-size:12px;align-items:center">
+                                <p id="error-mess-dispute" style="color:red"></p>
+                                <p id="suc-mess-dispute" style="color:lime"></p>
+                            </div>
+                            <div class="form-group" style="text-align:center;font-size:20px;align-items:center">
+                                <a class=" btn-solid-sm" style="cursor:pointer" id="submit-dispute-form"
+                                    href="#">Submit</a>
+                            </div>
+                        </form>
+
+                    </div>
+
 
                 </div>
 
@@ -9177,9 +9299,83 @@
                 });
                 // fb_stories
                 $(document).on('select', '#fb_stories', function () {
-                    // toastr.error('Failed, Try again ')
+                });
 
-                    // alert('clicked fb')
+                $(document).on('click', '#raise-dispute', function () {
+                    $('#tx-history').css('display', 'none');
+                    $('#dispts-history').css('display', 'block');
+                });
+                $(document).on('click', '#dispute-btn', function () {
+                    $('#dispts-history').css('display', 'none');
+                    $('#new-disputes').css('display', 'flex');
+                });
+                $(document).on('click', '#cancel-dispute-btn', function () {
+                    $('#new-disputes').css('display', 'none');
+                    $('#dispts-history').css('display', 'block');
+                    $('#dispute-title').val('');
+                    $('#dispute-details').val('');
+                    // change the values
+                });
+                $(document).on('click', '#close-dispute-btn', function () {
+                    $('#tx-history').css('display', 'block');
+                    $('#dispts-history').css('display', 'none');
+                    $('#dispute-title').val('');
+                    $('#dispute-details').val('');
+                });
+                $(document).on('click', '#submit-dispute-form', function () {
+                    var dispute_title = $('#dispute-title').val();
+                    var dispute_description = $('#dispute-details').val();
+                    if (dispute_description == '' || dispute_title == '') {
+                        toastr.error('Fill all the fields');
+                        return;
+                    }
+
+                    // submit form using ajax
+                    var formData = new FormData();
+                    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+                    // Append other input fields to FormData
+                    var csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                    formData.append('company_id', '{{ company_id }}');
+                    formData.append('title', dispute_title);
+                    formData.append('timezone', timezone);
+                    formData.append('message', dispute_description);
+                    // Send the form data via AJAX
+                    $.ajax({
+                        url: '{% url "post-dispute" %}', // Replace with your Django endpoint URL
+                        type: 'POST',
+                        headers: {
+                            'X-CSRFToken': csrfToken
+                        },
+                        data: formData,
+                        processData: false, // Prevent jQuery from processing the data
+                        contentType: false, // Prevent jQuery from setting the content type
+                        success: function (response) {
+                            if (response['error']) {
+                                toastr.error('Failed. Try again');
+
+                            } else {
+                                toastr.success('Ticket created successfully');
+                                var tempDiv = $('<div>').html(response);
+
+                                // Extract the specific element from the new HTML
+                                var newElementContent = tempDiv.find('#dispts-history').html();
+
+                                $('#dispts-history').html(newElementContent);
+                                $('#new-disputes').css('display', 'none');
+                                $('#dispts-history').css('display', 'block');
+                                $('#dispute-title').val('');
+                                $('#dispute-details').val('');
+
+                                // update the post
+
+                            }
+                        },
+                        error: function (jqXHR, textStatus, errorThrown) {
+                            toastr.error('Failed. Try again later.');
+
+                        }
+                    });
                 });
             });
 
