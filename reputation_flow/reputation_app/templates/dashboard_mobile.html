@@ -6301,6 +6301,19 @@
                         $('#create-post-content').css('display', 'block');
                     }, 2000);
                 });
+
+                // manage content
+                $(document).on('click', '#manage-account-btn', function () {
+                    $('#chat_load').css('display', 'block');
+                    $('#main-content').css('display', 'none');
+                    setTimeout(function () {
+                        $('#chat_load').css('display', 'none');
+                        $('#main-content').css('display', 'block');
+                        $('.quick_links li').each(function () { $(this).removeClass('active') })
+                        $('.chat-content').hide();
+                        $('#manage-account').css('display', 'block');
+                    }, 2000);
+                });
                 // toggle between showing links and creating new link
                 $(document).on('click', '#new-link', function () {
 
