@@ -604,7 +604,7 @@ def postDispute(request):
         )
     ctd.save()
     dispts=[]
-    for disp in CompanyTransactionDisputes.objects.filter(company=cp):
+    for disp in CompanyTransactionDisputes.objects.filter(company=cp).order_by('-pk'):
         dispts.append({
             'title':disp.title,
             'description':disp.description,
@@ -1319,7 +1319,7 @@ def dashboard(request, company_id):
         except:
             pass
     dispts=[]
-    for disp in CompanyTransactionDisputes.objects.filter(company=cm):
+    for disp in CompanyTransactionDisputes.objects.filter(company=cm).order_by('-pk'):
         dispts.append({
             'title':disp.title,
             'description':disp.description,
