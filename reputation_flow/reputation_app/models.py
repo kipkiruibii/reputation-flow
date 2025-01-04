@@ -107,7 +107,7 @@ class CompanyTransactionDisputes(models.Model):
     company=models.ForeignKey(Company,on_delete=models.CASCADE)
     title=models.TextField(default='',null=True,blank=True)
     description=models.TextField(default='',null=True,blank=True)
-    timezone=models.TextField(default='',null=True,blank=True)
+    timezone_str=models.TextField(default='',null=True,blank=True)
     date_sent=models.DateTimeField(default=timezone.now())
     
     def __str__(self) -> str:
