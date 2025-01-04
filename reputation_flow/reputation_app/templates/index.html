@@ -540,10 +540,18 @@
 
                     </ul>
                     {% if request.user.is_authenticated %}
+                    {% if current_plan == 1 %}
+                    <a href="#"
+                        class="text-white  focus:ring-4 focus:ring-purple-200 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:text-white "  style="background-color: rgb(84, 248, 84);">
+                        ACTIVE PLAN
+                    </a>
+
+                    {% else %}
                     <a href="#"
                         class="text-white bg-purple-600 hover:bg-purple-700 focus:ring-4 focus:ring-purple-200 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:text-white  dark:focus:ring-purple-900">
                         {{ starter_plan.render }}
                     </a>
+                    {% endif %}
                     {% else %}
                     <a href="{% url 'login' %}"
                         class="text-white bg-purple-600 hover:bg-purple-700 focus:ring-4 focus:ring-purple-200 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:text-white  dark:focus:ring-purple-900">

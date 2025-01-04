@@ -304,6 +304,7 @@ def index(request):
             cm = CompanyMember.objects.filter(member=mp).first()
             if cm:
                 user_comp = cm.company.company_id
+                
                 host = request.get_host()
                 starter_paypal_checkout = {
                     'business': settings.PAYPAL_RECEIVER_EMAIL,
@@ -324,6 +325,7 @@ def index(request):
                 starter_plan = PayPalPaymentsForm(initial=starter_paypal_checkout, button_type='subscribe')
                 context = {
                     'starter_plan': starter_plan,
+                    'current_plan':cm.company.company_subscription_tier if cm.company.company_active_subscription else -1,
                 }
     
                 return render(request, 'index.html',context=context)
