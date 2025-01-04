@@ -4503,7 +4503,7 @@
                             </div>
                         </div>
                     </div>
-                    <div id="dipts-history" style="display: block;">
+                    <div id="dispts-history" style="display: none;">
                         <div style="display:none;justify-content:space-between;">
                             <div class="section-fun-fact">
                                 <p>Are you unhappy with one or more transactions? Raise a dispute and we will look into
@@ -9788,6 +9788,15 @@
                 // fb_stories
                 $(document).on('select', '#fb_stories', function () {
                 });
+
+                $(document).on('select', '#raise-dispute', function () {
+                    $('#tx-history').css('display','none');
+                    $('#dispts-history').css('display','flex');
+                    
+                });
+
+
+
             });
 
 
