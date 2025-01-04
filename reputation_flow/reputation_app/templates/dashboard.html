@@ -1884,7 +1884,8 @@
                     </div>
 
                     <div style="width:100%;display:flex;justify-content:center;align-items:center">
-                        <div style="width:100%;display:flex;justify-content:center;align-items:center" id="manage-account-btn" data-target="#manage-account">
+                        <div style="width:100%;display:flex;justify-content:center;align-items:center"
+                            id="manage-account-btn" data-target="#manage-account">
 
                             <a class="btn-solid-sm" href="#">MANAGE</a>
                         </div>
@@ -4458,19 +4459,54 @@
                     style="margin-top: 10px;margin-bottom: 10px;position: relative;">
                     <div class="logo-container">
                         <h4>
-                            Manage
+                            Manage Subscriptions
                         </h4>
                     </div>
 
                 </div>
                 <div class="company-account-info container-right">
 
+                    <div class="bx-shadow" style="width: 100%;">
+                        <div style="display: flex;justify-content: space-between;">
+
+                            <div style="display: flex;width: 60%;">
+                                <div>
+                                    <p style="font-size: 12px;">Subscription Plan</p>
+                                    <p>Starter</p>
+
+                                </div>
+                                <div>
+                                    <p style="font-size: 12px;">Status </p>
+                                    <p>Active</p>
+
+                                </div>
+                                <div>
+                                    <p>Period </p>
+                                </div>
+                            </div>
+                            <div style="width:40%;">
+                                <a class="btn-solid-sm" href="#">Upgrade plan</a>
+                                <a class="btn-solid-sm" href="#">Raise Dispute</a>
+                            </div>
+
+                        </div>
+
+                    </div>
+                    <div>
+                        <h5>Transaction History</h5>
+                        <div style="margin-left: 30px;">
+                            <div style="margin: auto;">
+                                <p>No transactions yet</p>
+                            </div>
+                        </div>
+                    </div>
+
 
 
                 </div>
 
             </div>
-            
+
             <!-- integration -->
             <div class="chat-content" id="integration-content" style="display:none;width: 100%;">
                 <div class="chat-header container-right"
@@ -7229,7 +7265,7 @@
                     $('#chat_load').css('display', 'block');
                     $('#main-content').css('display', 'none');
                 });
-                
+
                 $(document).on('click', '#apply-filters,#reviews,.pub-unpub', function () {
 
                     const filterInstance = multiSelectInstances.find(instance => instance.selectElement.dataset.name === "filters");
