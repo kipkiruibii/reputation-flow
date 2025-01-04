@@ -599,7 +599,8 @@ def postDispute(request):
     ctd=CompanyTransactionDisputes(
             company=cp,
             title=title,
-            description=message
+            description=message,
+            timezone_str=timezone_
         )
     ctd.save()
     dispts=[]
@@ -1317,7 +1318,14 @@ def dashboard(request, company_id):
             request.session['facebook_ig_data'] = tk_data
         except:
             pass
-
+    dispts=[]
+    for disp in CompanyTransactionDisputes.objects.filter(company=cm):
+        dispts.append({
+            'title':disp.title,
+            'description':disp.description,
+            'date_sent':format_datetime(datetime_str=disp.date_sent, timezone_str=disp.timezone_str,
+                                                 platform='-'),
+        })
     context = {
         'company_name': cm.company_name,
         'company_category': cm.company_category,
