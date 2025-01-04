@@ -20,7 +20,7 @@ admin.site.register(CompanyBotChats)
 admin.site.register(SiteAnalytics)
 admin.site.register(CompanyFileSizes)
 admin.site.register(CompanyTransactionHistory)
-
+admin.site.register(CompanyTransactionDisputes)
 
 # PM
 admin.site.register(CompanyPrivateConversation)

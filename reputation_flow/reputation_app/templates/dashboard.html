@@ -9451,7 +9451,6 @@
                     });
 
 
-
                 });
 
                 $(document).on('click', '#upload_new_post', function () {
@@ -9806,14 +9805,76 @@
                 $(document).on('click', '#cancel-dispute-btn', function () {
                     $('#new-disputes').css('display', 'none');
                     $('#dispts-history').css('display', 'block');
+                    $('#dispute-title').val('');
+                    $('#dispute-details').val('');
                     // change the values
                 });
                 $(document).on('click', '#close-dispute-btn', function () {
                     $('#tx-history').css('display', 'block');
                     $('#dispts-history').css('display', 'none');
+                    $('#dispute-title').val('');
+                    $('#dispute-details').val('');
+                });
+                $(document).on('click', '#submit-dispute-form', function () {
+                    var dispute_title=$('#dispute-title').val();
+                    var dispute_description=$('#dispute-details').val();
+                    if(dispute_description==''|| dispute_title == ''){
+                        toastr.error('Fill all the fields');
+                        return;
+                    }
+
+                    // submit form using ajax
+                    var formData = new FormData();
+                    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+                    // Append other input fields to FormData
+                    var csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                    formData.append('company_id', '{{ company_id }}');
+                    formData.append('title', dispute_title);
+                    formData.append('timezone', timezone);
+                    formData.append('message', dispute_description);
+                    // Send the form data via AJAX
+                    $.ajax({
+                        url: '{% url "post-dispute" %}', // Replace with your Django endpoint URL
+                        type: 'POST',
+                        headers: {
+                            'X-CSRFToken': csrfToken
+                        },
+                        data: formData,
+                        processData: false, // Prevent jQuery from processing the data
+                        contentType: false, // Prevent jQuery from setting the content type
+                        success: function (response) {
+                            if (response['error']) {
+                                toastr.error('Failed. Try again');
+
+                            } else {
+                                toastr.success('Ticket created successfully');
+                                var tempDiv = $('<div>').html(response);
+
+                                // Extract the specific element from the new HTML
+                                var newElementContent = tempDiv.find('#dispts-history').html();
+
+                                $('#dispts-history').html(newElementContent);
+                                $('#new-disputes').css('display', 'none');
+                                $('#dispts-history').css('display', 'block');
+                                $('#dispute-title').val('');
+                                $('#dispute-details').val('');
+
+                                // update the post
+
+                            }
+                        },
+                        error: function (jqXHR, textStatus, errorThrown) {
+                            toastr.error('Failed. Try again later.');
+
+                        }
+                    });
+
+
+
                 });
                 
-
+                
 
 
 

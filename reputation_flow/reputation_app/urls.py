@@ -10,6 +10,7 @@ urlpatterns=[
     path('profile/<str:company_name>/details/',views.companyProfile,name='company_profile'),
     path('social-proof/<str:company_name>/',views.socialProof,name='social-proof'),
     path('update-profile/',views.updateBusinessProfile,name='update-profile'),
+    path('post-dispute/',views.postDispute,name='post-dispute'),
     # setting profile
     path('setting-profile/',views.settingProfile,name='setting-profile'),
     # get posts

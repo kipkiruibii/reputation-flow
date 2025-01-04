@@ -103,7 +103,16 @@ class CompanyBotChats(models.Model):
     def __str__(self) -> str:
         return 'BOT CHAT '+self.company_name
     
+class CompanyTransactionDisputes(models.Model):
+    company=models.ForeignKey(Company,on_delete=models.CASCADE)
+    title=models.TextField(default='',null=True,blank=True)
+    description=models.TextField(default='',null=True,blank=True)
+    date_sent=models.DateTimeField(default=timezone.now())
     
+    def __str__(self) -> str:
+        return 'DISPUTE '+self.title
+
+      
 class CompanyFileSizes(models.Model):
     company=models.ForeignKey(Company,on_delete=models.CASCADE)
     size=models.FloatField(default=0.0)# bytes

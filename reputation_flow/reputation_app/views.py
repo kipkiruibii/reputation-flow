@@ -331,7 +331,7 @@ def index(request):
                 return render(request, 'index.html',context=context)
     return render(request, 'index.html')
 
-
+    
 @api_view(['POST', 'GET'])
 def loginUser(request):
     """
@@ -584,7 +584,41 @@ def settingProfile(request):
         cp.save()
     return Response({'success': 'Updated successfully'})
 
+@api_view(['POST', 'GET'])
+def postDispute(request):
+    company_id = request.POST.get('company_id', None)
+    timezone_ = request.POST.get('timezone', None)
+    title = request.POST.get('title', None)
+    message = request.POST.get('message', None)
+    if not all([company_id, title,message]):
+        return Response({'error': 'Bad request'})
+    cp = Company.objects.filter(company_id=company_id).first()
+    if not cp:
+        return Response({'error': 'Bad request'})
 
+    ctd=CompanyTransactionDisputes(
+            company=cp,
+            title=title,
+            description=message
+        )
+    ctd.save()
+    dispts=[]
+    for disp in CompanyTransactionDisputes.objects.filter(company=cp):
+        dispts.append({
+            'title':disp.title,
+            'description':disp.description,
+            'date_sent':format_datetime(datetime_str=disp.date_sent, timezone_str=timezone_,
+                                                 platform='-'),
+        })
+    context={
+        'disputes':dispts
+    }
+    if request.user_agent.is_pc:
+        return render(request, 'dashboard.html', context=context)
+    else:
+        return render(request, 'dashboard_mobile.html', context=context)
+
+    
 @api_view(['POST', 'GET'])
 def replyPM(request):
     company_id = request.POST.get('company_id', None)
