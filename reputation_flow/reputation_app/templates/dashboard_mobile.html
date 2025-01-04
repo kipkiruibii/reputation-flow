@@ -1895,7 +1895,7 @@
                     </div>
 
                     <div style="width:100%;display:flex;justify-content:center;align-items:center">
-                        <div style="width:100%;display:flex;justify-content:center;align-items:center"
+                        <div style="width:100%;display:flex;justify-content:center;align-items:center"class="close-sidebar"
                             id="manage-account-btn" data-target="#manage-account">
 
                             <a class="btn-solid-sm" href="#">MANAGE</a>
@@ -6282,13 +6282,9 @@
                             console.error(textStatus, errorThrown);
                         }
                     });
-
-
-
                 });
 
                 $(document).on('click', '#cancel-edit', function () {
-
                     $('#edit-business-page').css('display', 'none');
                     $('#business-page').css('display', 'block');
                 });
@@ -6316,7 +6312,6 @@
                 });
                 // toggle between showing links and creating new link
                 $(document).on('click', '#new-link', function () {
-
                     $('#link-action-title').text('Create a new link');
                     $('#all-inv-links').css('display', 'none');
                     $('#new-link').css('display', 'none');
