@@ -4517,7 +4517,7 @@
                                         class="fa fa-close"></i></a>
                             </div>
                         </div>
-                        <div style="padding: 15px;display: block;justify-content: center;">
+                        <div style="padding: 15px;display: flex;justify-content: center;">
                             {% if disputes %}
                             {% for d in disputes %}
                             <div style="padding-left: 10px;">
@@ -9798,7 +9798,7 @@
 
                 $(document).on('click', '#raise-dispute', function () {
                     $('#tx-history').css('display', 'none');
-                    $('#dispts-history').css('display', 'flex');
+                    $('#dispts-history').css('display', 'block');
                 });
                 $(document).on('click', '#dispute-btn', function () {
                     $('#dispts-history').css('display', 'none');
