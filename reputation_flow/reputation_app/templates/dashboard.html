@@ -1884,9 +1884,9 @@
                     </div>
 
                     <div style="width:100%;display:flex;justify-content:center;align-items:center">
-                        <div style="width:100%;display:flex;justify-content:center;align-items:center">
+                        <div style="width:100%;display:flex;justify-content:center;align-items:center" id="manage-account-btn" data-target="#manage-account">
 
-                            <a class="btn-solid-sm" href="{% url 'landing' %}#pricing">UPGRADE</a>
+                            <a class="btn-solid-sm" href="#">MANAGE</a>
                         </div>
 
                     </div>
@@ -4453,6 +4453,24 @@
                 </div>
 
             </div>
+            <div class="chat-content" id="manage-account" style="display:none;width: 100%;">
+                <div class="chat-header container-right"
+                    style="margin-top: 10px;margin-bottom: 10px;position: relative;">
+                    <div class="logo-container">
+                        <h4>
+                            Manage
+                        </h4>
+                    </div>
+
+                </div>
+                <div class="company-account-info container-right">
+
+
+
+                </div>
+
+            </div>
+            
             <!-- integration -->
             <div class="chat-content" id="integration-content" style="display:none;width: 100%;">
                 <div class="chat-header container-right"
@@ -6653,6 +6671,18 @@
                         $('.quick_links li').each(function () { $(this).removeClass('active') })
                         $('.chat-content').hide();
                         $('#create-post-content').css('display', 'block');
+                    }, 2000);
+                });
+                // manage content
+                $(document).on('click', '#manage-account-btn', function () {
+                    $('#chat_load').css('display', 'block');
+                    $('#main-content').css('display', 'none');
+                    setTimeout(function () {
+                        $('#chat_load').css('display', 'none');
+                        $('#main-content').css('display', 'block');
+                        $('.quick_links li').each(function () { $(this).removeClass('active') })
+                        $('.chat-content').hide();
+                        $('#manage-account').css('display', 'block');
                     }, 2000);
                 });
                 // toggle between showing links and creating new link
