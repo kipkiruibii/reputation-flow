@@ -4513,9 +4513,8 @@
                             <div style="height:20px">
                                 <a class="btn-solid-sm" id="dispute-btn" href="#" style="padding:8px">Create New
                                     <i class="fa fa-plus"></i></a>
-                                <a class="btn-solid-sm" id="cancel-dispute-btn" href="#"
-                                    style="padding:8px;display:none">Discard
-                                    & Close <i class="fa fa-close"></i></a>
+                                <a class="btn-solid-sm" id="close-dispute-btn" href="#"
+                                    style="padding:8px">Close <i class="fa fa-close"></i></a>
                             </div>
                         </div>
                         <div style="padding: 15px;display: none;justify-content: center;">
@@ -9809,6 +9808,11 @@
                     $('#dispts-history').css('display', 'block');
                     // change the values
                 });
+                $(document).on('click', '#close-dispute-btn', function () {
+                    $('#tx-history').css('display', 'block');
+                    $('#dispts-history').css('display', 'none');
+                });
+                
 
 
 
