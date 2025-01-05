@@ -2511,21 +2511,6 @@
                                                             <p class="font-12 zero-padding-margin"
                                                                 style="text-align: start;">
                                                                 Comment Karma: {{ reddit.comment_karma }}</p>
-                                                            <p class="font-12 zero-padding-margin"
-                                                                style="text-align: start;">Growth:
-                                                                {% if growth > 0 %}
-                                                                <span class="success-flair">
-                                                                    {{ instagram.growth }}</span>
-                                                                {% elif growth < 0 %} <span class="warning-flair">
-                                                                    {{ facebook.growth }}</span>
-                                                                    {% else %}
-                                                                    <span class="not-sent-flair">
-                                                                        {{ facebook.growth}}</span>
-                                                                    {% endif %}
-                                                            </p>
-                                                            <p class="font-12 zero-padding-margin"
-                                                                style="text-align: start;">Links Karma:
-                                                                {{ reddit.link_karma }}</span> </p>
                                                         </div>
                                                     </div>
                                                     {% else %}
