@@ -4474,17 +4474,23 @@
                                 <div style="display: flex;width: 60%;gap: 30px;">
                                     <div>
                                         <p style="font-size: 12px;padding: 0;margin: 0;">Subscription Plan</p>
-                                        <p>Starter</p>
+                                        <p>{{ company_subs.subscription_type }}</p>
 
                                     </div>
                                     <div>
                                         <p style="font-size: 12px;padding: 0;margin: 0;">Status </p>
-                                        <p>Active</p>
-
+                                        {% if company_subs.subscription_active %}
+                                        <p style="color:rgb(53, 248, 95)">Active </p>
+                                        {% elif company_subs.free_trial %}
+                                        <p style="color:rgb(53, 248, 95)">Free trial </p>
+                                        {% else %}
+                                        <p style="color:rgba(246, 22, 22, 1)">Expired </p>
+                                        {% endif %}
+                
                                     </div>
                                     <div>
                                         <p style="font-size: 12px;padding: 0;margin: 0;">Period </p>
-                                        <p>Jan 3 - Feb 3 </p>
+                                        <p>{{ company_subs.subscription_period }}</p>
                                     </div>
                                 </div>
                                 <div style="width:40%;gap: 20px;">

@@ -1327,6 +1327,7 @@ def dashboard(request, company_id):
             'date_sent':format_datetime(datetime_str=disp.date_sent, timezone_str=disp.timezone_str,
                                                  platform='-'),
         })
+    transcts=CompanyTransactionHistory.objects.filter(company=cm).first()
     context = {
         'company_name': cm.company_name,
         'company_category': cm.company_category,
@@ -1343,7 +1344,8 @@ def dashboard(request, company_id):
             'subscription_type': cm.company_subscription,
             'free_trial': cm.company_free_trial,
             # 'free_trial_expired': True if exp_dif < 0 else False,
-            'free_trial_expiry': exp_dif
+            'free_trial_expiry': exp_dif,
+            'subscription_period':f'{transcts.subscription_period['start_date']} - { transcts.subscription_period['end_date']} ' if transcts else '-'
         },
         'company_address': {
             'address': cm.company_address,
