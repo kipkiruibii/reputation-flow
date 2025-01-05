@@ -1327,7 +1327,7 @@ def dashboard(request, company_id):
             'date_sent':format_datetime(datetime_str=disp.date_sent, timezone_str=disp.timezone_str,
                                                  platform='-'),
         })
-    transcts=CompanyTransactionHistory.objects.filter(company=cm).first()
+    transcts=CompanyTransactionHistory.objects.filter(company=cm).last()
     tx_hist=[]
     for th in CompanyTransactionHistory.objects.filter(company=cm):
         tx_hist.append({
