@@ -4507,38 +4507,41 @@
                             <h5>Transaction History</h5>
                             <div style="margin-left: 30px;">
                                 {% if transactions %}
-                                <table class="w3-table-all w3-hoverable" style="overflow-x: auto;width: 100%;white-space: nowrap;font-size: 12px;">
-                                    <thead>
-                                        <tr class="w3-light-grey">
-                                            <th style="width: 50px;">Status</th>
-                                            <th>Period</th>
-                                            <th>Amount</th>
-                                            <th>Plan</th>
-                                            <th>Date</th>
-                                            <th>Transaction ID</th>
-                                            <th>Payer</th>
-                                            <th style="max-width: 300px;">Summary</th>
+                                <div style="width: 70%;display: flex;overflow-x: auto;white-space: nowrap;">
+                                    <table class="w3-table-all w3-hoverable" style="font-size: 12px;">
+                                        <thead>
+                                            <tr class="w3-light-grey">
+                                                <th style="width: 50px;">Status</th>
+                                                <th>Period</th>
+                                                <th>Amount</th>
+                                                <th>Plan</th>
+                                                <th>Date</th>
+                                                <th>Transaction ID</th>
+                                                <th>Payer</th>
+                                                <th style="max-width: 300px;">Summary</th>
 
+                                            </tr>
+                                        </thead>
+                                        {% for t in transactions %}
+                                        <tr>
+                                            <td style="width: 50px;">
+                                                {% if t.sub_status %}
+                                                <i class="fa fa-check" style="color: rgb(2, 213, 2);"></i>
+                                                {% else %}
+                                                <i class="fa fa-cancel" style="color: rgb(213, 2, 2);"></i>
+                                                {% endif %}
+                                            </td>
+                                            <td>{{ t.subscription_period }}</td>
+                                            <td>{{ t.subscription_amount }}</td>
+                                            <td>{{ t.subscription_type }}</td>
+                                            <td>{{ t.subscription_date }}</td>
+                                            <td>{{ t.transaction_id }}</td>
+                                            <td>{{ t.payer_email }}</td>
+                                            <td style="max-width: 300px;">{{ t.subscription_notes }}</td>
                                         </tr>
-                                    </thead>
-                                    {% for t in transactions %}
-                                    <tr>
-                                        <td style="width: 50px;">
-                                            {% if t.sub_status %}
-                                            <i class="fa fa-check" style="color: rgb(2, 213, 2);"></i>
-                                            {% else %}
-                                            <i class="fa fa-cancel" style="color: rgb(213, 2, 2);"></i>
-                                            {% endif %}
-                                        </td>
-                                        <td>{{ t.subscription_period }}</td>
-                                        <td>{{ t.subscription_amount }}</td>
-                                        <td>{{ t.subscription_type }}</td>
-                                        <td>{{ t.subscription_date }}</td>
-                                        <td>{{ t.payer_email }}</td>
-                                        <td style="max-width: 300px;">{{ t.subscription_notes }}</td>
-                                    </tr>
-                                    {% endfor %}
-                                </table>
+                                        {% endfor %}
+                                    </table>
+                                </div>
                                 {% else %}
                                 <div style="margin: auto;">
                                     <p>No transactions yet</p>
