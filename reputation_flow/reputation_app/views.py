@@ -1328,6 +1328,19 @@ def dashboard(request, company_id):
                                                  platform='-'),
         })
     transcts=CompanyTransactionHistory.objects.filter(company=cm).first()
+    tx_hist=[]
+    for th in CompanyTransactionHistory.objects.filter(company=cm):
+        tx_hist.append({
+            'subscription_date':th.subscription_date.strftime("%d %b %Y"),
+            'subscription_period':f'{datetime.fromisoformat(th.subscription_period['start_date']).strftime("%a %d %b %Y")} - { datetime.fromisoformat(th.subscription_period['end_date']).strftime("%a %d %b %Y")} ',
+            'subscription_type':th.subscription_type.capitalize(),
+            'subscription_amount':f'{th.subscription_currency} {th.subscription_amount}',
+            'transaction_id':th.transaction_id,
+            'sub_status':True if th.subscription_success else False,
+            'subscription_notes':th.subscription_notes,
+            'payer_email':th.payer_email
+        })
+        
     context = {
         'company_name': cm.company_name,
         'company_category': cm.company_category,
@@ -1339,6 +1352,7 @@ def dashboard(request, company_id):
         # 'company_profile': 'https://img.freepik.com/premium-vector/vector-logo-dance-club-that-says-dance-club_1107171-3823.jpg',
         'company_about': cm.company_about,
         'disputes':dispts,
+        'transactions':tx_hist,
         'company_subs': {
             'subscription_active': cm.company_active_subscription,
             'subscription_type': cm.company_subscription,
