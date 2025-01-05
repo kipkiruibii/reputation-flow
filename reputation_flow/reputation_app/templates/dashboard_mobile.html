@@ -4304,32 +4304,32 @@
                                         <thead>
                                             <tr class="w3-light-grey">
                                                 <th style="width: 50px;">Status</th>
-                                                <th>Period</th>
-                                                <th>Amount</th>
-                                                <th>Plan</th>
-                                                <th>Date</th>
-                                                <th>Transaction ID</th>
-                                                <th>Payer</th>
+                                                <th style="width: 150px;">Period</th>
+                                                <th style="width: 50px;">Amount</th>
+                                                <th style="width: 100px;">Plan</th>
+                                                <th style="width: 100px;">Date</th>
+                                                <th style="width: 100px;">Transaction ID</th>
+                                                <th style="width: 150px;">Payer</th>
                                                 <th style="max-width: 300px;">Summary</th>
 
                                             </tr>
                                         </thead>
                                         {% for t in transactions %}
                                         <tr>
-                                            <td style="width: 50px;">
+                                            <td style="width: 50px;padding:5px">
                                                 {% if t.sub_status %}
                                                 <i class="fa fa-check" style="color: rgb(2, 213, 2);"></i>
                                                 {% else %}
                                                 <i class="fa fa-cancel" style="color: rgb(213, 2, 2);"></i>
                                                 {% endif %}
                                             </td>
-                                            <td>{{ t.subscription_period }}</td>
-                                            <td>{{ t.subscription_amount }}</td>
-                                            <td>{{ t.subscription_type }}</td>
-                                            <td>{{ t.subscription_date }}</td>
-                                            <td>{{ t.transaction_id }}</td>
-                                            <td>{{ t.payer_email }}</td>
-                                            <td style="max-width: 300px;">{{ t.subscription_notes }}</td>
+                                            <td style="width: 150px;padding:5px">{{ t.subscription_period }}</td>
+                                            <td style="width: 50px;padding:5px">{{ t.subscription_amount }}</td>
+                                            <td style="width: 100px;padding:5px">{{ t.subscription_type }}</td>
+                                            <td style="width: 100px;padding:5px">{{ t.subscription_date }}</td>
+                                            <td style="width: 100px;padding:5px">{{ t.transaction_id }}</td>
+                                            <td style="width: 150px;padding:5px">{{ t.payer_email }}</td>
+                                            <td style="max-width: 300px;padding:5px">{{ t.subscription_notes }}</td>
                                         </tr>
                                         {% endfor %}
                                     </table>
