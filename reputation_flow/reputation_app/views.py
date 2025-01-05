@@ -1348,7 +1348,6 @@ def dashboard(request, company_id):
         'company_enable_ai':cm.company_enable_ai,
         'company_show_page':cm.company_show_page,
         'company_profile':cpp.p_pic.url if cpp else 'https://pic.onlinewebfonts.com/thumbnails/icons_358304.svg' ,
-        # 'company_profile': 'https://img.freepik.com/premium-vector/vector-logo-dance-club-that-says-dance-club_1107171-3823.jpg',
         'company_about': cm.company_about,
         'disputes':dispts,
         'transactions':tx_hist,
@@ -2549,12 +2548,14 @@ def socialProof(request,company_name):
             'platform':r.platform.capitalize(),
             'link':r.link
         })
+    cpp=CompanyProfilePicture.objects.filter(company=cp).first()
     context = {
         'success': True,
         'search_autofill':json.dumps(all_cp),
         'about':cp.company_about,
         'phone':cp.company_phone,
         'email':eml if str(eml)!='None' else '' ,
+        'company_profile':cpp.p_pic.url if cpp else 'https://pic.onlinewebfonts.com/thumbnails/icons_358304.svg' ,
         'company_address': {
             'address': cp.company_address,
             'zip': cp.zipcode,
