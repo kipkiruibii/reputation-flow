@@ -1432,7 +1432,7 @@ def dashboard(request, company_id):
             'linked': cr.linked if cr else False,
             'active': cr.active if cr else False,
             'comment_karma': cr.comment_karma if cr else '',
-            'link_karma':cr.comment_karma if cr else '',
+            'link_karma':cr.link_karma if cr else '',
             'subs': cr.subs if cr else []
         },
         'tiktok': {
