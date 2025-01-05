@@ -1329,7 +1329,7 @@ def dashboard(request, company_id):
         })
     transcts=CompanyTransactionHistory.objects.filter(company=cm).last()
     tx_hist=[]
-    for th in CompanyTransactionHistory.objects.filter(company=cm):
+    for th in CompanyTransactionHistory.objects.filter(company=cm).order_by('-pk'):
         tx_hist.append({
             'subscription_date':th.subscription_date.strftime("%d %b %Y"),
             'subscription_period':f'{datetime.fromisoformat(th.subscription_period['start_date']).strftime("%d %b %Y")} - { datetime.fromisoformat(th.subscription_period['end_date']).strftime("%d %b %Y")} ',
