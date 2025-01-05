@@ -1875,6 +1875,12 @@
                     <hr>
                     <div style="display:flex;">
                         <div style="width:80px;">
+                            <p>User</p>
+                        </div>
+                        <p id="request-count">{{ request.user.username }}</p>
+                    </div>
+                    <div style="display:flex;">
+                        <div style="width:80px;">
                             <p>Role</p>
                         </div>
                         <p id="request-count">{{ member_profile.role }}</p>
@@ -1906,11 +1912,11 @@
                     <div>
                         {% if company_subs.subscription_active %}
                         {% elif company_subs.free_trial %}
-                        <p style="font-size:12px">Free trial <strong>ends in {{ company_subs.free_trial_expiry }}
+                        <p style="font-size:12px;align-items: center;text-align: center;">Free trial <strong>ends in {{ company_subs.free_trial_expiry }}
                                 days</strong>
                         </p>
                         {% else %}
-                        <p style="font-size:12px">Renew subscription to continue
+                        <p style="font-size:12px;align-items: center;text-align: center;">Renew subscription to continue
                         </p>
                         {% endif %}
                     </div>
