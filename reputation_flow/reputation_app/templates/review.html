@@ -275,6 +275,8 @@
                 style="width: 70%;border-radius: 5px;padding: 10px;overflow-y: scroll;overflow-x: hidden;height: 85vh;">
                 <h3>What people are saying about {{ company }}</h3>
                 {% if not reviews %}
+                <iframe src="https://insightlyze.com/chatbot/" width="400" height="600" frameborder="0"></iframe>
+
                 <p style="margin: auto;text-align: center;margin-top: 20%;">No reviews yet</p>
                 {% endif %}
                 {% for r in reviews %}
