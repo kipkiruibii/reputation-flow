@@ -4,98 +4,157 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chatbot Widget</title>
+    <title>Chatbot</title>
     <style>
+        /* General styles */
         body {
-            font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        /* Chat icon */
+        #chat-icon {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            background-color: #007bff;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            color: white;
+            font-size: 30px;
+        }
+
+        #chat-icon:hover {
+            background-color: #0056b3;
+        }
+
+        /* Chatbox container */
+        #chatbox-container {
+            position: fixed;
+            bottom: 90px;
+            right: 20px;
+            width: 300px;
+            height: 400px;
+            background-color: white;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: none;
+            /* Hidden by default */
+            flex-direction: column;
             overflow: hidden;
         }
 
-        .chat-container {
-            width: 100%;
-            height: 100%;
-            border: 1px solid #ccc;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .chat-messages {
-            flex: 1;
-            overflow-y: auto;
+        /* Chatbox header */
+        #chatbox-header {
+            background-color: #007bff;
+            color: white;
             padding: 10px;
-            background: #f9f9f9;
+            text-align: center;
+            font-weight: bold;
         }
 
-        .chat-input {
+        /* Chat messages area */
+        #chatbox-messages {
+            flex: 1;
+            padding: 10px;
+            overflow-y: auto;
+            background-color: #f8f9fa;
+        }
+
+        /* Message input area */
+        #chatbox-input {
             display: flex;
             border-top: 1px solid #ccc;
         }
 
-        .chat-input input {
+        #chatbox-input input {
             flex: 1;
             padding: 10px;
             border: none;
             outline: none;
         }
 
-        .chat-input button {
-            padding: 10px 20px;
-            background: #007bff;
+        #chatbox-input button {
+            background-color: #007bff;
             color: white;
             border: none;
+            padding: 10px;
             cursor: pointer;
         }
 
-        .chat-input button:hover {
-            background: #0056b3;
+        #chatbox-input button:hover {
+            background-color: #0056b3;
         }
     </style>
 </head>
 
 <body>
-    <div class="chat-container">
-        <div class="chat-messages" id="chat-messages"></div>
-        <div class="chat-input">
-            <input type="text" id="chat-input" placeholder="Type your message..." />
+
+    <!-- Chat icon -->
+    <div id="chat-icon">💬</div>
+
+    <!-- Chatbox container -->
+    <div id="chatbox-container">
+        <div id="chatbox-header">Chat with Us</div>
+        <div id="chatbox-messages">
+            <!-- Chat messages will appear here -->
+        </div>
+        <div id="chatbox-input">
+            <input type="text" id="user-input" placeholder="Type your message..." />
             <button id="send-button">Send</button>
         </div>
     </div>
+
     <script>
-        const chatMessages = document.getElementById('chat-messages');
-        const chatInput = document.getElementById('chat-input');
+        // Toggle the chatbox when the chat icon is clicked
+        const chatIcon = document.getElementById('chat-icon');
+        const chatboxContainer = document.getElementById('chatbox-container');
+
+        chatIcon.addEventListener('click', () => {
+            if (chatboxContainer.style.display === 'none' || chatboxContainer.style.display === '') {
+                chatboxContainer.style.display = 'flex';
+            } else {
+                chatboxContainer.style.display = 'none';
+            }
+        });
+
+        // Handle sending messages (example)
         const sendButton = document.getElementById('send-button');
+        const userInput = document.getElementById('user-input');
+        const chatboxMessages = document.getElementById('chatbox-messages');
 
-        sendButton.addEventListener('click', sendMessage);
+        sendButton.addEventListener('click', () => {
+            const message = userInput.value.trim();
+            if (message) {
+                // Add user's message to the chatbox
+                const userMessage = document.createElement('div');
+                userMessage.textContent = message;
+                userMessage.style.cssText = "margin: 5px 0; padding: 8px; background-color: #007bff; color: white; border-radius: 5px; text-align: right;";
+                chatboxMessages.appendChild(userMessage);
 
-        function sendMessage() {
-            const message = chatInput.value.trim();
-            if (!message) return;
+                // Simulate a bot response
+                const botMessage = document.createElement('div');
+                botMessage.textContent = `You said: ${message}`;
+                botMessage.style.cssText = "margin: 5px 0; padding: 8px; background-color: #f1f1f1; border-radius: 5px; text-align: left;";
+                chatboxMessages.appendChild(botMessage);
 
-            // Display user's message
-            const userMessage = document.createElement('div');
-            userMessage.textContent = "You: " + message;
-            chatMessages.appendChild(userMessage);
-            chatInput.value = '';
+                // Scroll to the bottom of the chatbox
+                chatboxMessages.scrollTop = chatboxMessages.scrollHeight;
 
-            // Send message to the server
-            fetch('', {
-                method: 'POST',
-                headers: { 'X-CSRFToken': '{{ csrf_token }}', 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: new URLSearchParams({ message: message })
-            })
-                .then(response => response.json())
-                .then(data => {
-                    // Display bot's response
-                    const botMessage = document.createElement('div');
-                    botMessage.textContent = "Bot: " + data.response;
-                    chatMessages.appendChild(botMessage);
-                    chatMessages.scrollTop = chatMessages.scrollHeight;
-                })
-                .catch(error => console.error('Error:', error));
-        }
+                // Clear the input
+                userInput.value = '';
+            }
+        });
     </script>
+
 </body>
 
 </html>
