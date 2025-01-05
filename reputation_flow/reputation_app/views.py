@@ -1340,6 +1340,66 @@ def dashboard(request, company_id):
             'subscription_notes':th.subscription_notes,
             'payer_email':th.payer_email
         })
+        tx_hist.append({
+            'subscription_date':th.subscription_date.strftime("%d %b %Y"),
+            'subscription_period':f'{datetime.fromisoformat(th.subscription_period['start_date']).strftime("%d %b %Y")} - { datetime.fromisoformat(th.subscription_period['end_date']).strftime("%d %b %Y")} ',
+            'subscription_type':th.subscription_type.capitalize(),
+            'subscription_amount':f'{th.subscription_currency} {th.subscription_amount}',
+            'transaction_id':th.transaction_id,
+            'sub_status':True if th.subscription_success else False,
+            'subscription_notes':th.subscription_notes,
+            'payer_email':th.payer_email
+        })
+        tx_hist.append({
+            'subscription_date':th.subscription_date.strftime("%d %b %Y"),
+            'subscription_period':f'{datetime.fromisoformat(th.subscription_period['start_date']).strftime("%d %b %Y")} - { datetime.fromisoformat(th.subscription_period['end_date']).strftime("%d %b %Y")} ',
+            'subscription_type':th.subscription_type.capitalize(),
+            'subscription_amount':f'{th.subscription_currency} {th.subscription_amount}',
+            'transaction_id':th.transaction_id,
+            'sub_status':True if th.subscription_success else False,
+            'subscription_notes':th.subscription_notes,
+            'payer_email':th.payer_email
+        })
+        tx_hist.append({
+            'subscription_date':th.subscription_date.strftime("%d %b %Y"),
+            'subscription_period':f'{datetime.fromisoformat(th.subscription_period['start_date']).strftime("%d %b %Y")} - { datetime.fromisoformat(th.subscription_period['end_date']).strftime("%d %b %Y")} ',
+            'subscription_type':th.subscription_type.capitalize(),
+            'subscription_amount':f'{th.subscription_currency} {th.subscription_amount}',
+            'transaction_id':th.transaction_id,
+            'sub_status':True if th.subscription_success else False,
+            'subscription_notes':th.subscription_notes,
+            'payer_email':th.payer_email
+        })
+        tx_hist.append({
+            'subscription_date':th.subscription_date.strftime("%d %b %Y"),
+            'subscription_period':f'{datetime.fromisoformat(th.subscription_period['start_date']).strftime("%d %b %Y")} - { datetime.fromisoformat(th.subscription_period['end_date']).strftime("%d %b %Y")} ',
+            'subscription_type':th.subscription_type.capitalize(),
+            'subscription_amount':f'{th.subscription_currency} {th.subscription_amount}',
+            'transaction_id':th.transaction_id,
+            'sub_status':True if th.subscription_success else False,
+            'subscription_notes':th.subscription_notes,
+            'payer_email':th.payer_email
+        })
+        tx_hist.append({
+            'subscription_date':th.subscription_date.strftime("%d %b %Y"),
+            'subscription_period':f'{datetime.fromisoformat(th.subscription_period['start_date']).strftime("%d %b %Y")} - { datetime.fromisoformat(th.subscription_period['end_date']).strftime("%d %b %Y")} ',
+            'subscription_type':th.subscription_type.capitalize(),
+            'subscription_amount':f'{th.subscription_currency} {th.subscription_amount}',
+            'transaction_id':th.transaction_id,
+            'sub_status':True if th.subscription_success else False,
+            'subscription_notes':th.subscription_notes,
+            'payer_email':th.payer_email
+        })
+        tx_hist.append({
+            'subscription_date':th.subscription_date.strftime("%d %b %Y"),
+            'subscription_period':f'{datetime.fromisoformat(th.subscription_period['start_date']).strftime("%d %b %Y")} - { datetime.fromisoformat(th.subscription_period['end_date']).strftime("%d %b %Y")} ',
+            'subscription_type':th.subscription_type.capitalize(),
+            'subscription_amount':f'{th.subscription_currency} {th.subscription_amount}',
+            'transaction_id':th.transaction_id,
+            'sub_status':True if th.subscription_success else False,
+            'subscription_notes':th.subscription_notes,
+            'payer_email':th.payer_email
+        })
         
     context = {
         'company_name': cm.company_name,
