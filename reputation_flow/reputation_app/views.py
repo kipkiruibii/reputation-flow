@@ -567,6 +567,16 @@ def format_datetime(timezone_str, datetime_str, platform):
 
     return formatted
 
+def chatbot_widget(request):
+    if request.method == 'POST':
+        user_message = request.POST.get('message', '')
+        # Process the user's message (e.g., query an AI chatbot or database)
+        bot_response = f"You said: {user_message}"
+        return JsonResponse({'response': bot_response})
+    
+    # Render the chatbot HTML for GET requests
+    return render(request, 'chatbot_widget.html')
+
 @api_view(['POST'])
 def settingProfile(request):
     company_id = request.POST.get('company_id', None)

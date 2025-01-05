@@ -11,7 +11,7 @@ urlpatterns=[
     path('social-proof/<str:company_name>/',views.socialProof,name='social-proof'),
     path('update-profile/',views.updateBusinessProfile,name='update-profile'),
     path('post-dispute/',views.postDispute,name='post-dispute'),
-    # setting profile
+    path('chatbot/', views.chatbot_widget, name='chatbot_widget'),    # setting profile
     path('setting-profile/',views.settingProfile,name='setting-profile'),
     # get posts
     path('fetch-posts/',views.fetchPosts,name='fetch-posts'),
