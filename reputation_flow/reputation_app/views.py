@@ -231,7 +231,7 @@ def paypal_notification(request):
                                     transaction_id=transaction_id,
                                     payer_email=email,
                                     subscriber_id=profile_id,
-                                    subscription_notes=f'Subscription successfull on {payment_date}',
+                                    subscription_notes=f'Subscription successful on {payment_date}',
                                     subscription_period={'start_date':timezone.now().isoformat(),'end_date':(timezone.now()+timedelta(days=30)).isoformat()}
                                 )
                                 cth.save()
@@ -239,7 +239,6 @@ def paypal_notification(request):
                                 # update the company profile
                                 
                                 cpn.company_free_trial=False
-                                cpn.cofree_trial_expired
                                 cpn.company_subscription_date=timezone.now()
                                 cpn.company_active_subscription=True
                                 cpn.company_subscription_tier=1
@@ -1330,66 +1329,6 @@ def dashboard(request, company_id):
     transcts=CompanyTransactionHistory.objects.filter(company=cm).last()
     tx_hist=[]
     for th in CompanyTransactionHistory.objects.filter(company=cm).order_by('-pk'):
-        tx_hist.append({
-            'subscription_date':th.subscription_date.strftime("%d %b %Y"),
-            'subscription_period':f'{datetime.fromisoformat(th.subscription_period['start_date']).strftime("%d %b %Y")} - { datetime.fromisoformat(th.subscription_period['end_date']).strftime("%d %b %Y")} ',
-            'subscription_type':th.subscription_type.capitalize(),
-            'subscription_amount':f'{th.subscription_currency} {th.subscription_amount}',
-            'transaction_id':th.transaction_id,
-            'sub_status':True if th.subscription_success else False,
-            'subscription_notes':th.subscription_notes,
-            'payer_email':th.payer_email
-        })
-        tx_hist.append({
-            'subscription_date':th.subscription_date.strftime("%d %b %Y"),
-            'subscription_period':f'{datetime.fromisoformat(th.subscription_period['start_date']).strftime("%d %b %Y")} - { datetime.fromisoformat(th.subscription_period['end_date']).strftime("%d %b %Y")} ',
-            'subscription_type':th.subscription_type.capitalize(),
-            'subscription_amount':f'{th.subscription_currency} {th.subscription_amount}',
-            'transaction_id':th.transaction_id,
-            'sub_status':True if th.subscription_success else False,
-            'subscription_notes':th.subscription_notes,
-            'payer_email':th.payer_email
-        })
-        tx_hist.append({
-            'subscription_date':th.subscription_date.strftime("%d %b %Y"),
-            'subscription_period':f'{datetime.fromisoformat(th.subscription_period['start_date']).strftime("%d %b %Y")} - { datetime.fromisoformat(th.subscription_period['end_date']).strftime("%d %b %Y")} ',
-            'subscription_type':th.subscription_type.capitalize(),
-            'subscription_amount':f'{th.subscription_currency} {th.subscription_amount}',
-            'transaction_id':th.transaction_id,
-            'sub_status':True if th.subscription_success else False,
-            'subscription_notes':th.subscription_notes,
-            'payer_email':th.payer_email
-        })
-        tx_hist.append({
-            'subscription_date':th.subscription_date.strftime("%d %b %Y"),
-            'subscription_period':f'{datetime.fromisoformat(th.subscription_period['start_date']).strftime("%d %b %Y")} - { datetime.fromisoformat(th.subscription_period['end_date']).strftime("%d %b %Y")} ',
-            'subscription_type':th.subscription_type.capitalize(),
-            'subscription_amount':f'{th.subscription_currency} {th.subscription_amount}',
-            'transaction_id':th.transaction_id,
-            'sub_status':True if th.subscription_success else False,
-            'subscription_notes':th.subscription_notes,
-            'payer_email':th.payer_email
-        })
-        tx_hist.append({
-            'subscription_date':th.subscription_date.strftime("%d %b %Y"),
-            'subscription_period':f'{datetime.fromisoformat(th.subscription_period['start_date']).strftime("%d %b %Y")} - { datetime.fromisoformat(th.subscription_period['end_date']).strftime("%d %b %Y")} ',
-            'subscription_type':th.subscription_type.capitalize(),
-            'subscription_amount':f'{th.subscription_currency} {th.subscription_amount}',
-            'transaction_id':th.transaction_id,
-            'sub_status':True if th.subscription_success else False,
-            'subscription_notes':th.subscription_notes,
-            'payer_email':th.payer_email
-        })
-        tx_hist.append({
-            'subscription_date':th.subscription_date.strftime("%d %b %Y"),
-            'subscription_period':f'{datetime.fromisoformat(th.subscription_period['start_date']).strftime("%d %b %Y")} - { datetime.fromisoformat(th.subscription_period['end_date']).strftime("%d %b %Y")} ',
-            'subscription_type':th.subscription_type.capitalize(),
-            'subscription_amount':f'{th.subscription_currency} {th.subscription_amount}',
-            'transaction_id':th.transaction_id,
-            'sub_status':True if th.subscription_success else False,
-            'subscription_notes':th.subscription_notes,
-            'payer_email':th.payer_email
-        })
         tx_hist.append({
             'subscription_date':th.subscription_date.strftime("%d %b %Y"),
             'subscription_period':f'{datetime.fromisoformat(th.subscription_period['start_date']).strftime("%d %b %Y")} - { datetime.fromisoformat(th.subscription_period['end_date']).strftime("%d %b %Y")} ',
