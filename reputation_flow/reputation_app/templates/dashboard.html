@@ -1875,11 +1875,12 @@
                         </div>
                         {% if company_subs.subscription_active %}
                         <p style="color:rgb(53, 248, 95)">Active </p>
-                        {% elif not company_subs.free_trial_expired %}
+                        {% elif company_subs.free_trial %}
                         <p style="color:rgb(53, 248, 95)">Free trial </p>
                         {% else %}
                         <p style="color:rgba(246, 22, 22, 1)">Expired </p>
                         {% endif %}
+
 
                     </div>
 
@@ -1893,13 +1894,13 @@
                     </div>
 
                     <div>
-                        {% if company_subs.free_trial_expired %}
-                        <p style="font-size:12px">Your free trial has ended. Upgrade now to continue using Insightlyze.
-                        </p>
-
-                        {% else %}
+                        {% if company_subs.subscription_active %}
+                        {% elif company_subs.free_trial %}
                         <p style="font-size:12px">Free trial <strong>ends in {{ company_subs.free_trial_expiry }}
                                 days</strong>
+                        </p>
+                        {% else %}
+                        <p style="font-size:12px">Renew subscription to continue
                         </p>
                         {% endif %}
                     </div>
@@ -9874,15 +9875,7 @@
 
                         }
                     });
-
-
-
                 });
-
-
-
-
-
             });
 
 

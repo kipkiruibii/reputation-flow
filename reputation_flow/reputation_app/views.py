@@ -239,6 +239,7 @@ def paypal_notification(request):
                                 # update the company profile
                                 
                                 cpn.company_free_trial=False
+                                cpn.cofree_trial_expired
                                 cpn.company_subscription_date=timezone.now()
                                 cpn.company_active_subscription=True
                                 cpn.company_subscription_tier=1
@@ -1341,7 +1342,7 @@ def dashboard(request, company_id):
             'subscription_active': cm.company_active_subscription,
             'subscription_type': cm.company_subscription,
             'free_trial': cm.company_free_trial,
-            'free_trial_expired': True if exp_dif < 0 else False,
+            # 'free_trial_expired': True if exp_dif < 0 else False,
             'free_trial_expiry': exp_dif
         },
         'company_address': {
