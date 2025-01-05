@@ -67,7 +67,9 @@ MIDDLEWARE = [
 INSTALLED_APPS += ['corsheaders']
 MIDDLEWARE.insert(0, 'corsheaders.middleware.CorsMiddleware')
 CORS_ALLOW_ALL_ORIGINS = True  
+MIDDLEWARE += ['django.middleware.clickjacking.XFrameOptionsMiddleware']
 
+X_FRAME_OPTIONS = 'ALLOWALL'
 ROOT_URLCONF = 'reputation_flow.urls'
 
 TEMPLATES = [
