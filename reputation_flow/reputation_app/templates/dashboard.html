@@ -3450,7 +3450,8 @@
                                     <i class="send far fa-paper-plane"></i>
                                 </div>
                             </div>
-                            <div class="chat-button"><span></span></div>
+                            <div class="chat-button">
+                                <span></span></div>
                             <div class="modal">
                                 <div class="modal-content">
                                     <span class="modal-close-button">&times;</span>
@@ -10674,12 +10675,12 @@
 
         <script>
             $('.chat-button').on('click', function () {
-                $('.chat-button').css({
-                    "display": "none"
-                });
-                $('.chat-box').css({
-                    "visibility": "visible"
-                });
+                $('.chat-button').css(
+                    "display", "none"
+                );
+                $('.chat-box').css(
+                    "visibility", "visible"
+                );
             });
             $('.chat-box .chat-box-header p').on('click', function () {
                 $('.chat-button').css({
