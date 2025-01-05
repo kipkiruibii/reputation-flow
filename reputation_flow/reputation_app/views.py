@@ -575,7 +575,7 @@ def chatbot_widget(request):
         return JsonResponse({'response': bot_response})
     
     # Render the chatbot HTML for GET requests
-    return render(request, 'chatbot_widget.html')
+    return render(request, 'chatbot_template.html')
 
 @api_view(['POST'])
 def settingProfile(request):
