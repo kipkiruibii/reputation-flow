@@ -2528,6 +2528,14 @@ def socialProof(request,company_name):
             'company': company_name,
         }
         return render(request, 'review.html', context=context)
+    if not cp.company_show_page :
+        context = {
+            'success': False,
+            'status':404,
+            'search_autofill':json.dumps(all_cp),
+            'company': company_name,
+        }
+        return render(request, 'review.html', context=context)
     sc = CompanyContacts.objects.filter(company=cp).first()
     eml=sc.email if sc else False
     revs=[]
