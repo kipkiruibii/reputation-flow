@@ -1345,7 +1345,7 @@ def dashboard(request, company_id):
             'free_trial': cm.company_free_trial,
             # 'free_trial_expired': True if exp_dif < 0 else False,
             'free_trial_expiry': exp_dif,
-            'subscription_period':f'{transcts.subscription_period['start_date']} - { transcts.subscription_period['end_date']} ' if transcts else '-'
+            'subscription_period':f'{transcts.subscription_period['start_date'].strftime("%a/%d/%m/%Y")} - { transcts.subscription_period['end_date'].strftime("%a/%d/%m/%Y")} ' if transcts else '-'
         },
         'company_address': {
             'address': cm.company_address,
