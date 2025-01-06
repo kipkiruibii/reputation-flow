@@ -231,6 +231,7 @@
                 var csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
                 formData.append('company_id', '{{ company_id }}');
                 formData.append('message', message);
+                toastr.success('updated successfully');
 
                 // Send the form data via AJAX
                 $.ajax({
