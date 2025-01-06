@@ -461,7 +461,11 @@
         const chatbotIcon = document.getElementById('chatbot-icon-rs');
 
         function toggleIframe(){
-            alert(chatbotIframe.style.display);
+            if (chatbotIframe.style.display === 'none' || chatbotIframe.style.display === '') {
+                chatbotIframe.style.display = 'block'; // Show iframe
+            } else {
+                chatbotIframe.style.display = 'none'; // Hide iframe
+            }
         }
         // Toggle iframe visibility on icon click
         // chatbotIcon.addEventListener('click', () => {
