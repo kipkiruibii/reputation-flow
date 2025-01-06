@@ -226,7 +226,6 @@
                 customerMessage.innerHTML = `<div class="message-bubble">${message}</div>`;
                 messages.appendChild(customerMessage);
                 // SEND TO THE SERVER VIA AJAX
-                alert('updated successfully');
 
                 var formData = new FormData();
                 var csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
@@ -245,10 +244,10 @@
                     contentType: false, // Prevent jQuery from setting the content type
                     success: function (response) {
                         if (response['error']) {
-                            toastr.error(response['error']);
+                            console.log(response['error']);
 
                         } else {
-                            toastr.success('updated successfully');
+                            console.log('updated successfully');
                             // Simulate bot response
                             const botMessage = document.createElement('div');
                             botMessage.className = 'chat-message bot';
@@ -273,7 +272,7 @@
                         }
                     },
                     error: function (jqXHR, textStatus, errorThrown) {
-                        toastr.error('Failed');
+                        console.log('Failed');
                         console.error(textStatus, errorThrown);
                     }
                 });
