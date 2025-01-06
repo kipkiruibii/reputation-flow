@@ -250,11 +250,12 @@
                         } else {
                             console.log('updated successfully');
                             // Simulate bot response
+                            var bot_response=response['response'];
                             const botMessage = document.createElement('div');
                             botMessage.className = 'chat-message bot';
                             botMessage.innerHTML = `
                                 <img class="bot-icon" src="https://img.icons8.com/ios-filled/50/248a52/robot-2.png" alt="Bot">
-                                <div class="message-bubble">I'm here to help!</div>
+                                <div class="message-bubble">${bot_response}</div>
                             `;
                             messages.appendChild(botMessage);
 
