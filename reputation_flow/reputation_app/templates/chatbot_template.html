@@ -20,11 +20,11 @@
 
         .chatbot-container {
             position: fixed;
-            bottom: 90px;
+            bottom: 120px;
             right: 20px;
             width: 360px;
             /* Default width for larger screens */
-            height: 70vh;
+            height: 50vh;
             max-height: 500px;
             background: #fff;
             border-radius: 15px;
@@ -188,12 +188,6 @@
     </div>
 
     <script>
-        // Toggle Chatbot Visibility
-        function toggleChatbot() {
-            const chatbot = document.getElementById('chatbot');
-            chatbot.style.display = chatbot.style.display === 'flex' ? 'none' : 'flex';
-        }
-
         // Send Message
         function sendMessage() {
             const input = document.getElementById('chat-input');
