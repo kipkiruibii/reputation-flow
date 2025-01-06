@@ -457,17 +457,14 @@
         }    </script>
 
     <script>
-        const chatbotIframe = document.getElementById('chatbot-iframe');
-        const chatbotIcon = document.getElementById('chatbot-icon');
+        // const chatbotIframe = document.getElementById('chatbot-iframe');
+        // const chatbotIcon = document.getElementById('chatbot-icon');
 
-
-        // Toggle iframe visibility on icon click
-        chatbotIcon.addEventListener('click', () => {
-            alert('clicked');
-            if (chatbotIframe.style.display === 'none' || chatbotIframe.style.display === '') {
-                chatbotIframe.style.display = 'block'; // Show iframe
-            } else {
-                chatbotIframe.style.display = 'none'; // Hide iframe
+        document.addEventListener('click', (e) => {
+            if (e.target.id === 'chatbot-icon') {
+                alert('clicked');
+                const iframeDisplay = window.getComputedStyle(chatbotIframe).display;
+                chatbotIframe.style.display = iframeDisplay === 'none' ? 'block' : 'none';
             }
         });
     </script>
