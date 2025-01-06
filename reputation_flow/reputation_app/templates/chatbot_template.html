@@ -22,7 +22,6 @@
             position: fixed;
             bottom: 20px;
             right: 20px;
-            /* Changed to bottom-right */
             width: 60px;
             height: 60px;
             background-color: #248a52;
@@ -44,9 +43,7 @@
         .chatbot-container {
             position: fixed;
             bottom: 90px;
-            /* Space above the chatbot icon */
             right: 20px;
-            /* Align to bottom-right */
             width: 360px;
             height: 70vh;
             max-height: 500px;
@@ -56,7 +53,6 @@
             display: none;
             flex-direction: column;
             z-index: 10000;
-            /* Ensure it floats on top of the embedding page */
         }
 
         /* Chat Header */
@@ -78,7 +74,47 @@
             font-size: 14px;
             color: #333;
             background: #f8f9fa;
-            border-bottom: 1px solid #ddd;
+        }
+
+        .chat-message {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            max-width: 80%;
+        }
+
+        .chat-message.bot {
+            justify-content: flex-start;
+        }
+
+        .chat-message.customer {
+            justify-content: flex-end;
+        }
+
+        /* Bot Message */
+        .chat-message.bot .message-bubble {
+            background: #e9f5f1;
+            color: #248a52;
+            border-radius: 10px 10px 10px 0;
+            padding: 10px;
+            font-size: 14px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .chat-message.bot .bot-icon {
+            width: 30px;
+            height: 30px;
+            margin-right: 10px;
+        }
+
+        /* Customer Message */
+        .chat-message.customer .message-bubble {
+            background: #248a52;
+            color: white;
+            border-radius: 10px 10px 0 10px;
+            padding: 10px;
+            font-size: 14px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
 
         /* Chat Input Area */
@@ -140,7 +176,12 @@
             Chatbot
         </div>
         <div class="chat-messages" id="chat-messages">
-            <p>Welcome! How can I help you today?</p>
+            <div class="chat-message bot">
+                <img class="bot-icon" src="https://img.icons8.com/ios-filled/50/248a52/robot-2.png" alt="Bot">
+                <div class="message-bubble">
+                    Welcome! How can I assist you today?
+                </div>
+            </div>
         </div>
         <div class="chat-input-area">
             <input type="text" class="chat-input" id="chat-input" placeholder="Type your message...">
@@ -162,18 +203,19 @@
             const message = input.value.trim();
 
             if (message) {
-                // Append user's message
-                const userMessage = document.createElement('p');
-                userMessage.style.textAlign = 'right';
-                userMessage.style.color = '#248a52';
-                userMessage.textContent = message;
-                messages.appendChild(userMessage);
+                // Append customer's message
+                const customerMessage = document.createElement('div');
+                customerMessage.className = 'chat-message customer';
+                customerMessage.innerHTML = `<div class="message-bubble">${message}</div>`;
+                messages.appendChild(customerMessage);
 
-                // Simulate chatbot response
-                const botMessage = document.createElement('p');
-                botMessage.style.textAlign = 'left';
-                botMessage.style.color = '#555';
-                botMessage.textContent = "I'm here to assist you!";
+                // Simulate bot response
+                const botMessage = document.createElement('div');
+                botMessage.className = 'chat-message bot';
+                botMessage.innerHTML = `
+                    <img class="bot-icon" src="https://img.icons8.com/ios-filled/50/248a52/robot-2.png" alt="Bot">
+                    <div class="message-bubble">I'm here to help!</div>
+                `;
                 messages.appendChild(botMessage);
 
                 // Clear input and scroll to bottom
