@@ -154,7 +154,7 @@
 
 
         /* Chatbot Icon */
-        .chatbot-icon {
+        #chatbot-icon-rs {
             position: fixed;
             bottom: 20px;
             right: 20px;
@@ -170,7 +170,7 @@
             z-index: 9999;
         }
 
-        .chatbot-icon img {
+        #chatbot-icon-rs img {
             width: 30px;
             height: 30px;
         }
@@ -305,7 +305,7 @@
                 </iframe>
 
                 <!-- Chatbot Icon -->
-                <div class="" id="chatbot-icon-rs" onclick="toggleIframe()">
+                <div id="chatbot-icon-rs" onclick="toggleIframe()">
                     <img src="https://img.icons8.com/ios-filled/50/ffffff/chat.png" alt="Chat">
                 </div>
 
@@ -461,7 +461,6 @@
         const chatbotIcon = document.getElementById('chatbot-icon-rs');
 
         function toggleIframe(){
-            alert('here');
             if (chatbotIframe.style.display === 'none') {
                 chatbotIframe.style.display = 'block'; // Show iframe
             } else {
