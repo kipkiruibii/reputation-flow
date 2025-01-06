@@ -80,12 +80,17 @@ urlpatterns=[
     # delete post
     path('delete_comment/',views.deletePostComment,name='delete_comment'),
     
+    # ai chatbot
+    path('ask-bot/',views.chatbot_widget,name='ask-bot'),
+    
     
     path('paypal/ipn/', include("paypal.standard.ipn.urls")),
 
     path('payment-success/', views.successful_payment, name='payment-success'),
     path('payment-failed/', views.failed_payment, name='payment-failed'),
     path('paypal_notification/', views.paypal_notification, name='paypal_notification'),
+    
+    
     # publish unpublish reviews
     # path('publish_unpublish_review/',views.publishUnpublishReviews,name='publish_unpublish_review'),
     

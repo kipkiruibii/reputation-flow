@@ -200,19 +200,62 @@
                 customerMessage.className = 'chat-message customer';
                 customerMessage.innerHTML = `<div class="message-bubble">${message}</div>`;
                 messages.appendChild(customerMessage);
+                // SEND TO THE SERVER VIA AJAX
 
-                // Simulate bot response
-                const botMessage = document.createElement('div');
-                botMessage.className = 'chat-message bot';
-                botMessage.innerHTML = `
-                    <img class="bot-icon" src="https://img.icons8.com/ios-filled/50/248a52/robot-2.png" alt="Bot">
-                    <div class="message-bubble">I'm here to help!</div>
-                `;
-                messages.appendChild(botMessage);
+                var formData = new FormData();
+                var csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                formData.append('company_id', '{{ company_id }}');
+                formData.append('message', message);
 
-                // Clear input and scroll to bottom
-                input.value = '';
-                messages.scrollTop = messages.scrollHeight;
+                // Send the form data via AJAX
+                $.ajax({
+                    url: '{% url "ask-bot" %}', // Replace with your Django endpoint URL
+                    type: 'POST',
+                    headers: {
+                        'X-CSRFToken': csrfToken
+                    },
+                    data: formData,
+                    processData: false, // Prevent jQuery from processing the data
+                    contentType: false, // Prevent jQuery from setting the content type
+                    success: function (response) {
+                        if (response['error']) {
+                            toastr.error(response['error']);
+
+                        } else {
+                            toastr.success('updated successfully');
+                            // Simulate bot response
+                            const botMessage = document.createElement('div');
+                            botMessage.className = 'chat-message bot';
+                            botMessage.innerHTML = `
+                                <img class="bot-icon" src="https://img.icons8.com/ios-filled/50/248a52/robot-2.png" alt="Bot">
+                                <div class="message-bubble">I'm here to help!</div>
+                            `;
+                            messages.appendChild(botMessage);
+
+                            // Clear input and scroll to bottom
+                            input.value = '';
+                            messages.scrollTop = messages.scrollHeight;
+
+                            // update html
+                            // var tempDiv = $('<div>').html(response);
+                            // // Extract the specific element from the new HTML
+                            // var newElementContent = tempDiv.find('#feature-reqs').html();
+
+                            // $('#feature-reqs').html(newElementContent);
+                            // // initializeMultiSelect();
+                            // return;
+                        }
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        toastr.error('Failed');
+                        console.error(textStatus, errorThrown);
+                    }
+                });
+
+
+
+
+
             }
         }
     </script>

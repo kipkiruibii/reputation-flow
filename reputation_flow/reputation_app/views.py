@@ -568,6 +568,7 @@ def format_datetime(timezone_str, datetime_str, platform):
     return formatted
 
 def chatbot_widget(request):
+    context={}
     if request.method == 'POST':
         user_message = request.POST.get('message', '')
         # Process the user's message (e.g., query an AI chatbot or database)
