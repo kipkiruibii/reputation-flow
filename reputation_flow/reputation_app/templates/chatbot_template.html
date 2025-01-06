@@ -232,6 +232,8 @@
                 var csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
                 formData.append('company_id', '{{ company_id }}');
                 formData.append('message', message);
+                // Clear input and scroll to bottom
+                input.value = '';
 
                 // Send the form data via AJAX
                 $.ajax({
@@ -248,7 +250,7 @@
 
                         } else {
                             // Simulate bot response
-                            var bot_response=response['response'];
+                            var bot_response = response['response'];
                             const botMessage = document.createElement('div');
                             botMessage.className = 'chat-message bot';
                             botMessage.innerHTML = `
@@ -257,8 +259,6 @@
                             `;
                             messages.appendChild(botMessage);
 
-                            // Clear input and scroll to bottom
-                            input.value = '';
                             messages.scrollTop = messages.scrollHeight;
                         }
                     },
