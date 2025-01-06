@@ -29,7 +29,8 @@
         href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
     <script type="text/javascript"
         src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
-
+    <link rel="stylesheet" href="https://d2w11b8kfh947x.cloudfront.net/chatbot.css">
+    <script src="https://d2w11b8kfh947x.cloudfront.net/chatbot.js" defer></script>
     <style>
         ::selection {
             color: #fff;
@@ -153,27 +154,7 @@
         }
 
 
-        /* Chatbot Icon */
-        #chatbot-icon-rs {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            width: 60px;
-            height: 60px;
-            background-color: #248a52;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
-            cursor: pointer;
-            z-index: 9999;
-        }
 
-        #chatbot-icon-rs img {
-            width: 30px;
-            height: 30px;
-        }
     </style>
 </head>
 
@@ -460,21 +441,13 @@
         const chatbotIframe = document.getElementById('chatbot-iframe');
         const chatbotIcon = document.getElementById('chatbot-icon-rs');
 
-        function toggleIframe(){
+        function toggleIframe() {
             if (chatbotIframe.style.display === 'none') {
                 chatbotIframe.style.display = 'flex'; // Show iframe
             } else {
                 chatbotIframe.style.display = 'none'; // Hide iframe
             }
         }
-        // Toggle iframe visibility on icon click
-        // chatbotIcon.addEventListener('click', () => {
-        //     if (chatbotIframe.style.display === 'none' || chatbotIframe.style.display === '') {
-        //         chatbotIframe.style.display = 'block'; // Show iframe
-        //     } else {
-        //         chatbotIframe.style.display = 'none'; // Hide iframe
-        //     }
-        // });
     </script>
 
 </body>
