@@ -39,12 +39,12 @@
             height: 30px;
         }
 
-        /* Chat Container */
         .chatbot-container {
             position: fixed;
             bottom: 90px;
             right: 20px;
             width: 360px;
+            /* Default width for larger screens */
             height: 70vh;
             max-height: 500px;
             background: #fff;
@@ -54,6 +54,31 @@
             flex-direction: column;
             z-index: 10000;
         }
+
+        /* Media query for devices with a max width of 768px (tablet and mobile devices) */
+        @media screen and (max-width: 768px) {
+            .chatbot-container {
+                width: 90%;
+                /* Use 90% of the screen width */
+                right: 5%;
+                /* Center it horizontally with 5% margin on each side */
+                bottom: 20px;
+                /* Adjust bottom position for smaller screens */
+            }
+        }
+
+        /* Media query for devices with a max width of 480px (small mobile devices) */
+        @media screen and (max-width: 480px) {
+            .chatbot-container {
+                width: 95%;
+                /* Use 95% of the screen width */
+                right: 2.5%;
+                /* Center it horizontally with 2.5% margin */
+                bottom: 10px;
+                /* Adjust bottom position further */
+            }
+        }
+
 
         /* Chat Header */
         .chat-header {
