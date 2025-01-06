@@ -151,10 +151,6 @@
         .icon {
             cursor: pointer;
         }
-
-
-
-
     </style>
 </head>
 
@@ -280,8 +276,15 @@
                 <h3>What people are saying about {{ company }}</h3>
                 {% if not reviews %}
                 <!-- Chatbot Iframe -->
-                <iframe id="chatbot-iframe" src="https://insightlyze.com/chatbot/" frameborder="0" style="width: 360px;height: 70vh;">
+                <iframe id="chatbot-iframe" src="https://insightlyze.com/chatbot/"
+                    style="display: none; position: fixed; bottom: 20px; right: 20px; width: 360px; height: 500px; border-radius: 15px; box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2); z-index: 10000;"
+                    frameborder="0">
                 </iframe>
+                <!-- Chatbot Icon -->
+                <div class="chatbot-icon" onclick="toggleChatbot()">
+                    <img src="https://img.icons8.com/ios-filled/50/ffffff/chat.png" alt="Chat">
+                </div>
+
                 <p style="margin: auto;text-align: center;margin-top: 20%;">No reviews yet</p>
                 {% endif %}
                 {% for r in reviews %}
@@ -427,28 +430,16 @@
             }
             suggBox.innerHTML = listData;
         }    </script>
-
     <script>
-        const chatbotIframe = document.getElementById("chatbot-iframe");
+        const chatbotIframe = document.getElementById('chatbot-iframe');
+        const chatbotIcon = document.getElementById('chatbot-icon');
 
-        // Listen for messages from the iframe (if needed for interaction)
-        window.addEventListener("message", (event) => {
-            // Example: toggle the iframe size based on messages from the iframe
-            if (event.data === "expandChat") {
-                chatbotIframe.classList.add("expanded"); // Expand the iframe
-            } else if (event.data === "minimizeChat") {
-                chatbotIframe.classList.remove("expanded"); // Minimize the iframe
-            }
-        });
+        // Open chat
+        function openChat() {
+            chatbotIframe.style.display = 'block';
+        }
 
-        // Example: toggle expand/minimize when iframe is clicked
-        chatbotIframe.addEventListener("click", () => {
-            if (chatbotIframe.classList.contains("expanded")) {
-                chatbotIframe.classList.remove("expanded"); // Minimize
-            } else {
-                chatbotIframe.classList.add("expanded"); // Expand
-            }
-        });
+        // Close chat logic can be added inside the iframe or parent page
     </script>
 </body>
 
