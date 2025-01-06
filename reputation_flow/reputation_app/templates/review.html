@@ -305,7 +305,7 @@
                 </iframe>
 
                 <!-- Chatbot Icon -->
-                <div class="chatbot-icon" id="chatbot-icon" onclick="toggleChatbot()">
+                <div class="chatbot-icon" id="chatbot-icon">
                     <img src="https://img.icons8.com/ios-filled/50/ffffff/chat.png" alt="Chat">
                 </div>
 
@@ -462,7 +462,7 @@
 
         // Open chat
         function openChat() {
-            chatbotIframe.style.display === 'flex'?'none':'flex';
+            chatbotIframe.style.display ='block';
         }
 
         // Close chat logic can be added inside the iframe or parent page
