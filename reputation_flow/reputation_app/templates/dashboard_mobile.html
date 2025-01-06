@@ -3134,7 +3134,7 @@
                             </div>
 
                             <iframe id="chatbot-iframe" src="https://insightlyze.com/chatbot/"
-                                style="display:none;position: fixed; bottom: 20px; right: 20px; width: 1360px; height: 1600px; z-index: 9000;"
+                                style="display:block;position: fixed; bottom: 20px; right: 20px; width: 1360px; height: 1600px; z-index: 9000;"
                                 frameborder="0">
                             </iframe>
 
@@ -9886,18 +9886,7 @@
             }
 
         </script>
-        <script>
-            const chatbotIframe = document.getElementById('chatbot-iframe');
-            const chatbotIcon = document.getElementById('chatbot-icon-rs');
 
-            function toggleIframe() {
-                if (chatbotIframe.style.display === 'none') {
-                    chatbotIframe.style.display = 'flex'; // Show iframe
-                } else {
-                    chatbotIframe.style.display = 'none'; // Hide iframe
-                }
-            }
-        </script>
 </body>
 
 </html>
