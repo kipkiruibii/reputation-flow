@@ -463,6 +463,7 @@
 
         // Toggle iframe visibility on icon click
         chatbotIcon.addEventListener('click', () => {
+            alert('clicked');
             if (chatbotIframe.style.display === 'none' || chatbotIframe.style.display === '') {
                 chatbotIframe.style.display = 'block'; // Show iframe
             } else {
