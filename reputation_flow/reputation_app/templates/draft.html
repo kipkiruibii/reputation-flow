@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Business Chatbot</title>
+    <style>
+        /* Global Styles */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #123456, #345678);
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+        }
+
+        /* Chat Icon */
+        #chat-icon {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #257287;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            transition: background-color 0.3s;
+        }
+
+        #chat-icon:hover {
+            background-color: #1d7745;
+        }
+
+        /* Chat Container */
+        #chat-container {
+            position: fixed;
+            bottom: 100px;
+            right: 20px;
+            width: 350px;
+            height: 500px;
+            background: #ffffff;
+            border-radius: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Chat Header */
+        .chat-header {
+            background-color: #257287;
+            padding: 15px;
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chat-header button {
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        /* Chat Messages */
+        .chat-messages {
+            flex: 1;
+            padding: 10px;
+            overflow-y: auto;
+            background-color: #f4f4f4;
+        }
+
+        .chat-message {
+            margin: 10px 0;
+            display: flex;
+        }
+
+        .chat-message.bot {
+            justify-content: flex-start;
+        }
+
+        .chat-message.user {
+            justify-content: flex-end;
+        }
+
+        .chat-bubble {
+            max-width: 70%;
+            padding: 10px;
+            border-radius: 10px;
+            background-color: #257287;
+            color: white;
+        }
+
+        .chat-message.user .chat-bubble {
+            background-color: #1d7745;
+        }
+
+        /* Chat Input */
+        .chat-input {
+            display: flex;
+            padding: 10px;
+            border-top: 1px solid #ddd;
+            background-color: #fff;
+        }
+
+        .chat-input textarea {
+            flex: 1;
+            resize: none;
+            border: none;
+            outline: none;
+            padding: 10px;
+            font-size: 14px;
+        }
+
+        .chat-input button {
+            background-color: #257287;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 15px;
+            margin-left: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .chat-input button:hover {
+            background-color: #1d7745;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Chat Icon -->
+    <button id="chat-icon">💬</button>
+
+    <!-- Chat Container -->
+    <div id="chat-container">
+        <div class="chat-header">
+            Business Chatbot
+            <button id="close-chat">✖</button>
+        </div>
+        <div class="chat-messages">
+            <!-- Example messages -->
+            <div class="chat-message bot">
+                <div class="chat-bubble">Hello! How can I assist you today?</div>
+            </div>
+            <div class="chat-message user">
+                <div class="chat-bubble">I need help with scheduling a post.</div>
+            </div>
+        </div>
+        <div class="chat-input">
+            <textarea id="chat-input" placeholder="Type your message..."></textarea>
+            <button id="send-message">Send</button>
+        </div>
+    </div>
+
+    <script>
+        // Get elements
+        const chatIcon = document.getElementById('chat-icon');
+        const chatContainer = document.getElementById('chat-container');
+        const closeChat = document.getElementById('close-chat');
+        const sendMessageButton = document.getElementById('send-message');
+        const chatMessages = document.querySelector('.chat-messages');
+        const chatInput = document.getElementById('chat-input');
+
+        // Show chat container
+        chatIcon.addEventListener('click', () => {
+            chatContainer.style.display = 'flex';
+        });
+
+        // Hide chat container
+        closeChat.addEventListener('click', () => {
+            chatContainer.style.display = 'none';
+        });
+
+        // Send message
+        sendMessageButton.addEventListener('click', () => {
+            const userMessage = chatInput.value.trim();
+
+            if (userMessage) {
+                // Append user's message
+                const userMessageElement = document.createElement('div');
+                userMessageElement.classList.add('chat-message', 'user');
+                userMessageElement.innerHTML = `<div class="chat-bubble">${userMessage}</div>`;
+                chatMessages.appendChild(userMessageElement);
+
+                // Scroll to bottom
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+
+                // Clear input
+                chatInput.value = '';
+
+                // Simulate bot response
+                setTimeout(() => {
+                    const botMessageElement = document.createElement('div');
+                    botMessageElement.classList.add('chat-message', 'bot');
+                    botMessageElement.innerHTML = '<div class="chat-bubble">Let me help you with that!</div>';
+                    chatMessages.appendChild(botMessageElement);
+
+                    // Scroll to bottom
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                }, 1000);
+            }
+        });
+    </script>
+</body>
+
+</html>
