@@ -305,7 +305,7 @@
                 </iframe>
 
                 <!-- Chatbot Icon -->
-                <div class="chatbot-icon" id="chatbot-icon-rs">
+                <div class="chatbot-icon" id="chatbot-icon-rs" onclick="toggleIframe()">
                     <img src="https://img.icons8.com/ios-filled/50/ffffff/chat.png" alt="Chat">
                 </div>
 
@@ -460,15 +460,17 @@
         const chatbotIframe = document.getElementById('chatbot-iframe');
         const chatbotIcon = document.getElementById('chatbot-icon-rs');
 
-        
+        function toggleIframe(){
+            alert('here');
+        }
         // Toggle iframe visibility on icon click
-        chatbotIcon.addEventListener('click', () => {
-            if (chatbotIframe.style.display === 'none' || chatbotIframe.style.display === '') {
-                chatbotIframe.style.display = 'block'; // Show iframe
-            } else {
-                chatbotIframe.style.display = 'none'; // Hide iframe
-            }
-        });
+        // chatbotIcon.addEventListener('click', () => {
+        //     if (chatbotIframe.style.display === 'none' || chatbotIframe.style.display === '') {
+        //         chatbotIframe.style.display = 'block'; // Show iframe
+        //     } else {
+        //         chatbotIframe.style.display = 'none'; // Hide iframe
+        //     }
+        // });
     </script>
 
 </body>
