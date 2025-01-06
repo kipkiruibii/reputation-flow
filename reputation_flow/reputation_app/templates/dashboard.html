@@ -78,6 +78,10 @@
 
     <!-- Include Flatpickr JavaScript -->
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+    <link rel="stylesheet" href="https://d2w11b8kfh947x.cloudfront.net/chatbot.css">
+    <script src="https://d2w11b8kfh947x.cloudfront.net/chatbot.js" defer></script>
+
     <script>
 
         window.dataLayer = window.dataLayer || [];
@@ -1098,7 +1102,6 @@
 
 
         /* chatbot */
-
     </style>
 
 </head>
@@ -3167,6 +3170,16 @@
                             <!-- <div style="display: flex;justify-content: center;margin-top: 25%;">
                                 <p>No Reviews Yet.</p>
                             </div> -->
+
+                            <iframe id="chatbot-iframe" src="https://insightlyze.com/chatbot/"
+                                style="display:none;position: fixed; bottom: 20px; right: 20px; width: 1360px; height: 1600px; z-index: 9000;"
+                                frameborder="0">
+                            </iframe>
+
+                            <!-- Chatbot Icon -->
+                            <div id="chatbot-icon-rs" onclick="toggleIframe()" style="z-index: 10000;">
+                                <img src="https://img.icons8.com/ios-filled/50/ffffff/chat.png" alt="Chat">
+                            </div>
 
                             {% else %}
                             {% for r in reviews %}
