@@ -497,6 +497,29 @@
             }
             suggBox.innerHTML = listData;
         }    </script>
+
+    <script>
+        const chatbotIframe = document.getElementById("chatbot-iframe");
+
+        // Listen for messages from the iframe (if needed for interaction)
+        window.addEventListener("message", (event) => {
+            // Example: toggle the iframe size based on messages from the iframe
+            if (event.data === "expandChat") {
+                chatbotIframe.classList.add("expanded"); // Expand the iframe
+            } else if (event.data === "minimizeChat") {
+                chatbotIframe.classList.remove("expanded"); // Minimize the iframe
+            }
+        });
+
+        // Example: toggle expand/minimize when iframe is clicked
+        chatbotIframe.addEventListener("click", () => {
+            if (chatbotIframe.classList.contains("expanded")) {
+                chatbotIframe.classList.remove("expanded"); // Minimize
+            } else {
+                chatbotIframe.classList.add("expanded"); // Expand
+            }
+        });
+    </script>
 </body>
 
 </html>
