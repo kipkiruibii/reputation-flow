@@ -1101,6 +1101,20 @@
 
 
         /* chatbot */
+        .chatbot-icon-test {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            background-color: #248a52;
+            border-radius: 50%;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
+            cursor: pointer;
+            z-index: 19999;
+        }
     </style>
 
 </head>
@@ -2664,7 +2678,7 @@
                                                 </iframe>
 
 
-                                                <div class="form-group" onclick="toggleIframe()"
+                                                <div class="form-group " onclick="toggleIframe()"
                                                     style="text-align:center;font-size:20px;align-items:center;margin-top:10px;margin-bottom:20px">
                                                     <a class=" btn-solid-sm" style="cursor:pointer" id="test-chatbot"
                                                         href="#">Test
@@ -9411,7 +9425,21 @@
                     $('#review_content').css('display', 'block');
                 });
 
-                // delete post
+
+                $(document).on('click', '#test-chatbot', function () {
+                    var isOpen = $(this).hasClass('chatbot-icon-test');
+                    if (isOpen) {
+                        $(this).text('Test');
+                        $(this).removeClass('chatbot-icon-test');
+                        return;
+                    }
+                    $(this).text('Close');
+                    $(this).addClass('chatbot-icon-test');
+                    return;
+
+
+                });
+
                 $(document).on('click', '.delete-post-comment', function () {
 
                     var post_id = $(this).data('post_id');
