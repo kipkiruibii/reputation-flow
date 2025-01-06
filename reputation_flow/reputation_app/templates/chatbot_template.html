@@ -245,10 +245,8 @@
                     contentType: false, // Prevent jQuery from setting the content type
                     success: function (response) {
                         if (response['error']) {
-                            console.log(response['error']);
 
                         } else {
-                            console.log('updated successfully');
                             // Simulate bot response
                             var bot_response=response['response'];
                             const botMessage = document.createElement('div');
@@ -262,20 +260,9 @@
                             // Clear input and scroll to bottom
                             input.value = '';
                             messages.scrollTop = messages.scrollHeight;
-
-                            // update html
-                            // var tempDiv = $('<div>').html(response);
-                            // // Extract the specific element from the new HTML
-                            // var newElementContent = tempDiv.find('#feature-reqs').html();
-
-                            // $('#feature-reqs').html(newElementContent);
-                            // // initializeMultiSelect();
-                            // return;
                         }
                     },
                     error: function (jqXHR, textStatus, errorThrown) {
-                        console.log('Failed');
-                        console.error(textStatus, errorThrown);
                     }
                 });
 
