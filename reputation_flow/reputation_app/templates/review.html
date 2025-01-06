@@ -29,7 +29,7 @@
         href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
     <script type="text/javascript"
         src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
-        
+
     <style>
         ::selection {
             color: #fff;
@@ -151,6 +151,48 @@
         .icon {
             cursor: pointer;
         }
+
+
+
+        #chatbot-iframe {
+            position: fixed;
+            bottom: 90px;
+            /* Adjust the position as needed */
+            right: 20px;
+            /* Adjust the position as needed */
+            width: 360px;
+            /* Make it responsive as needed */
+            height: 70vh;
+            /* Adjust the height as needed */
+            max-height: 500px;
+            border: none;
+            background: #fff;
+            border-radius: 15px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+            z-index: 9999;
+            /* Ensure it's above all other content */
+            display: none;
+            /* Hide initially and show when the floating icon is clicked */
+        }
+
+        /* Media query for smaller devices */
+        @media screen and (max-width: 768px) {
+            #chatbot-iframe {
+                width: 90%;
+                /* Use 90% of the screen width */
+                right: 5%;
+                /* Center horizontally with 5% margin */
+                bottom: 20px;
+            }
+        }
+
+        @media screen and (max-width: 480px) {
+            #chatbot-iframe {
+                width: 95%;
+                right: 2.5%;
+                bottom: 10px;
+            }
+        }
     </style>
 </head>
 
@@ -204,8 +246,8 @@
             <div
                 style="width: 30%;background-color: rgb(255, 255, 255);padding: 10px;border-radius: 5px;overflow-y: scroll;height: 85vh;">
                 <div style="display: flex;justify-content: center;">
-                    <img src="{{ company_profile }}"
-                        alt="{{ company }} logo" style="width: 150px;height: 150px;border-radius: 100%;">
+                    <img src="{{ company_profile }}" alt="{{ company }} logo"
+                        style="width: 150px;height: 150px;border-radius: 100%;">
                 </div>
                 <div
                     style="align-items: center;display: flex;width: 100%;background-color: rgba(209, 250, 202, 0.429);justify-content: center;border-radius: 10px;margin-top: 10px;">
@@ -275,9 +317,10 @@
                 style="width: 70%;border-radius: 5px;padding: 10px;overflow-y: scroll;overflow-x: hidden;height: 85vh;">
                 <h3>What people are saying about {{ company }}</h3>
                 {% if not reviews %}
-                <iframe src="https://insightlyze.com/chatbot/" width="400" height="600" frameborder="0"></iframe>
-
-                <p style="margin: auto;text-align: center;margin-top: 20%;">No reviews yet</p>
+                <!-- Chatbot Iframe -->
+                <iframe id="chatbot-iframe" src="https://insightlyze.com/chatbot/" frameborder="0">
+                </iframe>
+                <!-- <p style="margin: auto;text-align: center;margin-top: 20%;">No reviews yet</p> -->
                 {% endif %}
                 {% for r in reviews %}
                 <div
