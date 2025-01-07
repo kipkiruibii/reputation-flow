@@ -4,7 +4,7 @@ import numpy as np
 from django.conf import settings
 from pinecone import Pinecone, ServerlessSpec
 from openai import OpenAI
-
+from.models import CompanyKnowledgeBase,Company
 
 # Initialize Pinecone
 pc = Pinecone(
@@ -43,7 +43,9 @@ def generate_embeddings(text):
 # Function to upsert vectors into Pinecone with company_id in metadata
 def upsert_vectors(doc_id, text_chunks, company_id):
     vectors = []
+    chunks=0
     for i, chunk in enumerate(text_chunks):
+        chunks+=1
         embedding = generate_embeddings(chunk)
         if embedding:
             vector_id = f"{doc_id}_{i}"  # Unique ID for each chunk
@@ -52,7 +54,13 @@ def upsert_vectors(doc_id, text_chunks, company_id):
                 "company_id": company_id  # Include company_id in metadata
             }
             vectors.append((vector_id, embedding, metadata))
-
+    cp=Company.objects.filter(company_id=company_id).first()
+    if cp:
+        ckb=CompanyKnowledgeBase.objects.filter(company=cp)
+        for ck in ckb:
+            if ck.file.name == doc_id:
+                ck.chunk_size=chunks
+                ck.save()
     if vectors:
         index.upsert(vectors)  # Upsert the vectors into Pinecone
         print(f"Upserted {len(vectors)} vectors.")
@@ -64,3 +72,14 @@ def query_knowledge_base(query, top_k=5):
     results = index.query(vector=query_embedding, top_k=top_k, include_metadata=True)
     return [(res["metadata"]["text"], res["score"]) for res in results["matches"]]
 
+def delete_vectors(doc_id, total_chunks):
+    try:
+        # Generate vector IDs for all chunks of the document
+        vector_ids = [f"{doc_id}_{i}" for i in range(total_chunks)]
+        
+        # Delete vectors from Pinecone
+        index.delete(ids=vector_ids)
+        print(f"Successfully deleted {len(vector_ids)} vectors associated with {doc_id}.")
+    
+    except Exception as e:
+        print(f"Error deleting vectors: {e}")

@@ -15,7 +15,7 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from .models import *
-from .pinecone_utils import upsert_vectors,query_knowledge_base
+from .pinecone_utils import upsert_vectors,query_knowledge_base,delete_vectors
 from paypal.standard.forms import PayPalPaymentsForm
 from django.conf import settings
 import uuid
@@ -3299,20 +3299,15 @@ def trainChatbot(cmp):
     
     # Get the S3 path (assuming `cp.file` is an S3 URL or key)
     s3_url = cp.file.name  # Or cp.file.name, depending on your setup
-    bucket_name = settings.AWS_STORAGE_BUCKET_NAME  
-
-    # Initialize S3 client
-    key = s3_url.replace(f"https://{bucket_name}.s3.amazonaws.com/", "")
-
     # Fetch the file from S3
-    response = s3_client.get_object(Bucket=bucket_name, Key=key)
+    response = s3_client.get_object(Bucket=settings.AWS_STORAGE_BUCKET_NAME  , Key=s3_url)
     pth = BytesIO(response['Body'].read())  # File in memory
     
     # pth = cp.file.path
     text = extract_text_from_pdf(pth)
     text_chunks = chunk_text(text)    
     print(text_chunks)
-    upsert_vectors(cp.id, text_chunks,cp.company.company_id)
+    upsert_vectors(s3_url, text_chunks,cp.company.company_id)
     # Mark document as indexed
     cp.indexed = True
     cp.training_done=True
@@ -3344,21 +3339,28 @@ def uploadTrainDoc(request):
             return Response({'error': 'Training in progress. Try again after some time.'})
         if erase == 'true':
             # file_path = cpn_doc.file.path  # Full file path
-            # inv = cpn_doc.file.size
-            # cfs=CompanyFileSizes.objects.filter(company=cp).first()
-            # if cfs:
-            #     cfs.size-=inv
-            #     cfs.save()
-            # s3_url = cpn_doc.file.name  # Or cp.file.name, depending on your setup
-            # bucket_name = settings.AWS_STORAGE_BUCKET_NAME  
-
-            # # Initialize S3 client
-            # key = s3_url.replace(f"https://{bucket_name}.s3.amazonaws.com/", "")
-
-            delete_file_from_s3(cpn_doc.file.name)
-            # if os.path.exists(file_path):
-            #     os.remove(file_path)  # Remove the file          
-                
+            try:
+                # delete vectors from pinecone
+                delete_vectors(cpn_doc.file.name,cpn_doc.chunk_size)
+                inv = cpn_doc.file.size
+                cfs=CompanyFileSizes.objects.filter(company=cp).first()
+                if cfs:
+                    # reduce the file size
+                    cfs.size-=inv
+                    cfs.save()
+                # delete from s3
+                delete_file_from_s3(cpn_doc.file.name)
+            except:
+                pass
+            cpn_doc.file=file
+            cpn_doc.save()
+        else:
+            cpn_doc = CompanyKnowledgeBase(
+                company=cp,
+                training_inprogress=True,
+                file=file
+            )
+            cpn_doc.save()
         # 
         tc = threading.Thread(target=trainChatbot, daemon=True, kwargs={'cmp': cp})
         tc.start()
