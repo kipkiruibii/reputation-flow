@@ -629,7 +629,7 @@ def chatbot_widget(request,company_id):
                     ]
                 )                # Extract the response content from OpenAI
                 # bot_response = response['choices'][0]['message']['content'].strip()
-                response_content = response.choices[0].message.content
+                bot_response = response.choices[0].message.content
 
                 # Extracting token usage information
                 completion_tokens = response.usage.completion_tokens
