@@ -578,7 +578,7 @@ def chatbot_widget(request,company_id):
             return JsonResponse({'response': bot_response})
         
         # Render the chatbot HTML for GET requests
-        return render(request, 'chatbot_template.html')
+        return render(request, 'chatbot_template.html',context=context)
     else:
         return render(request, '404error.html')
 
