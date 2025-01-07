@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect
 import json
+import openai
 import traceback
 from datetime import timedelta
 from django.contrib import messages
@@ -14,6 +15,7 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from .models import *
+from .pinecone_utils import upsert_vectors,query_knowledge_base
 from paypal.standard.forms import PayPalPaymentsForm
 from django.conf import settings
 import uuid
@@ -572,9 +574,42 @@ def chatbot_widget(request,company_id):
     if cp_id:
         context={'company_id':company_id}
         if request.method == 'POST':
-            user_message = request.POST.get('message', '')
-            # Process the user's message (e.g., query an AI chatbot or database)
-            bot_response = f"You said: {user_message} {cp_id.company_name}"
+            query = request.POST.get('message', '')
+            
+            # Query the knowledge base
+            results = query_knowledge_base(query)
+            
+            # Format the retrieved results for GPT
+            if results:
+                retrieved_info = "\n".join([f"{i+1}. {text}" for i, (text, _) in enumerate(results)])
+                prompt = f"""
+                The user asked: "{query}"
+                Here are some relevant pieces of information retrieved from the knowledge base:
+                {retrieved_info}
+                Based on this information, respond naturally to the user's query.
+                """
+            else:
+                prompt = f"""
+                The user asked: "{query}"
+                Unfortunately, no relevant information was found in the knowledge base.
+                Respond naturally to the user's query, letting them know that no information is available and suggesting they rephrase or ask something else.
+                """
+
+            # Use OpenAI's GPT model to generate a response
+            try:
+                response = openai.ChatCompletion.create(
+                    model="gpt-4",  # Or "gpt-3.5-turbo"
+                    messages=[
+                        {"role": "system", "content": "You are a helpful assistant."},
+                        {"role": "user", "content": prompt}
+                    ]
+                )
+                bot_response= response['choices'][0]['message']['content'].strip()
+            except Exception as e:
+                # Handle API errors
+                bot_response= "Sorry, there was an error generating a response. Please try again later."
+                    # Process the user's message (e.g., query an AI chatbot or database)
+            # bot_response = f"You said: {user_message} {cp_id.company_name}"
             return JsonResponse({'response': bot_response})
         
         # Render the chatbot HTML for GET requests
@@ -1346,7 +1381,7 @@ def dashboard(request, company_id):
     for th in CompanyTransactionHistory.objects.filter(company=cm).order_by('-pk'):
         tx_hist.append({
             'subscription_date':th.subscription_date.strftime("%d %b %Y"),
-            'subscription_period':f'{datetime.fromisoformat(th.subscription_period['start_date']).strftime("%d %b %Y")} - { datetime.fromisoformat(th.subscription_period['end_date']).strftime("%d %b %Y")} ',
+            'subscription_period':f'{datetime.fromisoformat(th.subscription_period["start_date"]).strftime("%d %b %Y")} - { datetime.fromisoformat(th.subscription_period["end_date"]).strftime("%d %b %Y")}',
             'subscription_type':th.subscription_type.capitalize(),
             'subscription_amount':f'{th.subscription_currency} {th.subscription_amount}',
             'transaction_id':th.transaction_id,
@@ -1372,7 +1407,7 @@ def dashboard(request, company_id):
             'free_trial': cm.company_free_trial,
             # 'free_trial_expired': True if exp_dif < 0 else False,
             'free_trial_expiry': exp_dif,
-            'subscription_period':f'{datetime.fromisoformat(transcts.subscription_period['start_date']).strftime("%a %d %b %Y")} - { datetime.fromisoformat(transcts.subscription_period['end_date']).strftime("%a %d %b %Y")} ' if transcts else '-'
+            'subscription_period':f'{datetime.fromisoformat(transcts.subscription_period["start_date"]).strftime("%a %d %b %Y")} - { datetime.fromisoformat(transcts.subscription_period["end_date"]).strftime("%a %d %b %Y")} ' if transcts else '-'
         },
         'company_address': {
             'address': cm.company_address,
@@ -3175,16 +3210,25 @@ def extract_text_from_pdf(pdf_path):
             text += page.extract_text()
     return text
 
+def chunk_text(text, chunk_size=500):
+    words = text.split()
+    return [" ".join(words[i:i+chunk_size]) for i in range(0, len(words), chunk_size)]
 
 def trainChatbot(cmp):
     cp = CompanyKnowledgeBase.objects.filter(company=cmp).first()
     if not cp:
         print('no data')
+        return
     pth = cp.file.path
-    v = extract_text_from_pdf(pth)
-    print(v)
-    pass
-
+    text = extract_text_from_pdf(pth)
+    text_chunks = chunk_text(text)    
+    print(text_chunks)
+    upsert_vectors(cp.id, text_chunks,cp.company.company_id)
+    # Mark document as indexed
+    cp.indexed = True
+    cp.training_done=True
+    cp.training_inprogress=False
+    cp.save()
 
 # create invite link
 @api_view(['POST'])
@@ -3218,7 +3262,11 @@ def uploadTrainDoc(request):
                 cfs.save()
             delete_file_from_s3(cpn_doc.file.name)
             if os.path.exists(file_path):
-                os.remove(file_path)  # Remove the file            
+                os.remove(file_path)  # Remove the file          
+                
+        # 
+        tc = threading.Thread(target=trainChatbot, daemon=True, kwargs={'cmp': cp})
+        tc.start()
     else:
         cpn_doc = CompanyKnowledgeBase(
             company=cp,

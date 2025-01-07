@@ -187,6 +187,7 @@ class CompanyKnowledgeBase(models.Model):
     company=models.ForeignKey(Company,on_delete=models.CASCADE)
     training_done=models.BooleanField(default=False)
     training_inprogress=models.BooleanField(default=False)
+    indexed=models.BooleanField(default=False)
     date_uploaded=models.DateTimeField(default=timezone.now)
     file=models.FileField(upload_to='training_data/')
     def __str__(self):
