@@ -237,7 +237,7 @@
 
                 // Send the form data via AJAX
                 $.ajax({
-                    url: '{% url "ask-bot" %}', // Replace with your Django endpoint URL
+                    url: '{% url "ask-bot" company_id={{ company_id }} %}', // Replace with your Django endpoint URL
                     type: 'POST',
                     headers: {
                         'X-CSRFToken': csrfToken

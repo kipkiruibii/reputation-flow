@@ -570,7 +570,7 @@ def format_datetime(timezone_str, datetime_str, platform):
 def chatbot_widget(request,company_id):
     cp_id=Company.objects.filter(company_id=company_id).first()
     if cp_id:
-        context={}
+        context={'company_id':company_id}
         if request.method == 'POST':
             user_message = request.POST.get('message', '')
             # Process the user's message (e.g., query an AI chatbot or database)
