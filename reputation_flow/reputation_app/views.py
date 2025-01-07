@@ -3349,13 +3349,13 @@ def uploadTrainDoc(request):
             # if cfs:
             #     cfs.size-=inv
             #     cfs.save()
-            s3_url = cpn_doc.file.name  # Or cp.file.name, depending on your setup
-            bucket_name = settings.AWS_STORAGE_BUCKET_NAME  
+            # s3_url = cpn_doc.file.name  # Or cp.file.name, depending on your setup
+            # bucket_name = settings.AWS_STORAGE_BUCKET_NAME  
 
-            # Initialize S3 client
-            key = s3_url.replace(f"https://{bucket_name}.s3.amazonaws.com/", "")
+            # # Initialize S3 client
+            # key = s3_url.replace(f"https://{bucket_name}.s3.amazonaws.com/", "")
 
-            delete_file_from_s3(key)
+            delete_file_from_s3(cpn_doc.file.name)
             # if os.path.exists(file_path):
             #     os.remove(file_path)  # Remove the file          
                 
