@@ -102,7 +102,7 @@ class CompanyBotChats(models.Model):
     conversation_id=models.TextField(default='',null=True,blank=True)
     
     def __str__(self) -> str:
-        return 'BOT CHAT '+self.company_name
+        return f'BOT CHAT {self.company.company_name} {self.conversation_id}'
     
 class CompanyTransactionDisputes(models.Model):
     company=models.ForeignKey(Company,on_delete=models.CASCADE)
