@@ -574,7 +574,7 @@ def chatbot_widget(request,company_id):
         if request.method == 'POST':
             user_message = request.POST.get('message', '')
             # Process the user's message (e.g., query an AI chatbot or database)
-            bot_response = f"You said: {user_message}"
+            bot_response = f"You said: {user_message} {cp_id.company_name}"
             return JsonResponse({'response': bot_response})
         
         # Render the chatbot HTML for GET requests
