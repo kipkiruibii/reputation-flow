@@ -598,6 +598,8 @@ def classify_intent(query):
 def chatbot_widget(request,company_id):
     cp_id=Company.objects.filter(company_id=company_id).first()
     if cp_id:
+        if not cp_id.company_enable_ai:
+            return JsonResponse({'response': 'Chatbot has been disabled by the Company/Business'})
         context={'company_id':company_id}
         if request.method == 'POST':
             session_id = request.session.session_key
