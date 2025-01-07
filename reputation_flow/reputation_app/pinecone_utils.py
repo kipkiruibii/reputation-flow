@@ -5,6 +5,7 @@ from django.conf import settings
 from pinecone import Pinecone, ServerlessSpec
 from openai import OpenAI
 from.models import CompanyKnowledgeBase,Company
+import traceback
 
 # Initialize Pinecone
 pc = Pinecone(
@@ -76,10 +77,9 @@ def delete_vectors(doc_id, total_chunks):
     try:
         # Generate vector IDs for all chunks of the document
         vector_ids = [f"{doc_id}_{i}" for i in range(total_chunks)]
-        
         # Delete vectors from Pinecone
         index.delete(ids=vector_ids)
         print(f"Successfully deleted {len(vector_ids)} vectors associated with {doc_id}.")
     
     except Exception as e:
-        print(f"Error deleting vectors: {e}")
+        print(f"Error deleting vectors: {e} {traceback.format_exec()}")
