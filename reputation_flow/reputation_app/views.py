@@ -615,22 +615,26 @@ def chatbot_widget(request,company_id):
             
             # OPEN AI NATURAL RESPONSE
                     # Create a prompt for OpenAI (based on the user's query)
+            # Construct the prompt for GPT-3.5/4 model
             prompt = f"The user asked: \"{query}\". Respond naturally to the user's query."
 
             # Try to get a response from OpenAI
             try:
-                # Call the OpenAI API with the new method
-                response = openai.completions.create(
-                    model="gpt-3.5-turbo",  # Or "gpt-3.5-turbo"
-                    prompt=prompt,  # The user query as the prompt
-                    max_tokens=100,  # You can adjust the max token length as needed
-                    temperature=0.7,  # Set the temperature for randomness
+                # Use the correct API method for Chat model
+                response = openai.ChatCompletion.create(
+                    model="gpt-3.5-turbo",  # Or "gpt-4"
+                    messages=[
+                        {"role": "system", "content": "You are a helpful assistant."},
+                        {"role": "user", "content": prompt}
+                    ],
+                    max_tokens=100,  # Adjust as needed
+                    temperature=0.7,  # Adjust for randomness
                 )
+
                 # Extract the response content from OpenAI
-                bot_response = response['choices'][0]['text'].strip()
-            
-            except Exception as e:
-                # Handle any API errors gracefully
+                bot_response = response['choices'][0]['message']['content'].strip()
+
+            except Exception as e:                # Handle any API errors gracefully
                 bot_response = "Sorry, there was an error generating a response. Please try again later."+traceback.format_exc()
 
             # Return the response as a JSON object
