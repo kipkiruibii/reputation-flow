@@ -11,7 +11,7 @@ urlpatterns=[
     path('social-proof/<str:company_name>/',views.socialProof,name='social-proof'),
     path('update-profile/',views.updateBusinessProfile,name='update-profile'),
     path('post-dispute/',views.postDispute,name='post-dispute'),
-    path('chatbot/', views.chatbot_widget, name='chatbot_widget'),    # setting profile
+    path('chatbot/<str:company_id>', views.chatbot_widget, name='chatbot_widget'),    # setting profile
     path('setting-profile/',views.settingProfile,name='setting-profile'),
     # get posts
     path('fetch-posts/',views.fetchPosts,name='fetch-posts'),
@@ -56,7 +56,6 @@ urlpatterns=[
     path('reddit-callback/',views.reddit_callback,name='reddit_callback'),
     # pinterest
     path('pinterest-callback/',views.pinterest_callback,name='pinterest_callback'),
-    
     # upload 
     path('upload_post/',views.uploadPost,name='upload_post'),
     # reddit flairs
@@ -79,13 +78,9 @@ urlpatterns=[
     path('like_comment/',views.likeComment,name='like_comment'),
     # delete post
     path('delete_comment/',views.deletePostComment,name='delete_comment'),
-    
     # ai chatbot
-    path('ask-bot/',views.chatbot_widget,name='ask-bot'),
-    
-    
+    path('ask-bot/<str:company_id>',views.chatbot_widget,name='ask-bot'),
     path('paypal/ipn/', include("paypal.standard.ipn.urls")),
-
     path('payment-success/', views.successful_payment, name='payment-success'),
     path('payment-failed/', views.failed_payment, name='payment-failed'),
     path('paypal_notification/', views.paypal_notification, name='paypal_notification'),
