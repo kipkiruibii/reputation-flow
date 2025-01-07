@@ -3,13 +3,16 @@ import openai
 import numpy as np
 from django.conf import settings
 from pinecone import Pinecone, ServerlessSpec
+from openai import OpenAI
+
 
 # Initialize Pinecone
 pc = Pinecone(
     api_key=settings.PINECONE_API_KEY,  
 )
 # Initialize OpenAI
-openai.api_key = settings.OPENAI_API_KEY
+# openai.api_key = settings.OPENAI_API_KEY
+oai_client = OpenAI(api_key=settings.OPENAI_API_KEY)
 
 # Index name
 index_name = "knowledge-base"
@@ -23,15 +26,19 @@ index = pc.Index(host=settings.PINECONE_HOST)
 
 # Function to generate embeddings
 def generate_embeddings(text):
-    try:
-        response = openai.Embedding.create(
-            input=text,
-            model="text-embedding-ada-002"
-        )
-        return response["data"][0]["embedding"]
-    except Exception as e:
-        print(f"Error generating embedding: {e}")
-        return None
+    # try:
+        # response = openai.Embedding.create(
+        #     input=text,
+        #     model="text-embedding-ada-002"
+        # )
+    response = oai_client.embeddings.create(
+        model="text-embedding-ada-002",
+        input=text
+    )
+    return response.data[0].embedding
+    # except Exception as e:
+    #     print(f"Error generating embedding: {e}")
+    #     return None
 
 # Function to upsert vectors into Pinecone with company_id in metadata
 def upsert_vectors(doc_id, text_chunks, company_id):
