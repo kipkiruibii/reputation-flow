@@ -591,9 +591,9 @@ def classify_intent(query):
         messages=[{"role": "user", "content": intent_prompt}]
 
     ) 
-    response = response.choices[0].message.content
+    response_k = response.choices[0].message.content
     total_tokens = response.usage.total_tokens
-    return {'response':response,'tokens':total_tokens}
+    return {'response':response_k,'tokens':total_tokens}
 
 def chatbot_widget(request,company_id):
     cp_id=Company.objects.filter(company_id=company_id).first()
