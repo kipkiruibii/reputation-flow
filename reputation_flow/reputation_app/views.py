@@ -619,16 +619,15 @@ def chatbot_widget(request,company_id):
 
             # Try to get a response from OpenAI
             try:
-                # Call the OpenAI API with the prompt
-                response = openai.ChatCompletion.create(
+                # Call the OpenAI API with the new method
+                response = openai.completions.create(
                     model="gpt-4",  # Or "gpt-3.5-turbo"
-                    messages=[
-                        {"role": "system", "content": "You are a helpful assistant."},
-                        {"role": "user", "content": prompt}
-                    ]
+                    prompt=prompt,  # The user query as the prompt
+                    max_tokens=100,  # You can adjust the max token length as needed
+                    temperature=0.7,  # Set the temperature for randomness
                 )
                 # Extract the response content from OpenAI
-                bot_response = response['choices'][0]['message']['content'].strip()
+                bot_response = response['choices'][0]['text'].strip()
             
             except Exception as e:
                 # Handle any API errors gracefully
