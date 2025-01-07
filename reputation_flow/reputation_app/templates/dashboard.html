@@ -2673,7 +2673,7 @@
                                                         data-set_up="enable_ai">
                                                     <label class="form-check-label" for="ai_enable_btn">Enabled</label>
                                                 </div>
-                                                <iframe id="chatbot-iframe" src="https://insightlyze.com/chatbot/"
+                                                <iframe id="chatbot-iframe" src="https://insightlyze.com/chatbot/{{ company_id }}"
                                                     style="display:none;position: fixed; bottom: 20px; right: 20px; width: 360px; height: 600px; z-index: 9000;"
                                                     frameborder="0">
                                                 </iframe>
@@ -6692,11 +6692,6 @@
                 }
 
             }
-
-
-            // document.querySelectorAll('[data-multi-select]').forEach(select => new MultiSelect(select));
-
-
             // Initialize on page load
             document.addEventListener("DOMContentLoaded", initializeMultiSelect);
 
@@ -6752,9 +6747,6 @@
                             console.error(textStatus, errorThrown);
                         }
                     });
-
-
-
                 });
 
 
