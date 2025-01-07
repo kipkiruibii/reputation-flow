@@ -50,6 +50,7 @@ class Company(models.Model):
     company_link_name=models.CharField(max_length=255,default='link')
     company_category=models.TextField(default='')
     company_storage=models.IntegerField(default=0)
+    company_ai_tokens=models.IntegerField(default=10000)
     company_subscription=models.TextField(default='')
     company_review_link=models.TextField(default='')
     company_subscription_tier=models.IntegerField(default=1) #1 -basic 2- 3 enterprise

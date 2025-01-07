@@ -571,13 +571,50 @@ def format_datetime(timezone_str, datetime_str, platform):
 
     return formatted
 
+def classify_intent(query):
+    """
+    Classify the user's query into intent categories: 'greeting', 'knowledge_query', 'small_talk', 'other'.
+    """
+    intent_prompt = f"""
+    You are an intent classifier. Categorize the user's query into one of the following intents:
+    - 'greeting': If the query is a greeting like 'Hello' or 'How are you?'
+    - 'knowledge_query': If the query is asking for factual or knowledge-based information.
+    - 'small_talk': If the query involves casual conversation or chit-chat (e.g., 'What's your favorite color?').
+    - 'other': If the query doesn't fit the above categories.
+
+    User query: "{query}"
+
+    Respond with only the intent category.
+    """
+    response = oai_client.chat.completions.create(
+        model="gpt-3.5-turbo",
+        messages=[{"role": "user", "content": intent_prompt}]
+
+    ) 
+    response = response.choices[0].content
+    total_tokens = response.usage.total_tokens
+    return {'response':response,'tokens':total_tokens}
+
 def chatbot_widget(request,company_id):
     cp_id=Company.objects.filter(company_id=company_id).first()
     if cp_id:
         context={'company_id':company_id}
         if request.method == 'POST':
+            session_id = request.session.session_key
+            total_tkns=0
             query = request.POST.get('message', '')
-            
+            # Ensure session data is saved to get the session key
+            if not session_id:
+                request.session.save()
+                session_id = request.session.session_key
+                            
+            cbc=CompanyBotChats(
+                company=cp_id,
+                sender='CUSTOMER',
+                message=query,
+                conversation_id=session_id
+            )
+            cbc.save()
             # # Query the knowledge base
             results = query_knowledge_base(query)
             
@@ -591,11 +628,30 @@ def chatbot_widget(request,company_id):
                 Based on this information, respond naturally to the user's query.
                 """
             else:
-                prompt = f"""
-                The user asked: "{query}"
-                Unfortunately, no relevant information was found in the knowledge base.
-                Respond naturally to the user's query, letting them know that no information is available and suggesting they rephrase or ask something else.
-                """
+                # check if intent is small talk
+                res = classify_intent(query)
+                intent=res['response']
+                tkns=res['tokens']
+                total_tkns+=tkns
+                
+                if intent == "greeting":
+                    # Handle greeting
+                    prompt = f"""
+                    The user said: "{query}"
+                    Respond naturally as a helpful assistant to this greeting or conversational message.
+                    """
+                elif intent == "small_talk":
+                    # Handle small talk
+                    prompt = f"""
+                    The user said: "{query}"
+                    Engage in friendly small talk as a helpful assistant. Be casual and engaging.
+                    """                
+                else:    
+                    prompt = f"""
+                        The user asked: "{query}"
+                        Unfortunately, no relevant information was found in the knowledge base. 
+                        Respond naturally to the user's query, letting them know that no information is available and ask whether they would like to chat with a human agent.
+                        """
 
             # Use OpenAI's GPT model to generate a response
             try:
@@ -608,9 +664,20 @@ def chatbot_widget(request,company_id):
                 ) 
                 bot_response = response.choices[0].message.content
                 # Extracting token usage information
-                completion_tokens = response.usage.completion_tokens
-                prompt_tokens = response.usage.prompt_tokens
                 total_tokens = response.usage.total_tokens
+                total_tkns+=total_tokens
+                
+                # subtract from the database
+                cp_id.company_ai_tokens-=total_tkns
+                cp_id.save()
+                
+                cbc=CompanyBotChats(
+                    company=cp_id,
+                    sender='BOT',
+                    message=bot_response,
+                    conversation_id=session_id
+                )
+                cbc.save()
                 bot_response=f'{bot_response} TTOKENS {total_tokens}'      
 
             except Exception as e:
