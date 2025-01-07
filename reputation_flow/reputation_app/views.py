@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 import json
-import openai
+from openai import OpenAI
 import traceback
 from datetime import timedelta
 from django.contrib import messages
@@ -49,7 +49,9 @@ from user_agents import parse
 import boto3
 import tempfile
 from paypal.standard.forms import PayPalPaymentsForm
-           
+   
+oai_client = OpenAI(api_key=settings.OPENAI_API_KEY)
+        
 s3_client = boto3.client(
     's3',
     aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
@@ -614,27 +616,22 @@ def chatbot_widget(request,company_id):
             
             
             # OPEN AI NATURAL RESPONSE
-                    # Create a prompt for OpenAI (based on the user's query)
-            # Construct the prompt for GPT-3.5/4 model
             prompt = f"The user asked: \"{query}\". Respond naturally to the user's query."
 
             # Try to get a response from OpenAI
             try:
-                # Use the correct API method for Chat model
-                response = openai.ChatCompletion.create(
-                    model="gpt-3.5-turbo",  # Or "gpt-4"
+                # Using the chat completions method with the new syntax
+                response = oai_client.chat.completions.create(
+                    model="gpt-3.5-turbo",
                     messages=[
                         {"role": "system", "content": "You are a helpful assistant."},
                         {"role": "user", "content": prompt}
-                    ],
-                    max_tokens=100,  # Adjust as needed
-                    temperature=0.7,  # Adjust for randomness
-                )
-
-                # Extract the response content from OpenAI
+                    ]
+                )                # Extract the response content from OpenAI
                 bot_response = response['choices'][0]['message']['content'].strip()
-
-            except Exception as e:                # Handle any API errors gracefully
+            
+            except Exception as e:
+                # Handle any API errors gracefully
                 bot_response = "Sorry, there was an error generating a response. Please try again later."+traceback.format_exc()
 
             # Return the response as a JSON object
