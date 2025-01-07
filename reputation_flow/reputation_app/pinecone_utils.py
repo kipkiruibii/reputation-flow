@@ -54,6 +54,6 @@ def upsert_vectors(doc_id, text_chunks, company_id):
         
 def query_knowledge_base(query, top_k=5):
     query_embedding = generate_embeddings(query)
-    results = index.query(query_embedding, top_k=top_k, include_metadata=True)
+    results = index.query(vector=query_embedding, top_k=top_k, include_metadata=True)
     return [(res["metadata"]["text"], res["score"]) for res in results["matches"]]
 

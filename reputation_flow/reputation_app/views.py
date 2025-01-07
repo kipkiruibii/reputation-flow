@@ -576,27 +576,50 @@ def chatbot_widget(request,company_id):
         if request.method == 'POST':
             query = request.POST.get('message', '')
             
-            # Query the knowledge base
-            results = query_knowledge_base(query)
+            # # Query the knowledge base
+            # results = query_knowledge_base(query)
             
-            # Format the retrieved results for GPT
-            if results:
-                retrieved_info = "\n".join([f"{i+1}. {text}" for i, (text, _) in enumerate(results)])
-                prompt = f"""
-                The user asked: "{query}"
-                Here are some relevant pieces of information retrieved from the knowledge base:
-                {retrieved_info}
-                Based on this information, respond naturally to the user's query.
-                """
-            else:
-                prompt = f"""
-                The user asked: "{query}"
-                Unfortunately, no relevant information was found in the knowledge base.
-                Respond naturally to the user's query, letting them know that no information is available and suggesting they rephrase or ask something else.
-                """
+            # # Format the retrieved results for GPT
+            # if results:
+            #     retrieved_info = "\n".join([f"{i+1}. {text}" for i, (text, _) in enumerate(results)])
+            #     prompt = f"""
+            #     The user asked: "{query}"
+            #     Here are some relevant pieces of information retrieved from the knowledge base:
+            #     {retrieved_info}
+            #     Based on this information, respond naturally to the user's query.
+            #     """
+            # else:
+            #     prompt = f"""
+            #     The user asked: "{query}"
+            #     Unfortunately, no relevant information was found in the knowledge base.
+            #     Respond naturally to the user's query, letting them know that no information is available and suggesting they rephrase or ask something else.
+            #     """
 
-            # Use OpenAI's GPT model to generate a response
+            # # Use OpenAI's GPT model to generate a response
+            # try:
+            #     response = openai.ChatCompletion.create(
+            #         model="gpt-4",  # Or "gpt-3.5-turbo"
+            #         messages=[
+            #             {"role": "system", "content": "You are a helpful assistant."},
+            #             {"role": "user", "content": prompt}
+            #         ]
+            #     )
+            #     bot_response= response['choices'][0]['message']['content'].strip()
+            # except Exception as e:
+            #     # Handle API errors
+            #     bot_response= "Sorry, there was an error generating a response. Please try again later."
+            #         # Process the user's message (e.g., query an AI chatbot or database)
+            # # bot_response = f"You said: {user_message} {cp_id.company_name}"
+            # return JsonResponse({'response': bot_response})
+            
+            
+            # OPEN AI NATURAL RESPONSE
+                    # Create a prompt for OpenAI (based on the user's query)
+            prompt = f"The user asked: \"{query}\". Respond naturally to the user's query."
+
+            # Try to get a response from OpenAI
             try:
+                # Call the OpenAI API with the prompt
                 response = openai.ChatCompletion.create(
                     model="gpt-4",  # Or "gpt-3.5-turbo"
                     messages=[
@@ -604,14 +627,16 @@ def chatbot_widget(request,company_id):
                         {"role": "user", "content": prompt}
                     ]
                 )
-                bot_response= response['choices'][0]['message']['content'].strip()
+                # Extract the response content from OpenAI
+                bot_response = response['choices'][0]['message']['content'].strip()
+            
             except Exception as e:
-                # Handle API errors
-                bot_response= "Sorry, there was an error generating a response. Please try again later."
-                    # Process the user's message (e.g., query an AI chatbot or database)
-            # bot_response = f"You said: {user_message} {cp_id.company_name}"
+                # Handle any API errors gracefully
+                bot_response = "Sorry, there was an error generating a response. Please try again later."
+
+            # Return the response as a JSON object
             return JsonResponse({'response': bot_response})
-        
+            
         # Render the chatbot HTML for GET requests
         return render(request, 'chatbot_template.html',context=context)
     else:
