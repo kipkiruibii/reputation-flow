@@ -591,7 +591,7 @@ def classify_intent(query):
         messages=[{"role": "user", "content": intent_prompt}]
 
     ) 
-    response = response.choices[0].content
+    response = response.choices[0].message.content
     total_tokens = response.usage.total_tokens
     return {'response':response,'tokens':total_tokens}
 
