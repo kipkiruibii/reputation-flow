@@ -629,8 +629,12 @@ def chatbot_widget(request,company_id):
                     ]
                 )                # Extract the response content from OpenAI
                 # bot_response = response['choices'][0]['message']['content'].strip()
-                bot_response = str(response)
-            
+                bot_response = response['choices'][0]['message']['content']
+                # Extracting the number of tokens
+                completion_tokens = response['usage']['completion_tokens']
+                prompt_tokens = response['usage']['prompt_tokens']
+                total_tokens = response['usage']['total_tokens'] 
+                bot_response=f'{bot_response} TTOKENS {total_tokens}'      
             except Exception as e:
                 # Handle any API errors gracefully
                 bot_response = "Sorry, there was an error generating a response. Please try again later."+traceback.format_exc()
