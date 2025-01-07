@@ -621,7 +621,7 @@ def chatbot_widget(request,company_id):
             try:
                 # Call the OpenAI API with the new method
                 response = openai.completions.create(
-                    model="gpt-4",  # Or "gpt-3.5-turbo"
+                    model="gpt-3.5-turbo",  # Or "gpt-3.5-turbo"
                     prompt=prompt,  # The user query as the prompt
                     max_tokens=100,  # You can adjust the max token length as needed
                     temperature=0.7,  # Set the temperature for randomness
