@@ -629,7 +629,7 @@ def chatbot_widget(request,company_id):
                     ]
                 )                # Extract the response content from OpenAI
                 # bot_response = response['choices'][0]['message']['content'].strip()
-                bot_response = response
+                bot_response = str(response)
             
             except Exception as e:
                 # Handle any API errors gracefully
