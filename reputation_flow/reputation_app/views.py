@@ -629,11 +629,12 @@ def chatbot_widget(request,company_id):
                     ]
                 )                # Extract the response content from OpenAI
                 # bot_response = response['choices'][0]['message']['content'].strip()
-                bot_response = response['choices'][0]['message']['content']
-                # Extracting the number of tokens
-                completion_tokens = response['usage']['completion_tokens']
-                prompt_tokens = response['usage']['prompt_tokens']
-                total_tokens = response['usage']['total_tokens'] 
+                response_content = response.choices[0].message['content']
+
+                # Extracting token usage information
+                completion_tokens = response.usage.completion_tokens
+                prompt_tokens = response.usage.prompt_tokens
+                total_tokens = response.usage.total_tokens
                 bot_response=f'{bot_response} TTOKENS {total_tokens}'      
             except Exception as e:
                 # Handle any API errors gracefully
