@@ -25,7 +25,7 @@ with open("../config.json","r") as file:
 SECRET_KEY = config.get('DJANGO_SECURITY_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 CSRF_TRUSTED_ORIGINS = ['https://tiktok.com']
 
 ALLOWED_HOSTS = ['127.0.0.1','insightlyze.com','www.insightlyze.com']
@@ -93,24 +93,24 @@ WSGI_APPLICATION = 'reputation_flow.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
-if DEBUG:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
-        }
+# if DEBUG:
+#     DATABASES = {
+#         'default': {
+#             'ENGINE': 'django.db.backends.sqlite3',
+#             'NAME': BASE_DIR / 'db.sqlite3',
+#         }
+#     }
+# else:
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'insightlyze_postgres',  # The name of your database
+        'USER': 'hezronbii',  # The PostgreSQL user you created
+        'PASSWORD': '@August4th_1998',  # The password for the PostgreSQL user
+        'HOST': 'localhost',  # Use 'localhost' if PostgreSQL is on the same server
+        'PORT': '5432',  # Default PostgreSQL port
     }
-else:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': 'insightlyze_postgres',  # The name of your database
-            'USER': 'hezronbii',  # The PostgreSQL user you created
-            'PASSWORD': '@August4th_1998',  # The password for the PostgreSQL user
-            'HOST': 'localhost',  # Use 'localhost' if PostgreSQL is on the same server
-            'PORT': '5432',  # Default PostgreSQL port
-        }
-    }
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
