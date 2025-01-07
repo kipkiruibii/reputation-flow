@@ -3349,7 +3349,7 @@ def uploadTrainDoc(request):
             # if cfs:
             #     cfs.size-=inv
             #     cfs.save()
-            s3_url = cp.file.name  # Or cp.file.name, depending on your setup
+            s3_url = cpn_doc.file.name  # Or cp.file.name, depending on your setup
             bucket_name = settings.AWS_STORAGE_BUCKET_NAME  
 
             # Initialize S3 client
