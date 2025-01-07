@@ -678,7 +678,7 @@ def chatbot_widget(request,company_id):
                     conversation_id=session_id
                 )
                 cbc.save()
-                bot_response=f'{bot_response} TTOKENS {total_tokens}'      
+                bot_response=f'{bot_response}'      
 
             except Exception as e:
                 # Handle API errors
