@@ -3344,11 +3344,11 @@ def uploadTrainDoc(request):
             return Response({'error': 'Training in progress. Try again after some time.'})
         if erase == 'true':
             # file_path = cpn_doc.file.path  # Full file path
-            inv = cpn_doc.file.size
-            cfs=CompanyFileSizes.objects.filter(company=cp).first()
-            if cfs:
-                cfs.size-=inv
-                cfs.save()
+            # inv = cpn_doc.file.size
+            # cfs=CompanyFileSizes.objects.filter(company=cp).first()
+            # if cfs:
+            #     cfs.size-=inv
+            #     cfs.save()
             s3_url = cp.file.name  # Or cp.file.name, depending on your setup
             bucket_name = settings.AWS_STORAGE_BUCKET_NAME  
 
