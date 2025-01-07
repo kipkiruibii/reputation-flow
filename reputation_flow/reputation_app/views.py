@@ -3343,15 +3343,15 @@ def uploadTrainDoc(request):
         if cpn_doc.training_inprogress:
             return Response({'error': 'Training in progress. Try again after some time.'})
         if erase == 'true':
-            file_path = cpn_doc.file.path  # Full file path
+            # file_path = cpn_doc.file.path  # Full file path
             inv = cpn_doc.file.size
             cfs=CompanyFileSizes.objects.filter(company=cp).first()
             if cfs:
                 cfs.size-=inv
                 cfs.save()
             delete_file_from_s3(cpn_doc.file.name)
-            if os.path.exists(file_path):
-                os.remove(file_path)  # Remove the file          
+            # if os.path.exists(file_path):
+            #     os.remove(file_path)  # Remove the file          
                 
         # 
         tc = threading.Thread(target=trainChatbot, daemon=True, kwargs={'cmp': cp})
