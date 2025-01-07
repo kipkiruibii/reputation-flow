@@ -47,6 +47,7 @@ import mimetypes
 from django.contrib.gis.geoip2 import GeoIP2
 from user_agents import parse
 import boto3
+from io import BytesIO
 import tempfile
 from paypal.standard.forms import PayPalPaymentsForm
    
@@ -3295,7 +3296,20 @@ def trainChatbot(cmp):
     if not cp:
         print('no data')
         return
-    pth = cp.file.path
+    
+    # Get the S3 path (assuming `cp.file` is an S3 URL or key)
+    s3_url = cp.file.name  # Or cp.file.name, depending on your setup
+    bucket_name = settings.AWS_STORAGE_BUCKET_NAME  
+
+    # Initialize S3 client
+    s3_client = boto3.client('s3')
+    key = s3_url.replace(f"https://{bucket_name}.s3.amazonaws.com/", "")
+
+    # Fetch the file from S3
+    response = s3_client.get_object(Bucket=bucket_name, Key=key)
+    pth = BytesIO(response['Body'].read())  # File in memory
+    
+    # pth = cp.file.path
     text = extract_text_from_pdf(pth)
     text_chunks = chunk_text(text)    
     print(text_chunks)
