@@ -50,7 +50,10 @@ import boto3
 from io import BytesIO
 import tempfile
 from paypal.standard.forms import PayPalPaymentsForm
-   
+import tiktoken
+
+# Initialize the encoder for the text-embedding-ada-002 model
+encoder = tiktoken.get_encoding("cl100k_base") 
 oai_client = OpenAI(api_key=settings.OPENAI_API_KEY)
         
 s3_client = boto3.client(
@@ -3287,10 +3290,29 @@ def extract_text_from_pdf(pdf_path):
             text += page.extract_text()
     return text
 
-def chunk_text(text, chunk_size=500):
-    words = text.split()
-    return [" ".join(words[i:i+chunk_size]) for i in range(0, len(words), chunk_size)]
+# Function to count tokens in a text
+def count_tokens(text):
+    return len(encoder.encode(text))
 
+# Function to chunk text based on token count and max_tokens limit
+def chunk_text(text, max_tokens=8192):
+    tokens = encoder.encode(text)
+    chunks = []
+    current_chunk_tokens = []
+
+    for token in tokens:
+        current_chunk_tokens.append(token)
+
+        # If the current chunk exceeds the max token limit, start a new chunk
+        if len(current_chunk_tokens) > max_tokens:
+            chunks.append(encoder.decode(current_chunk_tokens[:-1]))  # Append the previous chunk without the last token
+            current_chunk_tokens = [token]  # Start a new chunk with the current token
+
+    # Add the last chunk
+    if current_chunk_tokens:
+        chunks.append(encoder.decode(current_chunk_tokens))
+
+    return chunks
 def trainChatbot(cmp):
     cp = CompanyKnowledgeBase.objects.filter(company=cmp).first()
     if not cp:
@@ -3306,7 +3328,6 @@ def trainChatbot(cmp):
     # pth = cp.file.path
     text = extract_text_from_pdf(pth)
     text_chunks = chunk_text(text)    
-    print(text_chunks)
     upsert_vectors(s3_url, text_chunks,cp.company.company_id)
     # Mark document as indexed
     cp.indexed = True
