@@ -3302,7 +3302,6 @@ def trainChatbot(cmp):
     bucket_name = settings.AWS_STORAGE_BUCKET_NAME  
 
     # Initialize S3 client
-    s3_client = boto3.client('s3')
     key = s3_url.replace(f"https://{bucket_name}.s3.amazonaws.com/", "")
 
     # Fetch the file from S3
