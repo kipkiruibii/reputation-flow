@@ -29,7 +29,7 @@ admin.site.register(ConversationMessages)
 
 # socials
 admin.site.register(CompanyInstagram)
-admin.site.register(CompanyFacebook)
+# admin.site.register(CompanyFacebook)
 admin.site.register(CompanyTiktok)
 admin.site.register(CompanyReddit)
 
