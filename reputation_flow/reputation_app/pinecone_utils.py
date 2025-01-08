@@ -60,7 +60,7 @@ def upsert_vectors(doc_id, text_chunks, company_id):
     if cp:
         ckb=CompanyKnowledgeBase.objects.filter(company=cp)
         for ck in ckb:
-            if ck.file.name == doc_id:
+            if ck.doc_id == doc_id:
                 ck.chunk_size=chunks
                 ck.save()
     if vectors:
