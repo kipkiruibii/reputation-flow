@@ -3320,6 +3320,8 @@ def trainChatbot(cmp):
         return
     
     s3_url = cp.file.name  
+    cp.doc_id=s3_url
+    cp.save()
     # Fetch the file from S3
     response = s3_client.get_object(Bucket=settings.AWS_STORAGE_BUCKET_NAME  , Key=s3_url)
     pth = BytesIO(response['Body'].read())  # File in memory
