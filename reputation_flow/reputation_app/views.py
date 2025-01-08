@@ -5676,7 +5676,7 @@ def facebook_callback(request):
         )
         cf.followers_trend.append(insgts['fan_count'])
         cf.impressions.append(insgts['page_impressions'])
-        cf.page_negative_feedback.append(insgts['page_negative_feedback'])
+        # cf.page_negative_feedback.append(insgts['page_negative_feedback'])
         cf.profile_views.append(insgts['page_views_total'])
         cf.page_engaged_users.append(insgts['page_engaged_users'])
         cf.page_fans.append(insgts['page_fans'])
