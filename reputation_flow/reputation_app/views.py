@@ -625,39 +625,41 @@ def chatbot_widget(request,company_id):
             # # Query the knowledge base
             results = query_knowledge_base(query,company_id)
             
+            # Format the retrieved results for GPT
             if results:
                 retrieved_info = "\n".join([f"{i+1}. {text}" for i, (text, _) in enumerate(results)])
                 prompt = f"""
-                You are a helpful representative of the company. The user asked: "{query}"
-                Here is some relevant information you can use to answer their query:
+                The user asked: "{query}"
+                Here are some relevant pieces of information retrieved from the knowledge base:
                 {retrieved_info}
-                Use this information to respond naturally and professionally as if you are part of the company.
+                Based on this information, respond naturally as a helpful assistant to the user's query.
                 """
             else:
-                # Check if intent is small talk
+                # check if intent is small talk
                 res = classify_intent(query)
-                intent = res['response']
-                tkns = res['tokens']
-                total_tkns += tkns
+                intent=res['response']
+                tkns=res['tokens']
+                total_tkns+=tkns
                 
                 if intent == "greeting":
                     # Handle greeting
                     prompt = f"""
-                    You are a helpful representative of the company. The user said: "{query}"
-                    Respond naturally and professionally as a company representative to this greeting or conversational message.
+                    The user said: "{query}"
+                    Respond naturally as a helpful assistant to this greeting or conversational message.
                     """
                 elif intent == "small_talk":
                     # Handle small talk
                     prompt = f"""
-                    You are a helpful representative of the company. The user said: "{query}"
-                    Engage in friendly and professional small talk as if you are part of the company. Be warm and engaging.
-                    """
-                else:
+                    The user said: "{query}"
+                    Engage in friendly small talk as a helpful assistant. Be casual and engaging.
+                    """                
+                else:    
                     prompt = f"""
-                    You are a helpful representative of the company. The user asked: "{query}"
-                    Unfortunately, no specific information is available to address their query.
-                    Respond naturally and professionally, letting the user know that you currently do not have the information but you are happy to connect them with a human agent for further assistance.
-                    """
+                        The user asked: "{query}"
+                        Unfortunately, no relevant information was found in the knowledge base. 
+                        Respond naturally to the user's query, letting them know that no information is available and ask whether they would like to chat with a human agent.
+                        """
+
             # Use OpenAI's GPT model to generate a response
             try:
                 response = oai_client.chat.completions.create(
