@@ -3363,16 +3363,16 @@ def uploadTrainDoc(request):
             delete_vectors(cpn_doc.file.name,cpn_doc.chunk_size)
             inv = cpn_doc.file.size
             cfs=CompanyFileSizes.objects.filter(company=cp).first()
-            # if cfs:
-            #     # reduce the file size
-            #     cfs.size-=inv
-            #     cfs.save()
-            # # delete from s3
-            # delete_file_from_s3(cpn_doc.file.name)
+            if cfs:
+                # reduce the file size
+                cfs.size-=inv
+                cfs.save()
+            # delete from s3
+            delete_file_from_s3(cpn_doc.file.name)
             # except:
             #     pass
-            # cpn_doc.file=file
-            # cpn_doc.save()
+            cpn_doc.file=file
+            cpn_doc.save()
         else:
             cpn_doc = CompanyKnowledgeBase(
                 company=cp,
@@ -3381,8 +3381,8 @@ def uploadTrainDoc(request):
             )
             cpn_doc.save()
         # 
-        # tc = threading.Thread(target=trainChatbot, daemon=True, kwargs={'cmp': cp})
-        # tc.start()
+        tc = threading.Thread(target=trainChatbot, daemon=True, kwargs={'cmp': cp})
+        tc.start()
     else:
         cpn_doc = CompanyKnowledgeBase(
             company=cp,

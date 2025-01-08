@@ -65,7 +65,7 @@ def upsert_vectors(doc_id, text_chunks, company_id):
                 ck.save()
     if vectors:
         index.upsert(vectors)  # Upsert the vectors into Pinecone
-        print(f"Upserted {len(vectors)} vectors.")
+        print(f"Upserted {len(vectors)} vectors {doc_id}. chunk size {chunks}")
     else:
         print("No vectors to upsert.")
         
