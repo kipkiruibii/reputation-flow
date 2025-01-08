@@ -82,4 +82,4 @@ def delete_vectors(doc_id, total_chunks):
         print(f"Successfully deleted {len(vector_ids)} vectors associated with {doc_id}.")
     
     except Exception as e:
-        print(f"Error deleting vectors: {e} {traceback.format_exec()}")
+        print(f"Error deleting vectors: {e} {traceback.format_exc()}")
