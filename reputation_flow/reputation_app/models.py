@@ -287,6 +287,8 @@ class CompanyFacebook(models.Model):
     active=models.BooleanField(default=False)
     linked=models.BooleanField(default=False)
     page_id=models.TextField(default='')
+    page_negative_feedback=models.IntegerField(default=0)
+    page_engaged_users=models.IntegerField(default=0)
     page_access_token=models.TextField(default='')
     short_lived_token=models.TextField(default='')
     long_lived_token=models.TextField(default='')
