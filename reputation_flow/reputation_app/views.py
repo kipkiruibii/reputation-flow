@@ -3319,13 +3319,11 @@ def trainChatbot(cmp):
         print('no data')
         return
     
-    # Get the S3 path (assuming `cp.file` is an S3 URL or key)
-    s3_url = cp.file.name  # Or cp.file.name, depending on your setup
+    s3_url = cp.file.name  
     # Fetch the file from S3
     response = s3_client.get_object(Bucket=settings.AWS_STORAGE_BUCKET_NAME  , Key=s3_url)
     pth = BytesIO(response['Body'].read())  # File in memory
     
-    # pth = cp.file.path
     text = extract_text_from_pdf(pth)
     text_chunks = chunk_text(text)    
     upsert_vectors(s3_url, text_chunks,cp.company.company_id)
@@ -3360,21 +3358,21 @@ def uploadTrainDoc(request):
             return Response({'error': 'Training in progress. Try again after some time.'})
         if erase == 'true':
             # file_path = cpn_doc.file.path  # Full file path
-            try:
-                # delete vectors from pinecone
-                delete_vectors(cpn_doc.file.name,cpn_doc.chunk_size)
-                inv = cpn_doc.file.size
-                cfs=CompanyFileSizes.objects.filter(company=cp).first()
-                if cfs:
-                    # reduce the file size
-                    cfs.size-=inv
-                    cfs.save()
-                # delete from s3
-                delete_file_from_s3(cpn_doc.file.name)
-            except:
-                pass
-            cpn_doc.file=file
-            cpn_doc.save()
+            # try:
+            # delete vectors from pinecone
+            delete_vectors(cpn_doc.file.name,cpn_doc.chunk_size)
+            inv = cpn_doc.file.size
+            cfs=CompanyFileSizes.objects.filter(company=cp).first()
+            # if cfs:
+            #     # reduce the file size
+            #     cfs.size-=inv
+            #     cfs.save()
+            # # delete from s3
+            # delete_file_from_s3(cpn_doc.file.name)
+            # except:
+            #     pass
+            # cpn_doc.file=file
+            # cpn_doc.save()
         else:
             cpn_doc = CompanyKnowledgeBase(
                 company=cp,
