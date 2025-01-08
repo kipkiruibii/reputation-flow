@@ -282,32 +282,32 @@ class CompanyInstagram(models.Model):
     def __str__(self):
         return self.company.company_name+ ' ' + self.account_name
 
-class CompanyFacebook(models.Model):
-    company=models.ForeignKey(Company,on_delete=models.CASCADE,null=True,blank=True)
-    active=models.BooleanField(default=False)
-    linked=models.BooleanField(default=False)
-    page_id=models.TextField(default='')
-    # page_negative_feedback=models.JSONField(default=list)
-    # page_engaged_users=models.JSONField(default=list)
-    page_access_token=models.TextField(default='')
-    short_lived_token=models.TextField(default='')
-    long_lived_token=models.TextField(default='')
-    token_expiry=models.DateField(default=timezone.now() + timezone.timedelta(days=60))
-    account_name=models.TextField(default='')
-    profile_url=models.TextField(default='')
-    account_id=models.TextField(default='')
-    pages=models.JSONField(default=list) # [{'name':str,'id':str,'access_token':str,'profile_url':str,'data':{'':}}]
-    followers_trend=models.JSONField(default=list)
-    impressions=models.JSONField(default=list)
-    profile_views=models.JSONField(default=list)
-    reach=models.JSONField(default=list)
-    page_fans=models.JSONField(default=list)
-    page_views_total=models.JSONField(default=list)
-    last_update_time=models.DateTimeField(default=timezone.now)
-    date_linked= models.DateTimeField(default=timezone.now)
+# class CompanyFacebook(models.Model):
+#     company=models.ForeignKey(Company,on_delete=models.CASCADE,null=True,blank=True)
+#     active=models.BooleanField(default=False)
+#     linked=models.BooleanField(default=False)
+#     page_id=models.TextField(default='')
+#     # page_negative_feedback=models.JSONField(default=list)
+#     # page_engaged_users=models.JSONField(default=list)
+#     page_access_token=models.TextField(default='')
+#     short_lived_token=models.TextField(default='')
+#     long_lived_token=models.TextField(default='')
+#     token_expiry=models.DateField(default=timezone.now() + timezone.timedelta(days=60))
+#     account_name=models.TextField(default='')
+#     profile_url=models.TextField(default='')
+#     account_id=models.TextField(default='')
+#     pages=models.JSONField(default=list) # [{'name':str,'id':str,'access_token':str,'profile_url':str,'data':{'':}}]
+#     followers_trend=models.JSONField(default=list)
+#     impressions=models.JSONField(default=list)
+#     profile_views=models.JSONField(default=list)
+#     reach=models.JSONField(default=list)
+#     page_fans=models.JSONField(default=list)
+#     page_views_total=models.JSONField(default=list)
+#     last_update_time=models.DateTimeField(default=timezone.now)
+#     date_linked= models.DateTimeField(default=timezone.now)
 
-    def __str__(self):
-        return self.company.company_name+ ' '+self.account_name
+#     def __str__(self):
+#         return self.company.company_name+ ' '+self.account_name
 
 class CompanyTiktok(models.Model):
     company=models.ForeignKey(Company,on_delete=models.CASCADE,null=True,blank=True)
