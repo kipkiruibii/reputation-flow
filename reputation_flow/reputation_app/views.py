@@ -3373,8 +3373,9 @@ def uploadTrainDoc(request):
             delete_file_from_s3(cpn_doc.file.name)
             # except:
             #     pass
-            cpn_doc.file=file
-            cpn_doc.save()
+            # cpn_doc.file=file
+            # cpn_doc.save()
+            cpn_doc.delete()
         else:
             cpn_doc = CompanyKnowledgeBase(
                 company=cp,
@@ -3383,8 +3384,8 @@ def uploadTrainDoc(request):
             )
             cpn_doc.save()
         # 
-        tc = threading.Thread(target=trainChatbot, daemon=True, kwargs={'cmp': cp})
-        tc.start()
+        # tc = threading.Thread(target=trainChatbot, daemon=True, kwargs={'cmp': cp})
+        # tc.start()
     else:
         cpn_doc = CompanyKnowledgeBase(
             company=cp,

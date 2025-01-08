@@ -80,13 +80,14 @@ def query_knowledge_base(query,company_id, top_k=5):
 
 def delete_vectors(doc_id, total_chunks):
     try:
-        print(doc_id)
-        # Generate vector IDs for all chunks of the document
-        vector_ids = [f"{doc_id}_{i}" for i in range(total_chunks)]
-        # Delete vectors from Pinecone
-        print('VECTOR IDS',vector_ids)
-        index.delete(ids=vector_ids)
-        print(f"Successfully deleted {len(vector_ids)} vectors associated with {doc_id}.")
+        # print(doc_id)
+        # # Generate vector IDs for all chunks of the document
+        # vector_ids = [f"{doc_id}_{i}" for i in range(total_chunks)]
+        # # Delete vectors from Pinecone
+        # print('VECTOR IDS',vector_ids)
+        # index.delete(ids=vector_ids)
+        index.delete(delete_all=True)
+        print(f"Successfully deleted  vectors associated with {doc_id}.")
     
     except Exception as e:
         print(f"Error deleting vectors: {e} {traceback.format_exc()}")
