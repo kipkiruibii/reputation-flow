@@ -78,6 +78,7 @@ def delete_vectors(doc_id, total_chunks):
         # Generate vector IDs for all chunks of the document
         vector_ids = [f"{doc_id}_{i}" for i in range(total_chunks)]
         # Delete vectors from Pinecone
+        print('VECTOR IDS',vector_ids)
         index.delete(ids=vector_ids)
         print(f"Successfully deleted {len(vector_ids)} vectors associated with {doc_id}.")
     
