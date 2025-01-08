@@ -56,6 +56,7 @@ def upsert_vectors(doc_id, text_chunks, company_id):
             }
             vectors.append((vector_id, embedding, metadata))
     cp=Company.objects.filter(company_id=company_id).first()
+    print('total chunks',chunks)
     if cp:
         ckb=CompanyKnowledgeBase.objects.filter(company=cp)
         for ck in ckb:
@@ -75,6 +76,7 @@ def query_knowledge_base(query, top_k=5):
 
 def delete_vectors(doc_id, total_chunks):
     try:
+        print(doc_id)
         # Generate vector IDs for all chunks of the document
         vector_ids = [f"{doc_id}_{i}" for i in range(total_chunks)]
         # Delete vectors from Pinecone
