@@ -69,9 +69,13 @@ def upsert_vectors(doc_id, text_chunks, company_id):
     else:
         print("No vectors to upsert.")
         
-def query_knowledge_base(query, top_k=5):
+def query_knowledge_base(query,company_id, top_k=5):
     query_embedding = generate_embeddings(query)
-    results = index.query(vector=query_embedding, top_k=top_k, include_metadata=True)
+    filter_criteria = {
+        "company_id": company_id  # Filter by specific company_id
+    }
+    
+    results = index.query(vector=query_embedding, top_k=top_k, include_metadata=True,filter=filter_criteria )
     return [(res["metadata"]["text"], res["score"]) for res in results["matches"]]
 
 def delete_vectors(doc_id, total_chunks):
