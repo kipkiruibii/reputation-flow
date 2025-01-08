@@ -3381,8 +3381,8 @@ def uploadTrainDoc(request):
             )
             cpn_doc.save()
         # 
-        tc = threading.Thread(target=trainChatbot, daemon=True, kwargs={'cmp': cp})
-        tc.start()
+        # tc = threading.Thread(target=trainChatbot, daemon=True, kwargs={'cmp': cp})
+        # tc.start()
     else:
         cpn_doc = CompanyKnowledgeBase(
             company=cp,
