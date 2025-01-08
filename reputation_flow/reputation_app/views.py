@@ -205,7 +205,8 @@ def failed_payment(request):
     print('payment failed')
     return render(request, 'payment_failed.html')
 
-
+def privacy(request):
+    return render(request, 'privacy.html')
 @csrf_exempt
 def paypal_notification(request):
     print('Received notification')

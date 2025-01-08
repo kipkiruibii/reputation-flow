@@ -6,6 +6,7 @@ urlpatterns=[
     path('',views.index,name='landing'),
     path('login/',views.loginUser,name='login'),
     path('logout/',views.logoutUser,name='logout'),
+    path('privacy/',views.privacy,name='privacy'),
     path('b/<str:company_id>/dashboard',views.dashboard,name='dashboard'),
     path('profile/<str:company_name>/details/',views.companyProfile,name='company_profile'),
     path('social-proof/<str:company_name>/',views.socialProof,name='social-proof'),
