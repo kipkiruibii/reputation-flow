@@ -1469,6 +1469,11 @@ def dashboard(request, company_id):
         ffn=cig.followers_trend[0]
         lfn=cig.followers_trend[-1]
         ig_growth=int(lfn)-int(ffn)
+    tk_growth=0
+    if ctk:
+        ffn=ctk.followers_count[0]
+        lfn=ctk.followers_count[-1]
+        tk_growth=int(lfn)-int(ffn)
         
     for th in CompanyTransactionHistory.objects.filter(company=cm).order_by('-pk'):
         tx_hist.append({
@@ -1579,6 +1584,7 @@ def dashboard(request, company_id):
             'link_url': reddit_auth_link(company_id),
             'linked': cr.linked if cr else False,
             'active': cr.active if cr else False,
+            'growth':tk_growth,
             'comment_karma': cr.comment_karma if cr else '',
             'link_karma':cr.link_karma if cr else '',
             'subs': cr.subs if cr else []
