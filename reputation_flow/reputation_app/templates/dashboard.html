@@ -2265,7 +2265,8 @@
                                                                 {% if instagram.growth > 0 %}
                                                                 <span class="success-flair">
                                                                     {{ instagram.growth }}</span>
-                                                                {% elif instagram.growth < 0 %} <span class="warning-flair">
+                                                                {% elif instagram.growth < 0 %} <span
+                                                                    class="warning-flair">
                                                                     {{ instagram.growth }}</span>
                                                                     {% else %}
                                                                     <span class="not-sent-flair">
@@ -2273,8 +2274,11 @@
                                                                     {% endif %}
                                                             </p>
                                                             <p class="font-12 zero-padding-margin"
-                                                                style="text-align: start;">Likes:
-                                                                {{ instagram.like_count }}</span> </p>
+                                                                style="text-align: start;">Impressions:
+                                                                {{ instagram.impressions }}</span> </p>
+                                                            <p class="font-12 zero-padding-margin"
+                                                                style="text-align: start;">Reach:
+                                                                {{ instagram.reach }}</span> </p>
                                                         </div>
                                                     </div>
                                                     {% else %}
