@@ -2328,12 +2328,13 @@
                                                         <div>
                                                             <p class="font-12 zero-padding-margin"
                                                                 style="text-align: start;">
-                                                                Followers: {{ facebook.follower_count }}</p>
+                                                                Followers: {{ facebook.followers }}</p>
                                                             <p class="font-12 zero-padding-margin"
                                                                 style="text-align: start;">Growth:
-                                                                {% if growth > 0 %}
+                                                                {% if facebook.growth > 0 %}
                                                                 <span class="success-flair">{{ facebook.growth }}</span>
-                                                                {% elif growth < 0 %} <span class="warning-flair">
+                                                                {% elif facebook.growth < 0 %} <span
+                                                                    class="warning-flair">
                                                                     {{ facebook.growth }}</span>
                                                                     {% else %}
                                                                     <span class="not-sent-flair">
@@ -2341,8 +2342,11 @@
                                                                     {% endif %}
                                                             </p>
                                                             <p class="font-12 zero-padding-margin"
-                                                                style="text-align: start;">Likes:
-                                                                {{ facebook.like_count }}</span> </p>
+                                                                style="text-align: start;">Impressions:
+                                                                {{ facebook.impressions }}</span> </p>
+                                                            <p class="font-12 zero-padding-margin"
+                                                                style="text-align: start;">Profile views:
+                                                                {{ facebook.profile_views }}</span> </p>
                                                         </div>
                                                     </div>
 
@@ -2645,7 +2649,8 @@
                                                         data-set_up="enable_ai">
                                                     <label class="form-check-label" for="ai_enable_btn">Enabled</label>
                                                 </div>
-                                                <iframe id="chatbot-iframe" src="https://insightlyze.com/chatbot/{{ company_id }}"
+                                                <iframe id="chatbot-iframe"
+                                                    src="https://insightlyze.com/chatbot/{{ company_id }}"
                                                     style="display:none;position: fixed; bottom: 20px; right: 10px; width: 350px; height: 120vh; z-index: 9000;margin-left: 10px;background-color: #0000007d;"
                                                     frameborder="0">
                                                 </iframe>
@@ -2653,8 +2658,8 @@
 
                                                 <div class="form-group " onclick="toggleIframe()"
                                                     style="text-align:center;font-size:20px;align-items:center;padding-top:10px;padding-bottom:20px">
-                                                    <a class=" btn-solid-sm" style="cursor:pointer" id="test-chatbot"
-                                                        >Test
+                                                    <a class=" btn-solid-sm" style="cursor:pointer"
+                                                        id="test-chatbot">Test
                                                     </a>
                                                 </div>
                                             </div>
@@ -2716,7 +2721,7 @@
                                                 <div class="form-group"
                                                     style="text-align:center;font-size:20px;align-items:center;margin-top:10px;margin-bottom:20px">
                                                     <a class=" btn-solid-sm"
-                                                        style="cursor:not-allowed;background-color: grey;" >Test
+                                                        style="cursor:not-allowed;background-color: grey;">Test
 
                                                     </a>
                                                 </div>
