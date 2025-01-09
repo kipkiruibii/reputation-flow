@@ -1459,6 +1459,12 @@ def dashboard(request, company_id):
         })
     transcts=CompanyTransactionHistory.objects.filter(company=cm).last()
     tx_hist=[]
+    fb_growth=0
+    if cfb:
+        ffn=cfb.page_fans[0]
+        lfn=cfb.page_fans[-1]
+        fb_growth=(lfn-ffn)
+            
     for th in CompanyTransactionHistory.objects.filter(company=cm).order_by('-pk'):
         tx_hist.append({
             'subscription_date':th.subscription_date.strftime("%d %b %Y"),
@@ -1541,6 +1547,10 @@ def dashboard(request, company_id):
         'facebook': {
             'profile': cfb.profile_url if cfb else '',
             'username': cfb.account_name if cfb else '',
+            'followers':cfb.page_fans[-1] if cfb else '-',
+            'profile_views':cfb.profile_views[-1] if cfb else '-',
+            'impressions':cfb.impressions[-1] if cfb else '-',
+            'growth':fb_growth,
             'date_linked': cfb.date_linked if cfb else '',
             'link_url': get_facebook_auth_url(company_id),
             'linked': cfb.linked if cfb else False,
