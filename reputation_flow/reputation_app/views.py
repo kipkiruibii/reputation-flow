@@ -1464,7 +1464,12 @@ def dashboard(request, company_id):
         ffn=cfb.page_fans[0]
         lfn=cfb.page_fans[-1]
         fb_growth=(lfn-ffn)
-            
+    ig_growth=0
+    if cig:
+        ffn=cfb.followers_trend[0]
+        lfn=cfb.followers_trend[-1]
+        ig_growth=(lfn-ffn)
+        
     for th in CompanyTransactionHistory.objects.filter(company=cm).order_by('-pk'):
         tx_hist.append({
             'subscription_date':th.subscription_date.strftime("%d %b %Y"),
@@ -1524,7 +1529,6 @@ def dashboard(request, company_id):
             'can_update_profile': False if not cmp.permissions else cmp.permissions.get('can_update_profile', False),
             'can_link_unlink_account': False if not cmp.permissions else cmp.permissions.get('can_link_unlink_account',
                                                                                              False),
-            # 'can_link_unlink_account':False,
             'can_reply_to_reviews': False if not cmp.permissions else cmp.permissions.get('can_reply_to_reviews',
                                                                                           False),
             'can_assign_member_review': False if not cmp.permissions else cmp.permissions.get(
@@ -1540,6 +1544,10 @@ def dashboard(request, company_id):
             'profile': cig.profile_url if cig else '',
             'username': cig.account_name if cig else '',
             'date_linked': cig.date_linked if cig else '',
+            'followers':cig.followers_trend[-1] if cig else '-',
+            'impressions':cig.impressions[-1]['value'] if cig else '-',
+            'reach':cig.reach[-1]['value'] if cig else '-',
+            'growth':ig_growth,
             'link_url': get_instagram_auth_url(company_id),
             'linked': cig.linked if cig else False,
             'active': cig.active if cig else False

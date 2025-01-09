@@ -2259,17 +2259,17 @@
                                                         <div>
                                                             <p class="font-12 zero-padding-margin"
                                                                 style="text-align: start;">
-                                                                Followers: {{ instagram.follower_count }}</p>
+                                                                Followers: {{ instagram.followers }}</p>
                                                             <p class="font-12 zero-padding-margin"
                                                                 style="text-align: start;">Growth:
-                                                                {% if growth > 0 %}
-                                                                <span class="success-flair">{{ instagram.growth
-                                                                    }}</span>
-                                                                {% elif growth < 0 %} <span class="warning-flair">
-                                                                    {{ facebook.growth }}</span>
+                                                                {% if instagram.growth > 0 %}
+                                                                <span class="success-flair">
+                                                                    {{ instagram.growth }}</span>
+                                                                {% elif instagram.growth < 0 %} <span class="warning-flair">
+                                                                    {{ instagram.growth }}</span>
                                                                     {% else %}
                                                                     <span class="not-sent-flair">
-                                                                        {{ facebook.growth}}</span>
+                                                                        {{ instagram.growth}}</span>
                                                                     {% endif %}
                                                             </p>
                                                             <p class="font-12 zero-padding-margin"
@@ -2360,7 +2360,8 @@
                                                                 style="text-align: start;">Growth:
                                                                 {% if facebook.growth > 0 %}
                                                                 <span class="success-flair">{{ facebook.growth }}</span>
-                                                                {% elif facebook.growth < 0 %} <span class="warning-flair">
+                                                                {% elif facebook.growth < 0 %} <span
+                                                                    class="warning-flair">
                                                                     {{ facebook.growth }}</span>
                                                                     {% else %}
                                                                     <span class="not-sent-flair">
