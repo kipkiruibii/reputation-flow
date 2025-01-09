@@ -1468,7 +1468,7 @@ def dashboard(request, company_id):
     if cig:
         ffn=cfb.followers_trend[0]
         lfn=cfb.followers_trend[-1]
-        ig_growth=(lfn-ffn)
+        ig_growth=int(lfn)-int(ffn)
         
     for th in CompanyTransactionHistory.objects.filter(company=cm).order_by('-pk'):
         tx_hist.append({
