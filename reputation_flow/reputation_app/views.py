@@ -3893,7 +3893,7 @@ def postInstagram(account_id, media, access_token, description, has_media, post_
         url = f"https://graph.facebook.com/v21.0/{post_id}"
 
         # Fields to request (adjust based on your needs)
-        fields = "id,media_type,media_url,thumbnail_url,timestamp,caption"
+        fields = "id,media_type,media_url,thumbnail_url,timestamp,caption,permalink"
 
         # Add fields and access token as parameters
         params = {
@@ -3908,6 +3908,8 @@ def postInstagram(account_id, media, access_token, description, has_media, post_
         if response.status_code == 200:
             media_details = response.json()
             print("Media Details:", media_details)
+            cigp.post_link=media_details['permalink']
+            cigp.save()
             if media_details['media_type'] == 'IMAGE':
                 cpst.media_thumbnail=media_details['media_url']
                 cpst.is_published=True
