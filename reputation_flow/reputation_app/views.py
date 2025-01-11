@@ -3564,27 +3564,27 @@ def postTiktok(company, description, video, duet, comment, stitch, audience, pos
     Initialize a chunked video upload to TikTok.
     """
 
-    # ctk = CompanyTiktok.objects.filter(company=company).first()
-    # if not ctk:
-    #     return 'No Company Tiktok'
-    # access_token = ctk.access_token
+    ctk = CompanyTiktok.objects.filter(company=company).first()
+    if not ctk:
+        return 'No Company Tiktok'
+    access_token = ctk.access_token
 
     # vid_ex = '7212243560387726597'
     # # vid_ex='7446787420933015558'
-    # # video_list_url = "https://open.tiktokapis.com/v2/video/list/"
-    # # params = {
-    # #     # "video_ids": [vid_ex],
-    # #     # "fields": "id,title,description,video_url",
-    # #     "fields": "id,title,video_description,duration,cover_image_url,embed_link"
-    # # }
-    # headers = {
-    #     "Authorization": f"Bearer {access_token}",
-    #     "Content-Type": "application/json"
-    # }
+    video_list_url = "https://open.tiktokapis.com/v2/video/list/"
+    params = {
+        # "video_ids": [vid_ex],
+        "fields": "id,title,description,video_url",
+        # "fields": "id,title,video_description,duration,cover_image_url,embed_link"
+    }
+    headers = {
+        "Authorization": f"Bearer {access_token}",
+        "Content-Type": "application/json"
+    }
 
-    # # response = requests.post(video_list_url, headers=headers,params=params)
-    # # # print('')
-    # # print(response.content)
+    response = requests.post(video_list_url, headers=headers,params=params)
+    # print('')
+    print(response.content)
     # # return
     # url = "https://open.tiktokapis.com/v2/video/query/"
 
@@ -3602,7 +3602,7 @@ def postTiktok(company, description, video, duet, comment, stitch, audience, pos
     # response = requests.post(url, headers=headers, json=payload)
 
     # print(response.json())  # Print the JSON response    
-    # return
+    return
 
     cpst = CompanyPosts.objects.filter(post_id=post_id).first()
     if not cpst:
@@ -3752,7 +3752,6 @@ def postTiktok(company, description, video, duet, comment, stitch, audience, pos
 
                     print(response.json())
                     # Display the list of videos
-
                     try:
                         videos = response.json()['videos'][0]
                         print('Found')
