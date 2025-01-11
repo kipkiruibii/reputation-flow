@@ -3569,11 +3569,6 @@ def postTiktok(company, description, video, duet, comment, stitch, audience, pos
         return 'No Company Tiktok'
     access_token = ctk.access_token
 
-    # vid_ex = '7384594753830014214'
-    # # vid_ex2='7208603174666571013'
-    # print(response.json())  # Print the JSON response    
-    # return
-
     cpst = CompanyPosts.objects.filter(post_id=post_id).first()
     if not cpst:
         print('failed to retrieve post')
