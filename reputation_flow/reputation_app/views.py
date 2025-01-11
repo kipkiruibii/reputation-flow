@@ -3778,7 +3778,7 @@ def postInstagram(account_id, media, access_token, description, has_media, post_
     for m in media:
         pass
     # print('the ltc')
-    cp_url=f'https://graph.facebook.com/v21.0/17841405822304914/content_publishing_limit'
+    cp_url=f'https://graph.facebook.com/v21.0/{account_id}/content_publishing_limit'
     params = {
         "fields": "quota_usage,rate_limit_settings",
         "access_token":access_token
@@ -5078,7 +5078,7 @@ def uploadPost(request):
             igThread = threading.Thread(target=postInstagram, daemon=True, kwargs={
                 'account_id': cig.account_id,
                 'media': gallery_items,
-                'access_token': cfb.page_access_token,
+                'access_token': cig.long_lived_token,
                 'description': description,
                 'has_media': hasMedia,
                 'post_id': post_id,
