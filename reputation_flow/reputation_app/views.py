@@ -4759,9 +4759,9 @@ def deletePostComment(request):
             if not cig:
                 continue
             if action_type == 'post':
-                cpst=CompanyInstagramPosts.objects.filter(post_id=post_id).first()
-                if cpst:
-                    url = f"https://graph.facebook.com/v21.0/{cpst.content_id}"
+                cipst=CompanyInstagramPosts.objects.filter(post_id=post_id).first()
+                if cipst:
+                    url = f"https://graph.facebook.com/v21.0/{cipst.content_id}"
 
                     # Add the access token as a parameter
                     params = {
