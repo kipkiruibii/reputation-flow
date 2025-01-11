@@ -408,6 +408,8 @@ class CompanyInstagramPosts(models.Model):
     location_tags=models.TextField(default='')
     product_tags=models.TextField(default='')
     post_link=models.TextField(default='')
+    content_id=models.TextField(default='')
+    parent_post_id=models.TextField(default='')
 
     def __str__(self):
         return self.post_id

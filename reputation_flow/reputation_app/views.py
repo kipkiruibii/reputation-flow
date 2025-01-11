@@ -3885,6 +3885,8 @@ def postInstagram(account_id, media, access_token, description, has_media, post_
     if publish_response.status_code == 200:
         print(publish_response.json())
         post_id = publish_response.json().get("id")
+        cigp.content_id=post_id
+        cigp.save()
         print(f"post published successfully! Post ID: {post_id}")
         
         # URL to fetch media details
@@ -4752,13 +4754,34 @@ def deletePostComment(request):
                             else:
                                 print("Error deleting post:", response.json())
                             
+        if 'instagram' in platform.lower():
+            cig = CompanyInstagram.objects.filter(company=cpst.company).first()
+            if not cig:
+                continue
+            if action_type == 'post':
+                cpst=CompanyInstagramPosts.objects.filter(post_id=post_id).first()
+                if cpst:
+                    url = f"https://graph.facebook.com/v21.0/{cpst.content_id}"
 
+                    # Add the access token as a parameter
+                    params = {
+                        "access_token": cig.long_lived_token
+                    }
+
+                    # Make the DELETE request
+                    response = requests.delete(url, params=params)
+
+                    # Check the response
+                    if response.status_code == 200:
+                        print("Media from IG deleted successfully.")
+                    else:
+                        print(f"Error: {response.status_code}")
+                        print(response.json())            
     # delete uploaded media from s3 if present
     if action_type == 'post':
         upm=UploadedMedia.objects.filter(post=cpst)
         for up in upm:
             # free up spaces
-            
             delete_file_from_s3(file_key=up.media.name)
         cpst.delete()
 
