@@ -3871,10 +3871,6 @@ def postInstagram(account_id, media, access_token, description, has_media, post_
             print(response.json())
             creation_id = response.json().get("id")
             print(f"Media uploaded successfully! Media ID: {creation_id}")
-            
-            #  save to instagram post
-            cpst.is_published=True
-            cpst.save()
         else:
             print(f"Error: {response.json()}")
             return
@@ -3910,10 +3906,16 @@ def postInstagram(account_id, media, access_token, description, has_media, post_
         if response.status_code == 200:
             media_details = response.json()
             print("Media Details:", media_details)
-            # Get the cover image for video (if applicable)
+            if media_details['media_type'] == 'IMAGE':
+                cpst.media_thumbnail=media_details['media_url']
+                cpst.is_published=True
+                cpst.save()
+            # Get the cover image for video (if applicable) 
             if media_details.get("media_type") == "VIDEO":
                 cover_image_url = media_details.get("thumbnail_url")
-                print("Cover Image URL:", cover_image_url)
+                cpst.media_thumbnail=cover_image_url
+                cpst.is_published=True
+                cpst.save()
     else:
         print(f"Error publishing carousel post: {publish_response.json()}")
 
