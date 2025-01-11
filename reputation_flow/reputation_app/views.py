@@ -3583,8 +3583,8 @@ def postTiktok(company, description, video, duet, comment, stitch, audience, pos
     }
 
     response = requests.post(video_list_url, headers=headers,params=params)
-    print('')
-    print(response.content)
+    # print('')
+    # print(response.content)
     vid_ex = response.json()['data']['videos'][-1]
 
     # # return
@@ -3596,8 +3596,8 @@ def postTiktok(company, description, video, duet, comment, stitch, audience, pos
     payload = {
         "filters": {
             "video_ids": [
-                response.json()['data']['videos'][0],
-                response.json()['data']['videos'][-1]
+                response.json()['data']['videos'][0]['cover_image_url'],
+                response.json()['data']['videos'][-1]['cover_image_url']
             ]
         }
     }
