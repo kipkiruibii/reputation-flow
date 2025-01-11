@@ -3571,20 +3571,20 @@ def postTiktok(company, description, video, duet, comment, stitch, audience, pos
 
     vid_ex = '7384594753830014214'
     # # vid_ex2='7208603174666571013'
-    # video_list_url = "https://open.tiktokapis.com/v2/video/list/"
-    # # params = {
-    # #     "video_ids": [vid_ex],
-    # #     "fields": "id",
-    # #     # "fields": "id,title,video_description,duration,cover_image_url,embed_link"
-    # # }
+    video_list_url = "https://open.tiktokapis.com/v2/video/list/"
+    params = {
+        "video_ids": [vid_ex],
+        "fields": "id,cover_image_url"
+        # "fields": "id,title,video_description,duration,cover_image_url,embed_link"
+    }
     headers = {
         "Authorization": f"Bearer {access_token}",
         "Content-Type": "application/json"
     }
 
-    # response = requests.post(video_list_url, headers=headers,params=params)
-    # print('')
-    # print(response.content)
+    response = requests.post(video_list_url, headers=headers,params=params)
+    print('')
+    print(response.content)
     # # return
     url = "https://open.tiktokapis.com/v2/video/query/"
 
