@@ -3569,39 +3569,39 @@ def postTiktok(company, description, video, duet, comment, stitch, audience, pos
         return 'No Company Tiktok'
     access_token = ctk.access_token
 
-    # vid_ex = '7212243560387726597'
-    # # vid_ex='7446787420933015558'
-    video_list_url = "https://open.tiktokapis.com/v2/video/list/"
-    params = {
-        # "video_ids": [vid_ex],
-        "fields": "id",
-        # "fields": "id,title,video_description,duration,cover_image_url,embed_link"
-    }
-    headers = {
-        "Authorization": f"Bearer {access_token}",
-        "Content-Type": "application/json"
-    }
+    vid_ex = '7384594753830014214'
+    # # vid_ex2='7208603174666571013'
+    # video_list_url = "https://open.tiktokapis.com/v2/video/list/"
+    # # params = {
+    # #     "video_ids": [vid_ex],
+    # #     "fields": "id",
+    # #     # "fields": "id,title,video_description,duration,cover_image_url,embed_link"
+    # # }
+    # headers = {
+    #     "Authorization": f"Bearer {access_token}",
+    #     "Content-Type": "application/json"
+    # }
 
-    response = requests.post(video_list_url, headers=headers,params=params)
+    # response = requests.post(video_list_url, headers=headers,params=params)
     # print('')
-    print(response.content)
+    # print(response.content)
     # # return
-    # url = "https://open.tiktokapis.com/v2/video/query/"
+    url = "https://open.tiktokapis.com/v2/video/query/"
 
-    # params = {
-    #     "fields": "id,views"
-    # }
-    # payload = {
-    #     "filters": {
-    #         "video_ids": [
-    #             vid_ex
-    #         ]
-    #     }
-    # }
+    params = {
+        "fields": "id,views,cover_image_url"
+    }
+    payload = {
+        "filters": {
+            "video_ids": [
+                vid_ex
+            ]
+        }
+    }
 
-    # response = requests.post(url, headers=headers, json=payload)
+    response = requests.post(url, headers=headers, json=payload)
 
-    # print(response.json())  # Print the JSON response    
+    print(response.json())  # Print the JSON response    
     return
 
     cpst = CompanyPosts.objects.filter(post_id=post_id).first()
