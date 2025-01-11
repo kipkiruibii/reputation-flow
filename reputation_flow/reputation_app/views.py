@@ -3589,7 +3589,7 @@ def postTiktok(company, description, video, duet, comment, stitch, audience, pos
     url = "https://open.tiktokapis.com/v2/video/query/"
 
     params = {
-        "fields": "id,views,cover_image_url"
+        "fields": "id,cover_image_url"
     }
     payload = {
         "filters": {
