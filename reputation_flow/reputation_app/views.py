@@ -3887,6 +3887,7 @@ def postInstagram(account_id, media, access_token, description, has_media, post_
                                      data=publish_payload)
 
     if publish_response.status_code == 200:
+        print(publish_response.json())
         post_id = publish_response.json().get("id")
         print(f"post published successfully! Post ID: {post_id}")
     else:
