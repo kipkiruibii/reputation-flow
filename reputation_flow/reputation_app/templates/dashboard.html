@@ -2458,9 +2458,9 @@
                                                                 Followers: {{ tiktok.follower_count }}</p>
                                                             <p class="font-12 zero-padding-margin"
                                                                 style="text-align: start;">Growth:
-                                                                {% if growth > 0 %}
+                                                                {% if tiktok.growth > 0 %}
                                                                 <span class="success-flair">{{ tiktok.growth }}</span>
-                                                                {% elif growth < 0 %} <span class="warning-flair">
+                                                                {% elif tiktok.growth < 0 %} <span class="warning-flair">
                                                                     {{ tiktok.growth }}</span>
                                                                     {% else %}
                                                                     <span class="not-sent-flair">
@@ -9670,8 +9670,10 @@
 
                 // confirm upload post
                 $(document).on('click', '#confirmModalPostAction', function () {
+                    if ($('#confirmModalPostAction').text() == 'Posting...') { return; }
                     // Create a new FormData object
 
+                    $('#confirmModalPostAction').text('Posting...')
                     var subsSelected = null;
                     var redditChecked = $('#reddit_platform').prop('checked');
                     // ensure the content has a title and description
@@ -9798,6 +9800,8 @@
                                 toastr.error(response['error']);
                                 toastr.error('Failed to submit form.');
                                 $('#confirmModalPostCenter').modal('hide');
+                                $('#confirmModalPostAction').text('Post')
+
                             } else {
                                 toastr.success('Uploaded successfully');
                                 $('#confirmModalPostCenter').modal('hide');
@@ -9806,6 +9810,7 @@
                                 $('#step3').addClass('completed');
                                 $('#set_up_content').css('display', 'none');
                                 $('#content_upload_successful').css('display', 'block');
+                                $('#confirmModalPostAction').text('Post')
                                 return;
                             }
                         },
@@ -9813,6 +9818,8 @@
                             toastr.error('Failed to submit form.');
                             $('#confirmModalPostCenter').modal('hide');
                             console.error(textStatus, errorThrown);
+                            $('#confirmModalPostAction').text('Post')
+
                         }
                     });
                 });
