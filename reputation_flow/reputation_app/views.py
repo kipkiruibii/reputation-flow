@@ -3569,11 +3569,11 @@ def postTiktok(company, description, video, duet, comment, stitch, audience, pos
         return 'No Company Tiktok'
     access_token = ctk.access_token
 
-    vid_ex = '7384594753830014214'
+    # vid_ex = '7384594753830014214'
     # # vid_ex2='7208603174666571013'
     video_list_url = "https://open.tiktokapis.com/v2/video/list/"
     params = {
-        "video_ids": [vid_ex],
+        # "video_ids": [vid_ex],
         "fields": "id,cover_image_url"
         # "fields": "id,title,video_description,duration,cover_image_url,embed_link"
     }
@@ -3585,6 +3585,8 @@ def postTiktok(company, description, video, duet, comment, stitch, audience, pos
     response = requests.post(video_list_url, headers=headers,params=params)
     print('')
     print(response.content)
+    vid_ex = response.json()['data']['videos'][-1]
+
     # # return
     url = "https://open.tiktokapis.com/v2/video/query/"
 
@@ -3594,7 +3596,8 @@ def postTiktok(company, description, video, duet, comment, stitch, audience, pos
     payload = {
         "filters": {
             "video_ids": [
-                vid_ex
+                response.json()['data']['videos'][0],
+                response.json()['data']['videos'][-1]
             ]
         }
     }
