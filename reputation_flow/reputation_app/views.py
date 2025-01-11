@@ -3773,12 +3773,24 @@ def postTiktok(company, description, video, duet, comment, stitch, audience, pos
 def postInstagram(account_id, media, access_token, description, has_media, post_id, to_stories, to_post, to_reels):
     if not has_media:
         return
+    # check the rate limit
     # upload the media to s3 bucket
     for m in media:
         pass
-    print('the ltc')
-    print(len(media))
-    print()
+    # print('the ltc')
+    cp_url=f'https://graph.facebook.com/v21.0/17841405822304914/content_publishing_limit'
+    params = {
+        "fields": "quota_usage,rate_limit_settings",
+        "access_token":access_token
+        
+    }
+    
+    response = requests.get(cp_url, params=params)
+    print(response.content)
+
+    
+    # print(len(media))
+    # print()
     return
     # retrieve the media urls
     media_urls = [
