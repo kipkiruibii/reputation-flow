@@ -2460,7 +2460,8 @@
                                                                 style="text-align: start;">Growth:
                                                                 {% if tiktok.growth > 0 %}
                                                                 <span class="success-flair">{{ tiktok.growth }}</span>
-                                                                {% elif tiktok.growth < 0 %} <span class="warning-flair">
+                                                                {% elif tiktok.growth < 0 %} <span
+                                                                    class="warning-flair">
                                                                     {{ tiktok.growth }}</span>
                                                                     {% else %}
                                                                     <span class="not-sent-flair">
@@ -5521,8 +5522,9 @@
                                                 tooltip="Permanently delete post from all channels" flow="down"><i
                                                     id="delete-{{ p.post_id }}" class="fa fa-trash"></i></p>
                                         </div>
-                                        {% if instagram in pl.platform %}
-                                        <p style="font-size: 12px;">Note:To delete post from Instagram, you will be required to also manually delete the post in the official platform</p>
+                                        {% if 'Instagram' in pl.platform %}
+                                        <p style="font-size: 12px;">Note:To delete the post from Instagram, you will be
+                                            required to also manually delete the post in the official platform</p>
                                         {% endif %}
                                         <div style="display: flex;gap: 5px;flex-wrap: wrap;padding: 0;">
                                             {% for pl in p.platforms %}
@@ -9677,7 +9679,7 @@
                     // Create a new FormData object
 
                     $('#confirmModalPostAction').text('Posting...')
-                    $('#confirmModalPostAction').css('cursor','not-allowed');
+                    $('#confirmModalPostAction').css('cursor', 'not-allowed');
                     var subsSelected = null;
                     var redditChecked = $('#reddit_platform').prop('checked');
                     // ensure the content has a title and description
@@ -9805,7 +9807,7 @@
                                 toastr.error('Failed to submit form.');
                                 $('#confirmModalPostCenter').modal('hide');
                                 $('#confirmModalPostAction').text('Post');
-                                $('#confirmModalPostAction').css('cursor','default');
+                                $('#confirmModalPostAction').css('cursor', 'default');
 
 
                             } else {
@@ -9817,7 +9819,7 @@
                                 $('#set_up_content').css('display', 'none');
                                 $('#content_upload_successful').css('display', 'block');
                                 $('#confirmModalPostAction').text('Post');
-                                $('#confirmModalPostAction').css('cursor','default');
+                                $('#confirmModalPostAction').css('cursor', 'default');
 
                                 return;
                             }
@@ -9827,7 +9829,7 @@
                             $('#confirmModalPostCenter').modal('hide');
                             console.error(textStatus, errorThrown);
                             $('#confirmModalPostAction').text('Post');
-                            $('#confirmModalPostAction').css('cursor','default');
+                            $('#confirmModalPostAction').css('cursor', 'default');
 
 
                         }
