@@ -3574,7 +3574,7 @@ def postTiktok(company, description, video, duet, comment, stitch, audience, pos
     video_list_url = "https://open.tiktokapis.com/v2/video/list/"
     params = {
         # "video_ids": [vid_ex],
-        "fields": "id,title,description,video_url",
+        "fields": "id",
         # "fields": "id,title,video_description,duration,cover_image_url,embed_link"
     }
     headers = {
