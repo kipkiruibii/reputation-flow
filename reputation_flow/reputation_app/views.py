@@ -3775,18 +3775,30 @@ def postInstagram(account_id, media, access_token, description, has_media, post_
         return
     # check the rate limit
     # upload the media to s3 bucket
+    cpst=CompanyPosts.objects.filter(post_id=post_id).first()
+    if not cpst:
+        return
+
     for m in media:
         pass
     # print('the ltc')
-    cp_url=f'https://graph.facebook.com/v21.0/{account_id}/content_publishing_limit?fields=quota_usage,rate_limit_settings&access_token={access_token}'
-    # params = {
-    #     "fields": "quota_usage,rate_limit_settings",
-    #     "access_token":access_token
+    cp_url=f'https://graph.facebook.com/v21.0/{account_id}/content_publishing_limit'
+    params = {
+        "fields": "quota_usage,rate_limit_settings",
+        "access_token":access_token
         
-    # }
+    }
     
-    response = requests.get(cp_url)
-    print(response.content)
+    response = requests.get(cp_url, params=params)
+    qu=response.content['data'][0]['quota_usage']
+
+    if qu>=50:
+        if cpst.is_published:
+            cpst.partial_publish=True
+        else:
+            cpst.has_failed=True
+        cpst.save()
+        return
 
     
     # print(len(media))
@@ -5072,9 +5084,6 @@ def uploadPost(request):
             print(gallery_items)
             # save the media to s3 
             cig = CompanyInstagram.objects.filter(company=cp).first()
-            cfb = CompanyFacebook.objects.filter(company=cp).first()
-            if not cfb:
-                return
             igThread = threading.Thread(target=postInstagram, daemon=True, kwargs={
                 'account_id': cig.account_id,
                 'media': gallery_items,
@@ -5128,19 +5137,19 @@ def uploadPost(request):
                 cfs.size+=f_size
                 cfs.save()
             
-    # if instagramSelected:
-    #     cigp = CompanyInstagramPosts(
-    #         post_id=post_id,
-    #         to_stories=to_ig_stories,
-    #         to_reels=to_ig_reels,
-    #         to_posts=to_ig_posts,
-    #         run_copyright=ig_copyright,
-    #         has_copyright=False,
-    #         is_published=False,
-    #         location_tags=ig_location_tags,
-    #         product_tags=ig_product_tags
-    #     )
-    #     cigp.save()
+        if instagramSelected:
+            cigp = CompanyInstagramPosts(
+                post_id=post_id,
+                to_stories=to_ig_stories,
+                to_reels=to_ig_reels,
+                to_posts=to_ig_posts,
+                run_copyright=ig_copyright,
+                has_copyright=False,
+                is_published=False,
+                location_tags=ig_location_tags,
+                product_tags=ig_product_tags
+            )
+            cigp.save()
         if redditSelected:
             cred = CompanyRedditPosts(
                 post_id=post_id,
