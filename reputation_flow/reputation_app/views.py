@@ -3778,7 +3778,7 @@ def postInstagram(account_id, media, access_token, description, has_media, post_
     for m in media:
         pass
     # print('the ltc')
-    cp_url=f'https://graph.facebook.com/v21.0/{account_id}/content_publishing_limit?fields=quota_usage,rate_limit_settings&since=1609969714&access_token={access_token}'
+    cp_url=f'https://graph.facebook.com/v21.0/{account_id}/content_publishing_limit?fields=quota_usage,rate_limit_settings&access_token={access_token}'
     # params = {
     #     "fields": "quota_usage,rate_limit_settings",
     #     "access_token":access_token
