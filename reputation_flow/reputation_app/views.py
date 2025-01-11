@@ -3890,6 +3890,30 @@ def postInstagram(account_id, media, access_token, description, has_media, post_
         print(publish_response.json())
         post_id = publish_response.json().get("id")
         print(f"post published successfully! Post ID: {post_id}")
+        
+        # URL to fetch media details
+        url = f"https://graph.facebook.com/v21.0/{post_id}"
+
+        # Fields to request (adjust based on your needs)
+        fields = "id,media_type,media_url,thumbnail_url,timestamp,caption"
+
+        # Add fields and access token as parameters
+        params = {
+            "fields": fields,
+            "access_token": access_token
+        }
+
+        # Make the GET request
+        response = requests.get(url, params=params)
+
+        # Check the response
+        if response.status_code == 200:
+            media_details = response.json()
+            print("Media Details:", media_details)
+            # Get the cover image for video (if applicable)
+            if media_details.get("media_type") == "VIDEO":
+                cover_image_url = media_details.get("thumbnail_url")
+                print("Cover Image URL:", cover_image_url)
     else:
         print(f"Error publishing carousel post: {publish_response.json()}")
 
