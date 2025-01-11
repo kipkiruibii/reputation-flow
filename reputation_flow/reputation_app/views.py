@@ -3770,7 +3770,7 @@ def postTiktok(company, description, video, duet, comment, stitch, audience, pos
         return print({'error': 'An unexpected error occurred', 'details': str(e)})
 
 
-def postInstagram(account_id, media, access_token, description, has_media, post_id, to_stories, to_post, to_reels):
+def postInstagram(account_id, media, access_token, description, has_media, post_id, to_stories, to_post, to_reels, product_tags,location_tags):
     if not has_media:
         return
     # check the rate limit
@@ -3781,6 +3781,7 @@ def postInstagram(account_id, media, access_token, description, has_media, post_
 
     for m in media:
         pass
+
     # print('the ltc')
     cp_url=f'https://graph.facebook.com/v21.0/{account_id}/content_publishing_limit'
     params = {
@@ -3798,7 +3799,13 @@ def postInstagram(account_id, media, access_token, description, has_media, post_
         else:
             cpst.has_failed=True
         cpst.save()
+        
         return
+    cigp=CompanyInstagramPosts(
+        post_id=post_id,
+        location_tags=location_tags,
+        product_tags=product_tags)
+    cigp.save()
 
     # retrieve the media urls
     media_urls = [
@@ -3861,8 +3868,13 @@ def postInstagram(account_id, media, access_token, description, has_media, post_
         response = requests.post(url, data=payload)
 
         if response.status_code == 200:
+            print(response.json())
             creation_id = response.json().get("id")
             print(f"Media uploaded successfully! Media ID: {creation_id}")
+            
+            #  save to instagram post
+            cpst.is_published=True
+            cpst.save()
         else:
             print(f"Error: {response.json()}")
             return
@@ -5074,8 +5086,6 @@ def uploadPost(request):
             })
             fbThread.start()
         if instagramSelected:
-            print('posting to instagram')
-            print(gallery_items)
             # save the media to s3 
             cig = CompanyInstagram.objects.filter(company=cp).first()
             igThread = threading.Thread(target=postInstagram, daemon=True, kwargs={
@@ -5087,7 +5097,9 @@ def uploadPost(request):
                 'post_id': post_id,
                 'to_stories': to_ig_stories,
                 'to_post': to_ig_posts,
-                'to_reels': to_ig_reels
+                'to_reels': to_ig_reels,
+                'location_tags':ig_location_tags,
+                'product_tags':ig_product_tags
             })
             igThread.start()
     else:
