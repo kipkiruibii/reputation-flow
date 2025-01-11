@@ -5068,11 +5068,14 @@ def uploadPost(request):
             })
             fbThread.start()
         if instagramSelected:
+            print('posting to instagram')
+            print(gallery_items)
+            # save the media to s3 
             cig = CompanyInstagram.objects.filter(company=cp).first()
             igThread = threading.Thread(target=postInstagram, daemon=True, kwargs={
                 'account_id': cig.account_id,
                 'media': gallery_items,
-                'access_token': cig.long_lived_token,
+                'access_token': cfb.page_access_token,
                 'description': description,
                 'has_media': hasMedia,
                 'post_id': post_id,
