@@ -3790,7 +3790,7 @@ def postInstagram(account_id, media, access_token, description, has_media, post_
     }
     
     response = requests.get(cp_url, params=params)
-    qu=response.content['data'][0]['quota_usage']
+    qu=response.json()['data'][0]['quota_usage']
 
     if qu>=50:
         if cpst.is_published:
