@@ -4955,9 +4955,9 @@
                         <!-- post with media -->
                         {% if p.has_media %}
                         <div class=""
-                            style="width: 100vw;display: flex;justify-content: center;margin-top: 10px;margin-bottom: 20px;background-color: white;">
+                            style="width: 100%;display: flex;justify-content: center;margin-top: 10px;margin-bottom: 20px;background-color: white;">
                             <div
-                                style="width: 100vw;border: 1px solid rgb(209, 209, 209);border-radius: 10px;box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1), 0px 2px 4px rgba(0, 0, 0, 0.06);margin-left: 10px;margin-right: 10px;">
+                                style="width: 100%;border: 1px solid rgb(209, 209, 209);border-radius: 10px;box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1), 0px 2px 4px rgba(0, 0, 0, 0.06);margin-left: 10px;margin-right: 10px;">
                                 <div style="display: flex;gap:2px;" class="action-bar">
                                     <div style="width:100%;padding: 15px;" class="grandparent">
                                         <div style="width:100%;">
@@ -9173,6 +9173,7 @@
                     // Create a new FormData object
 
                     $('#confirmModalPostAction').text('Posting...')
+                    $('#confirmModalPostAction').css('cursor','not-allowed');
                     var subsSelected = null;
                     var redditChecked = $('#reddit_platform').prop('checked');
                     // ensure the content has a title and description
@@ -9299,7 +9300,9 @@
                                 toastr.error(response['error']);
                                 toastr.error('Failed to submit form.');
                                 $('#confirmModalPostCenter').modal('hide');
-                                $('#confirmModalPostAction').text('Post')
+                                $('#confirmModalPostAction').text('Post');
+                                $('#confirmModalPostAction').css('cursor','default');
+
 
                             } else {
                                 toastr.success('Uploaded successfully');
@@ -9309,7 +9312,9 @@
                                 $('#step3').addClass('completed');
                                 $('#set_up_content').css('display', 'none');
                                 $('#content_upload_successful').css('display', 'block');
-                                $('#confirmModalPostAction').text('Post')
+                                $('#confirmModalPostAction').text('Post');
+                                $('#confirmModalPostAction').css('cursor','default');
+
                                 return;
                             }
                         },
@@ -9317,7 +9322,9 @@
                             toastr.error('Failed to submit form.');
                             $('#confirmModalPostCenter').modal('hide');
                             console.error(textStatus, errorThrown);
-                            $('#confirmModalPostAction').text('Post')
+                            $('#confirmModalPostAction').text('Post');
+                            $('#confirmModalPostAction').css('cursor','default');
+
 
                         }
                     });
