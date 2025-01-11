@@ -4776,6 +4776,7 @@ def deletePostComment(request):
                     # Check the response
                     if response.status_code == 200:
                         print("Media from IG deleted successfully.")
+                        cipst.delete()
                     else:
                         print(f"Error: {response.status_code}")
                         print(response.json())            

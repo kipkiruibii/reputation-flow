@@ -5019,6 +5019,10 @@
                                         <p style="max-height: 200px;overflow-y: scroll;margin-top: 20px;">
                                             {{ p.content }}
                                         </p>
+                                        {% if instagram in pl.platform %}
+                                        <p style="font-size: 12px;">Note:To delete the post from Instagram, you will be
+                                            required to also manually delete the post in the official platform</p>
+                                        {% endif %}
                                         <div>
                                             <hr>
                                             <div style="display: flex;gap: 5px;flex-wrap: wrap;padding: 0;">
@@ -9172,7 +9176,7 @@
                     // Create a new FormData object
 
                     $('#confirmModalPostAction').text('Posting...')
-                    $('#confirmModalPostAction').css('cursor','not-allowed');
+                    $('#confirmModalPostAction').css('cursor', 'not-allowed');
                     var subsSelected = null;
                     var redditChecked = $('#reddit_platform').prop('checked');
                     // ensure the content has a title and description
@@ -9300,7 +9304,7 @@
                                 toastr.error('Failed to submit form.');
                                 $('#confirmModalPostCenter').modal('hide');
                                 $('#confirmModalPostAction').text('Post');
-                                $('#confirmModalPostAction').css('cursor','default');
+                                $('#confirmModalPostAction').css('cursor', 'default');
 
 
                             } else {
@@ -9312,7 +9316,7 @@
                                 $('#set_up_content').css('display', 'none');
                                 $('#content_upload_successful').css('display', 'block');
                                 $('#confirmModalPostAction').text('Post');
-                                $('#confirmModalPostAction').css('cursor','default');
+                                $('#confirmModalPostAction').css('cursor', 'default');
 
                                 return;
                             }
@@ -9322,7 +9326,7 @@
                             $('#confirmModalPostCenter').modal('hide');
                             console.error(textStatus, errorThrown);
                             $('#confirmModalPostAction').text('Post');
-                            $('#confirmModalPostAction').css('cursor','default');
+                            $('#confirmModalPostAction').css('cursor', 'default');
 
 
                         }

@@ -5521,6 +5521,9 @@
                                                 tooltip="Permanently delete post from all channels" flow="down"><i
                                                     id="delete-{{ p.post_id }}" class="fa fa-trash"></i></p>
                                         </div>
+                                        {% if instagram in pl.platform %}
+                                        <p style="font-size: 12px;">Note:To delete post from Instagram, you will be required to also manually delete the post in the official platform</p>
+                                        {% endif %}
                                         <div style="display: flex;gap: 5px;flex-wrap: wrap;padding: 0;">
                                             {% for pl in p.platforms %}
                                             <div>
