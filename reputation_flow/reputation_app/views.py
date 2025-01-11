@@ -3596,8 +3596,8 @@ def postTiktok(company, description, video, duet, comment, stitch, audience, pos
     payload = {
         "filters": {
             "video_ids": [
-                response.json()['data']['videos'][0]['cover_image_url'],
-                response.json()['data']['videos'][-1]['cover_image_url']
+                response.json()['data']['videos'][0]['id'],
+                response.json()['data']['videos'][-1]['id']
             ]
         }
     }
