@@ -3800,15 +3800,9 @@ def postInstagram(account_id, media, access_token, description, has_media, post_
         cpst.save()
         return
 
-    
-    # print(len(media))
-    # print()
-    return
     # retrieve the media urls
     media_urls = [
-        "https://example.com/image1.jpg",
-        "https://example.com/image2.jpg",
-        "https://example.com/video1.mp4"
+        "https://insightlyze-bucket.s3.eu-north-1.amazonaws.com/company_profile/rks.webp",
     ]
     # post the media to instagram
     is_carousel = False
