@@ -3571,41 +3571,8 @@ def postTiktok(company, description, video, duet, comment, stitch, audience, pos
 
     # vid_ex = '7384594753830014214'
     # # vid_ex2='7208603174666571013'
-    video_list_url = "https://open.tiktokapis.com/v2/video/list/"
-    params = {
-        # "video_ids": [vid_ex],
-        "fields": "id,cover_image_url"
-        # "fields": "id,title,video_description,duration,cover_image_url,embed_link"
-    }
-    headers = {
-        "Authorization": f"Bearer {access_token}",
-        "Content-Type": "application/json"
-    }
-
-    response = requests.post(video_list_url, headers=headers,params=params)
-    # print('')
-    # print(response.content)
-    vid_ex = response.json()['data']['videos'][-1]
-
-    # # return
-    url = "https://open.tiktokapis.com/v2/video/query/"
-
-    params = {
-        "fields": "id,cover_image_url"
-    }
-    payload = {
-        "filters": {
-            "video_ids": [
-                response.json()['data']['videos'][0]['id'],
-                response.json()['data']['videos'][-1]['id']
-            ]
-        }
-    }
-
-    response = requests.post(url, headers=headers, json=payload,params=params)
-
-    print(response.json())  # Print the JSON response    
-    return
+    # print(response.json())  # Print the JSON response    
+    # return
 
     cpst = CompanyPosts.objects.filter(post_id=post_id).first()
     if not cpst:
@@ -3733,54 +3700,44 @@ def postTiktok(company, description, video, duet, comment, stitch, audience, pos
 
             # get latest updated video
             if published:
+                
+                video_list_url = "https://open.tiktokapis.com/v2/video/list/"
+                params = {
+                    "fields": "id"
+                }
+                headers = {
+                    "Authorization": f"Bearer {access_token}",
+                    "Content-Type": "application/json"
+                }
+
+                response = requests.post(video_list_url, headers=headers,params=params)
+                vid_id=response.json()['data']['videos'][0]['id']
+                # # return
                 url = "https://open.tiktokapis.com/v2/video/query/"
 
                 params = {
-                    "fields": "id,title,video_description,duration,cover_image_url,embed_link"
+                    "fields": "id,cover_image_url,embed_link"
                 }
                 payload = {
                     "filters": {
                         "video_ids": [
-                            vide_id
+                            vid_id
                         ]
                     }
                 }
 
-                # Print the JSON response    
-
-                # Make the POST request
-                count = 0
-                while count < 10:  # query the 10 times with each failure
-                    response = requests.post(url, headers=headers, json=payload, params=params)
-
-                    print(response.json())
-                    # Display the list of videos
-                    try:
-                        videos = response.json()['videos'][0]
-                        print('Found')
-                        video_id = videos['id']
-                        video_cover = videos['cover_image_url']
-                        video_link = videos['embed_link']
-                        if not cpst.media_thumbnail:
-                            cpst.media_thumbnail = video_cover
-                            cpst.save()
-                        break
-                        # return
-                        # time.sleep(10)
-                        # count+=1
-
-                    except Exception as e:
-                        time.sleep(10)
-                        count += 1
-                if count >= 10:
-                    print('maximum triLa')
-                    cpst.has_failed = True
+                response = requests.post(url, headers=headers, json=payload,params=params)
+                videos = response.json()['data']['videos'][0]
+                video_cover = videos['cover_image_url']
+                video_link = videos['embed_link']
+                if not cpst.media_thumbnail:
+                    cpst.media_thumbnail = video_cover
                     cpst.save()
-                    return
+
                 # save the tiktok post
                 ctkp = CompanyTiktokPosts(
                     post_id=post_id,
-                    video_id=video_id,
+                    video_id=vid_id,
                     is_published=published,
                     mentions=mentions,
                     cover_image_url=video_cover,
