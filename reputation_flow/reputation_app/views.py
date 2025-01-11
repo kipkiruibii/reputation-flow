@@ -5072,6 +5072,9 @@ def uploadPost(request):
             print(gallery_items)
             # save the media to s3 
             cig = CompanyInstagram.objects.filter(company=cp).first()
+            cfb = CompanyFacebook.objects.filter(company=cp).first()
+            if not cfb:
+                return
             igThread = threading.Thread(target=postInstagram, daemon=True, kwargs={
                 'account_id': cig.account_id,
                 'media': gallery_items,
