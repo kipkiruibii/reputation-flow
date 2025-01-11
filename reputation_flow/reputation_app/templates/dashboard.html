@@ -9674,6 +9674,7 @@
                     // Create a new FormData object
 
                     $('#confirmModalPostAction').text('Posting...')
+                    $('#confirmModalPostAction').css('cursor','not-allowed');
                     var subsSelected = null;
                     var redditChecked = $('#reddit_platform').prop('checked');
                     // ensure the content has a title and description
@@ -9800,7 +9801,9 @@
                                 toastr.error(response['error']);
                                 toastr.error('Failed to submit form.');
                                 $('#confirmModalPostCenter').modal('hide');
-                                $('#confirmModalPostAction').text('Post')
+                                $('#confirmModalPostAction').text('Post');
+                                $('#confirmModalPostAction').css('cursor','default');
+
 
                             } else {
                                 toastr.success('Uploaded successfully');
@@ -9810,7 +9813,9 @@
                                 $('#step3').addClass('completed');
                                 $('#set_up_content').css('display', 'none');
                                 $('#content_upload_successful').css('display', 'block');
-                                $('#confirmModalPostAction').text('Post')
+                                $('#confirmModalPostAction').text('Post');
+                                $('#confirmModalPostAction').css('cursor','default');
+
                                 return;
                             }
                         },
@@ -9818,7 +9823,9 @@
                             toastr.error('Failed to submit form.');
                             $('#confirmModalPostCenter').modal('hide');
                             console.error(textStatus, errorThrown);
-                            $('#confirmModalPostAction').text('Post')
+                            $('#confirmModalPostAction').text('Post');
+                            $('#confirmModalPostAction').css('cursor','default');
+
 
                         }
                     });

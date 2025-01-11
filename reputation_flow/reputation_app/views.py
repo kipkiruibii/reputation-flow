@@ -3577,10 +3577,10 @@ def postTiktok(company, description, video, duet, comment, stitch, audience, pos
     # #     "fields": "id",
     # #     # "fields": "id,title,video_description,duration,cover_image_url,embed_link"
     # # }
-    # headers = {
-    #     "Authorization": f"Bearer {access_token}",
-    #     "Content-Type": "application/json"
-    # }
+    headers = {
+        "Authorization": f"Bearer {access_token}",
+        "Content-Type": "application/json"
+    }
 
     # response = requests.post(video_list_url, headers=headers,params=params)
     # print('')
