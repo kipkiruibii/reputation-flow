@@ -3599,7 +3599,7 @@ def postTiktok(company, description, video, duet, comment, stitch, audience, pos
         }
     }
 
-    response = requests.post(url, headers=headers, json=payload)
+    response = requests.post(url, headers=headers, json=payload,params=params)
 
     print(response.json())  # Print the JSON response    
     return
