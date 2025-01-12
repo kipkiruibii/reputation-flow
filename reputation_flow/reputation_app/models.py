@@ -517,13 +517,13 @@ class CompanyPostsCommentsReplies(models.Model):
 class UploadedMedia(models.Model):
     post=models.ForeignKey(CompanyPosts,on_delete=models.CASCADE)
     media=models.FileField(upload_to='scheduled_media/')
-    def __str__(self):
-        return self.post.title
     def delete(self, *args, **kwargs):
             # Delete the file from S3
             self.media.delete(save=False)
             # Call the parent class's delete method
-            super().delete(*args, **kwargs)    
+            super().delete(*args, **kwargs)   
+    def __str__(self):
+        return self.post.title
 
 
 class CompanyReviews(models.Model):

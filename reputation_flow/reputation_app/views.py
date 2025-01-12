@@ -4736,7 +4736,6 @@ def deletePostComment(request):
                     crp.delete()
                 else:
                     print('No post')  
-                    
         if 'facebook' in platform.lower():
             cfbp = CompanyFacebook.objects.filter(company=cpst.company).first()
             if not cfbp:
@@ -4761,26 +4760,7 @@ def deletePostComment(request):
             cig = CompanyInstagram.objects.filter(company=cpst.company).first()
             if not cig:
                 continue
-            if action_type == 'post':
-                cipst=CompanyInstagramPosts.objects.filter(post_id=post_id).first()
-                if cipst:
-                    url = f"https://graph.facebook.com/v21.0/{cipst.content_id}"
-
-                    # Add the access token as a parameter
-                    params = {
-                        "access_token": cig.long_lived_token
-                    }
-
-                    # Make the DELETE request
-                    response = requests.delete(url, params=params)
-
-                    # Check the response
-                    if response.status_code == 200:
-                        print("Media from IG deleted successfully.")
-                        cipst.delete()
-                    else:
-                        print(f"Error: {response.status_code}")
-                        print(response.json())            
+    
     # delete uploaded media from s3 if present
     if action_type == 'post':
         upm=UploadedMedia.objects.filter(post=cpst)
@@ -4946,9 +4926,6 @@ def requestFeature(request):
         return render(request, 'dashboard.html', context=context)
     else:
         return render(request, 'dashboard_mobile.html', context=context)
-
-    
-    
     
 @api_view(['POST'])
 def uploadPost(request):
