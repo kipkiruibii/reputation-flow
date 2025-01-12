@@ -3816,8 +3816,8 @@ def postInstagram(account_id, media, access_token, description, has_media, post_
     # retrieve the media urls
     media_urls = []
     for um in UploadedMedia.objects.filter(post=cpst):
-        print(um.media.url)
-        media_urls.append(um.media.url)
+        print(um.media.path)
+        media_urls.append(um.media.path)
     # post the media to instagram
     is_carousel = False
     if len(media_urls) > 1:
