@@ -3929,6 +3929,9 @@ def postInstagram(account_id, media, access_token, description, has_media, post_
                 cpst.save()
     else:
         print(f"Error publishing carousel post: {publish_response.json()}")
+        
+    for um in UploadedMedia.objects.filter(post=cpst):
+        delete_file_from_s3(um.media.name)
 
 
 def postFacebook(page_id, media, access_token, title, description, is_video, has_media, post_id, to_stories, to_post):
