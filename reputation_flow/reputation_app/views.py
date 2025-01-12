@@ -3780,6 +3780,12 @@ def postInstagram(account_id, media, access_token, description, has_media, post_
         return
 
     for m in media:
+        # save to s3 
+        ufl=UploadedFiles(
+            post=cpst,
+            media=m['image_path']
+        )
+        ufl.save()
         pass
 
     # print('the ltc')
@@ -3808,9 +3814,10 @@ def postInstagram(account_id, media, access_token, description, has_media, post_
     cigp.save()
 
     # retrieve the media urls
-    media_urls = [
-        "https://insightlyze-bucket.s3.eu-north-1.amazonaws.com/company_profile/rks.webp",
-    ]
+    media_urls = []
+    for um in UploadedMedia.objects.filter(post=cpst):
+        print(um.media.url)
+        media_urls.append(um.media.url)
     # post the media to instagram
     is_carousel = False
     if len(media_urls) > 1:
