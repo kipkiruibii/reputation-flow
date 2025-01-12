@@ -3781,7 +3781,7 @@ def postInstagram(account_id, media, access_token, description, has_media, post_
 
     for m in media:
         # save to s3 
-        ufl=UploadedFiles(
+        ufl=UploadedMedia(
             post=cpst,
             media=m['image_path']
         )
