@@ -523,7 +523,7 @@ class UploadedMedia(models.Model):
             # Call the parent class's delete method
             super().delete(*args, **kwargs)   
     def __str__(self):
-        return self.post.title
+        return self.post.description
 
 
 class CompanyReviews(models.Model):
