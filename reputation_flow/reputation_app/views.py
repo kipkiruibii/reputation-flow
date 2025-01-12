@@ -3779,15 +3779,6 @@ def postInstagram(account_id, media, access_token, description, has_media, post_
     if not cpst:
         return
 
-    for m in media:
-        # save to s3 
-        ufl=UploadedMedia(
-            post=cpst,
-            media=m['image_path']
-        )
-        ufl.save()
-        pass
-
     # print('the ltc')
     cp_url=f'https://graph.facebook.com/v21.0/{account_id}/content_publishing_limit'
     params = {
@@ -3816,8 +3807,8 @@ def postInstagram(account_id, media, access_token, description, has_media, post_
     # retrieve the media urls
     media_urls = []
     for um in UploadedMedia.objects.filter(post=cpst):
-        print(um.media.path)
-        media_urls.append(um.media.path)
+        print(um.media.url)
+        media_urls.append(um.media.url)
     # post the media to instagram
     is_carousel = False
     if len(media_urls) > 1:
@@ -5150,6 +5141,16 @@ def uploadPost(request):
             fbThread.start()
         if instagramSelected:
             # save the media to s3 
+            fles=[]
+            for field_name, file in files.items():
+                fles.append(file)
+            for file in fles:
+                up=UploadedMedia(
+                    post=cpst,
+                    media=file
+                )
+                up.save()
+
             cig = CompanyInstagram.objects.filter(company=cp).first()
             igThread = threading.Thread(target=postInstagram, daemon=True, kwargs={
                 'account_id': cig.account_id,
