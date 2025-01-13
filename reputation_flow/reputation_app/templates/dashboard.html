@@ -5992,8 +5992,6 @@
                                                         </div>
 
                                                     </div>
-
-
                                                     {% endif %}
                                                 </div>
                                             </div>
@@ -6469,6 +6467,41 @@
                                                                 style="width:20px;height: 20px;">
                                                             Instagram Stats
                                                         </p>
+                                                    </div>
+                                                    <div style="display: flex;gap: 10px;margin-top: 20px;">
+                                                        <div
+                                                            style="display: flex;flex-direction: column;justify-content: center;">
+                                                            <div>
+                                                                <div class="d-flex"
+                                                                    style="gap: 10px;margin-left: 20px;">
+                                                                    <p>Impressions:</p>
+                                                                    <h6 class="font-weight-bolder"
+                                                                        id="ig-impressions-{{p.post_id}}">
+                                                                    </h6>
+                                                                </div>
+                                                                <div class="d-flex"
+                                                                    style="gap: 10px;margin-left: 20px;">
+                                                                    <p>Unique Reach:</p>
+                                                                    <h6 class="font-weight-bolder"
+                                                                        id="ig-reach-{{p.post_id}}">
+                                                                    </h6>
+
+                                                                </div>
+                                                                <div class="d-flex"
+                                                                    style="gap: 10px;margin-left: 20px;">
+                                                                    <p>Total Interactions:</p>
+                                                                    <h6 class="font-weight-bolder"
+                                                                        id="ig-total-interactions-{{p.post_id}}">
+                                                                    </h6>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        <!-- interaction chart  -->
+                                                        <div id="ig-interaction-chart-{{ p.post_id }}">
+
+                                                        </div>
+
                                                     </div>
 
                                                     {% endif %}
@@ -8802,6 +8835,372 @@
                                     }
                                 }
 
+                                if (response['has_instagram']) {
+                                    $(`#ig-impressions-${post_id}`).text(response['ig_post_data']['ig_impression_count']);
+                                    $(`#ig-reach-${post_id}`).text(response['ig_post_data']['ig_reach_count']);
+                                    $(`#ig-total-interactions-${post_id}`).text(response['ig_post_data']['ig_total_interactions_count']);
+
+                                    // FACEBOOK GRAPHS
+                                    dts = response['ig_post_data']
+                                    var series = [];
+                                    var labels = ['Likes', 'Comments', 'Shares', 'Saved']
+                                    series = [dts['ig_like_count'], dts['ig_comment_count'], dts['ig_shares_count'], dts['ig_saved_count']];
+                                    // if (response['is_media_video']) {
+                                    //     series = [dts['impression_fans'], dts['impression_uniques'], dts['impression_organic'], dts['impression_paid'], dts['impression_viral']];
+                                    //     labels = ['Fans', 'Unique', 'Organic', 'Paid(Ad.)', 'Viral']
+                                    // }
+                                    var options = {
+                                        series: series,
+                                        chart: {
+                                            width: 330,
+                                            type: 'pie',
+                                        },
+                                        labels: labels,
+                                        title: {
+                                            text: 'Interactions', // Title text
+                                            align: 'right', // Alignment: 'left', 'center', or 'right'
+                                            margin: 0, // Margin around the title
+                                            offsetX: 0, // Horizontal offset
+                                            offsetY: 0, // Vertical offset
+                                            floating: false, // Floating title or not
+                                        },
+                                        noData: {
+                                            text: 'No data available. Check back later', // Message to display
+                                            align: 'center',           // Align text
+                                            verticalAlign: 'middle',   // Vertically center the text
+                                            offsetX: 0,
+                                            offsetY: 0,
+                                        },
+
+                                        grid: {
+                                            show: true,
+                                            borderColor: '#e0e0e0',
+                                            strokeDashArray: 4
+                                        },
+                                        noData: {
+                                            text: 'No data available',
+                                            align: 'center',
+                                            verticalAlign: 'middle',
+                                            style: {
+                                                color: '#888',
+                                                fontSize: '14px'
+                                            }
+                                        },
+                                        responsive: [{
+                                            breakpoint: 480,
+                                            options: {
+                                                chart: {
+                                                    width: 200
+                                                },
+                                                legend: {
+                                                    position: 'bottom'
+                                                }
+                                            }
+                                        }]
+                                    };
+
+                                    var chart = new ApexCharts(document.querySelector(`#ig-interaction-chart-${post_id}`), options);
+                                    chart.render();
+
+                                    if (response['is_media_video']) {
+                                        $(`#video-summary-${post_id}`).css('display', 'block');
+                                        $(`#fb-clicks-${post_id}`).siblings('p').text('Views');
+                                        $(`#fb-clicks-${post_id}`).text(response['fb_video_data']['total_views']);
+                                        if (!response['impression_dist']['has_data']) {
+
+                                            // no retention data
+                                            var options = {
+                                                series: [],
+                                                chart: {
+                                                    type: 'area',
+                                                    height: 350,
+                                                    zoom: {
+                                                        enabled: false
+                                                    }
+                                                },
+                                                dataLabels: {
+                                                    enabled: false
+                                                },
+                                                noData: {
+                                                    text: 'No data available. Check back later', // Message to display
+                                                    align: 'center',           // Align text
+                                                    verticalAlign: 'middle',   // Vertically center the text
+                                                    offsetX: 0,
+                                                    offsetY: 0,
+                                                },
+                                                stroke: {
+                                                    curve: 'straight'
+                                                },
+
+                                                title: {
+                                                    text: 'Viewer Retention',
+                                                    align: 'left'
+                                                },
+                                                subtitle: {
+                                                    text: 'No. of views per minute',
+                                                    align: 'left'
+                                                },
+                                                labels: ["1'", "2'", "3'", "4'", "5'", "6'", "7'", "8'", "9'"],
+                                                yaxis: {
+                                                    opposite: true
+                                                },
+                                                legend: {
+                                                    horizontalAlign: 'left'
+                                                }
+                                            };
+                                            var chart = new ApexCharts(document.querySelector(`#fb-video-watch-${post_id}`), options);
+                                            chart.render();
+
+                                            //  No country data
+                                            var options = {
+                                                series: [],
+                                                chart: {
+                                                    type: 'bar',
+                                                    height: 350
+                                                },
+                                                title: {
+                                                    text: 'Views by Country',
+                                                    align: 'left'
+                                                },
+                                                noData: {
+                                                    text: 'No data available. Check back later', // Message to display
+                                                    align: 'center',           // Align text
+                                                    verticalAlign: 'middle',   // Vertically center the text
+                                                    offsetX: 0,
+                                                    offsetY: 0,
+                                                },
+                                                plotOptions: {
+                                                    bar: {
+                                                        borderRadius: 4,
+                                                        borderRadiusApplication: 'end',
+                                                        horizontal: true,
+                                                    }
+                                                },
+                                                dataLabels: {
+                                                    enabled: false
+                                                },
+
+                                            };
+                                            var chart = new ApexCharts(document.querySelector(`#fb-countries-chart-${post_id}`), options);
+                                            chart.render();
+
+                                            // No Age gender data
+                                            var options = {
+                                                series: [],
+                                                chart: {
+                                                    type: 'bar',
+                                                    height: 430
+                                                },
+                                                title: {
+                                                    text: 'Views by Age & Gender',
+                                                    align: 'left'
+                                                },
+                                                noData: {
+                                                    text: 'No data available. Check back later', // Message to display
+                                                    align: 'center',           // Align text
+                                                    verticalAlign: 'middle',   // Vertically center the text
+                                                    offsetX: 0,
+                                                    offsetY: 0,
+                                                },
+                                                plotOptions: {
+                                                    bar: {
+                                                        horizontal: false,
+                                                        dataLabels: {
+                                                            position: 'top',
+                                                        },
+                                                    }
+                                                },
+                                                dataLabels: {
+                                                    enabled: true,
+                                                    offsetX: -6,
+                                                    style: {
+                                                        fontSize: '12px',
+                                                        colors: ['#fff']
+                                                    }
+                                                },
+                                                stroke: {
+                                                    show: true,
+                                                    width: 1,
+                                                    colors: ['#fff']
+                                                },
+                                                tooltip: {
+                                                    shared: true,
+                                                    intersect: false
+                                                },
+
+                                            };
+                                            var chart = new ApexCharts(document.querySelector(`#fb-age-gender-chart-${post_id}`), options);
+                                            chart.render();
+
+                                        }
+                                        else {
+                                            $(`#twt-${post_id}`).text(response['fb_video_data']['total_watch_time']);
+                                            $(`#awt-${post_id}`).text(response['fb_video_data']['average_watch_time']);
+                                            $(`#cr-${post_id}`).text(response['fb_video_data']['total_video_consumption_rate']);
+                                            $(`#tpc-${post_id}`).text(response['fb_video_data']['video_play_count']);
+                                            // video watch time
+
+                                            var watch_series = [];
+                                            var watch_labels = [];
+                                            if (response['fb_video_data']['video_retention_data'].length > 0) {
+                                                watch_labels = response['fb_video_data']['video_retention_labels'];
+                                                watch_series = response['fb_video_data']['video_retention_data'];
+                                            }
+
+                                            var options = {
+                                                series: [{
+                                                    name: "Percentage of initial Views ",
+                                                    data: watch_series
+                                                }],
+                                                chart: {
+                                                    type: 'area',
+                                                    height: 350,
+                                                    zoom: {
+                                                        enabled: false
+                                                    }
+                                                },
+                                                noData: {
+                                                    text: 'No data available. Check back later', // Message to display
+                                                    align: 'center',           // Align text
+                                                    verticalAlign: 'middle',   // Vertically center the text
+                                                    offsetX: 0,
+                                                    offsetY: 0,
+                                                },
+                                                dataLabels: {
+                                                    enabled: false
+                                                },
+                                                stroke: {
+                                                    curve: 'straight'
+                                                },
+
+                                                title: {
+                                                    text: 'Viewer Retention',
+                                                    align: 'left'
+                                                },
+                                                subtitle: {
+                                                    text: '%. of views per minute',
+                                                    align: 'left'
+                                                },
+                                                labels: watch_labels,
+                                                yaxis: {
+                                                    opposite: true
+                                                },
+                                                legend: {
+                                                    horizontalAlign: 'left'
+                                                }
+                                            };
+
+                                            var chart = new ApexCharts(document.querySelector(`#fb-video-watch-${post_id}`), options);
+                                            chart.render();
+
+                                            var country_series = [];
+                                            var x_axis_data = {};
+                                            if (response['fb_video_data']['viewers_countries'].length > 0) {
+                                                country_series = [{
+                                                    name: "Views",
+                                                    data: response['fb_video_data']['country_values']
+                                                }];
+                                                x_axis_data = {
+                                                    categories: response['fb_video_data']['country_keys'],
+                                                };
+
+                                            }
+                                            // fb country
+                                            var options = {
+                                                series: country_series,
+                                                chart: {
+                                                    type: 'bar',
+                                                    height: 350
+                                                },
+                                                title: {
+                                                    text: 'Views by Country',
+                                                    align: 'left'
+                                                },
+                                                noData: {
+                                                    text: 'No data available. Check back later', // Message to display
+                                                    align: 'center',           // Align text
+                                                    verticalAlign: 'middle',   // Vertically center the text
+                                                    offsetX: 0,
+                                                    offsetY: 0,
+                                                },
+                                                plotOptions: {
+                                                    bar: {
+                                                        borderRadius: 4,
+                                                        borderRadiusApplication: 'end',
+                                                        horizontal: true,
+                                                    }
+                                                },
+                                                dataLabels: {
+                                                    enabled: false
+                                                },
+                                                xaxis: x_axis_data
+                                            };
+
+                                            var chart = new ApexCharts(document.querySelector(`#fb-countries-chart-${post_id}`), options);
+                                            chart.render();
+
+
+                                            // fb age gender
+                                            var age_gender_labels = [];
+                                            var age_gender_series = [];
+                                            if (response['fb_video_data']['age_values'].length > 0) {
+                                                age_gender_labels = response['fb_video_data']['age_keys'];
+                                                age_gender_series = response['fb_video_data']['age_values'];
+                                            }
+                                            var options = {
+                                                series: age_gender_series,
+                                                chart: {
+                                                    type: 'bar',
+                                                    height: 430
+                                                },
+                                                title: {
+                                                    text: 'Views by Age & Gender',
+                                                    align: 'left'
+                                                },
+                                                noData: {
+                                                    text: 'No data available. Check back later', // Message to display
+                                                    align: 'center',           // Align text
+                                                    verticalAlign: 'middle',   // Vertically center the text
+                                                    offsetX: 0,
+                                                    offsetY: 0,
+                                                },
+                                                plotOptions: {
+                                                    bar: {
+                                                        horizontal: false,
+                                                        dataLabels: {
+                                                            position: 'top',
+                                                        },
+                                                    }
+                                                },
+                                                dataLabels: {
+                                                    enabled: true,
+                                                    offsetX: -6,
+                                                    style: {
+                                                        fontSize: '12px',
+                                                        colors: ['#fff']
+                                                    }
+                                                },
+                                                stroke: {
+                                                    show: true,
+                                                    width: 1,
+                                                    colors: ['#fff']
+                                                },
+                                                tooltip: {
+                                                    shared: true,
+                                                    intersect: false
+                                                },
+                                                xaxis: {
+                                                    categories: age_gender_labels,
+                                                },
+                                            };
+
+                                            var chart = new ApexCharts(document.querySelector(`#fb-age-gender-chart-${post_id}`), options);
+                                            chart.render();
+
+                                        }
+
+                                    }
+                                }
 
                             }
                         },
