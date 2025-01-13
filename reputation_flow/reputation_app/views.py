@@ -1724,6 +1724,7 @@ def fetchPosts(request):
             upl_t=p.date_uploaded.astimezone(target_timezone).strftime('%d %b, %H:%M')
             sch_t=p.date_scheduled.astimezone(target_timezone).strftime('%d %b, %H:%M')
             pltfrms=[]
+            print(p.platforms)
             if 'instagram' in p.platforms:
                 cigp=CompanyInstagramPosts.objects.filter(post_id=p.post_id).first()
                 pltfrms.append({
@@ -1731,25 +1732,25 @@ def fetchPosts(request):
                     'link':cigp.post_link
                 })
             if 'facebook' in p.platforms:
-                cigp=CompanyFacebookPosts.objects.filter(post_id=p.post_id).first()
+                cfbp=CompanyFacebookPosts.objects.filter(post_id=p.post_id).first()
                 pltfrms.append({
                     'platform':'Facebook',
-                    'link':cigp.post_link
+                    'link':cfbp.post_link
                 })
             if 'Reddit' in p.platforms:
-                cigp=CompanyRedditPosts.objects.filter(post_id=p.post_id).first()
+                crpp=CompanyRedditPosts.objects.filter(post_id=p.post_id).first()
                 pltfrms.append({
                     'platform':'Reddit',
-                    'link':cigp.post_link
+                    'link':crpp.post_link
                 })
             if 'Tiktok' in p.platforms:
-                cigp=CompanyTiktokPosts.objects.filter(post_id=p.post_id).first()
+                ctpp=CompanyTiktokPosts.objects.filter(post_id=p.post_id).first()
                 pltfrms.append({
                     'platform':'Tiktok',
-                    'link':cigp.post_link
+                    'link':ctpp.post_link
                 })
                 
-                
+            print('platrform data',pltfrms)
             all_posts.append({
                 'platforms': pltfrms,
                 'title': p.title,

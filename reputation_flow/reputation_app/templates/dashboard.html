@@ -6039,13 +6039,18 @@
                                                 tooltip="Permanently delete post from all channels" flow="down"><i
                                                     id="delete-{{ p.post_id }}" class="fa fa-trash"></i></p>
                                         </div>
+                                        {{p.platforms }}
+
                                         <div style="display: flex;gap: 5px;flex-wrap: wrap;padding: 0;">
                                             {% for pl in p.platforms %}
+
                                             <div>
-                                                <p
-                                                    style="background-color: #f5f5f5;padding-left:5px;padding-right: 5px;font-size: 12px;border-radius: 5px;">
-                                                    {{ pl }}
-                                                </p>
+                                                <a href="{{ pl.link }}" style="cursor: pointer;text-decoration: none;">
+                                                    <p
+                                                        style="background-color: #f5f5f5;padding-left:5px;padding-right: 5px;font-size: 12px;border-radius: 5px;">
+                                                        {{ pl.platform }}
+                                                    </p>
+                                                </a>
                                             </div>
                                             {% endfor %}
                                         </div>
