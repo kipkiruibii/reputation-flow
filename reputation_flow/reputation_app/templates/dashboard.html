@@ -5527,6 +5527,7 @@
                                         <div style="display: flex;gap: 5px;flex-wrap: wrap;padding: 0;">
                                             {% for pl in p.platforms %}
                                             <div>
+                                                {% if pl.platform == 'Reddit' %}
                                                 <a href="{{ pl.link }}" target="_blank"
                                                     style="cursor: pointer;text-decoration: none;">
                                                     <p
@@ -5534,6 +5535,12 @@
                                                         {{ pl.platform }}
                                                     </p>
                                                 </a>
+                                                {% else %}
+                                                <p
+                                                    style="background-color: #f5f5f5;padding-left:5px;padding-right: 5px;font-size: 12px;border-radius: 5px;">
+                                                    {{ pl.platform }}
+                                                </p>
+                                                {% endif %}
                                             </div>
                                             {% endfor %}
                                         </div>
@@ -6044,8 +6051,8 @@
                                         </div>
                                         <div style="display: flex;gap: 5px;flex-wrap: wrap;padding: 0;">
                                             {% for pl in p.platforms %}
-
                                             <div>
+                                                {% if pl.platform == 'Reddit' %}
                                                 <a href="{{ pl.link }}" target="_blank"
                                                     style="cursor: pointer;text-decoration: none;">
                                                     <p
@@ -6053,6 +6060,12 @@
                                                         {{ pl.platform }}
                                                     </p>
                                                 </a>
+                                                {% else %}
+                                                <p
+                                                    style="background-color: #f5f5f5;padding-left:5px;padding-right: 5px;font-size: 12px;border-radius: 5px;">
+                                                    {{ pl.platform }}
+                                                </p>
+                                                {% endif %}
                                             </div>
                                             {% endfor %}
                                         </div>
