@@ -4052,6 +4052,17 @@ def postFacebook(page_id, media, access_token, title, description, is_video, has
                 cfb_pst.save()
                 cops.is_published = True
                 cops.save()
+                permalink_url = f"https://graph.facebook.com/v21.0/{video_id}?fields=permalink_url&access_token={access_token}"
+                permalink_response = requests.get(permalink_url)
+
+                if permalink_response.status_code == 200:
+                    permalink = permalink_response.json().get("permalink_url")
+                    cfb_pst.post_link=permalink
+                    print(f"Permalink URL: {permalink}")
+                else:
+                    cfb_pst.post_link='#'
+                    print(f"Error fetching permalink: {permalink_response.json()}")                    
+                cfb_pst.save()
                 print("Video uploaded successfully! post")
                 if not cops.media_thumbnail:
                     time.sleep(15)
@@ -4289,7 +4300,17 @@ def postFacebook(page_id, media, access_token, title, description, is_video, has
                     cfb_pst.save()
                     cops.is_published = True
                     cops.save()
+                    permalink_url = f"https://graph.facebook.com/v21.0/{content_id}?fields=permalink_url&access_token={access_token}"
+                    permalink_response = requests.get(permalink_url)
 
+                    if permalink_response.status_code == 200:
+                        permalink = permalink_response.json().get("permalink_url")
+                        cfb_pst.post_link=permalink
+                        print(f"Permalink URL: {permalink}")
+                    else:
+                        cfb_pst.post_link='#'
+                        print(f"Error fetching permalink: {permalink_response.json()}")                    
+                    cfb_pst.save()
                     print("Post created successfully with multiple photos!")
 
                     # retrieve the images for the display
@@ -4332,6 +4353,16 @@ def postFacebook(page_id, media, access_token, title, description, is_video, has
                     cfb_pst.is_published = True
                     cops.is_published = True
                     cops.save()
+                    permalink_url = f"https://graph.facebook.com/v21.0/{content_id}?fields=permalink_url&access_token={access_token}"
+                    permalink_response = requests.get(permalink_url)
+
+                    if permalink_response.status_code == 200:
+                        permalink = permalink_response.json().get("permalink_url")
+                        cfb_pst.post_link=permalink
+                        print(f"Permalink URL: {permalink}")
+                    else:
+                        cfb_pst.post_link='#'
+                        print(f"Error fetching permalink: {permalink_response.json()}")                    
 
                     cfb_pst.save()
                     print("stories created successfully with multiple photos!")
@@ -4398,8 +4429,6 @@ def postFacebook(page_id, media, access_token, title, description, is_video, has
 
                 if response.status_code == 200:
                     print("Link post created successfully!")
-                    print(response.json())
-                    print()
                     content_id = response.json().get('id')
                     cfb_pst.content_id = content_id
                     # Step 2: Get the permalink for the post
@@ -4411,6 +4440,7 @@ def postFacebook(page_id, media, access_token, title, description, is_video, has
                         cfb_pst.post_link=permalink
                         print(f"Permalink URL: {permalink}")
                     else:
+                        cfb_pst.post_link='#'
                         print(f"Error fetching permalink: {permalink_response.json()}")                    
                     cfb_pst.is_published = True
                     cfb_pst.save()
