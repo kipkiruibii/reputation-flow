@@ -3811,6 +3811,7 @@ def postInstagram(account_id, media, access_token, description, has_media, post_
         media_urls.append(um.media.url)
     # post the media to instagram
     is_carousel = False
+    creation_id = ''
     if len(media_urls) > 1:
         print('is corousel')
         is_carousel = True
@@ -3831,22 +3832,21 @@ def postInstagram(account_id, media, access_token, description, has_media, post_
                 print(f"Uploaded media successfully. Media ID: {media_id}")
             else:
                 print(f"Error uploading media: {response.json()}")
-                exit()
-        print('media ids')
-        # Step 2: Create the carousel container
-        carousel_payload = {
-            "children": ",".join(media_ids),  # Media IDs must be comma-separated
-            "caption": description,
-            "access_token": access_token
-        }
-        carousel_response = requests.post(f"https://graph.facebook.com/v21.0/{account_id}/media", data=carousel_payload)
 
-        if carousel_response.status_code == 200:
-            creation_id = carousel_response.json().get("id")
-            print(f"Carousel container created successfully. Creation ID: {creation_id}")
-        else:
-            print(f"Error creating carousel container: {carousel_response.json()}")
-            exit()
+        if media_ids:
+            # Step 2: Create the carousel container
+            carousel_payload = {
+                "children": ",".join(media_ids),  # Media IDs must be comma-separated
+                "caption": description,
+                "access_token": access_token
+            }
+            carousel_response = requests.post(f"https://graph.facebook.com/v21.0/{account_id}/media", data=carousel_payload)
+
+            if carousel_response.status_code == 200:
+                creation_id = carousel_response.json().get("id")
+                print(f"Carousel container created successfully. Creation ID: {creation_id}")
+            else:
+                print(f"Error creating carousel container: {carousel_response.json()}")
     else:
         print('not corousel')
         # delete the media from s3 bucket to free storage
@@ -3873,56 +3873,62 @@ def postInstagram(account_id, media, access_token, description, has_media, post_
             print(f"Media uploaded successfully! Media ID: {creation_id}")
         else:
             print(f"Error: {response.json()}")
-            return
+            
     # Step 3: Publish the carousel post
-    publish_payload = {
-        "creation_id": creation_id,
-        "access_token": access_token
-    }
-    publish_response = requests.post(f"https://graph.facebook.com/v16.0/{account_id}/media_publish",
-                                     data=publish_payload)
-
-    if publish_response.status_code == 200:
-        print(publish_response.json())
-        post_id = publish_response.json().get("id")
-        cigp.content_id=post_id
-        cigp.save()
-        print(f"post published successfully! Post ID: {post_id}")
-        
-        # URL to fetch media details
-        url = f"https://graph.facebook.com/v21.0/{post_id}"
-
-        # Fields to request (adjust based on your needs)
-        fields = "id,media_type,media_url,thumbnail_url,timestamp,caption,permalink"
-
-        # Add fields and access token as parameters
-        params = {
-            "fields": fields,
+    if creation_id:
+        publish_payload = {
+            "creation_id": creation_id,
             "access_token": access_token
         }
+        publish_response = requests.post(f"https://graph.facebook.com/v16.0/{account_id}/media_publish",
+                                        data=publish_payload)
 
-        # Make the GET request
-        response = requests.get(url, params=params)
-
-        # Check the response
-        if response.status_code == 200:
-            media_details = response.json()
-            print("Media Details:", media_details)
-            cigp.post_link=media_details['permalink']
+        if publish_response.status_code == 200:
+            print(publish_response.json())
+            post_id = publish_response.json().get("id")
+            cigp.content_id=post_id
             cigp.save()
-            if media_details['media_type'] == 'IMAGE':
-                cpst.media_thumbnail=media_details['media_url']
-                cpst.is_published=True
-                cpst.save()
-            # Get the cover image for video (if applicable) 
-            if media_details.get("media_type") == "VIDEO":
-                cover_image_url = media_details.get("thumbnail_url")
-                cpst.media_thumbnail=cover_image_url
-                cpst.is_published=True
-                cpst.save()
+            print(f"post published successfully! Post ID: {post_id}")
+            
+            # URL to fetch media details
+            url = f"https://graph.facebook.com/v21.0/{post_id}"
+
+            # Fields to request (adjust based on your needs)
+            fields = "id,media_type,media_url,thumbnail_url,timestamp,caption,permalink"
+
+            # Add fields and access token as parameters
+            params = {
+                "fields": fields,
+                "access_token": access_token
+            }
+
+            # Make the GET request
+            response = requests.get(url, params=params)
+
+            # Check the response
+            if response.status_code == 200:
+                media_details = response.json()
+                print("Media Details:", media_details)
+                cigp.post_link=media_details['permalink']
+                cigp.save()
+                if media_details['media_type'] == 'IMAGE':
+                    cpst.media_thumbnail=media_details['media_url']
+                    cpst.is_published=True
+                    cpst.save()
+                # Get the cover image for video (if applicable) 
+                if media_details.get("media_type") == "VIDEO":
+                    cover_image_url = media_details.get("thumbnail_url")
+                    cpst.media_thumbnail=cover_image_url
+                    cpst.is_published=True
+                    cpst.save()
+        else:
+            print(f"Error publishing carousel post: {publish_response.json()}")
     else:
-        print(f"Error publishing carousel post: {publish_response.json()}")
-        
+        if cpst.is_published:
+            cpst.partial_publish=True
+        else:
+            cpst.has_failed=True
+            
     for um in UploadedMedia.objects.filter(post=cpst):
         delete_file_from_s3(um.media.name)
 
