@@ -1736,13 +1736,13 @@ def fetchPosts(request):
                     'platform':'Facebook',
                     'link':cfbp.post_link
                 })
-            if 'Reddit' in p.platforms:
+            if 'reddit' in p.platforms:
                 crpp=CompanyRedditPosts.objects.filter(post_id=p.post_id).first()
                 pltfrms.append({
                     'platform':'Reddit',
                     'link':crpp.post_link
                 })
-            if 'Tiktok' in p.platforms:
+            if 'tiktok' in p.platforms:
                 ctpp=CompanyTiktokPosts.objects.filter(post_id=p.post_id).first()
                 pltfrms.append({
                     'platform':'Tiktok',
@@ -1807,13 +1807,13 @@ def fetchPosts(request):
                     'platform':'Facebook',
                     'link':cfbp.post_link
                 })
-            if 'Reddit' in p.platforms:
+            if 'reddit' in p.platforms:
                 crpp=CompanyRedditPosts.objects.filter(post_id=p.post_id).first()
                 pltfrms.append({
                     'platform':'Reddit',
                     'link':crpp.post_link
                 })
-            if 'Tiktok' in p.platforms:
+            if 'tiktok' in p.platforms:
                 ctpp=CompanyTiktokPosts.objects.filter(post_id=p.post_id).first()
                 pltfrms.append({
                     'platform':'Tiktok',
