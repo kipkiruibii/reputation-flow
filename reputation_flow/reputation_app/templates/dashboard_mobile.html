@@ -5019,19 +5019,18 @@
                                         <p style="max-height: 200px;overflow-y: scroll;margin-top: 20px;">
                                             {{ p.content }}
                                         </p>
-                                        {% if 'Instagram' in p.platforms %}
-                                        <p style="font-size: 10px;">Note:To delete the post from Instagram, you will be
-                                            required to also manually delete the post in the official platform</p>
-                                        {% endif %}
                                         <div>
                                             <hr>
                                             <div style="display: flex;gap: 5px;flex-wrap: wrap;padding: 0;">
                                                 {% for pl in p.platforms %}
                                                 <div>
-                                                    <p
-                                                        style="background-color: #f5f5f5;padding-left:5px;padding-right: 5px;font-size: 12px;border-radius: 5px;">
-                                                        {{ pl }}
-                                                    </p>
+                                                    <a href="{{ pl.link }}"
+                                                        style="cursor: pointer;text-decoration: none;">
+                                                        <p
+                                                            style="background-color: #f5f5f5;padding-left:5px;padding-right: 5px;font-size: 12px;border-radius: 5px;">
+                                                            {{ pl.platform }}
+                                                        </p>
+                                                    </a>
                                                 </div>
                                                 {% endfor %}
                                             </div>
@@ -5541,10 +5540,13 @@
                                                 <div style="display: flex;gap: 5px;flex-wrap: wrap;padding: 0;">
                                                     {% for pl in p.platforms %}
                                                     <div>
-                                                        <p
-                                                            style="background-color: #f5f5f5;padding-left:5px;padding-right: 5px;font-size: 12px;border-radius: 5px;">
-                                                            {{ pl }}
-                                                        </p>
+                                                        <a href="{{ pl.link }}"
+                                                            style="cursor: pointer;text-decoration: none;">
+                                                            <p
+                                                                style="background-color: #f5f5f5;padding-left:5px;padding-right: 5px;font-size: 12px;border-radius: 5px;">
+                                                                {{ pl.platform }}
+                                                            </p>
+                                                        </a>
                                                     </div>
                                                     {% endfor %}
                                                 </div>

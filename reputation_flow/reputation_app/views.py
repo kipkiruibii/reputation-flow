@@ -1723,9 +1723,35 @@ def fetchPosts(request):
                 cmt_cnt = round(cmt_cnt / 1000, 1)
             upl_t=p.date_uploaded.astimezone(target_timezone).strftime('%d %b, %H:%M')
             sch_t=p.date_scheduled.astimezone(target_timezone).strftime('%d %b, %H:%M')
-            
+            pltfrms=[]
+            if 'instagram' in p.platforms:
+                cigp=CompanyInstagramPosts.objects.filter(post_id=p.post_id).first()
+                pltfrms.append({
+                    'platform':'Instagram',
+                    'link':cigp.post_link
+                })
+            if 'facebook' in p.platforms:
+                cigp=CompanyFacebookPosts.objects.filter(post_id=p.post_id).first()
+                pltfrms.append({
+                    'platform':'Facebook',
+                    'link':cigp.post_link
+                })
+            if 'Reddit' in p.platforms:
+                cigp=CompanyRedditPosts.objects.filter(post_id=p.post_id).first()
+                pltfrms.append({
+                    'platform':'Reddit',
+                    'link':cigp.post_link
+                })
+            if 'Tiktok' in p.platforms:
+                cigp=CompanyTiktokPosts.objects.filter(post_id=p.post_id).first()
+                pltfrms.append({
+                    'platform':'Tiktok',
+                    'link':cigp.post_link
+                })
+                
+                
             all_posts.append({
-                'platforms': [pl.capitalize() for pl in p.platforms],
+                'platforms': pltfrms,
                 'title': p.title,
                 'content': p.description,
                 'is_uploaded': p.is_published,
@@ -3773,6 +3799,7 @@ def postTiktok(company, description, video, duet, comment, stitch, audience, pos
 def postInstagram(account_id, media, access_token, description, has_media, post_id, to_stories, to_post, to_reels, product_tags,location_tags):
     if not has_media:
         return
+    print('instagram posting')
     # check the rate limit
     # upload the media to s3 bucket
     cpst=CompanyPosts.objects.filter(post_id=post_id).first()
@@ -5142,7 +5169,7 @@ def uploadPost(request):
                     media=file
                 )
                 up.save()
-
+            print('Instagram selected')
             cig = CompanyInstagram.objects.filter(company=cp).first()
             igThread = threading.Thread(target=postInstagram, daemon=True, kwargs={
                 'account_id': cig.account_id,
