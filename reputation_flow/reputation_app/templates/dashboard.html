@@ -5946,6 +5946,18 @@
                                                     <div id="fb-age-gender-chart-{{ p.post_id }}"
                                                         style="margin-top: 20px;"></div>
                                                     {% endif %}
+
+                                                    {% if p.has_instagram %}
+                                                    <div class="d-flex mb-2">
+                                                        <p class="text-xs mt-1 mb-0 font-weight-bold"
+                                                            style="cursor: default;">
+                                                            <img src="{% static 'images/instagram_logo.png' %}" alt=""
+                                                                style="width:20px;height: 20px;">
+                                                            Instagram Stats
+                                                        </p>
+                                                    </div>
+
+                                                    {% endif %}
                                                 </div>
                                             </div>
                                         </div>
@@ -6410,6 +6422,17 @@
                                                     <!-- Age gender bar chart -->
                                                     <div id="fb-age-gender-chart-{{ p.post_id }}"
                                                         style="margin-top: 20px;"></div>
+                                                    {% endif %}
+                                                    {% if p.has_instagram %}
+                                                    <div class="d-flex mb-2">
+                                                        <p class="text-xs mt-1 mb-0 font-weight-bold"
+                                                            style="cursor: default;">
+                                                            <img src="{% static 'images/instagram_logo.png' %}" alt=""
+                                                                style="width:20px;height: 20px;">
+                                                            Instagram Stats
+                                                        </p>
+                                                    </div>
+
                                                     {% endif %}
                                                 </div>
                                             </div>

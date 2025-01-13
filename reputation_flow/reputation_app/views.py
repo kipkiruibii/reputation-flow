@@ -2249,9 +2249,6 @@ def getStats(request):
     
     
     sorted_dict = dict(sorted(my_dict.items(), key=lambda item: item[1], reverse=True))
-    print(ig_pst_dta)
-    print()
-    print(ig_vid_impress)
     return Response({'result': 'success',
                      'has_reddit': has_reddit,
                      'reddit_total_engagement': f'{red_te}%',
