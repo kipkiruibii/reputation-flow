@@ -5527,7 +5527,7 @@
                                         <div style="display: flex;gap: 5px;flex-wrap: wrap;padding: 0;">
                                             {% for pl in p.platforms %}
                                             <div>
-                                                {% if pl.platform == 'Reddit' %}
+                                                {% if not pl.platform == 'Reddit' %}
                                                 <a href="{{ pl.link }}" target="_blank"
                                                     style="cursor: pointer;text-decoration: none;">
                                                     <p
@@ -6052,7 +6052,7 @@
                                         <div style="display: flex;gap: 5px;flex-wrap: wrap;padding: 0;">
                                             {% for pl in p.platforms %}
                                             <div>
-                                                {% if pl.platform == 'Reddit' %}
+                                                {% if not pl.platform == 'Reddit' %}
                                                 <a href="{{ pl.link }}" target="_blank"
                                                     style="cursor: pointer;text-decoration: none;">
                                                     <p
