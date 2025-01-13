@@ -3824,6 +3824,16 @@ def postInstagram(account_id, media, access_token, description, has_media, post_
                 "is_carousel_item": "true",
                 "access_token": access_token
             }
+            print('1',payload)
+            
+            mime_type, _ = mimetypes.guess_type(url)
+            is_image = mime_type and mime_type.startswith("image")
+            payload = {
+                "image_url" if is_image else "video_url": url,
+                "is_carousel_item": "true",
+                "access_token": access_token
+            }
+            print('2',payload)
             response = requests.post(f"https://graph.facebook.com/v21.0/{account_id}/media", data=payload)
 
             if response.status_code == 200:
