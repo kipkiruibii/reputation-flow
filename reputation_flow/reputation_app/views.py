@@ -3844,6 +3844,7 @@ def postInstagram(account_id, media, access_token, description, has_media, post_
             carousel_payload = {
                 "children": ",".join(media_ids),  # Media IDs must be comma-separated
                 "caption": description,
+                "media_type": "CAROUSEL",
                 "access_token": access_token
             }
             carousel_response = requests.post(f"https://graph.facebook.com/v21.0/{account_id}/media", data=carousel_payload)
