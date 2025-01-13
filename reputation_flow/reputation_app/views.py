@@ -1724,7 +1724,6 @@ def fetchPosts(request):
             upl_t=p.date_uploaded.astimezone(target_timezone).strftime('%d %b, %H:%M')
             sch_t=p.date_scheduled.astimezone(target_timezone).strftime('%d %b, %H:%M')
             pltfrms=[]
-            print(p.platforms)
             if 'instagram' in p.platforms:
                 cigp=CompanyInstagramPosts.objects.filter(post_id=p.post_id).first()
                 pltfrms.append({
@@ -1749,8 +1748,6 @@ def fetchPosts(request):
                     'platform':'Tiktok',
                     'link':ctpp.post_link
                 })
-                
-            print('platrform data',pltfrms)
             all_posts.append({
                 'platforms': pltfrms,
                 'title': p.title,
@@ -1798,7 +1795,6 @@ def fetchPosts(request):
             elif cmt_cnt > 1000:
                 cmt_cnt = round(cmt_cnt / 1000, 1)
             pltfrms=[]
-            print(p.platforms)
             if 'instagram' in p.platforms:
                 cigp=CompanyInstagramPosts.objects.filter(post_id=p.post_id).first()
                 pltfrms.append({
@@ -1823,8 +1819,6 @@ def fetchPosts(request):
                     'platform':'Tiktok',
                     'link':ctpp.post_link
                 })
-                
-            print('platrform data',pltfrms)
             all_posts.append({
                 'platforms': pltfrms,
                 'title': p.title,
