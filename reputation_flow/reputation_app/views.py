@@ -2176,30 +2176,51 @@ def getStats(request):
                 'impression_nonviral': dts['post_impressions_nonviral'],
                 'has_data': True
             }
+    
+    has_instagram=False
+    ig_impression_count=0
+    ig_reach_count=0
+    ig_saved_count=0
+    ig_engagement_count=0
+    ig_like_count=0
+    ig_comment_count=0
+
     cigp=CompanyInstagramPosts.objects.filter(post_id=post_id).first()
     if cigp:
+        has_instagram=True
         cig=CompanyInstagram.objects.filter(company=pst.company).first()
         media_url = f"https://graph.facebook.com/v21.0/{cigp.content_id}?fields=like_count,comments_count,timestamp&access_token={cig.long_lived_token}"
         media_response = requests.get(media_url)
-
         if media_response.status_code == 200:
             media_info = media_response.json()
-            like_count = media_info.get('like_count')
-            comment_count = media_info.get('comments_count')
-            cigp.like_count=like_count
-            cigp.comment_count = comment_count
+            ig_like_count = media_info.get('like_count')
+            ig_comment_count = media_info.get('comments_count')
+            cigp.like_count=ig_like_count
+            cigp.comment_count = ig_comment_count
             cigp.save()
         else:
             print("Error fetching media info:", media_response.json())        
         # Step 2: Get media insights
-        insights_url = f"https://graph.facebook.com/v21.0/{cigp.content_id}/insights?metric=impressions,reach,saved&access_token={cig.long_lived_token}"
+        insights_url = f"https://graph.facebook.com/v21.0/{cigp.content_id}/insights?metric=impressions,reach,saved,engagement&access_token={cig.long_lived_token}"
         insights_response = requests.get(insights_url)
 
         if insights_response.status_code == 200:
-            insights_data = insights_response.json()
+            insights_data = insights_response.json().get('data')
+            for idt in insights_data:
+                if idt['name'] == 'impressions':
+                    ig_impression_count=idt['values'][0]['value']
+                    my_dict['Instagram']=ig_impression_count
+                if idt['name'] == 'reach':
+                    ig_reach_count=idt['values'][0]['value']
+                if idt['name'] == 'saved':
+                    ig_saved_count=idt['values'][0]['value']
+                if idt['name'] == 'engagement':
+                    ig_engagement_count=idt['values'][0]['value']
+                    
+                    
             print("Media Insights:", insights_data)
         else:
-            print("Error fetching media insights:", insights_response.json())    
+            print("Error fetching media insights:", insights_response.json())  
     
     
     sorted_dict = dict(sorted(my_dict.items(), key=lambda item: item[1], reverse=True))
@@ -2219,7 +2240,17 @@ def getStats(request):
                      'fb_conversion_rate': f'{round(impr_conv * 100, 1)}%' if impr_conv > 0 else impr_conv,
                      'is_media_video': pst.is_video,
                      'impression_dist': impress,
-                     'fb_video_data': fb_video_data
+                     'fb_video_data': fb_video_data,
+                     
+                    #  instagram
+                     'has_instagram':has_instagram,
+                     'ig_impression_count':ig_impression_count,
+                     'ig_reach_count':ig_reach_count,
+                     'ig_saved_count':ig_saved_count,
+                     'ig_engagement_count':ig_engagement_count,
+                     'ig_like_count':ig_like_count,
+                     'ig_comment_count':ig_comment_count,
+                     
                      })
 
 
