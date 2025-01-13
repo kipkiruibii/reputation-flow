@@ -2179,16 +2179,20 @@ def getStats(request):
     cigp=CompanyInstagramPosts.objects.filter(post_id=post_id).first()
     if cigp:
         cig=CompanyInstagram.objects.filter(company=pst.company).first()
-        media_url = f"https://graph.facebook.com/v21.0/{cigp.content_id}?fields=id,caption,media_type,media_url,like_count,comments_count,timestamp,username&access_token={cig.long_lived_token}"
+        media_url = f"https://graph.facebook.com/v21.0/{cigp.content_id}?fields=like_count,comments_count,timestamp&access_token={cig.long_lived_token}"
         media_response = requests.get(media_url)
 
         if media_response.status_code == 200:
             media_info = media_response.json()
-            print("Media Info:", media_info)
+            like_count = media_info.get('like_count')
+            comment_count = media_info.get('comments_count')
+            cigp.like_count=like_count
+            cigp.comment_count = comment_count
+            cigp.save()
         else:
             print("Error fetching media info:", media_response.json())        
         # Step 2: Get media insights
-        insights_url = f"https://graph.facebook.com/v21.0/{cigp.content_id}/insights?metric=impressions,reach,saved,video_views&access_token={cig.long_lived_token}"
+        insights_url = f"https://graph.facebook.com/v21.0/{cigp.content_id}/insights?metric=impressions,reach,saved&access_token={cig.long_lived_token}"
         insights_response = requests.get(insights_url)
 
         if insights_response.status_code == 200:
