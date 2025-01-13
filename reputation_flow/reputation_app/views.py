@@ -1797,8 +1797,36 @@ def fetchPosts(request):
                 cmt_cnt = round(cmt_cnt / 1000, 1)
             elif cmt_cnt > 1000:
                 cmt_cnt = round(cmt_cnt / 1000, 1)
+            pltfrms=[]
+            print(p.platforms)
+            if 'instagram' in p.platforms:
+                cigp=CompanyInstagramPosts.objects.filter(post_id=p.post_id).first()
+                pltfrms.append({
+                    'platform':'Instagram',
+                    'link':cigp.post_link
+                })
+            if 'facebook' in p.platforms:
+                cfbp=CompanyFacebookPosts.objects.filter(post_id=p.post_id).first()
+                pltfrms.append({
+                    'platform':'Facebook',
+                    'link':cfbp.post_link
+                })
+            if 'Reddit' in p.platforms:
+                crpp=CompanyRedditPosts.objects.filter(post_id=p.post_id).first()
+                pltfrms.append({
+                    'platform':'Reddit',
+                    'link':crpp.post_link
+                })
+            if 'Tiktok' in p.platforms:
+                ctpp=CompanyTiktokPosts.objects.filter(post_id=p.post_id).first()
+                pltfrms.append({
+                    'platform':'Tiktok',
+                    'link':ctpp.post_link
+                })
+                
+            print('platrform data',pltfrms)
             all_posts.append({
-                'platforms': [pl.capitalize() for pl in p.platforms],
+                'platforms': pltfrms,
                 'title': p.title,
                 'content': p.description,
                 'is_uploaded': p.is_published,
