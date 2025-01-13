@@ -2176,7 +2176,23 @@ def getStats(request):
                 'impression_nonviral': dts['post_impressions_nonviral'],
                 'has_data': True
             }
+    cigp=CompanyInstagramPosts.objects.filter(post_id=post_id).first()
+    if cigp:
+        cig=CompanyInstagram.objects.filter(company=pst.company).first()
+        url = f"https://graph.facebook.com/v21.0/{cigp.content_id}?fields=id,caption,media_type,media_url,like_count,comments_count,engagement,impressions,reach&access_token={cig.long_lived_token}"
 
+        response = requests.get(url)
+
+        if response.status_code == 200:
+            media_stats = response.json()
+            print("Media Stats:", media_stats)
+        else:
+            print("Error:", response.json())
+        
+    
+    
+    
+    
     sorted_dict = dict(sorted(my_dict.items(), key=lambda item: item[1], reverse=True))
     return Response({'result': 'success',
                      'has_reddit': has_reddit,
