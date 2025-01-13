@@ -2179,18 +2179,23 @@ def getStats(request):
     cigp=CompanyInstagramPosts.objects.filter(post_id=post_id).first()
     if cigp:
         cig=CompanyInstagram.objects.filter(company=pst.company).first()
-        url = f"https://graph.facebook.com/v21.0/{cigp.content_id}?fields=id,caption,media_type,media_url,like_count,comments_count,engagement,impressions,reach&access_token={cig.long_lived_token}"
+        media_url = f"https://graph.facebook.com/v21.0/{cigp.content_id}?fields=id,caption,media_type,media_url,like_count,comments_count,timestamp,username&access_token={cig.long_lived_token}"
+        media_response = requests.get(media_url)
 
-        response = requests.get(url)
-
-        if response.status_code == 200:
-            media_stats = response.json()
-            print("Media Stats:", media_stats)
+        if media_response.status_code == 200:
+            media_info = media_response.json()
+            print("Media Info:", media_info)
         else:
-            print("Error:", response.json())
-        
-    
-    
+            print("Error fetching media info:", media_response.json())        
+        # Step 2: Get media insights
+        insights_url = f"https://graph.facebook.com/v21.0/{cigp.content_id}/insights?metric=impressions,reach,saved,video_views&access_token={cig.long_lived_token}"
+        insights_response = requests.get(insights_url)
+
+        if insights_response.status_code == 200:
+            insights_data = insights_response.json()
+            print("Media Insights:", insights_data)
+        else:
+            print("Error fetching media insights:", insights_response.json())    
     
     
     sorted_dict = dict(sorted(my_dict.items(), key=lambda item: item[1], reverse=True))
