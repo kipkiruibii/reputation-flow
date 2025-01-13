@@ -2201,7 +2201,7 @@ def getStats(request):
         else:
             print("Error fetching media info:", media_response.json())        
         # Step 2: Get media insights
-        insights_url = f"https://graph.facebook.com/v21.0/{cigp.content_id}/insights?metric=impressions,reach,saved,engagement&access_token={cig.long_lived_token}"
+        insights_url = f"https://graph.facebook.com/v21.0/{cigp.content_id}/insights?metric=impressions,reach,saved,total_interactions,plays,ig_reels_video_view_total_time,ig_reels_avg_watch_time&access_token={cig.long_lived_token}"
         insights_response = requests.get(insights_url)
 
         if insights_response.status_code == 200:
@@ -2214,7 +2214,7 @@ def getStats(request):
                     ig_reach_count=idt['values'][0]['value']
                 if idt['name'] == 'saved':
                     ig_saved_count=idt['values'][0]['value']
-                if idt['name'] == 'engagement':
+                if idt['name'] == 'total_interactions':
                     ig_engagement_count=idt['values'][0]['value']
                     
                     
