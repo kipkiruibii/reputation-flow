@@ -2176,14 +2176,7 @@ def getStats(request):
                 'impression_nonviral': dts['post_impressions_nonviral'],
                 'has_data': True
             }
-    
-    has_instagram=False
-    ig_impression_count=0
-    ig_reach_count=0
-    ig_saved_count=0
-    ig_total_interactions_count=0
-    ig_like_count=0
-    ig_comment_count=0
+
     ig_vid_impress={}
     ig_pst_dta={}
 
@@ -2201,7 +2194,7 @@ def getStats(request):
             cigp.comment_count = ig_comment_count
             cigp.save()
         else:
-            print("Error fetching media info:", media_response.json())        
+            print("Error fetching media info:", media_response.json())  #
         # Step 2: Get media insights
         insights_url = f"https://graph.facebook.com/v21.0/{cigp.content_id}/insights?metric=impressions,reach,saved,total_interactions,shares&access_token={cig.long_lived_token}"
         if pst.is_video:
@@ -2269,13 +2262,8 @@ def getStats(request):
                      
                     #  instagram
                      'has_instagram':has_instagram,
-                     'ig_impression_count':ig_impression_count,
-                     'ig_reach_count':ig_reach_count,
-                     'ig_saved_count':ig_saved_count,
-                     'ig_engagement_count':ig_total_interactions_count,
-                     'ig_like_count':ig_like_count,
-                     'ig_comment_count':ig_comment_count,
-                     
+                     'ig_post_data':ig_pst_dta,
+                     'ig_vid_data':ig_vid_impress,
                      })
 
 
