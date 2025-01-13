@@ -3918,10 +3918,10 @@ def postInstagram(account_id, media, access_token, description, has_media, post_
                 print("Media Details:", media_details)
                 cigp.post_link=media_details['permalink']
                 cigp.save()
-                if media_details['media_type'] == 'IMAGE':
-                    cpst.media_thumbnail=media_details['media_url']
-                    cpst.is_published=True
-                    cpst.save()
+                # if media_details['media_type'] == 'IMAGE':
+                cpst.media_thumbnail=media_details['media_url']
+                cpst.is_published=True
+                cpst.save()
                 # Get the cover image for video (if applicable) 
                 if media_details.get("media_type") == "VIDEO":
                     cover_image_url = media_details.get("thumbnail_url")
