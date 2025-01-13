@@ -3812,6 +3812,7 @@ def postInstagram(account_id, media, access_token, description, has_media, post_
     # post the media to instagram
     is_carousel = False
     if len(media_urls) > 1:
+        print('is corousel')
         is_carousel = True
     if is_carousel:
         # Step 1: Upload each media item individually and collect their media_ids
@@ -3831,7 +3832,7 @@ def postInstagram(account_id, media, access_token, description, has_media, post_
             else:
                 print(f"Error uploading media: {response.json()}")
                 exit()
-
+        print('media ids')
         # Step 2: Create the carousel container
         carousel_payload = {
             "children": ",".join(media_ids),  # Media IDs must be comma-separated
@@ -3847,6 +3848,7 @@ def postInstagram(account_id, media, access_token, description, has_media, post_
             print(f"Error creating carousel container: {carousel_response.json()}")
             exit()
     else:
+        print('not corousel')
         # delete the media from s3 bucket to free storage
         url = f"https://graph.facebook.com/v21.0/{account_id}/media"
         isImage = True
@@ -4910,7 +4912,7 @@ def requestFeature(request):
     description = request.POST.get('details', None)
     cp = Company.objects.filter(company_id=company_id).first()
     
-    # check subscription
+    # check subscription 
     if not any([cp, title,description]):
         return Response({'error': 'Bad request'})
     cfr=CompanyFeatureRequest(
