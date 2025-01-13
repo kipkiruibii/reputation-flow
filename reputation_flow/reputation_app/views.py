@@ -4403,7 +4403,7 @@ def postFacebook(page_id, media, access_token, title, description, is_video, has
                     content_id = response.json().get('id')
                     cfb_pst.content_id = content_id
                     # Step 2: Get the permalink for the post
-                    permalink_url = f"https://graph.facebook.com/v21.0/{post_id}?fields=permalink_url&access_token={access_token}"
+                    permalink_url = f"https://graph.facebook.com/v21.0/{content_id}?fields=permalink_url&access_token={access_token}"
                     permalink_response = requests.get(permalink_url)
 
                     if permalink_response.status_code == 200:
