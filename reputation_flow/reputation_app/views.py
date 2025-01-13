@@ -2203,6 +2203,7 @@ def getStats(request):
 
         if insights_response.status_code == 200:
             insights_data = insights_response.json().get('data')
+            print(insights_data)
             for idt in insights_data:
                 if idt['name'] == 'impressions':
                     ig_impression_count=idt['values'][0]['value']
