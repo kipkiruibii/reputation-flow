@@ -2209,7 +2209,7 @@ def getStats(request):
             for idt in insights_data:
                 if idt['name'] == 'impressions':
                     ig_impression_count=idt['values'][0]['value']
-                    my_dict['Instagram']=ig_impression_count
+                    my_dict['Instagram']=40
                 if idt['name'] == 'reach':
                     ig_reach_count=idt['values'][0]['value']
                 if idt['name'] == 'saved':
