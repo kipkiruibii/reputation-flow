@@ -2181,9 +2181,11 @@ def getStats(request):
     ig_impression_count=0
     ig_reach_count=0
     ig_saved_count=0
-    ig_engagement_count=0
+    ig_total_interactions_count=0
     ig_like_count=0
     ig_comment_count=0
+    ig_vid_impress={}
+    ig_pst_dta={}
 
     cigp=CompanyInstagramPosts.objects.filter(post_id=post_id).first()
     if cigp:
@@ -2201,8 +2203,9 @@ def getStats(request):
         else:
             print("Error fetching media info:", media_response.json())        
         # Step 2: Get media insights
-        {'error': {'message': '(#100) metric[3] must be one of the following values: impressions, reach, replies, saved, video_views, likes, comments, shares, plays, total_interactions, follows, profile_visits, profile_activity, navigation, ig_reels_video_view_total_time, ig_reels_avg_watch_time, clips_replays_count, ig_reels_aggregated_all_plays_count, views', 'type': 'OAuthException', 'code': 100, 'fbtrace_id': 'Ask5qFJRcaBuowtZKZUW7ic'}}
         insights_url = f"https://graph.facebook.com/v21.0/{cigp.content_id}/insights?metric=impressions,reach,saved,total_interactions,shares&access_token={cig.long_lived_token}"
+        if pst.is_video:
+            insights_url = f"https://graph.facebook.com/v21.0/{cigp.content_id}/insights?metric=impressions,reach,saved,total_interactions,shares,plays,video_views,ig_reels_video_view_total_time,ig_reels_avg_watch_time,clips_replays_count&access_token={cig.long_lived_token}"
         insights_response = requests.get(insights_url)
 
         if insights_response.status_code == 200:
@@ -2210,21 +2213,45 @@ def getStats(request):
             for idt in insights_data:
                 if idt['name'] == 'impressions':
                     ig_impression_count=idt['values'][0]['value']
-                    my_dict['Instagram']=40
+                    my_dict['Instagram']=ig_impression_count
+                    ig_pst_dta['ig_impression_count']=ig_impression_count
                 if idt['name'] == 'reach':
                     ig_reach_count=idt['values'][0]['value']
+                    ig_pst_dta['ig_reach_count']=ig_reach_count
                 if idt['name'] == 'saved':
                     ig_saved_count=idt['values'][0]['value']
+                    ig_pst_dta['ig_saved_count']=ig_saved_count
                 if idt['name'] == 'total_interactions':
-                    ig_engagement_count=idt['values'][0]['value']
+                    ig_total_interactions_count=idt['values'][0]['value']
+                    ig_pst_dta['ig_total_interactions_count']=ig_total_interactions_count
+                if idt['name'] == 'shares':
+                    ig_shares_count=idt['values'][0]['value']
+                    ig_pst_dta['ig_shares_count']=ig_shares_count
                     
-                    
-            print("Media Insights:", insights_data)
+                # vid data
+                if idt['name'] == 'plays':
+                    ig_plays_count=idt['values'][0]['value']
+                    ig_vid_impress['ig_plays_count']=ig_plays_count
+                if idt['name'] == 'video_views':
+                    ig_video_views_count=idt['values'][0]['value']
+                    ig_vid_impress['ig_video_views_count']=ig_video_views_count
+                if idt['name'] == 'ig_reels_video_view_total_time':
+                    ig_reels_video_view_total_time=idt['values'][0]['value']
+                    ig_vid_impress['ig_reels_video_view_total_time']=ig_reels_video_view_total_time
+                if idt['name'] == 'ig_reels_avg_watch_time':
+                    ig_reels_avg_watch_time=idt['values'][0]['value']
+                    ig_vid_impress['ig_reels_avg_watch_time']=ig_reels_avg_watch_time
+                if idt['name'] == 'clips_replays_count':
+                    clips_replays_count=idt['values'][0]['value']
+                    ig_vid_impress['clips_replays_count']=clips_replays_count
         else:
             print("Error fetching media insights:", insights_response.json())  
     
     
     sorted_dict = dict(sorted(my_dict.items(), key=lambda item: item[1], reverse=True))
+    print(ig_pst_dta)
+    print()
+    print(ig_vid_impress)
     return Response({'result': 'success',
                      'has_reddit': has_reddit,
                      'reddit_total_engagement': f'{red_te}%',
@@ -2248,7 +2275,7 @@ def getStats(request):
                      'ig_impression_count':ig_impression_count,
                      'ig_reach_count':ig_reach_count,
                      'ig_saved_count':ig_saved_count,
-                     'ig_engagement_count':ig_engagement_count,
+                     'ig_engagement_count':ig_total_interactions_count,
                      'ig_like_count':ig_like_count,
                      'ig_comment_count':ig_comment_count,
                      
