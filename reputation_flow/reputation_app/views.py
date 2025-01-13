@@ -2221,7 +2221,9 @@ def getStats(request):
                 if idt['name'] == 'shares':
                     ig_shares_count=idt['values'][0]['value']
                     ig_pst_dta['ig_shares_count']=ig_shares_count
-                    
+                ig_pst_dta['ig_like_count']=ig_like_count
+                ig_pst_dta['ig_comment_count']=ig_comment_count
+                
                 # vid data
                 if idt['name'] == 'plays':
                     ig_plays_count=idt['values'][0]['value']

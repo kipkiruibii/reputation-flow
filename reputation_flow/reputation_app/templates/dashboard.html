@@ -5957,6 +5957,42 @@
                                                             Instagram Stats
                                                         </p>
                                                     </div>
+                                                    <div style="display: flex;gap: 10px;margin-top: 20px;">
+                                                        <div
+                                                            style="display: flex;flex-direction: column;justify-content: center;">
+                                                            <div>
+                                                                <div class="d-flex"
+                                                                    style="gap: 10px;margin-left: 20px;">
+                                                                    <p>Impressions:</p>
+                                                                    <h6 class="font-weight-bolder"
+                                                                        id="ig-impressions-{{p.post_id}}">
+                                                                    </h6>
+                                                                </div>
+                                                                <div class="d-flex"
+                                                                    style="gap: 10px;margin-left: 20px;">
+                                                                    <p>Unique Reach:</p>
+                                                                    <h6 class="font-weight-bolder"
+                                                                        id="ig-reach-{{p.post_id}}">
+                                                                    </h6>
+
+                                                                </div>
+                                                                <div class="d-flex"
+                                                                    style="gap: 10px;margin-left: 20px;">
+                                                                    <p>Total Interactions:</p>
+                                                                    <h6 class="font-weight-bolder"
+                                                                        id="ig-total-interactions-{{p.post_id}}">
+                                                                    </h6>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        <!-- interaction chart  -->
+                                                        <div id="ig-interaction-chart-{{ p.post_id }}">
+
+                                                        </div>
+
+                                                    </div>
+
 
                                                     {% endif %}
                                                 </div>
