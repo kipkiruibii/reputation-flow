@@ -2060,7 +2060,7 @@ def getStats(request):
                         cfb.save()
                     if v['name'] == 'post_impressions':
                         vl = v['values'][0]['value']
-                        my_dict['facebook'] = vl
+                        my_dict['Facebook'] = vl
                         cfb.post_impression_type['post_impressions'] = vl
                         cfb.impression_count = vl
                         cfb.save()
@@ -2106,7 +2106,7 @@ def getStats(request):
                     twt = f'{round(twt / 60, 2)}m'
                 else:
                     twt = f'{round(twt, 2)}s'
-                my_dict['facebook'] = dts['total_video_impressions']
+                my_dict['Facebook'] = dts['total_video_impressions']
                 country_keys = []
                 country_values = []
                 if dts['total_video_view_time_by_country_id']:
