@@ -4402,13 +4402,20 @@ def postFacebook(page_id, media, access_token, title, description, is_video, has
                     print()
                     content_id = response.json().get('id')
                     cfb_pst.content_id = content_id
+                    # Step 2: Get the permalink for the post
+                    permalink_url = f"https://graph.facebook.com/v21.0/{post_id}?fields=permalink_url&access_token={access_token}"
+                    permalink_response = requests.get(permalink_url)
+
+                    if permalink_response.status_code == 200:
+                        permalink = permalink_response.json().get("permalink_url")
+                        cfb_pst.post_link=permalink
+                        print(f"Permalink URL: {permalink}")
+                    else:
+                        print(f"Error fetching permalink: {permalink_response.json()}")                    
                     cfb_pst.is_published = True
                     cfb_pst.save()
                     cops.is_published = True
                     cops.save()
-                    cops.is_published = True
-                    cops.save()
-
                     print(response.json())
                 else:
                     if not cops.partial_publish:
