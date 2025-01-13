@@ -3819,21 +3819,16 @@ def postInstagram(account_id, media, access_token, description, has_media, post_
         # Step 1: Upload each media item individually and collect their media_ids
         media_ids = []
         for url in media_urls:
-            payload = {
-                "image_url" if url.endswith(".jpg") or url.endswith(".png") else "video_url": url,
-                "is_carousel_item": "true",
-                "access_token": access_token
-            }
-            print('1',payload)
-            
             mime_type, _ = mimetypes.guess_type(url)
             is_image = mime_type and mime_type.startswith("image")
+            is_video = mime_type and mime_type.startswith("video")
+            if not mime_type:
+                continue
             payload = {
                 "image_url" if is_image else "video_url": url,
                 "is_carousel_item": "true",
                 "access_token": access_token
             }
-            print('2',payload)
             response = requests.post(f"https://graph.facebook.com/v21.0/{account_id}/media", data=payload)
 
             if response.status_code == 200:
@@ -3844,6 +3839,7 @@ def postInstagram(account_id, media, access_token, description, has_media, post_
                 print(f"Error uploading media: {response.json()}")
 
         if media_ids:
+            print(media_ids)
             # Step 2: Create the carousel container
             carousel_payload = {
                 "children": ",".join(media_ids),  # Media IDs must be comma-separated
