@@ -5971,7 +5971,7 @@ def tiktok_callback(request):
     company_id = urllib.parse.unquote_plus(state)  # Decode the state to get the original user_id
 
     # token_url = "https://open.tiktokapis.com/v2/oauth/token/"
-    token_url = "https://business-api.tiktok.com/open_api/v1.3/oauth/token/"
+    token_url = "https://business-api.tiktok.com/open_api/v1.3/oauth2/access_token/"
     data = {
         "client_key": settings.TIKTOK_CLIENT_ID,
         "client_secret": settings.TIKTOK_CLIENT_SECRET,
