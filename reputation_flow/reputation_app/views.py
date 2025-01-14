@@ -1745,7 +1745,7 @@ def fetchPosts(request):
             if 'tiktok' in p.platforms:
                 ctpp=CompanyTiktokPosts.objects.filter(post_id=p.post_id).first()
                 pltfrms.append({
-                    'platform':'Tiktok',
+                    'platform':'TikTok',
                     'link':ctpp.post_link
                 })
             all_posts.append({
@@ -2242,7 +2242,10 @@ def getStats(request):
         else:
             print("Error fetching media insights:", insights_response.json())  
     
-    
+    has_tiktok=False
+    ctk=CompanyTiktokPosts.objects.filter(post_id=post_id).first()
+    if ctk:
+        has_tiktok=True
     sorted_dict = dict(sorted(my_dict.items(), key=lambda item: item[1], reverse=True))
     return Response({'result': 'success',
                      'has_reddit': has_reddit,
@@ -2253,6 +2256,7 @@ def getStats(request):
                      'reddit_subs': red_subs,
                      'platform_engagement': list(sorted_dict.values()),
                      'pltfrms': list(sorted_dict.keys()),
+                     
                      #  facebook
                      'fb_impressions': fb_impressions,
                      'fb_clicks': fb_post_click,
@@ -2266,6 +2270,9 @@ def getStats(request):
                      'has_instagram':has_instagram,
                      'ig_post_data':ig_pst_dta,
                      'ig_vid_data':ig_vid_impress,
+                     
+                    #  tiktok
+                      'has_tiktok':has_tiktok
                      })
 
 
