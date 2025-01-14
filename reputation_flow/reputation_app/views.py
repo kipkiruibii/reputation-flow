@@ -2269,7 +2269,7 @@ def getStats(request):
         }
 
         response = requests.post(url, headers=headers, json=payload)
-        print(response.json())        
+        print(response.content)        
         
         
     sorted_dict = dict(sorted(my_dict.items(), key=lambda item: item[1], reverse=True))
