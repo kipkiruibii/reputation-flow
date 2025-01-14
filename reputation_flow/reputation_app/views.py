@@ -2249,7 +2249,7 @@ def getStats(request):
         has_tiktok=True
         ctk=CompanyTiktok.objects.filter(company=pst.company).first()
 
-        url = "https://open.tiktokapis.com/v2/video/metrics/"
+        url = "https://business-api.tiktok.com/open_api/v1.3/business/video/list/"
         headers = {
             "Access-Token": ctk.access_token,
             "Content-Type": "application/json"
