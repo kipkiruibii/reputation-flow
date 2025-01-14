@@ -2179,7 +2179,7 @@ def getStats(request):
 
     ig_vid_impress={}
     ig_pst_dta={}
-
+    has_instagram=False
     cigp=CompanyInstagramPosts.objects.filter(post_id=post_id).first()
     if cigp:
         has_instagram=True
