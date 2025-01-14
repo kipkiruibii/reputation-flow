@@ -5948,9 +5948,10 @@ def tiktok_auth_link(company_id):
     redirect_uri = settings.TIKTOK_REDIRECT_URI  # Replace with your redirect URI
     scope = "user.info.basic,user.info.profile,user.info.stats,video.list,video.publish,video.upload"  # Adjust scopes as needed
     state = urllib.parse.quote_plus(str(company_id))  # Ensure URL encoding for special characters
-
+    scope="business_management,ad_management"
     auth_url = (
-        f"https://www.tiktok.com/v2/auth/authorize/"
+        # f"https://www.tiktok.com/v2/auth/authorize/"
+        f"https://business-api.tiktok.com/open_api/v1.3/oauth/authorize/"
         f"?client_key={client_id}"
         f"&redirect_uri={redirect_uri}"
         f"&response_type=code"
