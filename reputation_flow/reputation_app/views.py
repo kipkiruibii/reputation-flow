@@ -5970,7 +5970,8 @@ def tiktok_callback(request):
     state = request.GET.get("state")  # Retrieve the state parameter
     company_id = urllib.parse.unquote_plus(state)  # Decode the state to get the original user_id
 
-    token_url = "https://open.tiktokapis.com/v2/oauth/token/"
+    # token_url = "https://open.tiktokapis.com/v2/oauth/token/"
+    token_url = "https://business-api.tiktok.com/open_api/v1.3/oauth/token/"
     data = {
         "client_key": settings.TIKTOK_CLIENT_ID,
         "client_secret": settings.TIKTOK_CLIENT_SECRET,
@@ -5979,9 +5980,13 @@ def tiktok_callback(request):
         "redirect_uri": settings.TIKTOK_REDIRECT_URI,
     }
     response = requests.post(token_url, data=data)
-    access_token = response.json().get("access_token")
+    access_token = data['data']['access_token']
+    business_id = data['data']['business_id']    
+    # access_token = response.json().get("access_token")
     refresh_token = response.json().get("refresh_token")
 
+    print(f"Access Token: {access_token}")
+    print(f"Business ID: {business_id}")
     if not access_token:
         return redirect('dashboard', company_id=company_id)
     cm = Company.objects.filter(company_id=company_id).first()
