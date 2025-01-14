@@ -5992,6 +5992,7 @@
                                                         </div>
 
                                                     </div>
+                                                    {% if p.is_media_video %}
                                                     <div
                                                         style="display: flex;gap: 15px;align-items: center;justify-content: center;">
                                                         <div
@@ -6021,6 +6022,7 @@
                                                         </div>
 
                                                     </div>
+                                                    {% endif %}
 
                                                     {% endif %}
                                                 </div>
@@ -6487,81 +6489,6 @@
                                                     <!-- Age gender bar chart -->
                                                     <div id="fb-age-gender-chart-{{ p.post_id }}"
                                                         style="margin-top: 20px;"></div>
-                                                    {% endif %}
-                                                    {% if p.has_instagram %}
-                                                    <hr>
-                                                    <div class="d-flex mb-2">
-                                                        <p class="text-xs mt-1 mb-0 font-weight-bold"
-                                                            style="cursor: default;">
-                                                            <img src="{% static 'images/instagram_logo.png' %}" alt=""
-                                                                style="width:20px;height: 20px;">
-                                                            Instagram Stats
-                                                        </p>
-                                                    </div>
-                                                    <div style="display: flex;gap: 10px;margin-top: 20px;">
-                                                        <div
-                                                            style="display: flex;flex-direction: column;justify-content: center;">
-                                                            <div>
-                                                                <div class="d-flex"
-                                                                    style="gap: 10px;margin-left: 20px;">
-                                                                    <p>Impressions:</p>
-                                                                    <h6 class="font-weight-bolder"
-                                                                        id="ig-impressions-{{p.post_id}}">
-                                                                    </h6>
-                                                                </div>
-                                                                <div class="d-flex"
-                                                                    style="gap: 10px;margin-left: 20px;">
-                                                                    <p>Unique Reach:</p>
-                                                                    <h6 class="font-weight-bolder"
-                                                                        id="ig-reach-{{p.post_id}}">
-                                                                    </h6>
-
-                                                                </div>
-                                                                <div class="d-flex"
-                                                                    style="gap: 10px;margin-left: 20px;">
-                                                                    <p>Total Interactions:</p>
-                                                                    <h6 class="font-weight-bolder"
-                                                                        id="ig-total-interactions-{{p.post_id}}">
-                                                                    </h6>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-
-                                                        <!-- interaction chart  -->
-                                                        <div id="ig-interaction-chart-{{ p.post_id }}">
-
-                                                        </div>
-
-                                                    </div>
-
-                                                    <!--  -->
-                                                    <div style="display: flex;">
-                                                        <div
-                                                            style="background-color: #03a0f4;width: 300px;padding: 10px;">
-                                                            <p style="font-size: 12px;">Views</p>
-                                                            <p style="color: white;">300</p>
-                                                        </div>
-
-                                                        <div
-                                                            style="background-color: #03f4bc;width: 300px;padding: 10px;">
-                                                            <p style="font-size: 12px;">Plays</p>
-                                                            <p style="color: white;">300</p>
-                                                        </div>
-
-
-                                                        <div
-                                                            style="background-color: #b8f403;width: 300px;padding: 10px;">
-                                                            <p style="font-size: 12px;">Avg Watch time</p>
-                                                            <p style="color: white;">300</p>
-                                                        </div>
-                                                        <div
-                                                            style="background-color: #f49403;width: 300px;padding: 10px;">
-                                                            <p style="font-size: 12px;">Replays</p>
-                                                            <p style="color: white;">300</p>
-                                                        </div>
-
-                                                    </div>
-
                                                     {% endif %}
                                                 </div>
                                             </div>
