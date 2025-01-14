@@ -1909,6 +1909,7 @@ def getStats(request):
             red_te = sum(red_tteng) / len(red_tteng)
     total_reddit_en = sum(red_up) + sum(red_cmt) + sum(red_cpst)
     my_dict['Reddit'] = total_reddit_en
+    
     has_facebook = False
     fb_video_data = {}
     cfb = CompanyFacebookPosts.objects.filter(post_id=post_id).first()
@@ -2243,9 +2244,34 @@ def getStats(request):
             print("Error fetching media insights:", insights_response.json())  
     
     has_tiktok=False
-    ctk=CompanyTiktokPosts.objects.filter(post_id=post_id).first()
-    if ctk:
+    ctkp=CompanyTiktokPosts.objects.filter(post_id=post_id).first()
+    if ctkp:
         has_tiktok=True
+        ctk=CompanyTiktok.objects.filter(company=pst.company).first()
+
+        url = "https://business-api.tiktok.com/open_api/v1.2/video/metrics/"
+        headers = {
+            "Access-Token": ctk.access_token,
+            "Content-Type": "application/json"
+        }
+        payload = {
+            # "advertiser_id": "1234567890123456789",
+            "video_ids": [ctkp.video_id],
+            "fields": [
+                "video_views",
+                "likes",
+                "comments",
+                "shares",
+                "play_duration_avg",
+                "play_6s_ratio",
+                "completion_rate"
+            ]
+        }
+
+        response = requests.post(url, headers=headers, json=payload)
+        print(response.json())        
+        
+        
     sorted_dict = dict(sorted(my_dict.items(), key=lambda item: item[1], reverse=True))
     return Response({'result': 'success',
                      'has_reddit': has_reddit,
