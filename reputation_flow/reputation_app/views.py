@@ -2251,7 +2251,7 @@ def getStats(request):
         url = "https://open.tiktokapis.com/v2/video/query/"
 
         params = {
-            "fields": "id,cover_image_url,embed_link"
+            "fields": "id,cover_image_url,embed_link,like_count,comment_count,share_count,view_count"
         }
         headers = {
             "Authorization": f"Bearer {ctk.access_token}",
@@ -2264,6 +2264,8 @@ def getStats(request):
                 ]
             }
         }
+        
+        
         # payload = {
         #     "access_token":ctk.access_token,
         #     "filters": {
@@ -2288,7 +2290,18 @@ def getStats(request):
         # }
 
         response = requests.post(url, headers=headers, json=payload,params=params)
-        print(response.content)        
+        videos = response.json()['data']['videos'][0]
+        ctkp.cover_image_url = videos['cover_image_url']
+        ctkp.post_link = videos['embed_link']
+        ctkp.save()
+        tk_data={
+            'like_count':videos['like_count'],
+            'comment_count':videos['comment_count'],
+            'share_count':videos['share_count'],
+            'view_count':videos['view_count'],
+            
+        }
+        print(tk_data)        
         
         
     sorted_dict = dict(sorted(my_dict.items(), key=lambda item: item[1], reverse=True))
