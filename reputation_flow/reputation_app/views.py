@@ -2492,7 +2492,7 @@ def processInstagramReplies(comment_id, page_access_token,account_id):
         # print('reply count', cpc.reply_count)
         if cpr.reply_count > 0:
             # process the replies
-            processInstagramReplies(comment_id=c_id, page_access_token=page_access_token,account_id)
+            processInstagramReplies(comment_id=c_id, page_access_token=page_access_token,account_id=account_id)
 
 
 def fetchFacebookComments(post, post_id):
