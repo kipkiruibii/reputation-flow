@@ -3042,7 +3042,7 @@ def postComment(request):
         comment.reply(comment_rt)
         # fetch comments 
 
-    elif pltform == 'facebook':
+    elif pltform == 'facebook' or pltform == 'instagram':
         cfb = CompanyFacebook.objects.filter(company=cp).first()
         url = f"https://graph.facebook.com/v21.0/{comment_id}/comments"
         data = {
@@ -3055,6 +3055,7 @@ def postComment(request):
             data = response.json()  # Returns the reply ID
         else:
             return Response({'error': 'Could not submit comment'})
+        
 
     # get the post from the post_id
     pst = CompanyPosts.objects.filter(post_id=post_id).first()
