@@ -2502,7 +2502,7 @@ def fetchInstagramComments(post, post_id):
         # Fields to fetch
         url = f'https://graph.facebook.com/v21.0/{cigp.content_id}/comments'
         FIELDS = (
-            'id,text,from{id,username},comment_count,like_count'
+            'id,text,from{id,username},comment_count,like_count,created_time'
         )
         params = {
             'fields': FIELDS,
@@ -2510,22 +2510,58 @@ def fetchInstagramComments(post, post_id):
         }
         response = requests.get(url, params=params)
         # print(response.content)
-        print()
-        user_id=response.json().get('data')[0]['from']['id']
-        print(user_id)
-        # API endpoint
-        url = f"https://graph.facebook.com/v21.0/{user_id}"
+        data=response.json().get('data')
+        print(data)
+        for d in data:
+            c_id = d['id']
+            created_time_str = d['created_time']
+            created_time_naive = datetime.strptime(created_time_str, "%Y-%m-%dT%H:%M:%S%z")
 
-        # Parameters
-        params = {
-            "fields": "id,username,profile_picture_url",
-            "access_token": cfb.page_access_token
-        }
+            url = f"https://graph.facebook.com/v21.0/{user_id}"
 
-        # Make the GET request
-        response = requests.get(url, params=params)
+            # Parameters
+            params = {
+                "fields": "id,username,profile_picture_url",
+                "access_token": cfb.page_access_token
+            }
+
+            # Make the GET request
+            response = requests.get(url, params=params)
+            try:
+                prf_url=response.json().get('profile_picture_url')
+            except:
+                prf_url=''
+                pass
+            created_time_with_timezone = created_time_naive.astimezone(timezone.utc)
+            cpc = CompanyPostsComments.objects.filter(comment_id=c_id).first()
+            if not cpc:
+                cpc = CompanyPostsComments(
+                    post=post,
+                    comment_id=c_id,
+                    platform=platform,
+                    author=d['from']['username'],
+                    message=d['text'],
+                    author_profile=prf_url,
+                    is_op=d['from']['id'] == cfb.page_id,
+                    like_count=d['like_count'],
+                    reply_count=d['comment_count'],
+                    is_published=True,
+                    date_updated=created_time_with_timezone
+                )
+                cpc.save()
+            else:
+                cpc.like_count = d['like_count']
+                cpc.reply_count = d['comment_count']
+                cpc.date_updated = created_time_with_timezone
+                cpc.save()
+            # print('reply count', cpc.reply_count)
+            # if cpc.reply_count > 0:
+            #     # process the replies
+            #     processFacebookReplies(comment_id=c_id, page_access_token=cfb.page_access_token,
+            #                             page_id=cfb.page_id)
+    
         
-        print(response.content)
+        
         
 def fetchTiktokComments(post, post_id):
     pass
