@@ -2496,7 +2496,7 @@ def fetchInstagramComments(post, post_id):
     cigp = CompanyInstagramPosts.objects.filter(post_id=post_id).first()
     if cigp:
         platform = 'instagram'
-        cfb = CompanyFacebook.objects.filter(company=post.company).first()
+        cfb = CompanyInstagram.objects.filter(company=post.company).first()
         if not cfb:
             print('not retrieved')
             return
@@ -2507,7 +2507,7 @@ def fetchInstagramComments(post, post_id):
         )
         params = {
             'fields': FIELDS,
-            'access_token': cfb.page_access_token
+            'access_token': cfb.long_lived_token
         }
         response = requests.get(url, params=params)
         print(response.content)
