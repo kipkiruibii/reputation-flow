@@ -2254,18 +2254,23 @@ def getStats(request):
             "Authorization": f"Bearer {ctk.access_token}",
             "Content-Type": "application/json"
         }
-        payload = {
-            # "advertiser_id": "1234567890123456789",
+        params = {
             "video_ids": [ctkp.video_id],
-            "fields": [
-                "like_count",
-                "comment_count",
-                "share_count",
-                "view_count"
-                ]
-        }
+            "fields": "like_count, comment_count,share_count, view_count"
 
-        response = requests.post(url, headers=headers, json=payload)
+        }
+        # payload = {
+        #     # "advertiser_id": "1234567890123456789",
+        #     "video_ids": [ctkp.video_id],
+        #     "fields": [
+        #         "like_count",
+        #         "comment_count",
+        #         "share_count",
+        #         "view_count"
+        #         ]
+        # }
+
+        response = requests.post(url, headers=headers, params=params)
         print(response.content)        
         
         
