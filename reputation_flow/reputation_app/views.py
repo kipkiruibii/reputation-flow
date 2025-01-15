@@ -2434,11 +2434,9 @@ def processFacebookReplies(comment_id, page_access_token, page_id):
 
 
 def processInstagramReplies(replies, page_access_token,account_id):
-    print('the replies')
     for data in replies:
         comment_id=data['id']
         text=data['text']
-        print('comment id',comment_id)
         # 
         user_id=data['from']['id']
         created_time_str = data['timestamp']
@@ -2462,6 +2460,7 @@ def processInstagramReplies(replies, page_access_token,account_id):
         created_time_with_timezone = created_time_naive.astimezone(timezone.utc)        
         cpr = CompanyPostsCommentsReplies.objects.filter(comment_id=comment_id).first()
         if not cpr:
+            print('cpr present')
             cpr = CompanyPostsCommentsReplies(
                 parent_comment_id=comment_id,
                 comment_id=data['id'],
@@ -2475,6 +2474,7 @@ def processInstagramReplies(replies, page_access_token,account_id):
             )
             cpr.save()
         else:
+            print('cpr absent')
             cpr.message = data['message']
             cpr.like_count = data['like_count']
             cpr.save()
