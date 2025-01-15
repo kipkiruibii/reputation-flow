@@ -2251,9 +2251,11 @@ def getStats(request):
 
         url = "https://open.tiktokapis.com/v2/video/query/"
         headers = {
+            "Authorization": f"Bearer {ctk.access_token}",
             "Content-Type": "application/json"
         }
         payload = {
+            "access_token":ctk.access_token,
             "filters": {
                 "video_ids": [ctkp.video_id]},
             "fields": [
