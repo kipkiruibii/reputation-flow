@@ -2442,7 +2442,7 @@ def processInstagramReplies(comment_id, page_access_token,account_id):
         'access_token': page_access_token
     }
     response = requests.get(url, params=params)
-    # print(response.content)
+    print(response.content)
     data=response.json().get('data')
     print(data)
     for d in data:
