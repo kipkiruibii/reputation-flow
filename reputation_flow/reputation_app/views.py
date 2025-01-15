@@ -2284,7 +2284,8 @@ def getStats(request):
             
         }
         my_dict['Tiktok'] = videos['view_count']
-        
+    pst.engagement_count=total_impressions    
+    pst.save()
     sorted_dict = dict(sorted(my_dict.items(), key=lambda item: item[1], reverse=True))
     return Response({'result': 'success',
                      'has_reddit': has_reddit,
