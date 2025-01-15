@@ -2433,7 +2433,7 @@ def processFacebookReplies(comment_id, page_access_token, page_id):
         raise Exception(f"Error fetching data: {response.status_code} - {response.text}")
 
 
-def processInstagramReplies(replies, page_access_token,account_id):
+def processInstagramReplies(replies, page_access_token,account_id,p_comment_id):
     for data in replies:
         comment_id=data['id']
         text=data['text']
@@ -2461,7 +2461,7 @@ def processInstagramReplies(replies, page_access_token,account_id):
         cpr = CompanyPostsCommentsReplies.objects.filter(comment_id=comment_id).first()
         if not cpr:
             cpr = CompanyPostsCommentsReplies(
-                parent_comment_id=comment_id,
+                parent_comment_id=p_comment_id,
                 comment_id=data['id'],
                 author=data['from']['username'],
                 message=text,
@@ -2607,7 +2607,7 @@ def fetchInstagramComments(post, post_id):
                 cpc.save()
             if cpc.reply_count > 0:
                 # process the replies
-                processInstagramReplies(replies=replies, page_access_token=cfb.page_access_token,account_id=cig.account_id)
+                processInstagramReplies(replies=replies, page_access_token=cfb.page_access_token,account_id=cig.account_id,p_comment_id=c_id)
     
         
         
