@@ -5976,9 +5976,9 @@ def tiktok_callback(request):
         "redirect_uri": settings.TIKTOK_REDIRECT_URI,
     }
     response = requests.post(token_url, data=data)
-    access_token = data['data']['access_token']
+    # access_token = data['data']['access_token']
     # business_id = data['data']['business_id']    
-    # access_token = response.json().get("access_token")
+    access_token = response.json().get("access_token")
     refresh_token = response.json().get("refresh_token")
 
     print(f"Access Token: {access_token}")
