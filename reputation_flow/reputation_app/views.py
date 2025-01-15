@@ -3043,6 +3043,7 @@ def postComment(request):
         # fetch comments 
 
     elif pltform == 'facebook' or pltform == 'instagram':
+        print('posting comments')
         cfb = CompanyFacebook.objects.filter(company=cp).first()
         url = f"https://graph.facebook.com/v21.0/{comment_id}/comments"
         data = {
