@@ -2244,6 +2244,7 @@ def getStats(request):
             print("Error fetching media insights:", insights_response.json())  
     
     has_tiktok=False
+    tk_data={}
     ctkp=CompanyTiktokPosts.objects.filter(post_id=post_id).first()
     if ctkp:
         has_tiktok=True
@@ -2264,31 +2265,6 @@ def getStats(request):
                 ]
             }
         }
-        
-        
-        # payload = {
-        #     "access_token":ctk.access_token,
-        #     "filters": {
-        #         "video_ids": [ctkp.video_id]},
-        #     "fields": [
-        #         "like_count",
-        #         "comment_count",
-        #         "share_count",
-        #         "view_count"
-        #         ]
-
-        # }
-        # payload = {
-        #     # "advertiser_id": "1234567890123456789",
-        #     "video_ids": [ctkp.video_id],
-            # "fields": [
-            #     "like_count",
-            #     "comment_count",
-            #     "share_count",
-            #     "view_count"
-            #     ]
-        # }
-
         response = requests.post(url, headers=headers, json=payload,params=params)
         videos = response.json()['data']['videos'][0]
         ctkp.cover_image_url = videos['cover_image_url']
@@ -2301,7 +2277,7 @@ def getStats(request):
             'view_count':videos['view_count'],
             
         }
-        print(tk_data)        
+        my_dict['Tiktok'] = videos['view_count']
         
         
     sorted_dict = dict(sorted(my_dict.items(), key=lambda item: item[1], reverse=True))
@@ -2330,7 +2306,8 @@ def getStats(request):
                      'ig_vid_data':ig_vid_impress,
                      
                     #  tiktok
-                      'has_tiktok':has_tiktok
+                      'has_tiktok':has_tiktok,
+                      'tk_data':tk_data
                      })
 
 
