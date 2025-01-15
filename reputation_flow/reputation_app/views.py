@@ -2514,6 +2514,7 @@ def fetchInstagramComments(post, post_id):
         print(data)
         for d in data:
             c_id = d['id']
+            user_id=d['from']['id']
             created_time_str = d['timestamp']
             created_time_naive = datetime.strptime(created_time_str, "%Y-%m-%dT%H:%M:%S%z")
 
