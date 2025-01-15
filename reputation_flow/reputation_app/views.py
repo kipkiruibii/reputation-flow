@@ -3057,11 +3057,11 @@ def postComment(request):
             return Response({'error': 'Could not submit comment'})
         
     elif pltform == 'instagram':
-        cfb = CompanyInstagram.objects.filter(company=cp).first()
-        url = f"https://graph.facebook.com/v21.0/{comment_id}/comments"
+        cfb = CompanyFacebook.objects.filter(company=cp).first()
+        url = f"https://graph.facebook.com/v21.0/{comment_id}/replies"
         data = {
             'message': comment_rt,
-            'access_token': cfb.long_lived_token
+            'access_token': cfb.page_access_token
         }
         response = requests.post(url, data=data)
         print(response.content)
