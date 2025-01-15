@@ -2619,11 +2619,12 @@ def fetchTiktokComments(post, post_id):
         if not ctk:
             return
         access_token = rtk.get_access_token(settings.TIKTOK_CLIENT_ID, settings.TIKTOK_CLIENT_SECRET)
-        print(access_token)
-        deos_df = rtk.get_videos_info([ctk.account_username], access_token['access_token'])
-        print(deos_df)
-        
-        
+        print(access_token['access_token'])
+        try:
+            videos_df = rtk.get_videos_hashtag(['FYP'], access_token, '20250114', '20250115')        
+            print(videos_df)
+        except:
+            print(traceback.format_exc())
         # url = "https://open.tiktokapis.com/v2/research/video/comment/list/"
 
         # # Query parameters
