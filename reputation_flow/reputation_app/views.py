@@ -1868,6 +1868,8 @@ def getStats(request):
     pst = CompanyPosts.objects.filter(post_id=post_id).first()
     if not pst:
         return Response({'error': 'Bad request'})
+    total_comments=0
+    total_impressions=0
 
     my_dict = {'Facebook': 0, 'Instagram': 0, 'Tiktok': 0, 'Reddit': 0}
     cr = CompanyRedditPosts.objects.filter(post_id=post_id).first()
@@ -1909,6 +1911,7 @@ def getStats(request):
             red_te = sum(red_tteng) / len(red_tteng)
     total_reddit_en = sum(red_up) + sum(red_cmt) + sum(red_cpst)
     my_dict['Reddit'] = total_reddit_en
+    total_impressions+=total_reddit_en
     
     has_facebook = False
     fb_video_data = {}
@@ -1998,7 +2001,6 @@ def getStats(request):
                 clck = 0
                 impr = 0
                 for v in vl:
-                    print(v['name'])
                     vl = v['values'][0]['value']
                     if v['name'] == 'total_video_views_autoplayed':
                         clck += vl
@@ -2011,6 +2013,7 @@ def getStats(request):
                 # save video data
                 cfb.impression_count = clck
                 cfb.impression_count = impr
+                total_impressions+=impr
                 cfb.save()
                 fb_post_click = cfb.post_clicks
                 fb_impressions = cfb.impression_count
@@ -2069,6 +2072,7 @@ def getStats(request):
                 # cfb.impression_count=''
                 fb_post_click = cfb.post_clicks
                 fb_impressions = cfb.impression_count
+                total_impressions+=fb_impressions
                 if cfb.impression_count > 0:
                     impr_conv = cfb.post_clicks / cfb.impression_count
                 # print("metrics retrieved successfully:", response.json())
@@ -2208,6 +2212,7 @@ def getStats(request):
                 if idt['name'] == 'impressions':
                     ig_impression_count=idt['values'][0]['value']
                     my_dict['Instagram']=ig_impression_count
+                    total_impressions+=ig_impression_count
                     ig_pst_dta['ig_impression_count']=ig_impression_count
                 if idt['name'] == 'reach':
                     ig_reach_count=idt['values'][0]['value']
@@ -2270,6 +2275,7 @@ def getStats(request):
         ctkp.cover_image_url = videos['cover_image_url']
         ctkp.post_link = videos['embed_link']
         ctkp.save()
+        total_impressions+=videos['view_count']
         tk_data={
             'like_count':videos['like_count'],
             'comment_count':videos['comment_count'],
@@ -2278,7 +2284,6 @@ def getStats(request):
             
         }
         my_dict['Tiktok'] = videos['view_count']
-        
         
     sorted_dict = dict(sorted(my_dict.items(), key=lambda item: item[1], reverse=True))
     return Response({'result': 'success',
