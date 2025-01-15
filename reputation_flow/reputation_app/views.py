@@ -2830,7 +2830,7 @@ def getCommentReplies(request):
     c_id = request.POST.get('comment_id', None)
     if not c_id:
         return Response({'error': 'Bad request'})
-
+    print(c_id)
     pstc = CompanyPostsComments.objects.filter(comment_id=c_id).first()
     if not pstc:
         return Response({'error': 'Bad request'})
