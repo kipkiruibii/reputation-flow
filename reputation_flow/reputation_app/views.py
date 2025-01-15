@@ -2248,23 +2248,34 @@ def getStats(request):
     if ctkp:
         has_tiktok=True
         ctk=CompanyTiktok.objects.filter(company=pst.company).first()
+        url = "https://open.tiktokapis.com/v2/video/query/"
 
-        url = "https://open-api.tiktok.com/video/query/"
+        params = {
+            "fields": "id,cover_image_url,embed_link"
+        }
         headers = {
+            "Authorization": f"Bearer {ctk.access_token}",
             "Content-Type": "application/json"
         }
         payload = {
-            "access_token":ctk.access_token,
             "filters": {
-                "video_ids": [ctkp.video_id]},
-            "fields": [
-                "like_count",
-                "comment_count",
-                "share_count",
-                "view_count"
+                "video_ids": [
+                    ctkp.video_id
                 ]
-
+            }
         }
+        # payload = {
+        #     "access_token":ctk.access_token,
+        #     "filters": {
+        #         "video_ids": [ctkp.video_id]},
+        #     "fields": [
+        #         "like_count",
+        #         "comment_count",
+        #         "share_count",
+        #         "view_count"
+        #         ]
+
+        # }
         # payload = {
         #     # "advertiser_id": "1234567890123456789",
         #     "video_ids": [ctkp.video_id],
@@ -2276,7 +2287,7 @@ def getStats(request):
             #     ]
         # }
 
-        response = requests.post(url, headers=headers, json=payload)
+        response = requests.post(url, headers=headers, json=payload,params=params)
         print(response.content)        
         
         
