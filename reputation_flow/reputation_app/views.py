@@ -2938,6 +2938,7 @@ def getCommentReplies(request):
         'comments_data': cmts,
         'posts': all_posts,
     }
+    print('comment replies',c_replies)
     if request.user_agent.is_pc:
         return render(request, 'dashboard.html', context=context)
     else:
