@@ -2498,7 +2498,6 @@ def fetchInstagramComments(post, post_id):
         platform = 'instagram'
         cfb = CompanyInstagram.objects.filter(company=post.company).first()
         if not cfb:
-            print('not retrieved')
             return
         # Fields to fetch
         url = f'https://graph.facebook.com/v21.0/{cigp.content_id}/comments'
@@ -2531,6 +2530,11 @@ def commentBackgroundUpdate(post, post_id):
         'post': post
     })
     fbCmtThread.start()
+    igCmtThread = threading.Thread(target=fetchInstagramComments, daemon=True, kwargs={
+        'post_id': post_id,
+        'post': post
+    })
+    igCmtThread.start()
     
     
 
