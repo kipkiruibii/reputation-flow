@@ -2509,11 +2509,24 @@ def fetchInstagramComments(post, post_id):
             'access_token': cfb.page_access_token
         }
         response = requests.get(url, params=params)
-        print(response.content)
+        # print(response.content)
         print()
+        user_id=response.json().get('data')[0]['from']['id']
+        print(user_id)
+        # API endpoint
+        url = f"https://graph.facebook.com/v21.0/{user_id}"
 
+        # Parameters
+        params = {
+            "fields": "id,username,profile_picture_url",
+            "access_token": cfb.page_access_token
+        }
 
-
+        # Make the GET request
+        response = requests.get(url, params=params)
+        
+        print(response.content)
+        
 def fetchTiktokComments(post, post_id):
     pass
 
