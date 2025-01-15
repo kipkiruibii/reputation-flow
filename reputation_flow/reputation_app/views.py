@@ -2610,10 +2610,26 @@ def fetchInstagramComments(post, post_id):
                 processInstagramReplies(replies=replies, page_access_token=cfb.page_access_token,account_id=cig.account_id,p_comment_id=c_id)
     
         
-        
-        
 def fetchTiktokComments(post, post_id):
-    pass
+    ctkp = CompanyTiktokPosts.objects.filter(post_id=post_id).first()
+    if ctkp:
+        platform = 'tiktok'
+        ctk = CompanyTiktok.objects.filter(company=post.company).first()
+        if not ctk:
+            return
+        url = "https://open.tiktokapis.com/v2/comment/list/"
+
+        # Query parameters
+        params = {
+            "access_token": ctk.access_token,
+            "video_id": ctkp.video_id,
+            "cursor": 0,  # Pagination cursor, set to 0 for the first page
+            "count": 50,  # Number of comments per request (max: 50)
+        }
+
+        # Send the GET request
+        response = requests.get(url, params=params)
+        print(response.content)
 
 
 def commentBackgroundUpdate(post, post_id):
