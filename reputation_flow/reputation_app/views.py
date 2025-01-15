@@ -2435,7 +2435,6 @@ def processFacebookReplies(comment_id, page_access_token, page_id):
 
 
 def fetchFacebookComments(post, post_id):
-    print('Fetching facebook comments')
     cfbp = CompanyFacebookPosts.objects.filter(post_id=post_id).first()
     if cfbp:
         platform = 'facebook'
@@ -2493,7 +2492,26 @@ def fetchFacebookComments(post, post_id):
 
 
 def fetchInstagramComments(post, post_id):
-    pass
+    print('Fetching instagram comments')
+    cigp = CompanyInstagramPosts.objects.filter(post_id=post_id).first()
+    if cigp:
+        platform = 'instagram'
+        cfb = CompanyInstagram.objects.filter(company=post.company).first()
+        if not cfb:
+            return
+        # Fields to fetch
+        url = f'https://graph.facebook.com/v21.0/{cigp.content_id}/comments'
+        FIELDS = (
+            'id,message,from{id,name,picture},created_time,comment_count,like_count'
+        )
+        params = {
+            'fields': FIELDS,
+            'access_token': cfb.page_access_token
+        }
+        response = requests.get(url, params=params)
+        print(response.content)
+        print()
+
 
 
 def fetchTiktokComments(post, post_id):
@@ -2512,6 +2530,8 @@ def commentBackgroundUpdate(post, post_id):
         'post': post
     })
     fbCmtThread.start()
+    
+    
 
 
 @api_view(['POST'])
@@ -2611,6 +2631,14 @@ def getComments(request):
         cfbp = CompanyFacebookPosts.objects.filter(post_id=post_id).first()
         if cfbp:
             fetchFacebookComments(post=pst, post_id=post_id)
+        cigp = CompanyInstagramPosts.objects.filter(post_id=post_id).first()
+        if cigp:
+            fetchInstagramComments(post=pst, post_id=post_id)
+        ctkp = CompanyTiktokPosts.objects.filter(post_id=post_id).first()
+        if ctkp:
+            fetchTiktokComments(post=pst, post_id=post_id)
+            
+            
     else:
         # return already present comments while updating in the background
         thrd = threading.Thread(target=commentBackgroundUpdate, daemon=True, kwargs={
