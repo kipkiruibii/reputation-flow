@@ -2498,6 +2498,7 @@ def fetchInstagramComments(post, post_id):
         platform = 'instagram'
         cfb = CompanyFacebook.objects.filter(company=post.company).first()
         if not cfb:
+            print('not retrieved')
             return
         # Fields to fetch
         url = f'https://graph.facebook.com/v21.0/{cigp.content_id}/comments'
