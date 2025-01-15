@@ -2502,7 +2502,7 @@ def fetchInstagramComments(post, post_id):
         # Fields to fetch
         url = f'https://graph.facebook.com/v21.0/{cigp.content_id}/comments'
         FIELDS = (
-            'id,text,from{id,name,picture},created_time,comment_count,like_count'
+            'id,text,from{id,username,picture}'
         )
         params = {
             'fields': FIELDS,
