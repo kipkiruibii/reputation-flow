@@ -2496,7 +2496,7 @@ def fetchInstagramComments(post, post_id):
     cigp = CompanyInstagramPosts.objects.filter(post_id=post_id).first()
     if cigp:
         platform = 'instagram'
-        cfb = CompanyInstagram.objects.filter(company=post.company).first()
+        cfb = CompanyFacebook.objects.filter(company=post.company).first()
         if not cfb:
             return
         # Fields to fetch
