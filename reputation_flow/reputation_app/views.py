@@ -2433,7 +2433,7 @@ def processFacebookReplies(comment_id, page_access_token, page_id):
         raise Exception(f"Error fetching data: {response.status_code} - {response.text}")
 
 def processInstagramReplies(comment_id, page_access_token,account_id):
-    url = f"https://graph.facebook.com/v21.0/{comment_id}/replies"
+    url = f"https://graph.facebook.com/v21.0/{comment_id}"
     FIELDS = (
         'id,text,from{id,username},replies,like_count,timestamp'
     )
@@ -2492,7 +2492,8 @@ def processInstagramReplies(comment_id, page_access_token,account_id):
         # print('reply count', cpc.reply_count)
         if cpr.reply_count > 0:
             # process the replies
-            processInstagramReplies(comment_id=c_id, page_access_token=page_access_token,account_id=account_id)
+            print(replies)
+            # processInstagramReplies(comment_id=c_id, page_access_token=page_access_token,account_id=account_id)
 
 
 def fetchFacebookComments(post, post_id):
@@ -2626,7 +2627,8 @@ def fetchInstagramComments(post, post_id):
             # print('reply count', cpc.reply_count)
             if cpc.reply_count > 0:
                 # process the replies
-                processInstagramReplies(comment_id=c_id, page_access_token=cfb.page_access_token,account_id=cig.account_id)
+                print(replies)
+                # processInstagramReplies(comment_id=c_id, page_access_token=cfb.page_access_token,account_id=cig.account_id)
     
         
         
