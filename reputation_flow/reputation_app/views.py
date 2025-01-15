@@ -2432,25 +2432,14 @@ def processFacebookReplies(comment_id, page_access_token, page_id):
         print('error found')
         raise Exception(f"Error fetching data: {response.status_code} - {response.text}")
 
-def processInstagramReplies(comment_id, page_access_token,account_id):
-    url = f"https://graph.facebook.com/v21.0/{comment_id}"
-    FIELDS = (
-        'id,text,from{id,username},replies,like_count,timestamp'
-    )
-    params = {
-        'fields': FIELDS,
-        'access_token': page_access_token
-    }
-    response = requests.get(url, params=params)
-    print(response.content)
-    data=response.json().get('data')
-    print(data)
-    for d in data:
-        replies = d.get('replies', {}).get('data', [])
-        reply_count = len(replies)
-        c_id = d['id']
-        user_id=d['from']['id']
-        created_time_str = d['timestamp']
+
+def processInstagramReplies(replies, page_access_token,account_id):
+    for data in replies:
+        comment_id=data['id']
+        text=data['text']
+        # 
+        user_id=data['from']['id']
+        created_time_str = data['timestamp']
         created_time_naive = datetime.strptime(created_time_str, "%Y-%m-%dT%H:%M:%S%z")
 
         url = f"https://graph.facebook.com/v21.0/{user_id}"
@@ -2468,18 +2457,17 @@ def processInstagramReplies(comment_id, page_access_token,account_id):
         except:
             prf_url=''
             pass
-        created_time_with_timezone = created_time_naive.astimezone(timezone.utc)
-        cpr = CompanyPostsCommentsReplies.objects.filter(comment_id=data['id']).first()
+        created_time_with_timezone = created_time_naive.astimezone(timezone.utc)        
+        cpr = CompanyPostsCommentsReplies.objects.filter(comment_id=comment_id).first()
         if not cpr:
             cpr = CompanyPostsCommentsReplies(
                 parent_comment_id=comment_id,
                 comment_id=data['id'],
                 author=data['from']['username'],
-                message=data['text'],
+                message=text,
                 author_profile=prf_url,
                 is_op=data['from']['id'] == account_id,
                 like_count=data['like_count'],
-                reply_count=reply_count,
                 is_published=True,
                 date_updated=created_time_with_timezone
             )
@@ -2487,13 +2475,7 @@ def processInstagramReplies(comment_id, page_access_token,account_id):
         else:
             cpr.message = data['message']
             cpr.like_count = data['like_count']
-            cpr.reply_count = reply_count
             cpr.save()
-        # print('reply count', cpc.reply_count)
-        if cpr.reply_count > 0:
-            # process the replies
-            print(replies)
-            # processInstagramReplies(comment_id=c_id, page_access_token=page_access_token,account_id=account_id)
 
 
 def fetchFacebookComments(post, post_id):
@@ -2626,8 +2608,7 @@ def fetchInstagramComments(post, post_id):
                 cpc.save()
             if cpc.reply_count > 0:
                 # process the replies
-                print(replies)
-                # processInstagramReplies(comment_id=c_id, page_access_token=cfb.page_access_token,account_id=cig.account_id)
+                processInstagramReplies(replies=replies, page_access_token=cfb.page_access_token,account_id=cig.account_id)
     
         
         
