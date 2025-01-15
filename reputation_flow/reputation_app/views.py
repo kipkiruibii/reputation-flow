@@ -2620,7 +2620,7 @@ def fetchTiktokComments(post, post_id):
             return
         access_token = rtk.get_access_token(settings.TIKTOK_CLIENT_ID, settings.TIKTOK_CLIENT_SECRET)
         print(access_token)
-        deos_df = rtk.get_videos_info([ctk.account_username], access_token)
+        deos_df = rtk.get_videos_info([ctk.account_username], access_token['access_token'])
         print(deos_df)
         
         
