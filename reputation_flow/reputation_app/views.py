@@ -2255,7 +2255,8 @@ def getStats(request):
             "Content-Type": "application/json"
         }
         params = {
-            "video_ids": [ctkp.video_id],
+            "filters": {
+            "video_ids": [ctkp.video_id]},
             "fields": "like_count, comment_count,share_count, view_count"
 
         }
