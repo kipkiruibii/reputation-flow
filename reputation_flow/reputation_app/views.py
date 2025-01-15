@@ -2459,9 +2459,7 @@ def processInstagramReplies(replies, page_access_token,account_id):
             pass
         created_time_with_timezone = created_time_naive.astimezone(timezone.utc)        
         cpr = CompanyPostsCommentsReplies.objects.filter(comment_id=comment_id).first()
-        print(len(CompanyPostsCommentsReplies.objects.filter(comment_id=comment_id)))
         if not cpr:
-            print('cpr present')
             cpr = CompanyPostsCommentsReplies(
                 parent_comment_id=comment_id,
                 comment_id=data['id'],
@@ -2473,12 +2471,11 @@ def processInstagramReplies(replies, page_access_token,account_id):
                 is_published=True,
                 date_updated=created_time_with_timezone
             )
-            # cpr.save()
+            cpr.save()
         else:
-            print('cpr absent')
             cpr.message = data['text']
             cpr.like_count = data['like_count']
-            # cpr.save()
+            cpr.save()
 
 
 def fetchFacebookComments(post, post_id):
