@@ -19,6 +19,7 @@ from .pinecone_utils import upsert_vectors,query_knowledge_base,delete_vectors
 from paypal.standard.forms import PayPalPaymentsForm
 from django.conf import settings
 import uuid
+import researchtikpy as rtk
 from django.urls import reverse
 # firebase.py
 import time
@@ -2617,19 +2618,25 @@ def fetchTiktokComments(post, post_id):
         ctk = CompanyTiktok.objects.filter(company=post.company).first()
         if not ctk:
             return
-        url = "https://open.tiktokapis.com/v2/research/video/comment/list/"
+        access_token = rtk.get_access_token(settings.TIKTOK_CLIENT_ID, settings.TIKTOK_CLIENT_SECRET)
+        print(access_token)
+        deos_df = rtk.get_videos_info(ctk.account_username, access_token)
+        print(deos_df)
+        
+        
+        # url = "https://open.tiktokapis.com/v2/research/video/comment/list/"
 
-        # Query parameters
-        params = {
-            "access_token": ctk.access_token,
-            "video_id": ctkp.video_id,
-            "cursor": 0,  # Pagination cursor, set to 0 for the first page
-            "count": 50,  # Number of comments per request (max: 50)
-        }
+        # # Query parameters
+        # params = {
+        #     "access_token": ctk.access_token,
+        #     "video_id": ctkp.video_id,
+        #     "cursor": 0,  # Pagination cursor, set to 0 for the first page
+        #     "count": 50,  # Number of comments per request (max: 50)
+        # }
 
-        # Send the GET request
-        response = requests.get(url, params=params)
-        print(response.content)
+        # # Send the GET request
+        # response = requests.get(url, params=params)
+        # print(response.content)
 
 
 def commentBackgroundUpdate(post, post_id):
@@ -6127,7 +6134,6 @@ def tiktok_auth_link(company_id):
 @csrf_exempt
 def tiktok_callback(request):
     """Handles the TikTok callback and exchanges code for an access token."""
-
     code = request.GET.get('code')
     state = request.GET.get("state")  # Retrieve the state parameter
     company_id = urllib.parse.unquote_plus(state)  # Decode the state to get the original user_id
