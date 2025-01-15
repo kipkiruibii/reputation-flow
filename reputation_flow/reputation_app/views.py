@@ -2505,7 +2505,7 @@ def fetchInstagramComments(post, post_id):
             'id,message,from{id,name,picture},created_time,comment_count,like_count'
         )
         params = {
-            # 'fields': FIELDS,
+            'fields': FIELDS,
             'access_token': cfb.page_access_token
         }
         response = requests.get(url, params=params)
