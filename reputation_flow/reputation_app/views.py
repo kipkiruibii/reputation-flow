@@ -2502,7 +2502,7 @@ def fetchInstagramComments(post, post_id):
         # Fields to fetch
         url = f'https://graph.facebook.com/v21.0/{cigp.content_id}/comments'
         FIELDS = (
-            'id,text,from{id,username},comment_count,like_count,timestamp'
+            'id,text,from{id,username},replies,like_count,timestamp'
         )
         params = {
             'fields': FIELDS,
@@ -2513,6 +2513,10 @@ def fetchInstagramComments(post, post_id):
         data=response.json().get('data')
         print(data)
         for d in data:
+            replies = d.get('replies', {}).get('data', [])
+            
+            # Count replies manually
+            reply_count = len(replies)
             c_id = d['id']
             user_id=d['from']['id']
             created_time_str = d['timestamp']
@@ -2545,14 +2549,14 @@ def fetchInstagramComments(post, post_id):
                     author_profile=prf_url,
                     is_op=d['from']['id'] == cfb.page_id,
                     like_count=d['like_count'],
-                    reply_count=d['comment_count'],
+                    reply_count=reply_count,
                     is_published=True,
                     date_updated=created_time_with_timezone
                 )
                 cpc.save()
             else:
                 cpc.like_count = d['like_count']
-                cpc.reply_count = d['comment_count']
+                cpc.reply_count = reply_count
                 cpc.date_updated = created_time_with_timezone
                 cpc.save()
             # print('reply count', cpc.reply_count)
