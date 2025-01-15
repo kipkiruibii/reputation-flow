@@ -2617,7 +2617,7 @@ def fetchTiktokComments(post, post_id):
         ctk = CompanyTiktok.objects.filter(company=post.company).first()
         if not ctk:
             return
-        url = "https://open.tiktokapis.com/v2/comment/list/"
+        url = "https://open.tiktokapis.com/v2/research/video/comment/list/"
 
         # Query parameters
         params = {
