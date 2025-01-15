@@ -2249,7 +2249,7 @@ def getStats(request):
         has_tiktok=True
         ctk=CompanyTiktok.objects.filter(company=pst.company).first()
 
-        url = "https://business-api.tiktok.com/open_api/v1.3/business/video/list/"
+        url = "https://open.tiktokapis.com/v2/video/query/"
         headers = {
             "Access-Token": ctk.access_token,
             "Content-Type": "application/json"
@@ -2258,14 +2258,11 @@ def getStats(request):
             # "advertiser_id": "1234567890123456789",
             "video_ids": [ctkp.video_id],
             "fields": [
-                "video_views",
-                "likes",
-                "comments",
-                "shares",
-                "play_duration_avg",
-                "play_6s_ratio",
-                "completion_rate"
-            ]
+                "like_count",
+                "comment_count",
+                "share_count",
+                "view_count"
+                ]
         }
 
         response = requests.post(url, headers=headers, json=payload)
@@ -5950,8 +5947,8 @@ def tiktok_auth_link(company_id):
     state = urllib.parse.quote_plus(str(company_id))  # Ensure URL encoding for special characters
     scope="business_management,ad_management"
     auth_url = (
-        # f"https://www.tiktok.com/v2/auth/authorize/"
-        f"https://business-api.tiktok.com/open_api/v1.3/oauth/authorize/"
+        f"https://www.tiktok.com/v2/auth/authorize/"
+        # f"https://business-api.tiktok.com/open_api/v1.3/oauth/authorize/"
         f"?client_key={client_id}"
         f"&redirect_uri={redirect_uri}"
         f"&response_type=code"
@@ -5970,8 +5967,8 @@ def tiktok_callback(request):
     state = request.GET.get("state")  # Retrieve the state parameter
     company_id = urllib.parse.unquote_plus(state)  # Decode the state to get the original user_id
 
-    # token_url = "https://open.tiktokapis.com/v2/oauth/token/"
-    token_url = "https://business-api.tiktok.com/open_api/v1.3/oauth2/access_token/"
+    token_url = "https://open.tiktokapis.com/v2/oauth/token/"
+    # token_url = "https://business-api.tiktok.com/open_api/v1.3/oauth2/access_token/"
     data = {
         "client_key": settings.TIKTOK_CLIENT_ID,
         "client_secret": settings.TIKTOK_CLIENT_SECRET,
@@ -5981,12 +5978,12 @@ def tiktok_callback(request):
     }
     response = requests.post(token_url, data=data)
     access_token = data['data']['access_token']
-    business_id = data['data']['business_id']    
+    # business_id = data['data']['business_id']    
     # access_token = response.json().get("access_token")
     refresh_token = response.json().get("refresh_token")
 
     print(f"Access Token: {access_token}")
-    print(f"Business ID: {business_id}")
+    # print(f"Business ID: {business_id}")
     if not access_token:
         return redirect('dashboard', company_id=company_id)
     cm = Company.objects.filter(company_id=company_id).first()
