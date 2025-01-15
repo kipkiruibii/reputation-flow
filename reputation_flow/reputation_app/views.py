@@ -3051,7 +3051,7 @@ def postComment(request):
             'access_token': cfb.page_access_token
         }
         response = requests.post(url, data=data)
-
+        print(response.content)
         if response.status_code == 200:
             data = response.json()  # Returns the reply ID
         else:
