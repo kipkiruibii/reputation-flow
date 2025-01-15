@@ -2251,27 +2251,31 @@ def getStats(request):
 
         url = "https://open.tiktokapis.com/v2/video/query/"
         headers = {
-            "Authorization": f"Bearer {ctk.access_token}",
             "Content-Type": "application/json"
         }
-        params = {
+        payload = {
             "filters": {
-            "video_ids": [ctkp.video_id]},
-            "fields": "like_count, comment_count,share_count, view_count"
+                "video_ids": [ctkp.video_id]},
+            "fields": [
+                "like_count",
+                "comment_count",
+                "share_count",
+                "view_count"
+                ]
 
         }
         # payload = {
         #     # "advertiser_id": "1234567890123456789",
         #     "video_ids": [ctkp.video_id],
-        #     "fields": [
-        #         "like_count",
-        #         "comment_count",
-        #         "share_count",
-        #         "view_count"
-        #         ]
+            # "fields": [
+            #     "like_count",
+            #     "comment_count",
+            #     "share_count",
+            #     "view_count"
+            #     ]
         # }
 
-        response = requests.post(url, headers=headers, params=params)
+        response = requests.post(url, headers=headers, json=payload)
         print(response.content)        
         
         
