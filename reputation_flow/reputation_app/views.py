@@ -2502,7 +2502,7 @@ def fetchInstagramComments(post, post_id):
         # Fields to fetch
         url = f'https://graph.facebook.com/v21.0/{cigp.content_id}/comments'
         FIELDS = (
-            'id,text,from{id,username},comment_count,like_count,created_time'
+            'id,text,from{id,username},comment_count,like_count,timestamp'
         )
         params = {
             'fields': FIELDS,
@@ -2514,7 +2514,7 @@ def fetchInstagramComments(post, post_id):
         print(data)
         for d in data:
             c_id = d['id']
-            created_time_str = d['created_time']
+            created_time_str = d['timestamp']
             created_time_naive = datetime.strptime(created_time_str, "%Y-%m-%dT%H:%M:%S%z")
 
             url = f"https://graph.facebook.com/v21.0/{user_id}"
