@@ -2434,9 +2434,11 @@ def processFacebookReplies(comment_id, page_access_token, page_id):
 
 
 def processInstagramReplies(replies, page_access_token,account_id):
+    print('the replies')
     for data in replies:
         comment_id=data['id']
         text=data['text']
+        print('comment id',comment_id)
         # 
         user_id=data['from']['id']
         created_time_str = data['timestamp']
@@ -2536,7 +2538,6 @@ def fetchFacebookComments(post, post_id):
 
 
 def fetchInstagramComments(post, post_id):
-    print('Fetching instagram comments')
     cigp = CompanyInstagramPosts.objects.filter(post_id=post_id).first()
     if cigp:
         platform = 'instagram'
@@ -2781,13 +2782,7 @@ def getComments(request):
                 'media_url': m.media.url,
                 'is_video': False
             })
-        reds = []
-        cover_image_link = ''
 
-        # if 'reddit' in p.platforms:
-        #     cr = CompanyRedditPosts.objects.filter(post_id=p.post_id).first()
-            # use threading to update post and comments
-            # pass
         eng_cnt = p.engagement_count
         if eng_cnt > 1000000:
             eng_cnt = round(eng_cnt / 1000000, 1)
@@ -2887,13 +2882,6 @@ def getCommentReplies(request):
                 'media_url': m.media.url,
                 'is_video': False
             })
-        reds = []
-        cover_image_link = ''
-
-        if 'reddit' in p.platforms:
-            cr = CompanyRedditPosts.objects.filter(post_id=p.post_id).first()
-            # use threading to update post and comments
-            pass
         eng_cnt = p.engagement_count
         if eng_cnt > 1000000:
             eng_cnt = round(eng_cnt / 1000000, 1)
