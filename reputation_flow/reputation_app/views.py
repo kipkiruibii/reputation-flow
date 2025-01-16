@@ -3069,9 +3069,9 @@ def addCommentToReview(request):
     if not cpst:
         return Response({'error': 'Bad request'})
     link=''
-    # if cpcm.platform.lower() =='instagram':
-    #     igpost=CompanyInstagramPosts.objects.filter(post_id=cpst.post_id).first()
-    #     link=igpost.post_link+ "?comment_id=" + {comment_id}
+    if cpcm.platform.lower() =='instagram':
+        igpost=CompanyInstagramPosts.objects.filter(post_id=cpst.post_id).first()
+        link=igpost.post_link+ "?comment_id=" + {comment_id}
     crv=CompanyReviews(
         company=cp,
         content=cpcm.message,
