@@ -3001,7 +3001,7 @@ def socialProof(request,company_name):
     sc = CompanyContacts.objects.filter(company=cp).first()
     eml=sc.email if sc else False
     revs=[]
-    crevs=CompanyReviews.objects.filter(company=cp,is_published=True)
+    crevs=CompanyReviews.objects.filter(company=cp,is_published=True).order_by('-date_commented')
     for r in crevs:
         revs.append({
             'reviewer':r.commentor,
