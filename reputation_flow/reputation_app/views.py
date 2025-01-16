@@ -3016,6 +3016,7 @@ def socialProof(request,company_name):
     context = {
         'success': True,
         'search_autofill':json.dumps(all_cp),
+        'company_id':cp.company_id,
         'about':cp.company_about,
         'phone':cp.company_phone,
         'email':eml if str(eml)!='None' else '' ,

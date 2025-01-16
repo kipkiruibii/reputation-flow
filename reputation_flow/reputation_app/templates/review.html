@@ -347,7 +347,7 @@
                 <h3>What people are saying about {{ company }}</h3>
                 {% if not reviews %}
                 <!-- Chatbot Iframe -->
-                <iframe id="chatbot-iframe" src="https://insightlyze.com/chatbot/"
+                <iframe id="chatbot-iframe" src="https://insightlyze.com/chatbot/{{ company_id }}"
                     style="display:none;position: fixed; bottom: 20px; right: 20px; width: 360px; height: 600px; z-index: 9000;"
                     frameborder="0">
                 </iframe>
@@ -416,7 +416,7 @@
 
     </div>
     {% else %}
-    <iframe id="chatbot-iframe" src="https://insightlyze.com/chatbot/"
+    <iframe id="chatbot-iframe" src="https://insightlyze.com/chatbot/{{ company_id }}"
         style="display:none;position: fixed; bottom: 20px; right: 20px; width: 1360px; height: 1600px; z-index: 9000;"
         frameborder="0">
     </iframe>
