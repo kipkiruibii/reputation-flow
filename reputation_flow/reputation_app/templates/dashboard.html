@@ -4648,36 +4648,60 @@
                             Integration
                         </h4>
                     </div>
-                    <!-- <div class="user-details" tooltip="Me" flow="down">
-
-                    </div>
-                    <div class="popup" style="width: 250px;">
-                        <div style="display: flex;gap: 10px;">
-                            <div
-                                style="width: 70px;height: 70px;border-radius: 70px;background-color: rgb(255, 145, 0);">
-                            </div>
-                            <div>
-                                <p class="font-12">{{ request.user.username }} </p>
-                                <p class="font-12">Change Picture</p>
-                            </div>
-                        </div>
-                        <hr>
-                        <p>Permissions</p>
-                        <ul style="max-height: 100px;overflow-y: scroll;list-style-type: none;">
-                            <li class="font-12" style="color: green;"><i class="fa fa-check"></i> Can update business
-                                profile
-                            </li>
-                            <li class="font-12" style="color: red;"><i class="fa fa-times"></i> Can update profile</li>
-                        </ul>
-                        <a href="{% url 'logout' %}" style="text-decoration: none;">
-                            <div class="logout-btn"
-                                style="background-color: red;display: flex;margin-left: 30%;margin-right: 30%;align-items: center;justify-content: center;border-radius: 30px;color: white;">
-                                <span style="margin-right: 10px;">Log out</span> <i class="fas fa-sign-out"></i>
-                            </div>
-                        </a>
-                    </div> -->
                 </div>
                 <div class="company-account-info container-right">
+                    <div
+                        style="font-family: Arial, sans-serif; line-height: 1.6; max-width: 800px; margin: 20px auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+                        <h2 style="color: #333; text-align: center;">How to Integrate the AI Chatbot into Your Website
+                        </h2>
+                        <ol style="padding-left: 20px; color: #555;">
+                            <li>
+                                Open your <strong>Insightlyze Dashboard</strong> and scroll to the <em>AI Chatbot</em>
+                                section.
+                            </li>
+                            <li>
+                                Select the company files that contain the information your chatbot will use to provide
+                                answers.
+                            </li>
+                            <li>
+                                Click the <strong>'Upload and Train'</strong> button to process the selected files.
+                            </li>
+                            <li>
+                                Add the following lines to the <strong>&lt;head&gt;</strong> tag of your webpage where
+                                you want the chatbot to appear:
+                                <pre
+                                    style="background-color: #f9f9f9; padding: 10px; border-radius: 4px; font-size: 14px; overflow: auto;">
+                    &lt;link rel="stylesheet" href="https://d2w11b8kfh947x.cloudfront.net/chatbot.css"&gt;
+                    &lt;script src="https://d2w11b8kfh947x.cloudfront.net/chatbot.js" defer&gt;&lt;/script&gt;
+                                </pre>
+                            </li>
+                            <li>
+                                Add the following iframe inside the <strong>&lt;body&gt;</strong> tag of your HTML:
+                                <pre
+                                    style="background-color: #f9f9f9; padding: 10px; border-radius: 4px; font-size: 14px; overflow: auto;">
+                    &lt;iframe src="https://your-chatbot-url-here" style="width: 100%; height: 500px; border: none;"&gt;&lt;/iframe&gt;
+                                </pre>
+                            </li>
+                            <li>
+                                Once you’ve integrated the chatbot into your website, go back to your
+                                <strong>Insightlyze Dashboard</strong> and click <strong>'Enable'</strong> to activate
+                                the chatbot.
+                            </li>
+                            <li>
+                                To monitor token usage, click <strong>'Manage'</strong> in the left panel of the
+                                dashboard.
+                            </li>
+                            <li>
+                                To review customer-chatbot interactions, navigate to <strong>PM (Private
+                                    Messages)</strong> and click on <strong>'Chatbot'</strong>.
+                            </li>
+                            <li>
+                                If you need further assistance, feel free to contact us at <a
+                                    href="mailto:infopack254@gmail.com"
+                                    style="color: #007BFF;">infopack254@gmail.com</a>.
+                            </li>
+                        </ol>
+                    </div>
 
                 </div>
 
@@ -7590,8 +7614,6 @@
 
 
                 });
-
-
 
                 $(document).on('click', '#apply-filters,#reviews,.pub-unpub', function () {
 
