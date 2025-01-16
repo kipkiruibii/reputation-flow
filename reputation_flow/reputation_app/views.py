@@ -3052,7 +3052,33 @@ def addCommentToReview(request):
     company_id = request.POST.get('company_id', None)
     if not all([company_id, comment_id]):
         return Response({'error': 'Bad request'})
-    return Response({'success': 'Bad request'})
+    cp = Company.objects.filter(company_id=company_id).first()
+    if not cp:
+        return Response({'error': 'Bad request'})
+    
+    crev=CompanyReviews.objects.filter(content_id=comment_id)
+    if crev:
+        crev.delete()
+        return Response({'success': 'Successfully removed item from review wall'})
+
+    cpcm=CompanyPostsComments.objects.filter(comment_id=comment_id).first()
+    if not cpcm:
+        return Response({'error': 'Bad request'})
+    
+    crv=CompanyReviews(
+        company=cp,
+        content=cpcm.message,
+        content_id=comment_id,
+        commentor_profile=cpcm.author_profile,
+        link='',
+        commentor=cpcm.author,
+        date_commented=cpcm.date_updated,
+        platform=cpcm.platform)
+    crv.save()
+    
+    return Response({'success': 'Successfully added to review wall'})
+
+
 
 
 @api_view(['POST'])

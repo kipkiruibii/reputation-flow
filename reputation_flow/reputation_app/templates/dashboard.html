@@ -5651,7 +5651,7 @@
                                                     {{ comment.like_count }}</span>
                                             </p>
 
-                                            <p><i class="fa fa fa-star"></i> <span style="font-size: 12px;" data-type="comment" data-type_id="{{comment.id }}" class="add-to-review">Add to
+                                            <p style="cursor: pointer;"><i class="fa fa fa-star"></i> <span style="font-size: 12px;" data-type="comment" data-type_id="{{comment.id }}" class="add-to-review">Add to
                                                     review wall</span></p>
                                         </div>
                                         <div id="comment-reply-container-box-{{ comment.id }}" style="display: none;">
@@ -6309,7 +6309,7 @@
                                                     {{ comment.like_count }}</span>
                                             </p>
 
-                                            <p><i class="fa fa fa-star"></i> <span style="font-size: 12px;" data-type="comment" data-type_id="{{comment.id }}" class="add-to-review">Add to
+                                            <p style="cursor: pointer;"><i class="fa fa fa-star"></i> <span style="font-size: 12px;" data-type="comment" data-type_id="{{comment.id }}" class="add-to-review">Add to
                                                 review wall</span></p>
                                     </div>
                                         <div id="comment-reply-container-box-{{ comment.id }}" style="display: none;">
@@ -7568,10 +7568,9 @@
                                 currItem.text('Add to review wall');
 
                             } else {
-                                toastr.success('Added to reviews');
+                                toastr.success(response['success']);
                                 currItem.text('Added');
                                 currItem.css('color','green');
-
                                 return;
                             }
                         },
