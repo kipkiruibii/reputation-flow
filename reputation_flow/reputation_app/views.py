@@ -1330,6 +1330,7 @@ def companyReviews(request):
     for r in cpr:
         reviews.append({
             'commentor': r.commentor,
+            'commentor_profile': r.commentor_profile,
             'content': r.content,
             'link': r.link,
             'published': r.is_published,
