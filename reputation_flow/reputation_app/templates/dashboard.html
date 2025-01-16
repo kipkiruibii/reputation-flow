@@ -3168,8 +3168,6 @@
                             <div style="display: flex;justify-content: center;margin-top: 25%;">
                                 <p>No Reviews Yet.</p>
                             </div>
-
-
                             {% else %}
                             {% for r in reviews %}
                             <div class="post-comment-box" style="padding: 10px; ">
@@ -7576,7 +7574,7 @@
 
                             } else {
                                 toastr.success(response['success']);
-                                currItem.text('Added');
+                                currItem.text('Done');
                                 currItem.css('color', 'green');
                                 return;
                             }
