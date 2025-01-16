@@ -16,6 +16,8 @@ urlpatterns=[
     path('setting-profile/',views.settingProfile,name='setting-profile'),
     # get posts
     path('fetch-posts/',views.fetchPosts,name='fetch-posts'),
+    # get posts
+    path('add-review-wall/',views.addCommentToReview,name='add-review-wall'),
     # create team
     path('request-feature/',views.requestFeature,name='request-feature'),
     # create team

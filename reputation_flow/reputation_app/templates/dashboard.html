@@ -5651,7 +5651,7 @@
                                                     {{ comment.like_count }}</span>
                                             </p>
 
-                                            <p><i class="fa fa fa-star"></i> <span style="font-size: 12px;">Add to
+                                            <p><i class="fa fa fa-star"></i> <span style="font-size: 12px;" data-type="comment" data-type_id="{{comment.id }}" class="add-to-review">Add to
                                                     review wall</span></p>
                                         </div>
                                         <div id="comment-reply-container-box-{{ comment.id }}" style="display: none;">
@@ -6309,9 +6309,9 @@
                                                     {{ comment.like_count }}</span>
                                             </p>
 
-                                            <p><i class="fa fa fa-star"></i> <span style="font-size: 12px;">Add to
-                                                    review wall</span></p>
-                                        </div>
+                                            <p><i class="fa fa fa-star"></i> <span style="font-size: 12px;" data-type="comment" data-type_id="{{comment.id }}" class="add-to-review">Add to
+                                                review wall</span></p>
+                                    </div>
                                         <div id="comment-reply-container-box-{{ comment.id }}" style="display: none;">
                                             <div class="comment-post-box">
                                                 <div data-mdb-input-init class="form-outline" style="width: 90%;">
@@ -7544,6 +7544,50 @@
                     $('#chat_load').css('display', 'block');
                     $('#main-content').css('display', 'none');
                 });
+                $(document).on('click', '.add-to-review', function () {
+                    var data_id=$(this).data('type_id');
+                    var data_type=$(this).data('type');
+                    var currItem=$(this)
+                    currItem.text('Adding...');
+                    var formData = new FormData();
+                    var csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                    formData.append('company_id', '{{ company_id }}');
+                    formData.append('comment_id', data_id);
+                    $.ajax({
+                        url: '{% url "add-review-wall" %}', // Replace with your Django endpoint URL
+                        type: 'POST',
+                        headers: {
+                            'X-CSRFToken': csrfToken
+                        },
+                        data: formData,
+                        processData: false, // Prevent jQuery from processing the data
+                        contentType: false, // Prevent jQuery from setting the content type
+                        success: function (response) {
+                            if (response['error']) {
+                                toastr.error(response['error']);
+                                currItem.text('Add to review wall');
+
+                            } else {
+                                toastr.success('Added to reviews');
+                                currItem.text('Added');
+                                currItem.css('color','green');
+
+                                return;
+                            }
+                        },
+                        error: function (jqXHR, textStatus, errorThrown) {
+                            toastr.error('Failed to submit form.');
+                            console.error(textStatus, errorThrown);
+                            currItem.text('Add to review wall');
+
+                        }
+                    });
+
+
+
+                });
+
+                
 
                 $(document).on('click', '#apply-filters,#reviews,.pub-unpub', function () {
 

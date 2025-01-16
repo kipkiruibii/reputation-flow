@@ -3047,13 +3047,22 @@ def socialProof(request,company_name):
     return render(request, 'review.html', context=context)
 
 @api_view(['POST'])
+def addCommentToReview(request):
+    comment_id = request.POST.get('comment_id', None)
+    company_id = request.POST.get('company_id', None)
+    if not all([company_id, comment_id]):
+        return Response({'error': 'Bad request'})
+    return Response({'success': 'Bad request'})
+
+
+@api_view(['POST'])
 def postComment(request):
     comment_id = request.POST.get('comment_id', None)
     post_id = request.POST.get('post_id', None)
     comment_level = request.POST.get('comment_level', None)
     comment_rt = request.POST.get('comment', None)
     company_id = request.POST.get('company_id', None)
-    if not all([comment_id, comment_rt, comment_id, comment_level]):
+    if not all([comment_id, comment_rt, company_id, comment_level]):
         return Response({'error': 'Bad request'})
     cp = Company.objects.filter(company_id=company_id).first()
     if not cp:
