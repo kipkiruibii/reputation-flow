@@ -1366,6 +1366,7 @@ def dashboard(request, company_id):
         return render(request, '404error.html')
     
     cfs=CompanyFileSizes.objects.filter(company=cm).first()
+    
     if not cfs:
         alct=0
         if cm.company_free_trial:
@@ -1502,6 +1503,7 @@ def dashboard(request, company_id):
         'company_subs': {
             'subscription_active': cm.company_active_subscription,
             'subscription_type': cm.company_subscription,
+            'subscription_tier':cm.company_subscription_tier,
             'free_trial': cm.company_free_trial,
             # 'free_trial_expired': True if exp_dif < 0 else False,
             'free_trial_expiry': exp_dif,

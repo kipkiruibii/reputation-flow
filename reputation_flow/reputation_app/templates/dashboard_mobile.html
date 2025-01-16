@@ -3251,9 +3251,17 @@
                         style="margin-left:10px;margin-right: 10px;border-radius: 10px;display: flex;justify-content: space-between;padding:3px;align-items: center;">
                         <span style="width:30px"></span>
                         {% if user_permissions.can_create_team_add_member %}
+                        {% if company_subs.subscription_tier > 1 %}
                         <div>
                             <a class="btn-solid-sm" href="#" id="create-team-btn">Create Team</a>
                         </div>
+                        {% else %}
+                        <div tooltip="Upgrade account" flow="down">
+                            <a class="btn-solid-sm"
+                                style="background-color: grey;color: white;border: none;cursor: not-allowed;"
+                                href="#">Create Team</a>
+                        </div>
+                        {% endif %}
                         <div>
                             <a class="btn-solid-sm" href="#" id="back-to-teams" style="display: none;">Back to Teams</a>
                         </div>
