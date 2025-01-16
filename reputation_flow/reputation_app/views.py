@@ -2618,13 +2618,6 @@ def fetchTiktokComments(post, post_id):
         ctk = CompanyTiktok.objects.filter(company=post.company).first()
         if not ctk:
             return
-        access_token = rtk.get_access_token(settings.TIKTOK_CLIENT_ID, settings.TIKTOK_CLIENT_SECRET)
-        print(access_token['access_token'])
-        try:
-            videos_df = rtk.get_videos_hashtag(['FYP'], access_token['access_token'], '20250114', '20250115',5)        
-            print(videos_df)
-        except:
-            print(traceback.format_exc())
         # url = "https://open.tiktokapis.com/v2/research/video/comment/list/"
 
         # # Query parameters
@@ -2659,8 +2652,6 @@ def commentBackgroundUpdate(post, post_id):
     igCmtThread.start()
     
     
-
-
 @api_view(['POST'])
 def likeComment(request):
     comment_id = request.POST.get('comment_id', None)
