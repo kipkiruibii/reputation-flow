@@ -3141,8 +3141,7 @@
                                 <div
                                     style="border-radius: 10px;padding: 10px;margin-bottom: 10px;background-color: white;">
                                     <div class="d-flex flex-start align-items-center">
-                                        <img class="rounded-circle shadow-1-strong me-3"
-                                            src="{{ r.commentor_profile }}"
+                                        <img class="rounded-circle shadow-1-strong me-3" src="{{ r.commentor_profile }}"
                                             alt="avatar" width="40" height="40" />
                                         <div>
                                             <h6 class="fw-bold text-primary mb-1">{{ r.commentor }}</h6>
@@ -3911,7 +3910,7 @@
 
                 </div>
                 <div>
-                    <div style="height:100%;padding:10px;width: 90vw;background-color: white;margin-top: 20%;">
+                    <div style="height:100%;padding:10px;width: 90vw;background-color: white;">
                         <div style="display: flex;justify-content: center;overflow-x: hidden;width: 90vw;"
                             id="pm-container">
                             <div style="width: 100%;margin-top: 20%;">
@@ -4065,8 +4064,8 @@
                             </div>
                         </div>
                         <div id="pm-inbox"
-                            style="display: none;width: 100%;justify-content: space-between;height: 100%;border-radius: 15px;">
-                            <div
+                            style="display: none;width: 100%;justify-content: space-between;height: 100%;border-radius: 15px;margin-top: 20%;">
+                            <div id="pm-inbox-header"
                                 style="width: 100%;background-color: rgb(242, 240, 240);height: 100%;  border-top-left-radius: 10px; border-bottom-left-radius: 10px;">
                                 <div style="display: flex; justify-content: space-between;padding: 10px;">
                                     <p style="cursor: pointer;" id="pm-back-platforms"><i class="fa fa-caret-left"></i>
@@ -4075,6 +4074,7 @@
                                 </div>
                                 <div style="overflow-y: scroll;height: 85%;background-color: rgb(225, 236, 231);">
                                     {% if senders|length == 0 %}
+                                    <p style="align-items: center;text-align: center;">Empty</p>
                                     {% else %}
                                     {% for s in senders %}
                                     <div class="pm-chat-item" data-conv_id="{{ s.conv_id }}"
@@ -4107,6 +4107,13 @@
                             </div>
                             <div id="pm-messages" class="t-c"
                                 style="height: 100%;width: 100%;border: rgb(242, 240, 240) solid 1px;overflow-y: scroll;overflow-x: hidden;display: none;">
+                                <div style="display: flex; justify-content: space-between;padding: 10px;">
+                                    <p style="cursor: pointer;" id="pm-back-mess-list"><i class="fa fa-caret-left"></i>
+                                        Back</p>
+                                    <p><i class="fa fa-facebook-r" id="pm-icon-r"></i></p>
+                                </div>
+
+
                                 <div class="row clearfix" style="width: 100%;height: 100%;">
                                     <div class="col-lg-12" style="width:100% ;">
                                         <div class=" chat-app" style="width:100% ;">
@@ -4199,7 +4206,7 @@
                         <div id="pm-inbox-wait"
                             style="display: none;width: 100%;justify-content: space-between;height: 100%;border-radius: 15px;">
                             <div
-                                style="width: 30%;background-color: rgb(242, 240, 240);height: 100%;  border-top-left-radius: 10px; border-bottom-left-radius: 10px;">
+                                style="width: 100%;background-color: rgb(242, 240, 240);height: 100%;  border-top-left-radius: 10px; border-bottom-left-radius: 10px;">
                                 <div style="display: flex; justify-content: space-between;padding: 10px;">
                                     <p style="cursor: pointer;" id="pm-back-platforms"><i class="fa fa-caret-left"></i>
                                         Back</p>
@@ -4212,23 +4219,6 @@
 
                                 </div>
                             </div>
-                            <div id="pm-messages" class="t-c"
-                                style="height: 100%;width: 70%;border: rgb(242, 240, 240) solid 1px;overflow-y: scroll;overflow-x: hidden">
-                                <div class="row clearfix" style="width: 100%;height: 100%;">
-                                    <div class="col-lg-12">
-                                        <div class=" chat-app">
-                                            <div class="chat" id="chat-box">
-                                                <div class="chat-history " style="height: 30vh;">
-                                                    <p class="center-div">No chat selected
-                                                    </p>
-                                                </div>
-
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
                         </div>
                     </div>
                 </div>
@@ -5163,11 +5153,11 @@
                                             </p>
 
                                             <p style="cursor: pointer;"><i class="fa fa fa-star"></i> <span
-                                                style="font-size: 12px;" data-type="comment"
-                                                data-type_id="{{comment.id }}" data-post_id="{{ p.post_id }}"
-                                                class="add-to-review">Add to
-                                                review wall</span></p>
-                                    </div>
+                                                    style="font-size: 12px;" data-type="comment"
+                                                    data-type_id="{{comment.id }}" data-post_id="{{ p.post_id }}"
+                                                    class="add-to-review">Add to
+                                                    review wall</span></p>
+                                        </div>
                                         <div id="comment-reply-container-box-{{ comment.id }}" style="display: none;">
                                             <div class="comment-post-box">
                                                 <div data-mdb-input-init class="form-outline" style="width: 90%;">
@@ -5822,11 +5812,11 @@
                                             </p>
 
                                             <p style="cursor: pointer;"><i class="fa fa fa-star"></i> <span
-                                                style="font-size: 12px;" data-type="comment"
-                                                data-type_id="{{comment.id }}" data-post_id="{{ p.post_id }}"
-                                                class="add-to-review">Add to
-                                                review wall</span></p>
-                                    </div>
+                                                    style="font-size: 12px;" data-type="comment"
+                                                    data-type_id="{{comment.id }}" data-post_id="{{ p.post_id }}"
+                                                    class="add-to-review">Add to
+                                                    review wall</span></p>
+                                        </div>
                                         <div id="comment-reply-container-box-{{ comment.id }}" style="display: none;">
                                             <div class="comment-post-box">
                                                 <div data-mdb-input-init class="form-outline" style="width: 90%;">
@@ -6878,19 +6868,24 @@
                                 $('#pm-inbox').html(newElementContent);
                                 // initializeMultiSelect();
                                 var icn_type = $('#pm-icon');
+                                var icn_type_mess = $('#pm-icon-r');
                                 icn_type.removeClass();
                                 switch (platform) {
                                     case 'facebook':
                                         icn_type.addClass('fa fa-facebook');
+                                        icn_type_mess.addClass('fa fa-facebook');
                                         break;
                                     case 'instagram':
                                         icn_type.addClass('fa fa-instagram');
+                                        icn_type_mess.addClass('fa fa-instagram');
                                         break;
                                     case 'reddit':
                                         icn_type.addClass('fa fa-reddit');
+                                        icn_type_mess.addClass('fa fa-reddit');
                                         break;
                                     case 'chatbot':
                                         icn_type.addClass('fas fa-robot');
+                                        icn_type_mess.addClass('fas fa-robot');
                                         break;
                                 }
 
@@ -6921,10 +6916,19 @@
 
                     // alert(platform);
                 });
+                $(document).on('click', '#pm-back-mess-list', function () {
+                    $('#pm-messages').css('display', 'block');
+                    $('#pm-inbox').css('display', 'none');
+
+                    // alert(platform);
+                });
                 $(document).on('click', '.pm-chat-item', function () {
                     $('.pm-chat-item').each(function () {
                         $(this).removeClass('pm-chat-active');
                     })
+                    $('#pm-inbox-header').css('display', 'none');
+                    $('#pm-messages').css('display', 'block');
+
                     $(this).addClass('pm-chat-active');
                     var conv_id = $(this).data('conv_id');
                     var sender_id = $(this).data('sender_id');
