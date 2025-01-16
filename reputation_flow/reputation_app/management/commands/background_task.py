@@ -10,6 +10,8 @@ import praw
 import ffmpeg
 import boto3
 import tempfile
+from io import BytesIO
+
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'reputation_fow.settings')
 django.setup()
 # Get the current directory of the script
@@ -59,7 +61,6 @@ def postReddit(title, description, subs, hasMedia,spoiler_tag,nsfw_tag, files,  
             
             # Bucket and file details
             bucket_name = settings.AWS_STORAGE_BUCKET_NAME
-            print('files',files)
             for file in files: 
                 s3_file_key = file
                 content_type = mimetypes.guess_type(s3_file_key)[0] 
@@ -67,7 +68,8 @@ def postReddit(title, description, subs, hasMedia,spoiler_tag,nsfw_tag, files,  
                 with tempfile.NamedTemporaryFile(delete=False, suffix=os.path.splitext(s3_file_key)[-1]) as temp_file:
                     local_file_path = temp_file.name
                     all_files.append({'image_path':local_file_path,'content_type':content_type})
-                    s3.download_file(bucket_name, s3_file_key, local_file_path)        
+                    s3.download_file(bucket_name, s3_file_key, local_file_path)   
+                         
         for s in subs:
             for cs in cr.subs:
                 sb = s.split('r/')[-1]
@@ -918,6 +920,414 @@ def postFacebook(media,post_id ):
                     cops.is_scheduled = False
                     cops.failure_reasons.append('Failed to post to facebook')
 
+def postInstagram(media, post_id):
+    cops = CompanyPosts.objects.filter(post_id=post_id).first()
+    if not cops:
+        return
+    title=cops.title 
+    description=cops.description
+    cig=CompanyInstagram.objects.filter(company=cops.company).first()
+    if not cig:
+        return
+    
+    has_media=cops.has_media
+    if not has_media:
+        return
+    
+    print('instagram posting')
+    # check the rate limit
+    # upload the media to s3 bucket
+    cpst=CompanyPosts.objects.filter(post_id=post_id).first()
+    if not cpst:
+        return
+
+    # print('the ltc')
+    cp_url=f'https://graph.facebook.com/v21.0/{cig.account_id}/content_publishing_limit'
+    params = {
+        "fields": "quota_usage,rate_limit_settings",
+        "access_token":cig.long_lived_token
+        
+    }
+    
+    response = requests.get(cp_url, params=params)
+    qu=response.json()['data'][0]['quota_usage']
+
+    if qu>=50:
+        if cpst.is_published:
+            cpst.partial_publish=True
+        else:
+            cpst.has_failed=True
+        cpst.save()
+        
+        return
+    cigp=CompanyInstagramPosts.objects.filter(post_id=post_id).first()
+    if not cigp:
+        return
+    to_reels=cigp.to_reels
+    to_stories=cigp.to_stories
+    access_token=cig.long_lived_token
+    account_id=cig.account_id
+
+    # retrieve the media urls
+    media_urls = []
+    for um in UploadedMedia.objects.filter(post=cpst):
+        print(um.media.url)
+        media_urls.append(um.media.url)
+    # post the media to instagram
+    is_carousel = False
+    creation_id = ''
+    if len(media_urls) > 1:
+        print('is corousel')
+        is_carousel = True
+    if is_carousel:
+        # Step 1: Upload each media item individually and collect their media_ids
+        media_ids = []
+        for url in media_urls:
+            mime_type, _ = mimetypes.guess_type(url)
+            is_image = mime_type and mime_type.startswith("image")
+            is_video = mime_type and mime_type.startswith("video")
+            if not mime_type:
+                continue
+            payload = {
+                "image_url" if is_image else "video_url": url,
+                "is_carousel_item": "true",
+                "access_token": cig.long_lived_token
+            }
+            response = requests.post(f"https://graph.facebook.com/v21.0/{cig.account_id}/media", data=payload)
+
+            if response.status_code == 200:
+                media_id = response.json().get("id")
+                media_ids.append(media_id)
+                print(f"Uploaded media successfully. Media ID: {media_id}")
+            else:
+                print(f"Error uploading media: {response.json()}")
+
+        if media_ids:
+            print(media_ids)
+            # Step 2: Create the carousel container
+            carousel_payload = {
+                "children": ",".join(media_ids),  # Media IDs must be comma-separated
+                "caption": description,
+                "media_type": "CAROUSEL",
+                "access_token": cig.long_lived_token
+            }
+            carousel_response = requests.post(f"https://graph.facebook.com/v21.0/{cig.account_id}/media", data=carousel_payload)
+
+            if carousel_response.status_code == 200:
+                creation_id = carousel_response.json().get("id")
+                print(f"Carousel container created successfully. Creation ID: {creation_id}")
+            else:
+                print(f"Error creating carousel container: {carousel_response.json()}")
+    else:
+        print('not corousel')
+        # delete the media from s3 bucket to free storage
+        url = f"https://graph.facebook.com/v21.0/{cig.account_id}/media"
+        isImage = True
+        if media[0]['content_type'].startswith("video/"):
+            isImage = False
+        payload = {
+            "image_url" if isImage else "video_url": media_urls[0],
+            "caption": description,
+            "access_token": cig.long_lived_token,
+        }
+        
+        if not isImage and to_reels:
+            payload['media_type'] == 'REELS'
+            response = requests.post(url, data=payload)
+
+        if to_stories:
+            payload['media_type'] == 'STORIES'
+        response = requests.post(url, data=payload)
+
+        if response.status_code == 200:
+            print(response.json())
+            creation_id = response.json().get("id")
+            print(f"Media uploaded successfully! Media ID: {creation_id}")
+        else:
+            print(f"Error: {response.json()}")
+            
+    # Step 3: Publish the carousel post
+    if creation_id:
+        publish_payload = {
+            "creation_id": creation_id,
+            "access_token": access_token
+        }
+        publish_response = requests.post(f"https://graph.facebook.com/v16.0/{account_id}/media_publish",
+                                        data=publish_payload)
+
+        if publish_response.status_code == 200:
+            print(publish_response.json())
+            post_id = publish_response.json().get("id")
+            cigp.content_id=post_id
+            cigp.save()
+            print(f"post published successfully! Post ID: {post_id}")
+            
+            # URL to fetch media details
+            url = f"https://graph.facebook.com/v21.0/{post_id}"
+
+            # Fields to request (adjust based on your needs)
+            fields = "id,media_type,media_url,thumbnail_url,timestamp,caption,permalink"
+
+            # Add fields and access token as parameters
+            params = {
+                "fields": fields,
+                "access_token": access_token
+            }
+
+            # Make the GET request
+            response = requests.get(url, params=params)
+
+            # Check the response
+            if response.status_code == 200:
+                media_details = response.json()
+                print("Media Details:", media_details)
+                cigp.post_link=media_details['permalink']
+                cigp.save()
+                # if media_details['media_type'] == 'IMAGE':
+                cpst.media_thumbnail=media_details['media_url']
+                cpst.is_published=True
+                cpst.save()
+                # Get the cover image for video (if applicable) 
+                if media_details.get("media_type") == "VIDEO":
+                    cover_image_url = media_details.get("thumbnail_url")
+                    cpst.media_thumbnail=cover_image_url
+                    cpst.is_published=True
+                    cpst.save()
+        else:
+            print(f"Error publishing carousel post: {publish_response.json()}")
+    else:
+        if cpst.is_published:
+            cpst.partial_publish=True
+        else:
+            cpst.has_failed=True
+
+def postTiktok(post_id,files):
+    """
+    Initialize a chunked video upload to TikTok.
+    """
+    cpst=CompanyPosts.objects.filter(post_id=post_id).first()
+    if not cpst:
+        return
+    ctk = CompanyTiktok.objects.filter(company=cpst.company).first()
+    if not ctk:
+        return 'No Company Tiktok'
+    ctkp=CompanyTiktokPosts.objects.filter(post_id=post_id).first()
+    if not ctkp:
+        return
+    access_token = ctk.access_token
+    company=cpst.company
+    try:
+        ctk = CompanyTiktok.objects.filter(company=company).first()
+        if not ctk:
+            cpst.has_failed = True
+            cpst.save()
+            return 'No Company Tiktok'
+
+        s3 =  boto3.client(
+            's3',
+            aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+            aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+            region_name=settings.AWS_S3_REGION_NAME,
+        )
+        
+        # Bucket and file details
+        bucket_name = settings.AWS_STORAGE_BUCKET_NAME
+        all_files=[]
+        for file in files: 
+            s3_file_key = file
+            content_type = mimetypes.guess_type(s3_file_key)[0] 
+            # Temporary file download
+            with tempfile.NamedTemporaryFile(delete=False, suffix=os.path.splitext(s3_file_key)[-1]) as temp_file:
+                local_file_path = temp_file.name
+                file_size = os.path.getsize(local_file_path)
+                all_files.append({'image_path':local_file_path,'content_type':content_type,'file_size':file_size})
+                s3.download_file(bucket_name, s3_file_key, local_file_path)   
+
+        video=all_files[0]
+        video_size = video['file_size']
+        # Get the necessary data from the request
+        chunk_size = 20 * 1024 * 1024  # 10 MB in bytes
+
+        # Adjust chunk size if the video is smaller than the chunk size
+        if video_size < chunk_size:
+            chunk_size = video_size
+            total_chunk_count = 1
+        if video_size > chunk_size:
+            total_chunk_count = 4
+            chunk_size = int(video_size / 4)
+
+        url = "https://open.tiktokapis.com/v2/post/publish/creator_info/query/"
+        headers = {
+            "Authorization": f"Bearer {access_token}",
+            "Content-Type": "application/json"
+        }
+
+        response = requests.post(url, headers=headers)
+        # API URL for the video upload initialization
+        url = "https://open.tiktokapis.com/v2/post/publish/video/init/"
+        # Prepare the headers with the access token
+        headers = {
+            "Authorization": f"Bearer {access_token}",
+            "Content-Type": "application/json"
+        }
+
+        # Prepare the JSON payload
+        payload = {
+            "post_info": {
+                "title": ctkp.description,
+                "privacy_level": ctkp.audience,
+                "disable_duet": not ctkp.allow_duet,
+                "disable_comment": not ctkp.allow_comment,
+                "disable_stitch": not ctkp.allow_stitch
+            },
+            "source_info": {
+                "source": "FILE_UPLOAD",
+                "video_size": video_size,
+                "chunk_size": chunk_size,
+                "total_chunk_count": total_chunk_count
+            }
+        }
+
+        # Make the POST request
+        response = requests.post(url, headers=headers, json=payload)
+        # Check the response status and print the result
+        if response.status_code == 200:
+            print("Upload initialized successfully.", response.content)
+        else:
+            cpst.has_failed = True
+            cpst.save()
+            print(f"Error: {response.status_code}")
+            print(response.json())
+
+            return
+
+        # Parse the response
+        upload_data = response.json()
+        publish_id = upload_data.get('data', {}).get('publish_id')
+        chunk_upload_url = upload_data.get('data', {}).get('upload_url')
+        vide_id = publish_id.split('.')[-1]
+
+        if not all([publish_id, chunk_upload_url]):
+            cpst.has_failed = True
+            cpst.save()
+            return print({'error': 'Missing publish_id or upload_url in response'})
+
+        with open(video['image_path'], "rb") as video_file:
+            video_data = video_file.read()
+            total_size = len(video_data)
+
+            upload_headers = {
+                "Content-Range": f"bytes 0-{total_size - 1}/{total_size}",
+                "Content-Type": "video/mp4"
+            }
+
+            upload_response = requests.put(chunk_upload_url, headers=upload_headers, data=video_data)
+
+            if upload_response.status_code == 201:
+                print("Video uploaded successfully!", upload_response.content)
+
+            else:
+                cpst.has_failed = True
+                cpst.save()
+                print(f"Failed to upload video: {upload_response.status_code}")
+                print(upload_response.json())
+                return
+
+            # wait for the video to be published
+            published = False
+            # Define the API endpoint and access token
+            url = "https://open.tiktokapis.com/v2/post/publish/status/fetch/"
+
+            # Prepare the payload with the publish ID
+            data = {
+                "publish_id": publish_id  # Replace with your actual publish ID
+            }
+
+            # Send the request
+            content_status = "PROCESSING_UPLOAD"
+            while content_status == "PROCESSING_UPLOAD":
+                response = requests.post(url, headers=headers, json=data, verify=False)
+                if response.status_code == 200:
+                    status = response.json()
+                    content_status = status.get("data", {}).get("status", "Unknown")
+                    print('processing status', content_status)
+                    if content_status == "PUBLISH_COMPLETE":
+                        published = True
+                time.sleep(10)
+
+            # get latest updated video
+            if published:
+                
+                video_list_url = "https://open.tiktokapis.com/v2/video/list/"
+                params = {
+                    "fields": "id"
+                }
+                headers = {
+                    "Authorization": f"Bearer {access_token}",
+                    "Content-Type": "application/json"
+                }
+
+                response = requests.post(video_list_url, headers=headers,params=params)
+                vid_id=response.json()['data']['videos'][0]['id']
+                # # return
+                url = "https://open.tiktokapis.com/v2/video/query/"
+
+                params = {
+                    "fields": "id,cover_image_url,embed_link"
+                }
+                payload = {
+                    "filters": {
+                        "video_ids": [
+                            vid_id
+                        ]
+                    }
+                }
+
+                response = requests.post(url, headers=headers, json=payload,params=params)
+                videos = response.json()['data']['videos'][0]
+                video_cover = videos['cover_image_url']
+                video_link = videos['embed_link']
+                if not cpst.media_thumbnail:
+                    cpst.media_thumbnail = video_cover
+                    cpst.save()
+
+                # save the tiktok post
+                ctkp.video_id=vid_id,
+                ctkp.is_published=published,
+                ctkp.cover_image_url=video_cover,
+                ctkp.post_link=video_link,
+                ctkp.save()
+                # update the post
+                cpst.is_published = True
+                cpst.save()
+                print('done')
+                return print({
+                    'message': 'Video uploaded successfully',
+                })
+            else:
+                if cpst.is_published and len(cpst.platforms) > 1:
+                    cpst.partial_publish = True
+                else:
+                    cpst.has_failed = True
+                cpst.failure_reasons.append('Uknown error')
+                cpst.save()
+                ctkp = CompanyTiktokPosts(
+                    post_id=post_id,
+                    is_published=published,
+                )
+                ctkp.save()
+
+    except Exception as e:
+        if cpst.is_published and len(cpst.platforms) > 1:
+            cpst.partial_publish = True
+        else:
+            cpst.has_failed = True
+        cpst.failure_reasons.append(str(e))
+        cpst.save()
+
+        return print({'error': 'An unexpected error occurred', 'details': str(e)})
+
+
 def postContent(post):
     gallery_items=[]
     if post.has_media:
@@ -962,10 +1372,23 @@ def postContent(post):
             })
             fbThread.start()
             print('FACEBOOK POSTED')
+            
         if 'tiktok' in pltfrm.lower():
-            pass
+            tkThread = threading.Thread(target=postTiktok, daemon=True, kwargs={
+                'post_id': post.post_id,
+                'files': gallery_items,
+            })
+            tkThread.start()
+
         if 'instagram' in pltfrm.lower():
-            pass
+            igThread = threading.Thread(target=postInstagram, daemon=True, kwargs={
+                'media': gallery_items,
+                'post_id': post.post_id,
+            })
+            igThread.start()
+            print('Instagram POSTED')
+
+
 
 def delete_file_from_s3(file_key):
     try:

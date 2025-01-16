@@ -1290,7 +1290,7 @@ def getPMs(request):
             if c.conversation_id not in convv_id:
                 convv_id.append(c.conversation_id)
                 senders.append({
-                    'sender': c.sender,
+                    'sender': f'{c.sender.capitalize()}_{c.conversation_id}',
                     'conv_id': c.conversation_id,
                     'platform': 'chatbot',
                     'updated_time': format_datetime(datetime_str=c.date_sent, timezone_str=timezone_s,
@@ -5645,6 +5645,16 @@ def uploadPost(request):
                 post_id=post_id,
                 to_stories=to_fb_stories,
                 to_posts=to_fb_posts)
+            cfb_pst.save()
+        if tiktokSelected:
+            cfb_pst = CompanyTiktokPosts(
+                post_id=post_id,
+                allow_stitch=tk_allow_stitch,
+                allow_comment=tk_allow_comment,
+                allow_duet=tk_allow_duet,
+                description=tk_description,
+                mentions=tk_tiktok_mentions,
+                audience=tk_audience)
             cfb_pst.save()
 
     return Response({'success': 'success request'})
