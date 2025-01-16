@@ -1261,14 +1261,17 @@ def getPMs(request):
             return Response({'error': 'Bad request'})
 
         conversations=CompanyBotChats.objects.filter(company=cp)
+        convv_id=[]
         for c in conversations:
-            senders.append({
-                'sender': c.sender,
-                'conv_id': c.conversation_id,
-                'platform': 'chatbot',
-                'updated_time': format_datetime(datetime_str=c.date_sent, timezone_str=timezone_s,
-                                                platform='chatbot')
-            })
+            if c.conversation_id not in convv_id:
+                convv_id.append(c.conversation_id)
+                senders.append({
+                    'sender': c.sender,
+                    'conv_id': c.conversation_id,
+                    'platform': 'chatbot',
+                    'updated_time': format_datetime(datetime_str=c.date_sent, timezone_str=timezone_s,
+                                                    platform='chatbot')
+                })
         context = {'senders': senders}
         if request.user_agent.is_pc:
             return render(request, 'dashboard.html', context=context)
