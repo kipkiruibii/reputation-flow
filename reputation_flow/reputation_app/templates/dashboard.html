@@ -4649,11 +4649,9 @@
                         </h4>
                     </div>
                 </div>
-                <div class="company-account-info container-right">
+                <div class="company-account-info container-right;height:100%">
                     <div
-                        style="font-family: Arial, sans-serif; line-height: 1.6; max-width: 800px; margin: 20px auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
-                        <h2 style="color: #333; text-align: center;">How to Integrate the AI Chatbot into Your Website
-                        </h2>
+                        style="line-height: 1.6;  margin: 10px auto; padding: 10px;height: 100%;overflow-y: scroll;width: 100%; ">
                         <ol style="padding-left: 20px; color: #555;">
                             <li>
                                 Open your <strong>Insightlyze Dashboard</strong> and scroll to the <em>AI Chatbot</em>
@@ -4676,10 +4674,21 @@
                                 </pre>
                             </li>
                             <li>
-                                Add the following iframe inside the <strong>&lt;body&gt;</strong> tag of your HTML:
+                                Add the following code inside the <strong>&lt;body&gt;</strong> tag of your HTML:
                                 <pre
                                     style="background-color: #f9f9f9; padding: 10px; border-radius: 4px; font-size: 14px; overflow: auto;">
-                    &lt;iframe src="https://your-chatbot-url-here" style="width: 100%; height: 500px; border: none;"&gt;&lt;/iframe&gt;
+                                    &lt;iframe id="chatbot-iframe"
+                                    src="https://insightlyze.com/chatbot/{{ company_id }}"
+                                    style="display:none;position: fixed; bottom: 20px; right: 20px; width: 360px; height: 600px; z-index: 9000;"
+                                    frameborder="0">&gt;&lt;/iframe&gt;
+                                </pre>
+                                <pre>
+                                    &lt;div class="form-group " onclick="toggleIframe()"
+                                    style="text-align:center;font-size:20px;align-items:center;margin-top:10px;margin-bottom:20px">
+                                    &lt;img src="https://img.icons8.com/ios-filled/50/ffffff/chat.png" alt="Chat"&gt;
+                                        &gt;&lt;/div&gt;
+
+
                                 </pre>
                             </li>
                             <li>
