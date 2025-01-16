@@ -2853,7 +2853,6 @@ def getCommentReplies(request):
     c_id = request.POST.get('comment_id', None)
     if not c_id:
         return Response({'error': 'Bad request'})
-    print(c_id)
     pstc = CompanyPostsComments.objects.filter(comment_id=c_id).first()
     if not pstc:
         return Response({'error': 'Bad request'})
@@ -2961,7 +2960,6 @@ def getCommentReplies(request):
         'comments_data': cmts,
         'posts': all_posts,
     }
-    print('comment replies',c_replies)
     if request.user_agent.is_pc:
         return render(request, 'dashboard.html', context=context)
     else:
@@ -3125,7 +3123,6 @@ def postComment(request):
     if not pltform:
         return Response({'error': 'Bad request'})
     if not post_id:
-        print('cant get post id')
         return Response({'error': 'Bad request'})
     # try:
     if pltform == 'reddit':
@@ -3149,7 +3146,6 @@ def postComment(request):
             'access_token': cfb.page_access_token
         }
         response = requests.post(url, data=data)
-        print(response.content)
         if response.status_code == 200:
             data = response.json()  # Returns the reply ID
         else:
@@ -3163,7 +3159,6 @@ def postComment(request):
             'access_token': cfb.page_access_token
         }
         response = requests.post(url, data=data)
-        print(response.content)
         if response.status_code == 200:
             data = response.json()  # Returns the reply ID
         else:
@@ -3173,7 +3168,6 @@ def postComment(request):
     if not pst:
         return Response({'error': 'Bad request'})
     # try:
-    print('thread started')
     if pltform == 'facebook':
         fetchFacebookComments(post=pst, post_id=post_id)
     elif pltform == 'tiktok':
@@ -3593,7 +3587,6 @@ def deleteTeamFile(request):
                     'date_created': ti_bk,
                 }
             )
-        print(len(t_actv))    
         context = {
             'team_files': CompanyTeamFiles.objects.filter(team=ct).order_by('-pk'),
             'activities':t_actv
@@ -3708,7 +3701,6 @@ def chunk_text(text, max_tokens=8192):
 def trainChatbot(cmp):
     cp = CompanyKnowledgeBase.objects.filter(company=cmp).first()
     if not cp:
-        print('no data')
         return
     
     s3_url = cp.file.name  
@@ -3906,7 +3898,6 @@ def gettiktokCreatorInfo(request):
 
         response = requests.post(url, headers=headers)
         res = response.json().get('data')
-        print(response.json())
         tk_data = {
             'max_video_post_duration_sec': res.get('max_video_post_duration_sec'),
             'stitch_disabled': res.get('stitch_disabled'),
@@ -3938,7 +3929,6 @@ def postTiktok(company, description, video, duet, comment, stitch, audience, pos
 
     cpst = CompanyPosts.objects.filter(post_id=post_id).first()
     if not cpst:
-        print('failed to retrieve post')
         return
     try:
         ctk = CompanyTiktok.objects.filter(company=company).first()
@@ -4010,7 +4000,6 @@ def postTiktok(company, description, video, duet, comment, stitch, audience, pos
         publish_id = upload_data.get('data', {}).get('publish_id')
         chunk_upload_url = upload_data.get('data', {}).get('upload_url')
         vide_id = publish_id.split('.')[-1]
-        print('videeeee', vide_id)
 
         if not all([publish_id, chunk_upload_url]):
             cpst.has_failed = True
