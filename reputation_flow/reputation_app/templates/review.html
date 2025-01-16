@@ -411,6 +411,17 @@
                     </div>
                 </div>
                 {% endfor %}
+                <!-- Chatbot Iframe -->
+                <iframe id="chatbot-iframe" src="https://insightlyze.com/chatbot/{{ company_id }}"
+                    style="display:none;position: fixed; bottom: 20px; right: 20px; width: 360px; height: 600px; z-index: 9000;"
+                    frameborder="0">
+                </iframe>
+
+                <!-- Chatbot Icon -->
+                <div id="chatbot-icon-rs" onclick="toggleIframe()" style="z-index: 10000;">
+                    <img src="https://img.icons8.com/ios-filled/50/ffffff/chat.png" alt="Chat">
+                </div>
+
             </div>
 
         </div>
