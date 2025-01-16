@@ -3052,6 +3052,7 @@ def addCommentToReview(request):
     comment_id = request.POST.get('comment_id', None)
     post_id = request.POST.get('post_id', None)
     company_id = request.POST.get('company_id', None)
+    print(comment_id,post_id,company_id)
     if not all([company_id, comment_id,post_id]):
         return Response({'error': 'Bad request'})
     cp = Company.objects.filter(company_id=company_id).first()
