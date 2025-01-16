@@ -1042,7 +1042,28 @@ def getMessages(request):
             return render(request, 'dashboard.html', context=context)
         else:
             return render(request, 'dashboard_mobile.html', context=context)
-    return Response({'success': 'Bad request'})
+    if platform.strip() == 'chatbot':
+        cp = Company.objects.filter(company_id=company_id).first()
+        if not cp:
+            return Response({'error': 'Bad request'})
+        igconmess = CompanyBotChats.objects.filter(conversation_id=conv_id).order_by('date_sent')
+        convs = []
+        for igm in igconmess:
+            convs.append({
+                'message': igm.message,
+                'date_sent': format_datetime(datetime_str=igm.date_sent, timezone_str=timezone_s, platform='chatbot'),
+                'from': igm.sender,
+                'me':True if igm.sender.lower()=='bot' else False,
+
+            })
+        # convs.reverse()
+        context = {
+            'pm_messages': convs,
+            'conversation_id': conv_id,
+            'pm_platform': platform,
+            'pm_reply_supported': False
+        }
+        return Response({'success': 'Bad request'})
 
 
 @api_view(['POST', 'GET'])
