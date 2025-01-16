@@ -2535,7 +2535,6 @@ def fetchFacebookComments(post, post_id):
                     cpc.reply_count = d['comment_count']
                     cpc.date_updated = created_time_with_timezone
                     cpc.save()
-                print('reply count', cpc.reply_count)
                 if cpc.reply_count > 0:
                     # process the replies
                     processFacebookReplies(comment_id=c_id, page_access_token=cfb.page_access_token,
@@ -2564,9 +2563,7 @@ def fetchInstagramComments(post, post_id):
             'access_token': cfb.page_access_token
         }
         response = requests.get(url, params=params)
-        # print(response.content)
         data=response.json().get('data')
-        print(data)
         for d in data:
             replies = d.get('replies', {}).get('data', [])
             
@@ -3070,8 +3067,8 @@ def addCommentToReview(request):
         return Response({'error': 'Bad request'})
     link=''
     if cpcm.platform.lower() =='instagram':
-        igpost=CompanyInstagramPosts.objects.filter(post_id=cpst.post_id).first()
-        link=igpost.post_link+ "?comment_id=" + {comment_id}
+        igpost=CompanyInstagramPosts.objects.filter(post_id=post_id).first()
+        link=igpost.post_link+ "?comment_id=" + comment_id
     crv=CompanyReviews(
         company=cp,
         content=cpcm.message,
