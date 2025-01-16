@@ -3050,8 +3050,9 @@ def socialProof(request,company_name):
 @api_view(['POST'])
 def addCommentToReview(request):
     comment_id = request.POST.get('comment_id', None)
+    post_id = request.POST.get('post_id', None)
     company_id = request.POST.get('company_id', None)
-    if not all([company_id, comment_id]):
+    if not all([company_id, comment_id,post_id]):
         return Response({'error': 'Bad request'})
     cp = Company.objects.filter(company_id=company_id).first()
     if not cp:
@@ -3065,13 +3066,19 @@ def addCommentToReview(request):
     cpcm=CompanyPostsComments.objects.filter(comment_id=comment_id).first()
     if not cpcm:
         return Response({'error': 'Bad request'})
-    
+    cpst=CompanyPosts.objects.filter(post_id=post_id).first()
+    if not cpst:
+        return Response({'error': 'Bad request'})
+    link=''
+    if cpcm.platform.lower() =='instagram':
+        igpost=CompanyInstagramPosts.objects.filter(post_id=cpst.post_id).first()
+        link=igpost.post_link+ "?comment_id=" + {comment_id}
     crv=CompanyReviews(
         company=cp,
         content=cpcm.message,
         content_id=comment_id,
         commentor_profile=cpcm.author_profile,
-        link='',
+        link=link,
         commentor=cpcm.author,
         date_commented=cpcm.date_updated,
         platform=cpcm.platform)

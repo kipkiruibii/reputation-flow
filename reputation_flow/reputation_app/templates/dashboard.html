@@ -3176,8 +3176,7 @@
                                 <div
                                     style="margin-left: 20px;border-radius: 10px;border: 1px solid rgb(219, 219, 219);padding: 10px;margin-bottom: 10px;">
                                     <div class="d-flex flex-start align-items-center">
-                                        <img class="rounded-circle shadow-1-strong me-3"
-                                            src="{{ r.commentor_profile }}"
+                                        <img class="rounded-circle shadow-1-strong me-3" src="{{ r.commentor_profile }}"
                                             alt="avatar" width="60" height="60" />
                                         <div>
                                             <h6 class="fw-bold text-primary mb-1">{{ r.commentor }}</h6>
@@ -5651,7 +5650,10 @@
                                                     {{ comment.like_count }}</span>
                                             </p>
 
-                                            <p style="cursor: pointer;"><i class="fa fa fa-star"></i> <span style="font-size: 12px;" data-type="comment" data-type_id="{{comment.id }}" class="add-to-review">Add to
+                                            <p style="cursor: pointer;"><i class="fa fa fa-star"></i> <span
+                                                    style="font-size: 12px;" data-type="comment"
+                                                    data-type_id="{{comment.id }}" data-post_id="{{ p.post_id }}"
+                                                    class="add-to-review">Add to
                                                     review wall</span></p>
                                         </div>
                                         <div id="comment-reply-container-box-{{ comment.id }}" style="display: none;">
@@ -6309,9 +6311,12 @@
                                                     {{ comment.like_count }}</span>
                                             </p>
 
-                                            <p style="cursor: pointer;"><i class="fa fa fa-star"></i> <span style="font-size: 12px;" data-type="comment" data-type_id="{{comment.id }}" class="add-to-review">Add to
-                                                review wall</span></p>
-                                    </div>
+                                            <p style="cursor: pointer;"><i class="fa fa fa-star"></i> <span
+                                                    style="font-size: 12px;" data-type="comment"
+                                                    data-post_id="{{ p.post_id }}" data-type_id="{{comment.id }}"
+                                                    class="add-to-review">Add to
+                                                    review wall</span></p>
+                                        </div>
                                         <div id="comment-reply-container-box-{{ comment.id }}" style="display: none;">
                                             <div class="comment-post-box">
                                                 <div data-mdb-input-init class="form-outline" style="width: 90%;">
@@ -7545,14 +7550,16 @@
                     $('#main-content').css('display', 'none');
                 });
                 $(document).on('click', '.add-to-review', function () {
-                    var data_id=$(this).data('type_id');
-                    var data_type=$(this).data('type');
-                    var currItem=$(this)
+                    var data_id = $(this).data('type_id');
+                    var post_id = $(this).data('post_id');
+                    var data_type = $(this).data('type');
+                    var currItem = $(this)
                     currItem.text('Adding...');
                     var formData = new FormData();
                     var csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
                     formData.append('company_id', '{{ company_id }}');
                     formData.append('comment_id', data_id);
+                    formData.append('post_id', post_id);
                     $.ajax({
                         url: '{% url "add-review-wall" %}', // Replace with your Django endpoint URL
                         type: 'POST',
@@ -7570,7 +7577,7 @@
                             } else {
                                 toastr.success(response['success']);
                                 currItem.text('Added');
-                                currItem.css('color','green');
+                                currItem.css('color', 'green');
                                 return;
                             }
                         },
@@ -7586,7 +7593,7 @@
 
                 });
 
-                
+
 
                 $(document).on('click', '#apply-filters,#reviews,.pub-unpub', function () {
 
