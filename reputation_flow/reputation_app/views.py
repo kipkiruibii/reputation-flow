@@ -1061,9 +1061,12 @@ def getMessages(request):
             'pm_messages': convs,
             'conversation_id': conv_id,
             'pm_platform': platform,
-            'pm_reply_supported': False
+            'pm_reply_supported': True
         }
-        return Response({'success': 'Bad request'})
+        if request.user_agent.is_pc:
+            return render(request, 'dashboard.html', context=context)
+        else:
+            return render(request, 'dashboard_mobile.html', context=context)
 
 
 @api_view(['POST', 'GET'])
