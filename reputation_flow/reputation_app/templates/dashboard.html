@@ -4438,37 +4438,106 @@
                             How to
                         </h4>
                     </div>
-                    <!-- <div class="user-details" tooltip="Me" flow="down">
-
-                    </div>
-                    <div class="popup" style="width: 250px;">
-                        <div style="display: flex;gap: 10px;">
-                            <div
-                                style="width: 70px;height: 70px;border-radius: 70px;background-color: rgb(255, 145, 0);">
-                            </div>
-                            <div>
-                                <p class="font-12">{{ request.user.username }} </p>
-                                <p class="font-12">Change Picture</p>
-                            </div>
-                        </div>
-                        <hr>
-                        <p>Permissions</p>
-                        <ul style="max-height: 100px;overflow-y: scroll;list-style-type: none;">
-                            <li class="font-12" style="color: green;"><i class="fa fa-check"></i> Can update business
-                                profile
-                            </li>
-                            <li class="font-12" style="color: red;"><i class="fa fa-times"></i> Can update profile</li>
-                        </ul>
-                        <a href="{% url 'logout' %}" style="text-decoration: none;">
-                            <div class="logout-btn"
-                                style="background-color: red;display: flex;margin-left: 30%;margin-right: 30%;align-items: center;justify-content: center;border-radius: 30px;color: white;">
-                                <span style="margin-right: 10px;">Log out</span> <i class="fas fa-sign-out"></i>
-                            </div>
-                        </a>
-                    </div> -->
                 </div>
                 <div class="company-account-info container-right">
+                    <div style=" margin: 10px auto; padding: 10px;height: 100%;overflow-y: scroll;width: 100%; ">
+                        <h2 style="color: #333; text-align: center;">Help Guide</h2>
 
+                        <!-- Table of Contents -->
+                        <div style="margin-bottom: 20px;">
+                            <h3 style="color: #555;">Table of Contents</h3>
+                            <ol style="padding-left: 20px; color: #555;">
+                                <li><a href="#getting-started" style="color: #007BFF; text-decoration: none;">Getting
+                                        Started</a></li>
+                                <li><a href="#uploading-files" style="color: #007BFF; text-decoration: none;"> Update
+                                        profile
+                                    </a></li>
+                                <li><a href="#integrating-chatbot"
+                                        style="color: #007BFF; text-decoration: none;">Link/Change social media account
+                                    </a></li>
+                                <li><a href="#managing-usage" style="color: #007BFF; text-decoration: none;">Upgrade
+                                        account
+                                    </a></li>
+                                <li><a href="#viewing-interactions" style="color: #007BFF; text-decoration: none;">Train
+                                        chatbot
+                                    </a></li>
+                                <li><a href="#support" style="color: #007BFF; text-decoration: none;">Publish reviews
+                                    </a></li>
+                                <li><a href="#support" style="color: #007BFF; text-decoration: none;">Create/schedule a
+                                        post
+                                    </a></li>
+                                <li><a href="#support" style="color: #007BFF; text-decoration: none;">Create a team
+                                    </a></li>
+                                <li><a href="#support" style="color: #007BFF; text-decoration: none;">Raise issues
+                                    </a></li>
+                                <li><a href="#support" style="color: #007BFF; text-decoration: none;">Contact us
+                                    </a></li>
+                            </ol>
+                        </div>
+
+                        <!-- Sections -->
+                        <div id="getting-started">
+                            <h3 style="color: #333;">1. Getting Started</h3>
+                            <p>
+                                To begin using the AI chatbot, log in to your <strong>Insightlyze Dashboard</strong>.
+                                Make sure you have the necessary company files prepared for upload.
+                            </p>
+                        </div>
+
+                        <div id="uploading-files">
+                            <h3 style="color: #333;">2. Uploading Files</h3>
+                            <p>
+                                Navigate to the <em>AI Chatbot</em> section on the dashboard. Select the relevant
+                                company files that contain the information your chatbot will use, and click the
+                                <strong>'Upload and Train'</strong> button.
+                            </p>
+                        </div>
+
+                        <div id="integrating-chatbot">
+                            <h3 style="color: #333;">3. Integrating the Chatbot</h3>
+                            <p>
+                                Add the following lines to the <strong>&lt;head&gt;</strong> tag of your webpage:
+                            </p>
+                            <pre
+                                style="background-color: #f9f9f9; padding: 10px; border-radius: 4px; font-size: 14px; overflow: auto;">
+                    &lt;link rel="stylesheet" href="https://d2w11b8kfh947x.cloudfront.net/chatbot.css"&gt;
+                    &lt;script src="https://d2w11b8kfh947x.cloudfront.net/chatbot.js" defer&gt;&lt;/script&gt;
+                            </pre>
+                            <p>
+                                Then, add the following iframe inside the <strong>&lt;body&gt;</strong> tag:
+                            </p>
+                            <pre
+                                style="background-color: #f9f9f9; padding: 10px; border-radius: 4px; font-size: 14px; overflow: auto;">
+                    &lt;iframe src="https://your-chatbot-url-here" style="width: 100%; height: 500px; border: none;"&gt;&lt;/iframe&gt;
+                            </pre>
+                        </div>
+
+                        <div id="managing-usage">
+                            <h3 style="color: #333;">4. Managing Token Usage</h3>
+                            <p>
+                                To track your token usage, navigate to the <strong>'Manage'</strong> section in the left
+                                panel of the dashboard. This will show you how your chatbot tokens are being utilized.
+                            </p>
+                        </div>
+
+                        <div id="viewing-interactions">
+                            <h3 style="color: #333;">5. Viewing Customer-Chatbot Interactions</h3>
+                            <p>
+                                To review interactions between customers and your chatbot, go to <strong>PM (Private
+                                    Messages)</strong> and select <strong>'Chatbot'</strong>. Here, you'll find a log of
+                                all interactions.
+                            </p>
+                        </div>
+
+                        <div id="support">
+                            <h3 style="color: #333;">6. Contacting Support</h3>
+                            <p>
+                                If you have any questions or need further assistance, feel free to contact our support
+                                team at <a href="mailto:infopack254@gmail.com"
+                                    style="color: #007BFF;">infopack254@gmail.com</a>.
+                            </p>
+                        </div>
+                    </div>
                 </div>
 
             </div>
@@ -4650,8 +4719,7 @@
                     </div>
                 </div>
                 <div class="company-account-info container-right;height:100%">
-                    <div
-                        style="line-height: 1.6;  margin: 10px auto; padding: 10px;height: 100%;overflow-y: scroll;width: 100%; ">
+                    <div style=" margin: 10px auto; padding: 10px;height: 100%;overflow-y: scroll;width: 100%; ">
                         <ol style="padding-left: 20px; color: #555;">
                             <li>
                                 Open your <strong>Insightlyze Dashboard</strong> and scroll to the <em>AI Chatbot</em>
@@ -4667,22 +4735,22 @@
                             <li>
                                 Add the following lines to the <strong>&lt;head&gt;</strong> tag of your webpage where
                                 you want the chatbot to appear:
-<pre
-    style="background-color: #f9f9f9; padding: 10px; border-radius: 4px; font-size: 14px; overflow: auto;">
+                                <pre
+                                    style="background-color: #f9f9f9; padding: 10px; border-radius: 4px; font-size: 14px; overflow: auto;">
 &lt;link rel="stylesheet" href="https://d2w11b8kfh947x.cloudfront.net/chatbot.css"&gt;
 &lt;script src="https://d2w11b8kfh947x.cloudfront.net/chatbot.js" defer&gt;&lt;/script&gt;
 </pre>
                             </li>
                             <li>
                                 Add the following code inside the <strong>&lt;body&gt;</strong> tag of your HTML:
-<pre
-    style="background-color: #f9f9f9; padding: 10px; border-radius: 4px; font-size: 14px; overflow: auto;">
+                                <pre
+                                    style="background-color: #f9f9f9; padding: 10px; border-radius: 4px; font-size: 14px; overflow: auto;">
     &lt;iframe id="chatbot-iframe"
     src="https://insightlyze.com/chatbot/{{ company_id }}"
     style="display:none;position: fixed; bottom: 20px; right: 20px; width: 360px; height: 600px; z-index: 9000;"
     frameborder="0">&gt;&lt;/iframe&gt;
 </pre>
-<pre>
+                                <pre>
     &lt;div class="form-group " onclick="toggleIframe()"
     style="text-align:center;font-size:20px;align-items:center;margin-top:10px;margin-bottom:20px">
     &lt;img src="https://img.icons8.com/ios-filled/50/ffffff/chat.png" alt="Chat"&gt;
@@ -4743,35 +4811,6 @@
                             </div> -->
                         </div>
                     </div>
-                    <!-- <div class="user-details" tooltip="Me" flow="down">
-
-                    </div>
-                    <div class="popup" style="width: 250px;">
-                        <div style="display: flex;gap: 10px;">
-                            <div
-                                style="width: 70px;height: 70px;border-radius: 70px;background-color: rgb(255, 145, 0);">
-                            </div>
-                            <div>
-                                <p class="font-12">{{ request.user.username }} </p>
-                                <p class="font-12">Change Picture</p>
-                            </div>
-                        </div>
-                        <hr>
-                        <p>Permissions</p>
-                        <ul style="max-height: 100px;overflow-y: scroll;list-style-type: none;">
-                            <li class="font-12" style="color: green;"><i class="fa fa-check"></i> Can update business
-                                profile
-                            </li>
-                            <li class="font-12" style="color: red;"><i class="fa fa-times"></i> Can update profile</li>
-                        </ul>
-                        <a href="{% url 'logout' %}" style="text-decoration: none;">
-                            <div class="logout-btn"
-                                style="background-color: red;display: flex;margin-left: 30%;margin-right: 30%;align-items: center;justify-content: center;border-radius: 30px;color: white;">
-                                <span style="margin-right: 10px;">Log out</span> <i class="fas fa-sign-out"></i>
-                            </div>
-                        </a>
-                    </div> -->
-
                 </div>
                 <div class="company-account-info container-right" style="display: flex; justify-content: center;">
                     <!-- SELECT PLATFORM -->
