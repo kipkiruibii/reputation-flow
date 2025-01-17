@@ -1463,6 +1463,7 @@ class Command(BaseCommand):
         for cp in Company.objects.all():
             if cp.company_active_subscription:
                 sub_dte=cp.company_subscription_date
+                tnw=timezone.now()
                 tdiff=(tnw-sub_dte).total_seconds()
                 if tdiff/86400 <30:
                     cp.company_active_subscription=False
