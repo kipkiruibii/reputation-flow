@@ -773,7 +773,7 @@ def postFacebook(media,post_id ):
 
         # check pages managed by users
         for photo_path in photo_paths:
-            with open(photo_path, "rb") as photo:
+            with open(photo_path['image_path'], "rb") as photo:
                 # Upload each photo to get an ID
                 payload = {"published": "false", "access_token": access_token}  # Set 'published' to false
                 files = {"source": photo}
