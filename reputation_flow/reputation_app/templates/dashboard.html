@@ -4560,29 +4560,30 @@
                 <div class="company-account-info container-right">
                     <div id="tx-history" style="display: block;">
                         <div class="bx-shadow" style="width: 100%;border-radius: 15px;padding: 10px;">
-                            <div style="display: flex;justify-content: space-between;width: 100%;">
+                            <div style="display: flex;gap: 10px;">
                                 <div>
-                                    <div>
-                                        <p style="font-size: 12px;padding: 0;margin: 0;">Subscription Plan</p>
-                                        <p>{{ company_subs.subscription_type }}</p>
+                                    <p style="font-size: 12px;padding: 0;margin: 0;">Subscription Plan</p>
+                                    <p>{{ company_subs.subscription_type }}</p>
 
-                                    </div>
-                                    <div>
-                                        <p style="font-size: 12px;padding: 0;margin: 0;">Status </p>
-                                        {% if company_subs.subscription_active %}
-                                        <p style="color:rgb(53, 248, 95)">Active </p>
-                                        {% elif company_subs.free_trial %}
-                                        <p style="color:rgb(53, 248, 95)">Free trial </p>
-                                        {% else %}
-                                        <p style="color:rgba(246, 22, 22, 1)">Expired </p>
-                                        {% endif %}
-
-                                    </div>
-                                    <div>
-                                        <p style="font-size: 12px;padding: 0;margin: 0;">Period </p>
-                                        <p>{{ company_subs.subscription_period }}</p>
-                                    </div>
                                 </div>
+                                <div>
+                                    <p style="font-size: 12px;padding: 0;margin: 0;">Status </p>
+                                    {% if company_subs.subscription_active %}
+                                    <p style="color:rgb(53, 248, 95)">Active </p>
+                                    {% elif company_subs.free_trial %}
+                                    <p style="color:rgb(53, 248, 95)">Free trial </p>
+                                    {% else %}
+                                    <p style="color:rgba(246, 22, 22, 1)">Expired </p>
+                                    {% endif %}
+
+                                </div>
+                                <div>
+                                    <p style="font-size: 12px;padding: 0;margin: 0;">Period </p>
+                                    <p>{{ company_subs.subscription_period }}</p>
+                                </div>
+                            </div>
+
+                            <div style="display: flex;justify-content: space-between;width: 100%;">
                                 <div>
                                     <p style="font-size: 12px;padding: 0;margin: 0;">Chatbot Tokens</p>
                                     <div style="display: flex;gap: 10px;">
