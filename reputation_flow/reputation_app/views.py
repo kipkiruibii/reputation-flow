@@ -1532,8 +1532,8 @@ def dashboard(request, company_id):
         tk_remaining=f'{tk_remaining} ({pc_rem}%)'
         tk_used=f'{tk_used} ({pc_usd}%)'
         
-        stg_used=f'{round(cm.company_used_storage/1000000,2)}GB ({int(cm.company_used_storage/cm.company_storage)}%)'
-        stg_remaining=f'{round((cm.company_storage-cm.company_used_storage)/1000000,2)}GB ({int((cm.company_storage-cm.company_used_storage)/cm.company_storage)}%)'
+        stg_used=f'{round(cm.company_used_storage/1000000000,2)}GB ({int(cm.company_used_storage/cm.company_storage)}%)'
+        stg_remaining=f'{round((cm.company_storage-cm.company_used_storage)/1000000000,2)}GB ({int((cm.company_storage-cm.company_used_storage)/cm.company_storage)}%)'
         
     context = {
         'company_name': cm.company_name,
