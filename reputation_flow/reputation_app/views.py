@@ -252,31 +252,12 @@ def paypal_notification(request):
                                 cpn.company_subscription_date=timezone.now()
                                 cpn.company_active_subscription=True
                                 cpn.company_subscription_tier=1
+                                cpn.company_ai_tokens=10000
+                                cpn.company_storage=1
                                 cpn.company_subscription='Starter'
                                 cpn.save()
                                 
                     return JsonResponse({'result':200})
-                            # elif float(amount) >= 9.99:
-                            #     request_remaining = 2000
-                            #     subscription_type = 'Personal Monthly'
-                            # if request_remaining:
-                            #     u = UserDetails.objects.filter(user=user_paying).first()
-                            #     u.subscription_active = True
-                            #     u.request_remaining += request_remaining
-                            #     u.subscription_expiry = timezone.now() + timedelta(days=30)
-                            #     u.subscription_type = subscription_type
-                            #     u.save()
-                            # us = UserTransactions(
-                            #     user=user_paying,
-                            #     subscriber_id=profile_id,
-                            #     receiver_email=email,
-                            #     payment_date=payment_date,
-                            #     transactionId=transaction_id,
-                            #     subscription_type=subscription_type,
-                            #     amount=amount,
-                            #     is_successful=True
-                            # )
-                            # us.save()
                 elif payment_status == '':
                     pass
                 else:
@@ -1412,7 +1393,9 @@ def dashboard(request, company_id):
             alct=10737418240
         elif cm.company_subscription_tier == 3:
             alct=107374182400
-            
+        
+        cm.company_storage=alct
+        cm.save()    
         cfs = CompanyFileSizes(
            company=cm,
            allocated=alct

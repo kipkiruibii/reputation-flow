@@ -50,6 +50,7 @@ class Company(models.Model):
     company_link_name=models.CharField(max_length=255,default='link')
     company_category=models.TextField(default='')
     company_storage=models.IntegerField(default=0)
+    company_used_storage=models.IntegerField(default=0)
     company_ai_tokens=models.IntegerField(default=10000)
     company_subscription=models.TextField(default='')
     company_review_link=models.TextField(default='')
@@ -118,6 +119,7 @@ class CompanyTransactionDisputes(models.Model):
 class CompanyFileSizes(models.Model):
     company=models.ForeignKey(Company,on_delete=models.CASCADE)
     size=models.FloatField(default=0.0)# bytes
+    file_key=models.TextField(default='',null=True,blank=True)
     allocated=models.FloatField(default=0.0)# bytes
     def getPerc(self) -> float:
         if self.allocated > 0:
