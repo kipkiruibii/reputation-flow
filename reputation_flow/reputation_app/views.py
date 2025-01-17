@@ -4269,6 +4269,7 @@ def postInstagram(account_id, media, access_token, description, has_media, post_
         # delete the media from s3 bucket to free storage
         url = f"https://graph.facebook.com/v21.0/{account_id}/media"
         isImage = True
+        
         if media[0]['content_type'].startswith("video/"):
             isImage = False
         payload = {
@@ -4276,6 +4277,9 @@ def postInstagram(account_id, media, access_token, description, has_media, post_
             "caption": description,
             "access_token": access_token,
         }
+        if not isImage:
+            payload['media_type'] == 'VIDEO'
+            
         if not isImage and to_reels:
             payload['media_type'] == 'REELS'
             response = requests.post(url, data=payload)

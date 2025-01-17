@@ -1124,7 +1124,8 @@ def postInstagram(media, post_id):
             "caption": description,
             "access_token": cig.long_lived_token,
         }
-        print(payload)
+        if not isImage:
+            payload['media_type'] == 'VIDEO'
         if not isImage and to_reels:
             payload['media_type'] == 'REELS'
             response = requests.post(url, data=payload)
