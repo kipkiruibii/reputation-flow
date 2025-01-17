@@ -1529,7 +1529,7 @@ def dashboard(request, company_id):
         tk_used=tk_allocated-tk_remaining
         pc_usd=int(tk_used/tk_allocated)*100
         pc_rem=int(tk_remaining/tk_allocated)*100
-        print(pc_usd,pc_rem)
+        print(tk_used/tk_allocated,tk_remaining/tk_allocated)
         tk_remaining=f'{tk_remaining} ({pc_rem}%)'
         tk_used=f'{tk_used} ({pc_usd}%)'
         stg_allocated=f'{round(cm.company_storage/1000000000,2)}GB'
