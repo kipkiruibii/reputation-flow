@@ -1383,24 +1383,24 @@ def dashboard(request, company_id):
     
     cfs=CompanyFileSizes.objects.filter(company=cm).first()
     
-    if not cfs:
-        alct=0
-        if cm.company_free_trial:
-            alct=524288000 
-        elif cm.company_subscription_tier == 1:
-            alct=1073741824
-        elif cm.company_subscription_tier == 2:
-            alct=10737418240
-        elif cm.company_subscription_tier == 3:
-            alct=107374182400
-        
-        cm.company_storage=alct
-        cm.save()    
-        cfs = CompanyFileSizes(
-           company=cm,
-           allocated=alct
-        )
-        cfs.save()
+    # if not cfs:
+    alct=0
+    if cm.company_free_trial:
+        alct=524288000 
+    elif cm.company_subscription_tier == 1:
+        alct=1073741824
+    elif cm.company_subscription_tier == 2:
+        alct=10737418240
+    elif cm.company_subscription_tier == 3:
+        alct=107374182400
+    
+    cm.company_storage=alct
+    cm.save()    
+    cfs = CompanyFileSizes(
+        company=cm,
+        allocated=alct
+    )
+    cfs.save()
     
     if cm.company_review_link:
         bnm=cm.company_name.strip().replace(' ','-')
@@ -1534,11 +1534,6 @@ def dashboard(request, company_id):
         
         stg_used=f'{round(cm.company_used_storage/1000000,2)}GB ({int(cm.company_used_storage/cm.company_storage)}%)'
         stg_remaining=f'{round((cm.company_storage-cm.company_used_storage)/1000000,2)}GB ({int((cm.company_storage-cm.company_used_storage)/cm.company_storage)}%)'
-        
-        
-
-        
-        
         
     context = {
         'company_name': cm.company_name,
