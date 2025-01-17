@@ -767,8 +767,6 @@ def postFacebook(media,post_id ):
                 photo_paths.append({'image_path':local_file_path,'content_type':content_type,'file_size':file_size})
                 s3.download_file(bucket_name, s3_file_key, local_file_path)   
 
-        photo_paths = [md['image_path'] for md in media]
-
         # Step 1: Upload photos to get attachment IDs
         photo_ids = []
         photo_upload_url = f"https://graph.facebook.com/v21.0/{page_id}/photos"
