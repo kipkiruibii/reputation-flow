@@ -1679,9 +1679,9 @@ def dashboard(request, company_id):
             'active': False
         },
         'management':{
-            'allocated_tokens':10000,
-            'used_tokens':34,
-            'remaining_tokens':9700,
+            'allocated_tokens':tk_allocated,
+            'used_tokens':tk_used,
+            'remaining_tokens':tk_remaining,
             'alloctaed_storage':'10GB',
             'used_storage':'1GB',
             'remaining_storage':'9GB'
