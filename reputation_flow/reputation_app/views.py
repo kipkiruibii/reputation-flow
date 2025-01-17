@@ -1656,6 +1656,15 @@ def dashboard(request, company_id):
             'linked': False,
             'active': False
         },
+        'management':{
+            'allocated_tokens':10000,
+            'used_tokens':34,
+            'remaining_tokens':9700,
+            'alloctaed_storage':'10GB',
+            'used_storage':'1GB',
+            'remaining_storage':'9GB'
+            
+        }
     }
     if request.user_agent.is_pc:
         return render(request, 'dashboard.html', context=context)
