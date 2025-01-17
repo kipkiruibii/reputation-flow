@@ -1523,6 +1523,28 @@ def dashboard(request, company_id):
             'subscription_notes':th.subscription_notes,
             'payer_email':th.payer_email
         })
+    tk_allocated='-'
+    tk_used='-'
+    tk_remaining='-'
+    stg_allocated='-'
+    stg_used='-'
+    stg_remaining='-'
+    if cm.company_active_subscription:
+        if cm.company_subscription_tier == 0:
+            tk_allocated=5000
+        if cm.company_subscription_tier == 1:
+            tk_allocated=10000
+        if cm.company_subscription_tier == 2:
+            tk_allocated=50000
+        if cm.company_subscription_tier == 2:
+            tk_allocated=200000
+        tk_remaining=cm.company_ai_tokens
+        tk_used=tk_allocated-tk_remaining
+        pc_usd=int(tk_used/tk_allocated)*100
+        pc_rem=int(tk_remaining/tk_allocated)*100
+        tk_remaining=f'{tk_remaining} ({pc_rem}%)'
+        tk_used=f'{tk_used} ({pc_usd}%)'
+        
         
     context = {
         'company_name': cm.company_name,
