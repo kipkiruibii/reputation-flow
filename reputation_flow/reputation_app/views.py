@@ -4278,7 +4278,7 @@ def postInstagram(account_id, media, access_token, description, has_media, post_
             "access_token": access_token,
         }
         if not isImage:
-            payload['media_type'] = 'VIDEO'
+            payload['media_type'] = 'REELS'
             
         if not isImage and to_reels:
             payload['media_type'] = 'REELS'
