@@ -575,7 +575,7 @@ def postFacebook(media,post_id ):
 
                 if permalink_response.status_code == 200:
                     permalink = permalink_response.json().get("permalink_url")
-                    cfb_pst.post_link=permalink
+                    cfb_pst.post_link="https://www.facebook.com"+permalink
                     print(f"Permalink URL: {permalink}")
                 else:
                     cfb_pst.post_link='#'
@@ -629,13 +629,13 @@ def postFacebook(media,post_id ):
                 # get parent host id 
                 url = f"https://graph.facebook.com/v21.0/{video_id}"
                 params = {
-                    "fields": "post",
+                    "fields": "parent_id",
                     "access_token": access_token
                 }
                 response = requests.get(url, params=params)
                 print('post iddd', response.content)
                 if response.status_code == 200:
-                    data = response.json()['post']['id']
+                    data = response.json()['parent_id']
                     cfb_pst.parent_post_id = data
                     cfb_pst.save()
                     print('save post id', data)
