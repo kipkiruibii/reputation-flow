@@ -623,19 +623,16 @@ def postFacebook(media,post_id ):
                                     break
                         else:
                             print(f"Failed to set thumbnail: {response.text}")
-
-                    # 
-
                 # get parent host id 
                 url = f"https://graph.facebook.com/v21.0/{video_id}"
                 params = {
-                    "fields": "parent_id",
+                    "fields": "id",
                     "access_token": access_token
                 }
                 response = requests.get(url, params=params)
                 print('post iddd', response.content)
                 if response.status_code == 200:
-                    data = response.json()['parent_id']
+                    data = response.json()['id']
                     cfb_pst.parent_post_id = data
                     cfb_pst.save()
                     print('save post id', data)
@@ -672,7 +669,7 @@ def postFacebook(media,post_id ):
                 return
 
             # Open the video file in binary mode
-            with open(media[0]['image_path'], "rb") as video_file:
+            with open(video_file_path, "rb") as video_file:
                 # Make the POST request
                 # Headers
                 headers = {
