@@ -721,7 +721,6 @@ def postFacebook(media,post_id ):
                     "access_token": access_token,
                 }
                 response = requests.post(url, data=payload)
-                print(response.json())
                 content_id = response.json().get('id')
                 print('the video id B', video_id)
 
