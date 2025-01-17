@@ -1141,6 +1141,28 @@ def postInstagram(media, post_id):
             print(f"Error: {response.json()}")
             
     # Step 3: Publish the carousel post
+    # Function to check media status
+    def check_media_status(creation_id, access_token):
+        media_status_url = f"https://graph.facebook.com/v21.0/{creation_id}"
+        params = {
+            "access_token": access_token
+        }
+        response = requests.get(media_status_url, params=params)
+        media_data = response.json()
+
+        return media_data
+
+    # Wait and check the media status
+    max_retries = 5
+    for attempt in range(max_retries):
+        media_data = check_media_status(creation_id, access_token)
+        print(media_data)
+        if "status" in media_data and media_data["status"] == "READY":
+            print("Media is ready to publish.")
+            break
+        else:
+            print(f"Attempt {attempt + 1}: Media not ready. Waiting...")
+            time.sleep(20)  # Wait for 10 seconds before trying again    
     if creation_id:
         publish_payload = {
             "creation_id": creation_id,
