@@ -499,6 +499,7 @@ def postFacebook(media,post_id ):
     cfb_pst = CompanyFacebookPosts.objects.filter(post_id=post_id).first()
     if not cfb_pst:
         return
+    photo_paths=[]
     to_stories=cfb_pst.to_stories
     to_post=cfb_pst.to_posts
     if cops.is_video:
@@ -746,6 +747,26 @@ def postFacebook(media,post_id ):
                 print(response.json())
         return
     if has_media:
+        print(media)
+        s3 =  boto3.client(
+            's3',
+            aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+            aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+            region_name=settings.AWS_S3_REGION_NAME,
+        )
+        
+        # Bucket and file details
+        bucket_name = settings.AWS_STORAGE_BUCKET_NAME
+        for file in media: 
+            s3_file_key = file
+            content_type = mimetypes.guess_type(s3_file_key)[0] 
+            # Temporary file download
+            with tempfile.NamedTemporaryFile(delete=False, suffix=os.path.splitext(s3_file_key)[-1]) as temp_file:
+                local_file_path = temp_file.name
+                file_size = os.path.getsize(local_file_path)
+                photo_paths.append({'image_path':local_file_path,'content_type':content_type,'file_size':file_size})
+                s3.download_file(bucket_name, s3_file_key, local_file_path)   
+
         photo_paths = [md['image_path'] for md in media]
 
         # Step 1: Upload photos to get attachment IDs
@@ -879,6 +900,7 @@ def postFacebook(media,post_id ):
                     print(response.json())
         else:
             print("No photos were successfully uploaded.")
+    
     else:
         if to_post:
             try:
@@ -930,7 +952,10 @@ def postFacebook(media,post_id ):
                     cops.has_failed = True
                     cops.is_scheduled = False
                     cops.failure_reasons.append('Failed to post to facebook')
-
+    for pp in photo_paths:
+        if os.path.exists(pp['image_path']):
+            os.remove(pp['image_path'])
+            
 def postInstagram(media, post_id):
     cops = CompanyPosts.objects.filter(post_id=post_id).first()
     if not cops:
