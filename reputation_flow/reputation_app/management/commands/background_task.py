@@ -1134,7 +1134,6 @@ def postInstagram(media, post_id):
         response = requests.post(url, data=payload)
 
         if response.status_code == 200:
-            print(response.json())
             creation_id = response.json().get("id")
             print(f"Media uploaded successfully! Media ID: {creation_id}")
         else:
@@ -1174,7 +1173,6 @@ def postInstagram(media, post_id):
             # Check the response
             if response.status_code == 200:
                 media_details = response.json()
-                print("Media Details:", media_details)
                 cigp.post_link=media_details['permalink']
                 cigp.save()
                 # if media_details['media_type'] == 'IMAGE':
