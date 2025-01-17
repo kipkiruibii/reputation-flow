@@ -4312,6 +4312,7 @@ def postInstagram(account_id, media, access_token, description, has_media, post_
     max_retries = 5
     for attempt in range(max_retries):
         media_data = check_media_status(creation_id, access_token)
+        print(media_data)
         if "status" in media_data and media_data["status"] == "READY":
             print("Media is ready to publish.")
             break
