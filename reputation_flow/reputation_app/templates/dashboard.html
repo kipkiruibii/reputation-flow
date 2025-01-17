@@ -4556,7 +4556,7 @@
                     <div id="tx-history" style="display: block;">
                         <div class="bx-shadow" style="width: 100%;border-radius: 15px;padding: 10px;">
                             <div style="display: flex;justify-content: space-between;width: 100%;">
-
+                                <div>
                                 <div style="display: flex;width: 60%;gap: 30px;">
                                     <div>
                                         <p style="font-size: 12px;padding: 0;margin: 0;">Subscription Plan</p>
@@ -4579,6 +4579,26 @@
                                         <p>{{ company_subs.subscription_period }}</p>
                                     </div>
                                 </div>
+                                <div>
+                                    <p style="font-size: 12px;padding: 0;margin: 0;">Chatbot Tokens</p>
+                                    <div style="display: flex;gap: 10px;">
+                                        <div style="background-color: #007bff2c;border-radius: 15px;padding: 10px;text-align: center;">
+                                            <p style="font-size: 12px;">Allocated</p>
+                                            <p>10000</p>
+                                        </div>
+                                        <div style="background-color: #ff00002c;border-radius: 15px;padding: 10px;text-align: center;">
+                                            <p style="font-size: 12px;">Used</p>
+                                            <p>300 (5%)</p>
+                                        </div>
+                                        <div style="background-color: #00ff4c2c;border-radius: 15px;padding: 10px;text-align: center;">
+                                            <p style="font-size: 12px;">Remaining</p>
+                                            <p>9700 (95%)</p>
+                                        </div>
+                                        
+
+                                    </div>
+                                </div>
+                            </div>
                                 <div style="width:40%;gap: 20px;">
                                     <a class="btn-solid-sm" href="{% url 'landing' %}#pricing">Upgrade Plan</a>
                                     <a class="btn-solid-sm" href="#" id="raise-dispute">Disputes</a>
