@@ -1465,11 +1465,11 @@ class Command(BaseCommand):
                 sub_dte=cp.company_subscription_date
                 tnw=timezone.now()
                 tdiff=(tnw-sub_dte).total_seconds()
-                if tdiff/86400 <30:
+                if tdiff/86400 >30:
                     cp.company_active_subscription=False
                     cp.save()
                     # send subscription expiry email
-                if tdiff/86400 <23:
+                if tdiff/86400 >23:
                     # send subscription expiry reminder email 1 week before
                     pass
             if cp.company_free_trial:
