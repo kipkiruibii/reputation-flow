@@ -1143,7 +1143,7 @@ def postInstagram(media, post_id):
     # Step 3: Publish the carousel post
     # Function to check media status
     def check_media_status(creation_id, access_token):
-        media_status_url = f"https://graph.facebook.com/v21.0/{creation_id}"
+        media_status_url = f"https://graph.facebook.com/v21.0/{creation_id}?fields=status"
         params = {
             "access_token": access_token
         }
