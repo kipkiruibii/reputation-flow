@@ -515,7 +515,31 @@ def postFacebook(media,post_id ):
         output_image_path = 'thumbnail.jpg'
         if os.path.exists(output_image_path):
             os.remove(output_image_path)
-        video_file_path = media[0]['image_path']
+        
+        video_file_path = ''
+        s3 =  boto3.client(
+            's3',
+            aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+            aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+            region_name=settings.AWS_S3_REGION_NAME,
+        )
+        
+        # Bucket and file details
+        bucket_name = settings.AWS_STORAGE_BUCKET_NAME
+        for file in media: 
+            s3_file_key = file
+            content_type = mimetypes.guess_type(s3_file_key)[0] 
+            # Temporary file download
+            with tempfile.NamedTemporaryFile(delete=False, suffix=os.path.splitext(s3_file_key)[-1]) as temp_file:
+                local_file_path = temp_file.name
+                file_size = os.path.getsize(local_file_path)
+                photo_paths.append({'image_path':local_file_path,'content_type':content_type,'file_size':file_size})
+                video_file_path=local_file_path
+                s3.download_file(bucket_name, s3_file_key, local_file_path)   
+        if not video_file_path:
+            print('failed to download vid')
+            return
+
         print('extracting from')
         try:
             # Extract the first frame (frame at 0 seconds)
