@@ -1510,23 +1510,34 @@ def dashboard(request, company_id):
     tk_used='-'
     tk_remaining='-'
     stg_allocated='-'
-    stg_used='-'
+    stg_used=f'{round(cm.company_used_storage/1000000,2)}GB'
     stg_remaining='-'
     if cm.company_active_subscription:
         if cm.company_subscription_tier == 0:
             tk_allocated=5000
+            stg_allocated='500MB'
         if cm.company_subscription_tier == 1:
             tk_allocated=10000
+            stg_allocated='1GB'
         if cm.company_subscription_tier == 2:
             tk_allocated=50000
+            stg_allocated='10GB'
         if cm.company_subscription_tier == 2:
             tk_allocated=200000
+            stg_allocated='100GB'
         tk_remaining=cm.company_ai_tokens
         tk_used=tk_allocated-tk_remaining
         pc_usd=int(tk_used/tk_allocated)*100
         pc_rem=int(tk_remaining/tk_allocated)*100
         tk_remaining=f'{tk_remaining} ({pc_rem}%)'
         tk_used=f'{tk_used} ({pc_usd}%)'
+        
+        stg_used=f'{round(cm.company_used_storage/1000000,2)}GB ({int(cm.company_used_storage/cm.company_storage)}%)'
+        stg_remaining=f'{round((cm.company_storage-cm.company_used_storage)/1000000,2)}GB ({int((cm.company_storage-cm.company_used_storage)/cm.company_storage)}%)'
+        
+        
+
+        
         
         
     context = {
@@ -1665,9 +1676,9 @@ def dashboard(request, company_id):
             'allocated_tokens':tk_allocated,
             'used_tokens':tk_used,
             'remaining_tokens':tk_remaining,
-            'alloctaed_storage':'10GB',
-            'used_storage':'1GB',
-            'remaining_storage':'9GB'
+            'alloctaed_storage':stg_allocated,
+            'used_storage':stg_used,
+            'remaining_storage':stg_remaining
             
         }
     }
