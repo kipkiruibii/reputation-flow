@@ -544,7 +544,18 @@ def postFacebook(media,post_id ):
                 print('the video id A1', response.json().get('id'))
 
                 video_id = response.json().get('id')
+                
                 cfb_pst.content_id = video_id
+                permalink_url = f"https://graph.facebook.com/v21.0/{video_id}?fields=permalink_url&access_token={access_token}"
+                permalink_response = requests.get(permalink_url)
+
+                if permalink_response.status_code == 200:
+                    permalink = permalink_response.json().get("permalink_url")
+                    cfb_pst.post_link=permalink
+                    print(f"Permalink URL: {permalink}")
+                else:
+                    cfb_pst.post_link='#'
+                    print(f"Error fetching permalink: {permalink_response.json()}")                    
                 cfb_pst.is_published = True
                 cfb_pst.save()
                 cops.is_published = True
@@ -691,6 +702,16 @@ def postFacebook(media,post_id ):
                 print('the video id B', video_id)
 
                 cfb_pst.content_id = content_id
+                permalink_url = f"https://graph.facebook.com/v21.0/{content_id}?fields=permalink_url&access_token={access_token}"
+                permalink_response = requests.get(permalink_url)
+
+                if permalink_response.status_code == 200:
+                    permalink = permalink_response.json().get("permalink_url")
+                    cfb_pst.post_link=permalink
+                    print(f"Permalink URL: {permalink}")
+                else:
+                    cfb_pst.post_link='#'
+                    print(f"Error fetching permalink: {permalink_response.json()}")                    
                 cfb_pst.is_published = True
                 cfb_pst.save()
                 cops.is_published = True
@@ -799,6 +820,16 @@ def postFacebook(media,post_id ):
                 if response.status_code == 200:
                     content_id = response.json().get('id')
                     cfb_pst.content_id = content_id
+                    permalink_url = f"https://graph.facebook.com/v21.0/{content_id}?fields=permalink_url&access_token={access_token}"
+                    permalink_response = requests.get(permalink_url)
+
+                    if permalink_response.status_code == 200:
+                        permalink = permalink_response.json().get("permalink_url")
+                        cfb_pst.post_link=permalink
+                        print(f"Permalink URL: {permalink}")
+                    else:
+                        cfb_pst.post_link='#'
+                        print(f"Error fetching permalink: {permalink_response.json()}")                    
                     cfb_pst.is_published = True
                     cfb_pst.save()
                     cops.is_published = True
@@ -843,6 +874,16 @@ def postFacebook(media,post_id ):
                 if response.status_code == 200:
                     content_id = response.json().get('id')
                     cfb_pst.content_id = content_id
+                    permalink_url = f"https://graph.facebook.com/v21.0/{content_id}?fields=permalink_url&access_token={access_token}"
+                    permalink_response = requests.get(permalink_url)
+
+                    if permalink_response.status_code == 200:
+                        permalink = permalink_response.json().get("permalink_url")
+                        cfb_pst.post_link=permalink
+                        print(f"Permalink URL: {permalink}")
+                    else:
+                        cfb_pst.post_link='#'
+                        print(f"Error fetching permalink: {permalink_response.json()}")                    
                     cfb_pst.is_published = True
                     cops.is_published = True
                     cops.save()
