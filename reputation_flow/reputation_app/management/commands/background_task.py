@@ -402,7 +402,7 @@ def postReddit(title, description, subs, hasMedia,spoiler_tag,nsfw_tag, files,  
     # remove all temporary files
     for t in all_files:
         if os.path.exists(t['image_path']):
-            os.path.remove(t['image_path'])
+            os.remove(t['image_path'])
 
 def exchangeFacebookToken(companyfacebook,access_token):
     exchange_url = f"https://graph.facebook.com/v21.0/oauth/access_token"
