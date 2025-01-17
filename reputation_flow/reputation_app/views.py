@@ -1527,9 +1527,8 @@ def dashboard(request, company_id):
             stg_allocated='100GB'
         tk_remaining=cm.company_ai_tokens
         tk_used=tk_allocated-tk_remaining
-        pc_usd=int(tk_used/tk_allocated)*100
-        pc_rem=int(tk_remaining/tk_allocated)*100
-        print(tk_used/tk_allocated,tk_remaining/tk_allocated)
+        pc_usd=round((tk_used/tk_allocated)*100,1)
+        pc_rem=round((tk_remaining/tk_allocated)*100,1)
         tk_remaining=f'{tk_remaining} ({pc_rem}%)'
         tk_used=f'{tk_used} ({pc_usd}%)'
         stg_allocated=f'{round(cm.company_storage/1000000000,2)}GB'
