@@ -1117,9 +1117,8 @@ def postInstagram(media, post_id):
         print('not corousel')
         # delete the media from s3 bucket to free storage
         url = f"https://graph.facebook.com/v21.0/{cig.account_id}/media"
-        isImage = True
-        if media[0]['content_type'].startswith("video/"):
-            isImage = False
+        mime_type, _ = mimetypes.guess_type(media_urls[0])
+        isImage = mime_type and mime_type.startswith("image")
         payload = {
             "image_url" if isImage else "video_url": media_urls[0],
             "caption": description,
