@@ -1125,13 +1125,13 @@ def postInstagram(media, post_id):
             "access_token": cig.long_lived_token,
         }
         if not isImage:
-            payload['media_type'] == 'VIDEO'
+            payload['media_type'] = 'VIDEO'
         if not isImage and to_reels:
-            payload['media_type'] == 'REELS'
+            payload['media_type'] = 'REELS'
             response = requests.post(url, data=payload)
 
         if to_stories:
-            payload['media_type'] == 'STORIES'
+            payload['media_type'] = 'STORIES'
         response = requests.post(url, data=payload)
 
         if response.status_code == 200:
