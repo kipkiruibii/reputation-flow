@@ -500,7 +500,7 @@ def postFacebook(media,post_id ):
     if not cfb_pst:
         return
     to_stories=cfb_pst.to_stories
-    to_post=cfb_pst.to_post
+    to_post=cfb_pst.to_posts
     if cops.is_video:
         # API URL for video uploads
         url = f"https://graph-video.facebook.com/v21.0/{page_id}/videos"
