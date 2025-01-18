@@ -1872,7 +1872,7 @@ def fetchPosts(request):
                     link=cigp.post_link
                 pltfrms.append({
                     'platform':'Instagram',
-                    'link':
+                    'link':link
                 })
             if 'facebook' in p.platforms:
                 link='#'
