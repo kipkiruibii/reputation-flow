@@ -5547,7 +5547,6 @@ def uploadPost(request):
             "content_type": file.content_type,
             "file_size": file.size,
         })
-    print('gallery',gallery_items)   
     utc_datetime = timezone.now()
 
     if isScheduled:
@@ -5591,7 +5590,12 @@ def uploadPost(request):
         
         # allocated storage
         avl=cp.company_storage-cp.company_used_storage
-        if not avl:
+        f_size=0
+        for g in gallery_items:
+            f_size+=g['file_size']
+        print('aggregate file size in bytes',f_size)
+
+        if avl <= f_size:
             for g in gallery_items:
                 if os.path.exists(g['image_path']):
                     # delete existing files
