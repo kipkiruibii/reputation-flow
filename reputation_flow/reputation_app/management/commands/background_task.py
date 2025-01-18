@@ -1262,7 +1262,8 @@ def postTiktok(post_id,files):
 
         video=all_files[0]
         print('all files',all_files)
-        video_size = video['file_size']
+        video_size = os.path.getsize(video['image_path'])
+        # video_size = video['file_size']
         print(video_size)
         # Get the necessary data from the request
         chunk_size = 20 * 1024 * 1024  # 10 MB in bytes
