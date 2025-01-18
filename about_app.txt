@@ -1,0 +1,145 @@
+Sections
+Insightlyze is divided into two sections. The left panel highlights all the navigation elements, and the right section consists of the main content. For mobile devices, this left panel can be accessed by clicking the hamburger icon at the top right.
+
+Left Panel Navigation:
+
+Dashboard: Displays your business profile and linked social channels. You can edit or update your profile and the chatbot here.
+Reviews: Shows curated customer reviews obtained from post comments. These reviews can be published to a dedicated page to showcase what your customers are saying about your business.
+PM (Private Messages): Displays private messages from your linked social channels, providing you a way to respond to customers. Note that not all social channels allow responding from third-party apps.
+Posts: Shows all scheduled, published, or failed posts. You can also view the performance and analytics for each channel where the post was uploaded.
+Teams: If you need to add more members to manage your social media channels, you can add them to a team. Members within a given team have specified privileges to perform various tasks.
+Help: Access this guide.
+Integration: Provides a guideline to integrate the chatbot into your website.
+Issues and Requests: Use this section to raise an issue, such as reporting a bug or requesting a new feature.
+Create Post: Create a new post and share it across selected social channels.
+Logged-in User: Displays the username and role associated with your account.
+Manage: Visible only to users with administrative privileges. This section displays token usage, storage usage, past transactions, the current subscription plan, and options to raise disputes or upgrade your plan.
+Dashboard
+This section allows you to modify your business profile, link/unlink accounts, train the AI chatbot, enable/disable the chatbot, and enable/disable the review page.
+
+1. Modify Your Business Profile
+
+Click the Edit icon right next to the profile icon.
+Enter the changes you wish to make.
+Click Save Changes.
+To discard your changes, click Discard and close.
+2. Link/Unlink Social Account
+
+To link or change a social account, click the Link/Change button.
+You will be redirected to the respective social channel, where you will need to grant access to Insightlyze.
+Accept the request. You will be redirected back to the homepage.
+You can now post content to the linked social channel.
+Note:
+
+Instagram accounts must be a Creator or Professional account linked to a Facebook page.
+TikTok accounts must be a Creator or Business account.
+3. Train AI Chatbot
+
+To train the chatbot, upload any relevant business files that would help it answer questions related to your business. This may include FAQs, an About Us document, your operating hours, etc. All files must be in PDF format.
+Once uploaded, click Upload & Train.
+You can test the chatbot by clicking the Test button.
+4. Enable/Disable the Chatbot
+
+Toggle between Enable and Disable to control the chatbot. When disabled, the chatbot will not respond to queries across all your integrated platforms.
+5. Enable/Disable the Review Page
+
+Toggle between Enable and Disable to control the review page. A disabled review page will not be discoverable by customers looking for reviews. In such cases, your page link will return a 404 Not Found error.
+Reviews
+This section allows you to preview curated reviews obtained from the comments on your uploaded posts. You can choose to publish or unpublish these reviews.
+
+PM (Private Messages)
+You can access your private messages in this section. All inbox messages from your linked social channels will be displayed here. You can also choose to respond to messages directly from this section. Please note that the ability to respond is limited by some social channels. If the text box is greyed out, it means responding is restricted by the platform.
+
+Chatbot messages will also appear here. If you have enabled your chatbot, you can see how it interacts with your customers or potential customers. Additionally, you can manually respond to escalated queries directly from this section.
+
+Posts
+All your scheduled, published, and failed posts will be shown in this section. Post analytics, such as impressions on each platform, will be displayed using user-friendly graphs and charts. You can also view and respond to comments directly from here.
+
+Teams
+We understand that managing accounts can be tiresome, which is why this section is important. With this feature, you can add members and assign different roles to them. You also have control over their permissions, allowing you to collaborate on projects while limiting their power over your account and social channels.
+
+To create a new team, click the Create Team button at the top right. Give the team a name and description. Once done, add members by generating a link in the left panel of the Teams section. Specify the number of members to join and the permissions they will have. Then, send the link to the members to invite them to join.
+
+Issues & Requests
+If you are facing a challenge using our platform or would like us to introduce a new feature, we are here to help. Click Create New and fill out the form. Provide a title and description, then submit the request. A member of our team will look at it as soon as possible.
+
+Please bear with us if your request takes longer to process, as we handle a large volume of requests.
+
+Create a New Post
+Creating a new post is simple and intuitive. Ensure that the platform(s) you want to upload the post to have been linked with your Insightlyze account.
+
+Follow the steps in the post creation section. Once the post has been successfully uploaded, go to the Posts section to see the status and analytics for the published posts.
+
+Manage My Account
+To manage your Insightlyze account, ensure you have administrative privileges. Click the Manage button. This section will display your current usage (tokens and space), as well as your current subscription plan and the subscription period.
+
+Past transactions are also displayed here. If you have a dispute with any transaction, copy the transaction ID and use the Dispute section to raise the issue. We will respond promptly via the email you used during sign-up. DO NOT DISPUTE THE CHARGE FROM THE CARD BEFORE RAISING THE COMPLAINT TO US AS THIS MAY RESULT IN YOUR ACCOUNT BEING BANNED PERMANENTLY.
+
+If you would like to upgrade your plan, click the Upgrade button, and you will be directed to a pricing page. Choose the plan and complete the subsequent prompts. Please allow up to 30 minutes for the successful subscription to update your account before raising a dispute.
+
+
+Frequently Asked Questions
+I already manage comments and DMs manually. What makes Insightlyze worth adopting?
+Managing comments and DMs manually works, but it’s time-consuming and hard to scale. Insightlyze centralizes everything into one dashboard, saving you time, improving organization, and allowing you to share tasks with your team. It also provides valuable insights and statistics to help you make data-driven decisions and grow your business efficiently.
+
+Do I need technical skills or a developer to integrate the platform and AI assistant into my business?
+No, you don’t need technical skills to get started. Simply upload your business documents, such as FAQs, and the platform handles the rest. If you choose to integrate the AI assistant into your website, minimal technical skills are needed, but we provide a step-by-step guide to make the process simple and smooth.
+
+Can I test the chatbot's performance before making it live?
+Yes, before going live, you can test your chatbot through a dedicated interface. The testing phase does not consume the allocated tokens in your subscription plan, ensuring you can fine-tune its performance worry-free.
+
+Are only positive comments collected, or can I curate and filter them?
+The reviews collected can be positive, negative, or neutral. Before they appear on your dedicated page, you have full control to review, curate, and decide which ones to publish. This allows you to showcase the best feedback while using critical insights to improve your business.
+
+What exactly are AI "tokens," and how do they work?
+Tokens represent the number of words or interactions between your users and the chatbot. For context, 1,000 tokens roughly equal 750 words. You can easily monitor your remaining tokens directly from the dashboard.
+
+What happens when the chatbot cannot answer a question?
+If the chatbot cannot answer a question, it will escalate the query to a human team member based on your configured settings, ensuring seamless customer support.
+
+I'd like to test the service before committing. What options do you provide?
+We offer a 5-day free trial upon registration—no credit card required. The trial period begins immediately and will expire after 5 days, whether or not you use it. Once it ends, you can choose a plan and continue right where you left off.
+
+
+Turn Customer Feedback Into Your Best Marketing Tool
+Easily collect reviews, queries, and insights from your social media to build trust, boost credibility, and grow your business—all from one platform.
+
+Key Features:
+Centralized Customer Interaction:
+Manage all customer interactions—comments, reviews, and messages—through a single dashboard to save time and enhance organization.
+
+Automated Social Proof Collection:
+Automatically gather and curate reviews, testimonials, and feedback from social media to showcase authentic customer experiences and build credibility.
+
+Custom AI Assistant:
+Train an AI assistant using your business details, documents, and FAQs. It answers customer queries accurately, provides 24/7 support, and frees up your time.
+
+Team Collaboration:
+Assign roles, manage content, and invite freelancers with restricted access. Approve content before it goes live, ensuring smooth team collaboration.
+
+Integrated Platform:
+Schedule content, manage engagement, and integrate an AI assistant into your website—all in one platform. Enjoy seamless functionality and customizable solutions tailored to your business needs.
+
+Plans & Pricing:
+Starter ($29/month): Ideal for personal use. Includes 1 seat, up to 5 days of scheduled content, 1GB disk space, and 10,000 AI chatbot tokens.
+Company ($49/month): Best for small teams. Includes 20 seats, up to 15 days of scheduled content, 10GB disk space, and 50,000 AI chatbot tokens.
+Enterprise ($99/month): Designed for large-scale use. Includes unlimited seats, up to 30 days of scheduled content, 100GB disk space, and 200,000 AI chatbot tokens.
+Why Choose Insightlyze?
+Quick and easy setup with a user-friendly interface.
+Seamless integration with existing tools.
+24/7 customer support.
+Customizable solutions for your unique business needs.
+FAQs:
+Why use Insightlyze? Save time, stay organized, and scale your customer engagement efforts with centralized tools and actionable insights.
+Do I need technical skills? No, the platform is easy to use and comes with step-by-step guides for integration.
+Can I test the chatbot? Yes, you can test its performance before going live without using your subscription tokens.
+Are reviews curated? Yes, you can curate and filter reviews before publishing them.
+Is there a content calendar? Yes, you can schedule posts across multiple platforms using the content calendar.
+What are AI tokens? Tokens represent the words or interactions between your chatbot and users.
+What if the chatbot can’t answer a question? The query will be escalated to a human team member for resolution.
+Can I test the service? A 5-day free trial is available with no credit card required.
+Contact Us:
+For help or inquiries, visit our Help Center or contact us via email, Twitter, or Facebook.
+
+Insightlyze © 2024
+All Rights Reserved.

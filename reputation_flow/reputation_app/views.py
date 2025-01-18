@@ -208,6 +208,9 @@ def failed_payment(request):
 
 def privacy(request):
     return render(request, 'privacy.html')
+def terms(request):
+    return render(request, 'terms.html')
+
 @csrf_exempt
 def paypal_notification(request):
     print('Received notification')
@@ -586,18 +589,23 @@ def chatbot_widget(request,company_id):
     cp_id=Company.objects.filter(company_id=company_id).first()
     if cp_id:
         context={'company_id':company_id}
-        if request.method == 'POST':
-            if not cp_id.company_enable_ai:
-                return JsonResponse({'response': 'Chatbot has been disabled by the owner'})
-
-            session_id = request.session.session_key
-            total_tkns=0
+        is_insightlyze=False
+        if company_id=='1d5b2929-60df-47ac-888a-8ce97d4aa771':
+            is_insightlyze=True
             
-            ctkns=cp_id.company_ai_tokens
-            if ctkns <=0:
-                return JsonResponse({'response': 'Request not sent. Tokens quota reached'})
-            if not cp_id.company_active_subscription:
-                return JsonResponse({'response': 'Request not sent.Subscription inactive'})
+        if request.method == 'POST':
+            if not is_insightlyze:
+                if not cp_id.company_enable_ai:
+                    return JsonResponse({'response': 'Chatbot has been disabled by the owner'})
+
+                session_id = request.session.session_key
+                total_tkns=0
+                
+                ctkns=cp_id.company_ai_tokens
+                if ctkns <=0:
+                    return JsonResponse({'response': 'Request not sent. Tokens quota reached'})
+                if not cp_id.company_active_subscription:
+                    return JsonResponse({'response': 'Request not sent.Subscription inactive'})
 
             query = request.POST.get('message', '')
             # Ensure session data is saved to get the session key

@@ -95,6 +95,10 @@
                     <a href="{% url 'login' %}"
                         class="text-white bg-purple-700 hover:bg-purple-800 focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-sm px-4 lg:px-5 py-2 lg:py-2.5 sm:mr-2 lg:mr-0 dark:bg-purple-600 dark:hover:bg-purple-700 focus:outline-none dark:focus:ring-purple-800">Dashboard
                     </a>
+                    <a href="{% url 'logout' %}"
+                        class="text-white bg-purple-700 hover:bg-purple-800 focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-sm px-4 lg:px-5 py-2 lg:py-2.5 sm:mr-2 lg:mr-0 dark:bg-purple-600 dark:hover:bg-purple-700 focus:outline-none dark:focus:ring-purple-800"
+                        style="background-color: rgb(195, 195, 195);color: black;">Sign Out
+                    </a>
 
                     {% else %}
                     <a href="{% url 'login' %}"
@@ -573,8 +577,7 @@
                     </ul>
                     {% if request.user.is_authenticated %}
                     {% if current_plan == 1 %}
-                    <a 
-                        class="text-white  focus:ring-4 focus:ring-purple-200 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:text-white "
+                    <a class="text-white  focus:ring-4 focus:ring-purple-200 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:text-white "
                         style="background-color: rgb(2, 141, 2);">
                         ACTIVE PLAN
                     </a>
@@ -887,7 +890,7 @@
                                 best feedback while using critical insights to improve your business.</p>
                         </div>
                     </div>
-                    <h3 id="accordion-flush-heading-5">
+                    <!-- <h3 id="accordion-flush-heading-5">
                         <button type="button"
                             class="flex items-center justify-between w-full py-5 font-medium text-left text-gray-500 border-b border-gray-200 dark:border-gray-700 dark:text-gray-400"
                             data-accordion-target="#accordion-flush-body-5" aria-expanded="false"
@@ -901,7 +904,7 @@
                                     clip-rule="evenodd"></path>
                             </svg>
                         </button>
-                    </h3>
+                    </h3> -->
                     <div id="accordion-flush-body-5" class="hidden" aria-labelledby="accordion-flush-heading-5">
                         <div class="py-5 border-b border-gray-200 dark:border-gray-700">
                             <p class="mb-2 text-gray-500 dark:text-gray-400">
@@ -1022,7 +1025,7 @@
                     <h3 class="mb-6 text-sm font-semibold text-gray-900 uppercase dark:text-white">Legal</h3>
                     <ul class="text-gray-500 dark:text-gray-400">
                         <li class="mb-4">
-                            <a href="#" class="hover:underline">Privacy Policy</a>
+                            <a href="{% url 'privacy' %}" class="hover:underline">Privacy Policy</a>
                         </li>
                         <li class="mb-4">
                             <a href="#" class="hover:underline">Terms</a>
