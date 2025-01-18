@@ -1249,6 +1249,7 @@ def postTiktok(post_id,files):
         # Bucket and file details
         bucket_name = settings.AWS_STORAGE_BUCKET_NAME
         all_files=[]
+        print('here')
         for file in files: 
             s3_file_key = file
             content_type = mimetypes.guess_type(s3_file_key)[0] 
@@ -1260,7 +1261,9 @@ def postTiktok(post_id,files):
                 s3.download_file(bucket_name, s3_file_key, local_file_path)   
 
         video=all_files[0]
+        print('all files',all_files)
         video_size = video['file_size']
+        print(video_size)
         # Get the necessary data from the request
         chunk_size = 20 * 1024 * 1024  # 10 MB in bytes
 
