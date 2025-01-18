@@ -1532,8 +1532,6 @@ def dashboard(request, company_id):
         tk_remaining=f'{tk_remaining} ({pc_rem}%)'
         tk_used=f'{tk_used} ({pc_usd}%)'
         stg_allocated=f'{round(cm.company_storage/1000000000,2)}GB'
-        # stg_used=f'{cm.company_used_storage} {(cm.company_used_storage/cm.company_storage)*100}%'
-        # stg_remaining=f'{(cm.company_storage-cm.company_used_storage)} {((cm.company_storage-cm.company_used_storage)/cm.company_storage)*100}%'
         stg_used=f'{round(abs(cm.company_used_storage/1000000000),2)}GB ({round(((cm.company_used_storage/cm.company_storage)*100),2)}%)'
         stg_remaining=f'{round((cm.company_storage-cm.company_used_storage)/1000000000,2)}GB ({round(((cm.company_storage-cm.company_used_storage)/cm.company_storage)*100,2)}%)'
         
@@ -5299,14 +5297,18 @@ def deletePostComment(request):
         # check if its scheduled
         if cpst.is_scheduled:
             print('reducing file size')
-            # free total space
-            cpst.company.company_used_storage-=total_file_size
-            cpst.company.save()
-            
-            # check company file sizes
-            cfs = CompanyFileSizes.objects.filter(company=cpst.company).first()
-            cfs.size-=total_file_size
-            cfs.save()
+            # free total spac
+            try:
+                cpst.company.company_used_storage-=total_file_size
+                cpst.company.save()
+                
+                # check company file sizes
+                
+                cfs = CompanyFileSizes.objects.filter(company=cpst.company).first()
+                cfs.size-=total_file_size
+                cfs.save()
+            except:
+                pass
         cpst.delete()
 
     cp = CompanyPosts.objects.filter(company=cpst.company).order_by('-pk')
