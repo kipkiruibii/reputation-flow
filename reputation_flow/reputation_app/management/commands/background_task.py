@@ -1233,218 +1233,215 @@ def postTiktok(post_id,files):
     company=cpst.company
     all_files=[]
 
-    try:
-        ctk = CompanyTiktok.objects.filter(company=company).first()
-        if not ctk:
-            cpst.has_failed = True
-            cpst.save()
-            return 'No Company Tiktok'
+    # try:
+    ctk = CompanyTiktok.objects.filter(company=company).first()
+    if not ctk:
+        cpst.has_failed = True
+        cpst.save()
+        return 'No Company Tiktok'
 
-        s3 =  boto3.client(
-            's3',
-            aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
-            aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
-            region_name=settings.AWS_S3_REGION_NAME,
-        )
-        
-        # Bucket and file details
-        bucket_name = settings.AWS_STORAGE_BUCKET_NAME
-        print('here')
-        for file in files: 
-            s3_file_key = file
-            content_type = mimetypes.guess_type(s3_file_key)[0] 
-            # Temporary file download
-            with tempfile.NamedTemporaryFile(delete=False, suffix=os.path.splitext(s3_file_key)[-1]) as temp_file:
-                local_file_path = temp_file.name
-                file_size = os.path.getsize(local_file_path)
-                all_files.append({'image_path':local_file_path,'content_type':content_type,'file_size':file_size})
-                s3.download_file(bucket_name, s3_file_key, local_file_path)   
+    s3 =  boto3.client(
+        's3',
+        aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+        aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+        region_name=settings.AWS_S3_REGION_NAME,
+    )
+    
+    # Bucket and file details
+    bucket_name = settings.AWS_STORAGE_BUCKET_NAME
+    print('here')
+    for file in files: 
+        s3_file_key = file
+        content_type = mimetypes.guess_type(s3_file_key)[0] 
+        # Temporary file download
+        with tempfile.NamedTemporaryFile(delete=False, suffix=os.path.splitext(s3_file_key)[-1]) as temp_file:
+            local_file_path = temp_file.name
+            file_size = os.path.getsize(local_file_path)
+            all_files.append({'image_path':local_file_path,'content_type':content_type,'file_size':file_size})
+            s3.download_file(bucket_name, s3_file_key, local_file_path)   
 
-        video=all_files[0]
-        print('all files',all_files)
-        video_size = os.path.getsize(video['image_path'])
-        # video_size = video['file_size']
-        print(video_size)
-        # Get the necessary data from the request
-        chunk_size = 20 * 1024 * 1024  # 10 MB in bytes
+    video=all_files[0]
+    video_size = os.path.getsize(video['image_path'])
+    # video_size = video['file_size']
+    # Get the necessary data from the request
+    chunk_size = 20 * 1024 * 1024  # 10 MB in bytes
 
-        # Adjust chunk size if the video is smaller than the chunk size
-        if video_size < chunk_size:
-            chunk_size = video_size
-            total_chunk_count = 1
-        if video_size > chunk_size:
-            total_chunk_count = 4
-            chunk_size = int(video_size / 4)
+    # Adjust chunk size if the video is smaller than the chunk size
+    if video_size < chunk_size:
+        chunk_size = video_size
+        total_chunk_count = 1
+    if video_size > chunk_size:
+        total_chunk_count = 4
+        chunk_size = int(video_size / 4)
 
-        url = "https://open.tiktokapis.com/v2/post/publish/creator_info/query/"
-        headers = {
-            "Authorization": f"Bearer {access_token}",
-            "Content-Type": "application/json"
+    url = "https://open.tiktokapis.com/v2/post/publish/creator_info/query/"
+    headers = {
+        "Authorization": f"Bearer {access_token}",
+        "Content-Type": "application/json"
+    }
+
+    response = requests.post(url, headers=headers)
+    # API URL for the video upload initialization
+    url = "https://open.tiktokapis.com/v2/post/publish/video/init/"
+    # Prepare the headers with the access token
+    headers = {
+        "Authorization": f"Bearer {access_token}",
+        "Content-Type": "application/json"
+    }
+
+    # Prepare the JSON payload
+    payload = {
+        "post_info": {
+            "title": ctkp.description,
+            "privacy_level": ctkp.audience,
+            "disable_duet": not ctkp.allow_duet,
+            "disable_comment": not ctkp.allow_comment,
+            "disable_stitch": not ctkp.allow_stitch
+        },
+        "source_info": {
+            "source": "FILE_UPLOAD",
+            "video_size": video_size,
+            "chunk_size": chunk_size,
+            "total_chunk_count": total_chunk_count
+        }
+    }
+
+    # Make the POST request
+    response = requests.post(url, headers=headers, json=payload)
+    # Check the response status and print the result
+    if response.status_code == 200:
+        print("Upload initialized successfully.", response.content)
+    else:
+        cpst.has_failed = True
+        cpst.save()
+        print(f"Error: {response.status_code}")
+        print(response.json())
+        return
+
+    # Parse the response
+    upload_data = response.json()
+    publish_id = upload_data.get('data', {}).get('publish_id')
+    chunk_upload_url = upload_data.get('data', {}).get('upload_url')
+    vide_id = publish_id.split('.')[-1]
+
+    if not all([publish_id, chunk_upload_url]):
+        cpst.has_failed = True
+        cpst.save()
+        return print({'error': 'Missing publish_id or upload_url in response'})
+
+    with open(video['image_path'], "rb") as video_file:
+        video_data = video_file.read()
+        total_size = len(video_data)
+
+        upload_headers = {
+            "Content-Range": f"bytes 0-{total_size - 1}/{total_size}",
+            "Content-Type": "video/mp4"
         }
 
-        response = requests.post(url, headers=headers)
-        # API URL for the video upload initialization
-        url = "https://open.tiktokapis.com/v2/post/publish/video/init/"
-        # Prepare the headers with the access token
-        headers = {
-            "Authorization": f"Bearer {access_token}",
-            "Content-Type": "application/json"
-        }
+        upload_response = requests.put(chunk_upload_url, headers=upload_headers, data=video_data)
 
-        # Prepare the JSON payload
-        payload = {
-            "post_info": {
-                "title": ctkp.description,
-                "privacy_level": ctkp.audience,
-                "disable_duet": not ctkp.allow_duet,
-                "disable_comment": not ctkp.allow_comment,
-                "disable_stitch": not ctkp.allow_stitch
-            },
-            "source_info": {
-                "source": "FILE_UPLOAD",
-                "video_size": video_size,
-                "chunk_size": chunk_size,
-                "total_chunk_count": total_chunk_count
-            }
-        }
+        if upload_response.status_code == 201:
+            print("Video uploaded successfully!", upload_response.content)
 
-        # Make the POST request
-        response = requests.post(url, headers=headers, json=payload)
-        # Check the response status and print the result
-        if response.status_code == 200:
-            print("Upload initialized successfully.", response.content)
         else:
             cpst.has_failed = True
             cpst.save()
-            print(f"Error: {response.status_code}")
-            print(response.json())
-
+            print(f"Failed to upload video: {upload_response.status_code}")
+            print(upload_response.json())
             return
 
-        # Parse the response
-        upload_data = response.json()
-        publish_id = upload_data.get('data', {}).get('publish_id')
-        chunk_upload_url = upload_data.get('data', {}).get('upload_url')
-        vide_id = publish_id.split('.')[-1]
+        # wait for the video to be published
+        published = False
+        # Define the API endpoint and access token
+        url = "https://open.tiktokapis.com/v2/post/publish/status/fetch/"
 
-        if not all([publish_id, chunk_upload_url]):
-            cpst.has_failed = True
-            cpst.save()
-            return print({'error': 'Missing publish_id or upload_url in response'})
+        # Prepare the payload with the publish ID
+        data = {
+            "publish_id": publish_id  # Replace with your actual publish ID
+        }
 
-        with open(video['image_path'], "rb") as video_file:
-            video_data = video_file.read()
-            total_size = len(video_data)
+        # Send the request
+        content_status = "PROCESSING_UPLOAD"
+        while content_status == "PROCESSING_UPLOAD":
+            response = requests.post(url, headers=headers, json=data, verify=False)
+            if response.status_code == 200:
+                status = response.json()
+                content_status = status.get("data", {}).get("status", "Unknown")
+                print('processing status', content_status)
+                if content_status == "PUBLISH_COMPLETE":
+                    published = True
+            time.sleep(10)
 
-            upload_headers = {
-                "Content-Range": f"bytes 0-{total_size - 1}/{total_size}",
-                "Content-Type": "video/mp4"
+        # get latest updated video
+        if published:
+            video_list_url = "https://open.tiktokapis.com/v2/video/list/"
+            params = {
+                "fields": "id"
+            }
+            headers = {
+                "Authorization": f"Bearer {access_token}",
+                "Content-Type": "application/json"
             }
 
-            upload_response = requests.put(chunk_upload_url, headers=upload_headers, data=video_data)
+            response = requests.post(video_list_url, headers=headers,params=params)
+            vid_id=response.json()['data']['videos'][0]['id']
+            # # return
+            url = "https://open.tiktokapis.com/v2/video/query/"
 
-            if upload_response.status_code == 201:
-                print("Video uploaded successfully!", upload_response.content)
+            params = {
+                "fields": "id,cover_image_url,embed_link"
+            }
+            payload = {
+                "filters": {
+                    "video_ids": [
+                        vid_id
+                    ]
+                }
+            }
 
+            response = requests.post(url, headers=headers, json=payload,params=params)
+            videos = response.json()['data']['videos'][0]
+            video_cover = videos['cover_image_url']
+            video_link = videos['embed_link']
+            if not cpst.media_thumbnail:
+                cpst.media_thumbnail = video_cover
+                cpst.save()
+
+            # save the tiktok post
+            ctkp.video_id=vid_id,
+            ctkp.is_published=published,
+            ctkp.cover_image_url=video_cover,
+            ctkp.post_link=video_link,
+            ctkp.save()
+            # update the post
+            cpst.is_published = True
+            cpst.save()
+            print('done')
+            return print({
+                'message': 'Video uploaded successfully',
+            })
+        else:
+            if cpst.is_published and len(cpst.platforms) > 1:
+                cpst.partial_publish = True
             else:
                 cpst.has_failed = True
-                cpst.save()
-                print(f"Failed to upload video: {upload_response.status_code}")
-                print(upload_response.json())
-                return
+            cpst.failure_reasons.append('Uknown error')
+            cpst.save()
+            ctkp = CompanyTiktokPosts(
+                post_id=post_id,
+                is_published=published,
+            )
+            ctkp.save()
 
-            # wait for the video to be published
-            published = False
-            # Define the API endpoint and access token
-            url = "https://open.tiktokapis.com/v2/post/publish/status/fetch/"
+    # except Exception as e:
+    #     if cpst.is_published and len(cpst.platforms) > 1:
+    #         cpst.partial_publish = True
+    #     else:
+    #         cpst.has_failed = True
+    #     cpst.failure_reasons.append(str(e))
+    #     cpst.save()
 
-            # Prepare the payload with the publish ID
-            data = {
-                "publish_id": publish_id  # Replace with your actual publish ID
-            }
-
-            # Send the request
-            content_status = "PROCESSING_UPLOAD"
-            while content_status == "PROCESSING_UPLOAD":
-                response = requests.post(url, headers=headers, json=data, verify=False)
-                if response.status_code == 200:
-                    status = response.json()
-                    content_status = status.get("data", {}).get("status", "Unknown")
-                    print('processing status', content_status)
-                    if content_status == "PUBLISH_COMPLETE":
-                        published = True
-                time.sleep(10)
-
-            # get latest updated video
-            if published:
-                video_list_url = "https://open.tiktokapis.com/v2/video/list/"
-                params = {
-                    "fields": "id"
-                }
-                headers = {
-                    "Authorization": f"Bearer {access_token}",
-                    "Content-Type": "application/json"
-                }
-
-                response = requests.post(video_list_url, headers=headers,params=params)
-                vid_id=response.json()['data']['videos'][0]['id']
-                # # return
-                url = "https://open.tiktokapis.com/v2/video/query/"
-
-                params = {
-                    "fields": "id,cover_image_url,embed_link"
-                }
-                payload = {
-                    "filters": {
-                        "video_ids": [
-                            vid_id
-                        ]
-                    }
-                }
-
-                response = requests.post(url, headers=headers, json=payload,params=params)
-                videos = response.json()['data']['videos'][0]
-                video_cover = videos['cover_image_url']
-                video_link = videos['embed_link']
-                if not cpst.media_thumbnail:
-                    cpst.media_thumbnail = video_cover
-                    cpst.save()
-
-                # save the tiktok post
-                ctkp.video_id=vid_id,
-                ctkp.is_published=published,
-                ctkp.cover_image_url=video_cover,
-                ctkp.post_link=video_link,
-                ctkp.save()
-                # update the post
-                cpst.is_published = True
-                cpst.save()
-                print('done')
-                return print({
-                    'message': 'Video uploaded successfully',
-                })
-            else:
-                if cpst.is_published and len(cpst.platforms) > 1:
-                    cpst.partial_publish = True
-                else:
-                    cpst.has_failed = True
-                cpst.failure_reasons.append('Uknown error')
-                cpst.save()
-                ctkp = CompanyTiktokPosts(
-                    post_id=post_id,
-                    is_published=published,
-                )
-                ctkp.save()
-
-    except Exception as e:
-        if cpst.is_published and len(cpst.platforms) > 1:
-            cpst.partial_publish = True
-        else:
-            cpst.has_failed = True
-        cpst.failure_reasons.append(str(e))
-        cpst.save()
-
-        return print({'error': 'An unexpected error occurred', 'details': str(e)})
+    #     return print({'error': 'An unexpected error occurred', 'details': str(e)})
     # delete temporary files
     for f in all_files:
         if os.path.exists(f['image_path']):
