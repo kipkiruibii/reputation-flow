@@ -245,6 +245,17 @@
                     data: formData,
                     processData: false, // Prevent jQuery from processing the data
                     contentType: false, // Prevent jQuery from setting the content type
+                    beforeSend: function () {
+                        // Add a temporary loading message
+                        const loadingMessage = document.createElement('div');
+                        loadingMessage.className = 'chat-message bot loading';
+                        loadingMessage.innerHTML = `
+                            <img class="bot-icon" src="https://img.icons8.com/ios-filled/50/248a52/robot-2.png" alt="Bot">
+                            <div class="message-bubble">...</div>
+                        `;
+                        messages.appendChild(loadingMessage);
+                        messages.scrollTop = messages.scrollHeight;
+                    },                    
                     success: function (response) {
                         if (response['error']) {
 
