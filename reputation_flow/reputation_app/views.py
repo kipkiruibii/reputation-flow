@@ -1532,7 +1532,7 @@ def dashboard(request, company_id):
         tk_remaining=f'{tk_remaining} ({pc_rem}%)'
         tk_used=f'{tk_used} ({pc_usd}%)'
         stg_allocated=f'{round(cm.company_storage/1000000000,2)}GB'
-        stg_used=f'{round(cm.company_used_storage/1000000000,2)}GB ({int(cm.company_used_storage/cm.company_storage)}%)'
+        stg_used=f'{round(abs(cm.company_used_storage/1000000000,2))}GB ({int(cm.company_used_storage/cm.company_storage)}%)'
         stg_remaining=f'{round((cm.company_storage-cm.company_used_storage)/1000000000,2)}GB ({int((cm.company_storage-cm.company_used_storage)/cm.company_storage)*100}%)'
         
     context = {
@@ -5771,10 +5771,12 @@ def uploadPost(request):
                         )
                 cfs.save()
                 # company used storage
+                print('adding to storage',f_size)
                 cp.company_used_storage+=f_size
                 cp.save()
                 
             else:
+                print('adding to storage',f_size)
                 cfs.size+=f_size
                 cfs.save()
                 cp.company_used_storage+=f_size
