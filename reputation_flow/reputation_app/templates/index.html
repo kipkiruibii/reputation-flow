@@ -1003,8 +1003,19 @@
     <!-- End block -->
     <!-- chatbot  -->
     <iframe id="chatbot-iframe" src="https://insightlyze.com/chatbot/1d5b2929-60df-47ac-888a-8ce97d4aa771"
-        style="display:none;position: fixed; bottom: 20px; right: 20px; width: 360px; height: 600px; z-index: 9000;"
-        frameborder="0">></iframe>
+    style="
+    display: none;
+    position: fixed;
+    bottom: 20px;
+    right: 20px; 
+    width: 100%;
+    max-width: 400px; 
+    height: 600px;
+    max-height: 90vh; 
+    z-index: 9000;
+    border: none;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); 
+    border-radius: 8px;"></iframe>
 
     <!-- Start block -->
     {% if not request.user.is_authenticated %}
