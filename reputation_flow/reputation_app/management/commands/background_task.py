@@ -33,10 +33,83 @@ s3_client = boto3.client(
     aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
     region_name=settings.AWS_S3_REGION_NAME,
 )
+def exchangeFacebookToken(companyfacebook,access_token):
+    exchange_url = f"https://graph.facebook.com/v21.0/oauth/access_token"
+    params = {
+        "grant_type": "fb_exchange_token",
+        "client_id": settings.FACEBOOK_APP_ID,
+        "client_secret": settings.FACEBOOK_APP_SECRET,
+        "fb_exchange_token": access_token,
+    }
+    response = requests.get(exchange_url, params=params)
+    data = response.json()
+    access_token=data['access_token']
+    companyfacebook.page_access_token=access_token
+    companyfacebook.last_update_time=timezone.now()
+    companyfacebook.save()
+
+def exchangeTiktokToken(refresh_token,companytiktok):
+    # Define the URL and payload for the refresh request
+    url = "https://open.tiktokapis.com/v2/oauth/token/"
+    payload = {
+        "client_key": settings.TIKTOK_CLIENT_ID,
+        "client_secret": settings.TIKTOK_CLIENT_SECRET,
+        "grant_type": "refresh_token",
+        "refresh_token": refresh_token
+    }
+# Set the correct headers
+    headers = {
+        "Content-Type": "application/x-www-form-urlencoded"
+    }
+    response = requests.post(url, data=payload,verify=False,headers=headers)
+    # Check the response status
+    if response.status_code == 200:
+        # If successful, parse the response JSON
+        data = response.json()
+        new_access_token = data['access_token']
+        new_refresh_token = data['refresh_token']
+        expires_in = data['expires_in']
+        companytiktok.access_token=new_access_token
+        companytiktok.refresh_token=new_refresh_token
+        companytiktok.last_update_time=timezone.now()
+        companytiktok.token_expiry=timezone.now()+timedelta(seconds=expires_in)
+        companytiktok.save()
+        def tiktok_profile_stat(access_token):
+            url = 'https://open.tiktokapis.com/v2/user/info/?fields=open_id,union_id,avatar_url,display_name,username,follower_count,likes_count'
+            headers = {
+                'Authorization': f'Bearer {access_token}'
+            }
+            response = requests.get(url, headers=headers)
+            dta = response.json().get('data', {}).get('user')
+            return {
+                'user_id': dta.get('union_id'),
+                'ppic': dta.get('avatar_url'),
+                'disp_name': dta.get('display_name'),
+                'u_name': dta.get('username'),
+                'f_count': dta.get('follower_count'),
+                'l_count': dta.get('likes_count')
+            }
+
+        data = tiktok_profile_stat(new_access_token)
+        ctk=companytiktok
+        ctk.active = True
+        ctk.linked = True
+        ctk.account_name = data['disp_name']
+        ctk.account_username = data['u_name']
+        ctk.profile_url = data['ppic']
+        ctk.account_id = data['user_id']
+        ctk.followers_count.append(data['f_count'])
+        ctk.likes_count.append(data['l_count'])
+        ctk.save()
+
+    else:
+        print(f"Error refreshing token: {response.status_code}")
+        print(response.content)    
 
 def postReddit(title, description, subs, hasMedia,spoiler_tag,nsfw_tag, files,  red_refresh_token,pst,cr):
     if not pst:
         return
+    all_files = []
     try:
         reddit = praw.Reddit(
             client_id=settings.REDDIT_CLIENT_ID,
@@ -48,7 +121,6 @@ def postReddit(title, description, subs, hasMedia,spoiler_tag,nsfw_tag, files,  
         published = False
         failed_publish = False
         fail_reasons = []
-        all_files = []
         if hasMedia:
             # save to local file
             # Initialize your S3 client
@@ -403,79 +475,6 @@ def postReddit(title, description, subs, hasMedia,spoiler_tag,nsfw_tag, files,  
     for t in all_files:
         if os.path.exists(t['image_path']):
             os.remove(t['image_path'])
-
-def exchangeFacebookToken(companyfacebook,access_token):
-    exchange_url = f"https://graph.facebook.com/v21.0/oauth/access_token"
-    params = {
-        "grant_type": "fb_exchange_token",
-        "client_id": settings.FACEBOOK_APP_ID,
-        "client_secret": settings.FACEBOOK_APP_SECRET,
-        "fb_exchange_token": access_token,
-    }
-    response = requests.get(exchange_url, params=params)
-    data = response.json()
-    access_token=data['access_token']
-    companyfacebook.page_access_token=access_token
-    companyfacebook.last_update_time=timezone.now()
-    companyfacebook.save()
-
-def exchangeTiktokToken(refresh_token,companytiktok):
-    # Define the URL and payload for the refresh request
-    url = "https://open.tiktokapis.com/v2/oauth/token/"
-    payload = {
-        "client_key": settings.TIKTOK_CLIENT_ID,
-        "client_secret": settings.TIKTOK_CLIENT_SECRET,
-        "grant_type": "refresh_token",
-        "refresh_token": refresh_token
-    }
-# Set the correct headers
-    headers = {
-        "Content-Type": "application/x-www-form-urlencoded"
-    }
-    response = requests.post(url, data=payload,verify=False,headers=headers)
-    # Check the response status
-    if response.status_code == 200:
-        # If successful, parse the response JSON
-        data = response.json()
-        new_access_token = data['access_token']
-        new_refresh_token = data['refresh_token']
-        expires_in = data['expires_in']
-        companytiktok.access_token=new_access_token
-        companytiktok.refresh_token=new_refresh_token
-        companytiktok.last_update_time=timezone.now()
-        companytiktok.token_expiry=timezone.now()+timedelta(seconds=expires_in)
-        companytiktok.save()
-        def tiktok_profile_stat(access_token):
-            url = 'https://open.tiktokapis.com/v2/user/info/?fields=open_id,union_id,avatar_url,display_name,username,follower_count,likes_count'
-            headers = {
-                'Authorization': f'Bearer {access_token}'
-            }
-            response = requests.get(url, headers=headers)
-            dta = response.json().get('data', {}).get('user')
-            return {
-                'user_id': dta.get('union_id'),
-                'ppic': dta.get('avatar_url'),
-                'disp_name': dta.get('display_name'),
-                'u_name': dta.get('username'),
-                'f_count': dta.get('follower_count'),
-                'l_count': dta.get('likes_count')
-            }
-
-        data = tiktok_profile_stat(new_access_token)
-        ctk=companytiktok
-        ctk.active = True
-        ctk.linked = True
-        ctk.account_name = data['disp_name']
-        ctk.account_username = data['u_name']
-        ctk.profile_url = data['ppic']
-        ctk.account_id = data['user_id']
-        ctk.followers_count.append(data['f_count'])
-        ctk.likes_count.append(data['l_count'])
-        ctk.save()
-
-    else:
-        print(f"Error refreshing token: {response.status_code}")
-        print(response.content)    
 
 def postFacebook(media,post_id ):
     # API endpoint for creating a post
@@ -1232,6 +1231,8 @@ def postTiktok(post_id,files):
         return
     access_token = ctk.access_token
     company=cpst.company
+    all_files=[]
+
     try:
         ctk = CompanyTiktok.objects.filter(company=company).first()
         if not ctk:
@@ -1248,7 +1249,6 @@ def postTiktok(post_id,files):
         
         # Bucket and file details
         bucket_name = settings.AWS_STORAGE_BUCKET_NAME
-        all_files=[]
         print('here')
         for file in files: 
             s3_file_key = file
@@ -1377,7 +1377,6 @@ def postTiktok(post_id,files):
 
             # get latest updated video
             if published:
-                
                 video_list_url = "https://open.tiktokapis.com/v2/video/list/"
                 params = {
                     "fields": "id"
@@ -1446,7 +1445,10 @@ def postTiktok(post_id,files):
         cpst.save()
 
         return print({'error': 'An unexpected error occurred', 'details': str(e)})
-
+    # delete temporary files
+    for f in all_files:
+        if os.path.exists(f['image_path']):
+            os.remove(f['image_path'])
 
 def postContent(post):
     gallery_items=[]
@@ -1507,8 +1509,6 @@ def postContent(post):
             })
             igThread.start()
             print('Instagram POSTED')
-
-
 
 def delete_file_from_s3(file_key):
     try:
