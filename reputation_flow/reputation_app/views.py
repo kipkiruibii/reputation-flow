@@ -5227,31 +5227,34 @@ def deletePostComment(request):
             cr = CompanyReddit.objects.filter(company=cpst.company).first()
             if not cr:
                 continue
-            reddit = praw.Reddit(
-                client_id=settings.REDDIT_CLIENT_ID,
-                client_secret=settings.REDDIT_CLIENT_SECRET,
-                user_agent=settings.REDDIT_USER_AGENT,
-                refresh_token=cr.refresh_token,
-            )
-            if action_type == 'post':
-                print('deleting post',post_id)
-                crp = CompanyRedditPosts.objects.filter(post_id=post_id).first()
-                if crp:
-                    if cpst.is_published:
-                        sbs = crp.subs
-                        for sb in sbs:
-                            try:
-                                sb_id = sb['id']
-                                submission = reddit.submission(id=sb_id)
-                                submission.delete()
-                                print('deleted from ', sb['sub_name'])
-                            except:
-                                print('unable to delete')
-                                print(traceback.format_exc())
-                                continue
-                    crp.delete()
-                else:
-                    print('No post')  
+            try:
+                reddit = praw.Reddit(
+                    client_id=settings.REDDIT_CLIENT_ID,
+                    client_secret=settings.REDDIT_CLIENT_SECRET,
+                    user_agent=settings.REDDIT_USER_AGENT,
+                    refresh_token=cr.refresh_token,
+                )
+                if action_type == 'post':
+                    print('deleting post',post_id)
+                    crp = CompanyRedditPosts.objects.filter(post_id=post_id).first()
+                    if crp:
+                        if cpst.is_published:
+                            sbs = crp.subs
+                            for sb in sbs:
+                                try:
+                                    sb_id = sb['id']
+                                    submission = reddit.submission(id=sb_id)
+                                    submission.delete()
+                                    print('deleted from ', sb['sub_name'])
+                                except:
+                                    print('unable to delete')
+                                    print(traceback.format_exc())
+                                    continue
+                        crp.delete()
+                    else:
+                        print('No post')  
+            except:
+                pass
         if 'facebook' in platform.lower():
             cfbp = CompanyFacebook.objects.filter(company=cpst.company).first()
             if not cfbp:
@@ -5271,11 +5274,12 @@ def deletePostComment(request):
                                 cfp.delete()
                             else:
                                 print("Error deleting post:", response.json())
-                            
-        if 'instagram' in platform.lower():
-            cig = CompanyInstagram.objects.filter(company=cpst.company).first()
-            if not cig:
-                continue
+        # if 'instagram' in platform.lower():
+        #     cig = CompanyInstagram.objects.filter(company=cpst.company).first()
+        #     if not cig:
+        #         continue
+        # if 'tiktok' in platform.lower():
+        #     pass
     
     # delete uploaded media from s3 if present
     if action_type == 'post':

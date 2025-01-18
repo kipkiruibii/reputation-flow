@@ -1159,8 +1159,8 @@
                 </div>
                 <div class="modal-body">
                     <p id="">Confirm delete of posts from all channels.</p>
-                    <p style="font-size: 10px;">Note: You will be required to also manually delete the post from
-                        Instagram official channels where applicable</p>
+                    <p style="font-size: 10px;">Note: You will also be required to manually delete the post from
+                        Instagram and Tiktok official platforms where applicable</p>
                     <!-- You have not linked an Instagram account -->
                 </div>
                 <div class="modal-footer">
@@ -4289,6 +4289,52 @@
                                 </div>
 
                             </div>
+                            <div>
+                                <p style="font-size: 12px;padding: 0;margin: 0;">Chatbot Tokens</p>
+                                <div style="display: flex;gap: 10px;">
+                                    <div
+                                        style="background-color: #007bff50;border-radius: 15px;padding: 10px;text-align: center;width: 120px;">
+                                        <p style="font-size: 12px;">Allocated</p>
+                                        <p>{{ management.allocated_tokens }}</p>
+                                    </div>
+                                    <div
+                                        style="background-color: #ff00004f;border-radius: 15px;padding: 10px;text-align: center;width: 120px;">
+                                        <p style="font-size: 12px;">Used</p>
+                                        <p>{{ management.used_tokens }}</p>
+                                    </div>
+                                    <div
+                                        style="background-color: #00ff4c43;border-radius: 15px;padding: 10px;text-align: center;width: 120px;">
+                                        <p style="font-size: 12px;">Remaining</p>
+                                        <p>{{ management.remaining_tokens }}</p>
+                                    </div>
+
+
+                                </div>
+                            </div>
+                            <div>
+                                <p style="font-size: 12px;padding: 0;margin: 0;">Storage</p>
+                                <div style="display: flex;gap: 10px;">
+                                    <div
+                                        style="background-color: #007bff50;border-radius: 15px;padding: 10px;text-align: center;width: 120px;">
+                                        <p style="font-size: 12px;">Allocated</p>
+                                        <p>{{ management.alloctaed_storage }}</p>
+                                    </div>
+                                    <div
+                                        style="background-color: #ff00004f;border-radius: 15px;padding: 10px;text-align: center;width: 120px;">
+                                        <p style="font-size: 12px;">Used</p>
+                                        <p>{{ management.used_storage }}</p>
+                                    </div>
+                                    <div
+                                        style="background-color: #00ff4c43;border-radius: 15px;padding: 10px;text-align: center;width: 120px;">
+                                        <p style="font-size: 12px;">Remaining</p>
+                                        <p>{{ management.remaining_storage }}</p>
+                                    </div>
+
+
+                                </div>
+                            </div>
+
+
 
                         </div>
                         <div style="padding-top: 25px;">
