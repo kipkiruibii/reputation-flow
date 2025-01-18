@@ -1783,28 +1783,40 @@ def fetchPosts(request):
             sch_t=p.date_scheduled.astimezone(target_timezone).strftime('%d %b, %H:%M')
             pltfrms=[]
             if 'instagram' in p.platforms:
+                link='#'
                 cigp=CompanyInstagramPosts.objects.filter(post_id=p.post_id).first()
+                if cigp:
+                    link=cigp.post_link
                 pltfrms.append({
                     'platform':'Instagram',
-                    'link':cigp.post_link
+                    'link':link
                 })
             if 'facebook' in p.platforms:
+                link='#'
                 cfbp=CompanyFacebookPosts.objects.filter(post_id=p.post_id).first()
+                if cfbp:
+                    link=cfbp.post_link
                 pltfrms.append({
                     'platform':'Facebook',
-                    'link':cfbp.post_link
+                    'link':link
                 })
             if 'reddit' in p.platforms:
+                link='#'
                 crpp=CompanyRedditPosts.objects.filter(post_id=p.post_id).first()
+                if crpp:
+                    link=crpp.post_link
                 pltfrms.append({
                     'platform':'Reddit',
-                    'link':crpp.post_link
+                    'link':link
                 })
             if 'tiktok' in p.platforms:
+                link='#'
                 ctpp=CompanyTiktokPosts.objects.filter(post_id=p.post_id).first()
+                if ctpp:
+                    link=ctpp.post_link
                 pltfrms.append({
                     'platform':'TikTok',
-                    'link':ctpp.post_link
+                    'link':link
                 })
             all_posts.append({
                 'platforms': pltfrms,
@@ -1854,16 +1866,22 @@ def fetchPosts(request):
                 cmt_cnt = round(cmt_cnt / 1000, 1)
             pltfrms=[]
             if 'instagram' in p.platforms:
+                link='#'
                 cigp=CompanyInstagramPosts.objects.filter(post_id=p.post_id).first()
+                if cigp:
+                    link=cigp.post_link
                 pltfrms.append({
                     'platform':'Instagram',
-                    'link':cigp.post_link
+                    'link':
                 })
             if 'facebook' in p.platforms:
+                link='#'
                 cfbp=CompanyFacebookPosts.objects.filter(post_id=p.post_id).first()
+                if cfbp:
+                    link=cfbp.post_link
                 pltfrms.append({
                     'platform':'Facebook',
-                    'link':cfbp.post_link
+                    'link':link
                 })
             if 'reddit' in p.platforms:
                 link='#'
