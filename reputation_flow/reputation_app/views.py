@@ -64,6 +64,13 @@ s3_client = boto3.client(
     region_name=settings.AWS_S3_REGION_NAME,
 )
 
+def robots_txt(request):
+    lines = [
+        "User-agent: *",
+        "Disallow: /hez_admin/",
+        "Sitemap: https://insightlyze.com/sitemap.xml"
+    ]
+    return HttpResponse("\n".join(lines), content_type="text/plain")
 
 def get_client_ip(request):
     """Extract client IP address from request."""

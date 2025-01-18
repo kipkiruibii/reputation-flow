@@ -2,12 +2,20 @@ from django.urls import path, include
 from . import views
 from django.conf import settings
 from django.conf.urls.static import static
+from django.contrib.sitemaps.views import sitemap
+from . import sitemaps   # Import your sitemaps
+
+sitemaps = {
+    'static': sitemaps.StaticViewSitemap,
+}
 urlpatterns=[
     path('',views.index,name='landing'),
     path('login/',views.loginUser,name='login'),
     path('logout/',views.logoutUser,name='logout'),
     path('privacy/',views.privacy,name='privacy'),
     path('terms/',views.terms,name='terms'),
+    path("robots.txt", views.robots_txt, name="robots_txt"),
+    path('sitemap.xml', sitemap, {'sitemaps': sitemaps}, name='sitemap'),
     
     path('b/<str:company_id>/dashboard',views.dashboard,name='dashboard'),
     path('profile/<str:company_name>/details/',views.companyProfile,name='company_profile'),

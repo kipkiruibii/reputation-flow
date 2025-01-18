@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'django_user_agents',
     'paypal.standard.ipn',
     'rest_framework',
+    'django.contrib.sitemaps',
 ]
 
 MIDDLEWARE = [

@@ -1,0 +1,3 @@
+User-agent: *
+Disallow: /hez_admin/
+Sitemap: https://insightlyze.com/sitemap.xml
