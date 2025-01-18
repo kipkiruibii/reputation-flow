@@ -5566,7 +5566,28 @@ def uploadPost(request):
             alctime=30
         
         if tdif>alctime:
+            for g in gallery_items:
+                if os.path.exists(g['image_path']):
+                    # delete existing files
+                    os.path.remove(g['image_path'])
             return Response({'error': f'Your plan allows upto {alctime} days schedule time'})
+        
+        #  have a maximum of 10 schedules per day
+        csps=CompanyPosts.objects.filter(is_scheduled=True,date_scheduled__date=utc_datetime.date())
+        print(f'scheduled for {utc_datetime.date()}',len(csps))
+        if len(csps)>1:
+            return Response({'error': 'A maximum of 10 schedules is allowed per day'})
+        
+            
+        
+        # allocated storage
+        avl=cp.company_storage-cp.company_used_storage
+        if not avl:
+            for g in gallery_items:
+                if os.path.exists(g['image_path']):
+                    # delete existing files
+                    os.path.remove(g['image_path'])
+            return Response({'error': f'You have exhausted your schedule disk space. Remove some scheduled content or upgrade your account'})
         
         
 
