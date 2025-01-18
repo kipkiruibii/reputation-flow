@@ -5999,6 +5999,8 @@ def get_facebook_auth_url(company_id):
 def instagram_callback(request):
     code = request.GET.get('code')
     state = request.GET.get("state")  # Retrieve the state parameter
+    if not all([code,state]):
+        return redirect('landing')
     company_id = urllib.parse.unquote_plus(state)  # Decode the state to get the original user_id
     token_url = f"https://graph.facebook.com/v21.0/oauth/access_token?client_id={settings.FACEBOOK_APP_ID}&redirect_uri={settings.INSTAGRAM_REDIRECT_URI}&client_secret={settings.FACEBOOK_APP_SECRET}&code={code}"
     response = requests.get(token_url)
@@ -6289,6 +6291,9 @@ def facebook_create_post(page_id, message, access_token):
 def facebook_callback(request):
     code = request.GET.get('code')
     state = request.GET.get("state")  # Retrieve the state parameter
+    if not all([code,state]):
+        return redirect('landing')
+
     company_id = urllib.parse.unquote_plus(state)  # Decode the state to get the original user_id
     token_url = f"https://graph.facebook.com/v21.0/oauth/access_token?client_id={settings.FACEBOOK_APP_ID}&redirect_uri={settings.FACEBOOK_REDIRECT_URI}&client_secret={settings.FACEBOOK_APP_SECRET}&code={code}"
     response = requests.get(token_url)
@@ -6376,6 +6381,8 @@ def tiktok_callback(request):
     """Handles the TikTok callback and exchanges code for an access token."""
     code = request.GET.get('code')
     state = request.GET.get("state")  # Retrieve the state parameter
+    if not all([code,state]):
+        return redirect('landing')
     company_id = urllib.parse.unquote_plus(state)  # Decode the state to get the original user_id
 
     token_url = "https://open.tiktokapis.com/v2/oauth/token/"
@@ -6797,9 +6804,12 @@ def reddit_auth_link(company_id):
 def reddit_callback(request):
     code = request.GET.get('code')
     state = request.GET.get('state')
-    company_id = urllib.parse.unquote_plus(state)  # Decode the state to get the original user_id
+    if not all([code,state]):
+        return redirect('landing')
 
-    if code:
+    if code and state:
+        company_id = urllib.parse.unquote_plus(state)  # Decode the state to get the original user_id
+
         refresh_token = reddit.auth.authorize(code)
         # access_token = reddit.auth.access_token
         cm = Company.objects.filter(company_id=company_id).first()
