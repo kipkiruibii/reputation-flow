@@ -9975,7 +9975,6 @@
                         success: function (response) {
                             if (response['error']) {
                                 toastr.error(response['error']);
-                                toastr.error('Failed to submit form.');
                                 $('#confirmModalPostCenter').modal('hide');
                                 $('#confirmModalPostAction').text('Post');
                                 $('#confirmModalPostAction').css('cursor', 'default');
