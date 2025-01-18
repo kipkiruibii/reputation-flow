@@ -5550,6 +5550,25 @@ def uploadPost(request):
 
         # Convert the localized datetime to UTC
         utc_datetime = localized_datetime.astimezone(pytz.utc)
+        
+        # check the usrs allocated time
+        tdif=(utc_datetime-timezone.now()).days
+        
+        all_t=cp.company_subscription_tier
+        alctime=2
+        if all_t == 0:
+            alctime=2
+        elif all_t == 1:
+            alctime=5
+        elif all_t == 2:
+            alctime=15
+        elif all_t == 3:
+            alctime=30
+        
+        if tdif>alctime:
+            return Response({'error': f'Your plan allows upto {alctime} days schedule time'})
+        
+        
 
     platform = []
     if not cp:
