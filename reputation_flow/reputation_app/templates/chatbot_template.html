@@ -257,6 +257,11 @@
                         messages.scrollTop = messages.scrollHeight;
                     },                    
                     success: function (response) {
+                        // Remove the temporary loading message
+                        const loadingMessage = document.querySelector('.chat-message.bot.loading');
+                        if (loadingMessage) {
+                            loadingMessage.remove();
+                        }
                         if (response['error']) {
 
                         } else {
