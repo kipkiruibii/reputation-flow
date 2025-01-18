@@ -10659,6 +10659,8 @@
             document.addEventListener("DOMContentLoaded", function () {
                 const today = new Date();
                 const futureLimit = new Date();
+                var timeMax='{{ schedule_max_days }}'
+                alert(timeMax);
                 futureLimit.setDate(today.getDate() + 30); // Example: 6 months from today
 
                 // Initialize Flatpickr
