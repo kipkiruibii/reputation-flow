@@ -1532,10 +1532,10 @@ def dashboard(request, company_id):
         tk_remaining=f'{tk_remaining} ({pc_rem}%)'
         tk_used=f'{tk_used} ({pc_usd}%)'
         stg_allocated=f'{round(cm.company_storage/1000000000,2)}GB'
-        stg_used=f'{cm.company_used_storage} {(cm.company_used_storage/cm.company_storage)*100}%'
-        stg_remaining=f'{(cm.company_storage-cm.company_used_storage)} {((cm.company_storage-cm.company_used_storage)/cm.company_storage)*100}%'
-        # stg_used=f'{round(abs(cm.company_used_storage/1000000000),2)}GB ({int(cm.company_used_storage/cm.company_storage)*100}%)'
-        # stg_remaining=f'{round((cm.company_storage-cm.company_used_storage)/1000000000,2)}GB ({int((cm.company_storage-cm.company_used_storage)/cm.company_storage)*100}%)'
+        # stg_used=f'{cm.company_used_storage} {(cm.company_used_storage/cm.company_storage)*100}%'
+        # stg_remaining=f'{(cm.company_storage-cm.company_used_storage)} {((cm.company_storage-cm.company_used_storage)/cm.company_storage)*100}%'
+        stg_used=f'{round(abs(cm.company_used_storage/1000000000),2)}GB ({round((cm.company_used_storage/cm.company_storage)*100),2}%)'
+        stg_remaining=f'{round((cm.company_storage-cm.company_used_storage)/1000000000,2)}GB ({round(((cm.company_storage-cm.company_used_storage)/cm.company_storage)*100,2)}%)'
         
     context = {
         'company_name': cm.company_name,
