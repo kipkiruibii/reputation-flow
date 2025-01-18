@@ -1400,6 +1400,7 @@ def postTiktok(post_id,files):
             }
 
             response = requests.post(url, headers=headers, json=payload,params=params)
+            print('response 122',response.json())
             videos = response.json()['data']['videos'][0]
             video_cover = videos['cover_image_url']
             video_link = videos['embed_link']
@@ -1408,8 +1409,9 @@ def postTiktok(post_id,files):
                 cpst.save()
 
             # save the tiktok post
+            print('dinol one')
             ctkp.video_id=vid_id,
-            ctkp.is_published=published,
+            ctkp.is_published=True,
             ctkp.cover_image_url=video_cover,
             ctkp.post_link=video_link,
             ctkp.save()
@@ -1429,7 +1431,7 @@ def postTiktok(post_id,files):
             cpst.save()
             ctkp = CompanyTiktokPosts(
                 post_id=post_id,
-                is_published=published,
+                is_published=False,
             )
             ctkp.save()
 
