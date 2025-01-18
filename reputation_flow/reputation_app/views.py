@@ -5571,7 +5571,7 @@ def uploadPost(request):
                     # delete existing files
                     os.path.remove(g['image_path'])
             return Response({'error': f'Your plan allows upto {alctime} days schedule time'})
-        
+        print('hererere')
         #  have a maximum of 10 schedules per day
         csps=CompanyPosts.objects.filter(is_scheduled=True,date_scheduled__date=utc_datetime.date())
         print(f'scheduled for {utc_datetime.date()}',len(csps))
