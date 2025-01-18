@@ -3,6 +3,15 @@
 {% load static %}
 
 <head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-BXJ9BHMTVD"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'G-BXJ9BHMTVD');
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta charset="utf-8">
@@ -4968,15 +4977,15 @@
                             </li>
                             <li>
                                 Add the following code inside the <strong>&lt;body&gt;</strong> tag of your HTML:
-<pre
-    style="background-color: #f9f9f9; padding: 10px; border-radius: 4px; font-size: 14px; overflow: auto;">
+                                <pre
+                                    style="background-color: #f9f9f9; padding: 10px; border-radius: 4px; font-size: 14px; overflow: auto;">
     &lt;iframe id="chatbot-iframe"
     src="https://insightlyze.com/chatbot/{{ company_id }}"
     style="display:none;position: fixed; bottom: 20px; right: 20px; width: 360px; height: 600px; z-index: 9000;"
     frameborder="0">&gt;&lt;/iframe&gt;
 </pre>
-<pre
-    style="background-color: #f9f9f9; padding: 10px; border-radius: 4px; font-size: 14px; overflow: auto;">
+                                <pre
+                                    style="background-color: #f9f9f9; padding: 10px; border-radius: 4px; font-size: 14px; overflow: auto;">
     &lt;div id="chatbot-icon-rs" onclick="toggleIframe()" style="z-index: 10000;"&gt;
     &lt;img src="https://img.icons8.com/ios-filled/50/ffffff/chat.png" alt="Chat"&gt;
     &gt;&lt;/div&gt;
