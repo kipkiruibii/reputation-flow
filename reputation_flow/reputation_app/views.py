@@ -5534,7 +5534,8 @@ def uploadPost(request):
             "image_path": temp_file_path,  # Local path to the file
             "content_type": file.content_type,
             "file_size": file.size,
-        })        
+        })     
+    print('gallery',gallery_items)   
     utc_datetime = timezone.now()
 
     if isScheduled:

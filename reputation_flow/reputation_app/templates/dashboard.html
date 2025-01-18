@@ -10484,48 +10484,6 @@
                     formData.append('red_sub_selected', subsSelected);
                     formData.append('date_scheduled', dateSched);
 
-                    // Send the form data via AJAX
-                    // $.ajax({
-                    //     url: '{% url "upload_post" %}', // Replace with your Django endpoint URL
-                    //     type: 'POST',
-                    //     headers: {
-                    //         'X-CSRFToken': csrfToken
-                    //     },
-                    //     data: formData,
-                    //     processData: false, // Prevent jQuery from processing the data
-                    //     contentType: false, // Prevent jQuery from setting the content type
-                    //     success: function (response) {
-                    //         if (response['error']) {
-                    //             toastr.error(response['error']);
-                    //             $('#confirmModalPostCenter').modal('hide');
-                    //             $('#confirmModalPostAction').text('Post');
-                    //             $('#confirmModalPostAction').css('cursor', 'default');
-
-
-                    //         } else {
-                    //             toastr.success('Uploaded successfully');
-                    //             $('#confirmModalPostCenter').modal('hide');
-                    //             // update html
-                    //             $('#step3').removeClass('current');
-                    //             $('#step3').addClass('completed');
-                    //             $('#set_up_content').css('display', 'none');
-                    //             $('#content_upload_successful').css('display', 'block');
-                    //             $('#confirmModalPostAction').text('Post');
-                    //             $('#confirmModalPostAction').css('cursor', 'default');
-
-                    //             return;
-                    //         }
-                    //     },
-                    //     error: function (jqXHR, textStatus, errorThrown) {
-                    //         toastr.error('Failed to submit form.');
-                    //         $('#confirmModalPostCenter').modal('hide');
-                    //         console.error(textStatus, errorThrown);
-                    //         $('#confirmModalPostAction').text('Post');
-                    //         $('#confirmModalPostAction').css('cursor', 'default');
-
-
-                    //     }
-                    // });
                 // Send the form data via AJAX with progress tracking
                     var xhr = new XMLHttpRequest();
                     xhr.open('POST', '{% url "upload_post" %}', true);
