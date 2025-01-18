@@ -1871,16 +1871,16 @@ def fetchPosts(request):
                     'platform':'Reddit',
                     'link':crpp.post_link
                 })
-            if 'tiktok' in p.platforms:
-                ctpp=CompanyTiktokPosts.objects.filter(post_id=p.post_id).first()
-                if len(p.platforms)<2:
-                    p.media_thumbnail=ctpp.cover_image_url
-                    p.save()
+            # if 'tiktok' in p.platforms:
+            #     ctpp=CompanyTiktokPosts.objects.filter(post_id=p.post_id).first()
+            #     if len(p.platforms)<2:
+            #         p.media_thumbnail=ctpp.cover_image_url
+            #         p.save()
 
-                pltfrms.append({
-                    'platform':'Tiktok',
-                    'link':ctpp.post_link
-                })
+            #     pltfrms.append({
+            #         'platform':'Tiktok',
+            #         'link':ctpp.post_link
+            #     })
             all_posts.append({
                 'platforms': pltfrms,
                 'title': p.title,
@@ -3990,6 +3990,7 @@ def postTiktok(company, description, video, duet, comment, stitch, audience, pos
             cpst.save()
             return 'No Company Tiktok'
 
+        
         access_token = ctk.access_token
         video_size = video['file_size']
         # Get the necessary data from the request

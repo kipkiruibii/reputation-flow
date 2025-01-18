@@ -1163,6 +1163,7 @@ def postInstagram(media, post_id):
         else:
             print(f"Attempt {attempt + 1}: Media not ready. Waiting...")
             time.sleep(20)  # Wait for 10 seconds before trying again    
+    
     if creation_id:
         publish_payload = {
             "creation_id": creation_id,
