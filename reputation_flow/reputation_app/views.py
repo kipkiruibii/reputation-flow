@@ -5289,11 +5289,14 @@ def deletePostComment(request):
             total_file_size=0
             for up in upm:
                 # free up spaces
-                file_size=up.media.size
-                print('total file size',file_size)
-                total_file_size+=file_size
-                delete_file_from_s3(file_key=up.media.name)
-                up.delete()
+                try:
+                    file_size=up.media.size
+                    print('total file size',file_size)
+                    total_file_size+=file_size
+                    delete_file_from_s3(file_key=up.media.name)
+                    up.delete()
+                except:
+                    pass
             
             # check if its scheduled
             if cpst.is_scheduled:
