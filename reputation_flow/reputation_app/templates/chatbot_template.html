@@ -255,7 +255,7 @@
                         `;
                         messages.appendChild(loadingMessage);
                         messages.scrollTop = messages.scrollHeight;
-                    },                    
+                    },
                     success: function (response) {
                         // Remove the temporary loading message
                         const loadingMessage = document.querySelector('.chat-message.bot.loading');
@@ -279,6 +279,10 @@
                         }
                     },
                     error: function (jqXHR, textStatus, errorThrown) {
+                        const loadingMessage = document.querySelector('.chat-message.bot.loading');
+                        if (loadingMessage) {
+                            loadingMessage.remove();
+                        }
                     }
                 });
 
