@@ -1866,21 +1866,27 @@ def fetchPosts(request):
                     'link':cfbp.post_link
                 })
             if 'reddit' in p.platforms:
+                link='#'
                 crpp=CompanyRedditPosts.objects.filter(post_id=p.post_id).first()
+                if crpp:
+                    link=crpp.post_link
                 pltfrms.append({
                     'platform':'Reddit',
-                    'link':crpp.post_link
+                    'link':link
                 })
-            # if 'tiktok' in p.platforms:
-            #     ctpp=CompanyTiktokPosts.objects.filter(post_id=p.post_id).first()
-            #     if len(p.platforms)<2:
-            #         p.media_thumbnail=ctpp.cover_image_url
-            #         p.save()
+            if 'tiktok' in p.platforms:
+                link='#'
+                ctpp=CompanyTiktokPosts.objects.filter(post_id=p.post_id).first()
+                if ctpp:
+                    link=ctpp.post_link
+                    if len(p.platforms)<2:
+                        p.media_thumbnail=ctpp.cover_image_url
+                        p.save()
 
-            #     pltfrms.append({
-            #         'platform':'Tiktok',
-            #         'link':ctpp.post_link
-            #     })
+                pltfrms.append({
+                    'platform':'Tiktok',
+                    'link':link
+                })
             all_posts.append({
                 'platforms': pltfrms,
                 'title': p.title,
