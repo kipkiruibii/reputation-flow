@@ -1672,7 +1672,7 @@ def dashboard(request, company_id):
             'linked': False,
             'active': False
         },
-        'schedule_max_days':sched_days_max,
+        'schedule_max_days':60,
         'management':{
             'allocated_tokens':tk_allocated,
             'used_tokens':tk_used,
