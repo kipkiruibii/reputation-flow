@@ -1410,10 +1410,10 @@ def postTiktok(post_id,files):
 
             # save the tiktok post
             print('dinol one')
-            ctkp.video_id=vid_id,
-            ctkp.is_published=True,
-            ctkp.cover_image_url=video_cover,
-            ctkp.post_link=video_link,
+            ctkp.video_id=vid_id
+            ctkp.is_published=True
+            ctkp.cover_image_url=video_cover
+            ctkp.post_link=video_link
             ctkp.save()
             # update the post
             cpst.is_published = True
