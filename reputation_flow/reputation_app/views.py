@@ -5292,7 +5292,7 @@ def deletePostComment(request):
             print('total file size',file_size)
             total_file_size+=file_size
             delete_file_from_s3(file_key=up.media.name)
-            upm.delete()
+            up.delete()
         
         # check if its scheduled
         if cpst.is_scheduled:
