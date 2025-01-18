@@ -686,6 +686,8 @@ def chatbot_widget(request,company_id):
                     bot_response=f'{bot_response}'      
 
                 except Exception as e:
+                    print('error',e)
+                    print(traceback.format_exc())
                     # Handle API errors
                     bot_response= "Sorry, there was an error generating a response. Please try again later."
 
