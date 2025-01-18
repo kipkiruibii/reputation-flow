@@ -9963,47 +9963,52 @@
                     formData.append('date_scheduled', dateSched);
 
                     // Send the form data via AJAX
-                    $.ajax({
-                        url: '{% url "upload_post" %}', // Replace with your Django endpoint URL
-                        type: 'POST',
-                        headers: {
-                            'X-CSRFToken': csrfToken
-                        },
-                        data: formData,
-                        processData: false, // Prevent jQuery from processing the data
-                        contentType: false, // Prevent jQuery from setting the content type
-                        success: function (response) {
+                    var xhr = new XMLHttpRequest();
+                    xhr.open('POST', '{% url "upload_post" %}', true);
+
+                    // Set CSRF token header
+                    xhr.setRequestHeader('X-CSRFToken', csrfToken);
+
+                    // Track upload progress
+                    xhr.upload.onprogress = function (event) {
+                        if (event.lengthComputable) {
+                            var percentComplete = (event.loaded / event.total) * 100;
+                            $('#confirmModalPostAction').text(`Uploading...(${percentComplete.toFixed(2)}%)`);
+                        }
+                    };
+
+                    // Handle successful response
+                    xhr.onload = function () {
+                        if (xhr.status === 200) {
+                            var response = JSON.parse(xhr.responseText);
                             if (response['error']) {
                                 toastr.error(response['error']);
                                 $('#confirmModalPostCenter').modal('hide');
                                 $('#confirmModalPostAction').text('Post');
                                 $('#confirmModalPostAction').css('cursor', 'default');
-
-
                             } else {
                                 toastr.success('Uploaded successfully');
                                 $('#confirmModalPostCenter').modal('hide');
-                                // update html
                                 $('#step3').removeClass('current');
                                 $('#step3').addClass('completed');
                                 $('#set_up_content').css('display', 'none');
                                 $('#content_upload_successful').css('display', 'block');
                                 $('#confirmModalPostAction').text('Post');
                                 $('#confirmModalPostAction').css('cursor', 'default');
-
-                                return;
                             }
-                        },
-                        error: function (jqXHR, textStatus, errorThrown) {
-                            toastr.error('Failed to submit form.');
-                            $('#confirmModalPostCenter').modal('hide');
-                            console.error(textStatus, errorThrown);
-                            $('#confirmModalPostAction').text('Post');
-                            $('#confirmModalPostAction').css('cursor', 'default');
-
-
+                        } else {
+                            toastr.error('Failed to upload.');
                         }
-                    });
+                    };
+
+                    // Handle error
+                    xhr.onerror = function () {
+                        toastr.error('An error occurred during the upload.');
+                    };
+
+                    // Send form data
+                    xhr.send(formData);
+
                 });
 
                 function postContent(post_now) {
