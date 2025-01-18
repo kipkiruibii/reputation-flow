@@ -1396,11 +1396,6 @@ def dashboard(request, company_id):
     
     cm.company_storage=alct
     cm.save()    
-    cfs = CompanyFileSizes(
-        company=cm,
-        allocated=alct
-    )
-    cfs.save()
     
     if cm.company_review_link:
         bnm=cm.company_name.strip().replace(' ','-')
@@ -5290,9 +5285,26 @@ def deletePostComment(request):
     # delete uploaded media from s3 if present
     if action_type == 'post':
         upm=UploadedMedia.objects.filter(post=cpst)
+        total_file_size=0
         for up in upm:
             # free up spaces
+            file_size=up.media.size
+            print('total file size',file_size)
+            total_file_size+=file_size
             delete_file_from_s3(file_key=up.media.name)
+            upm.delete()
+        
+        # check if its scheduled
+        if cpst.is_scheduled:
+            print('reducing file size')
+            # free total space
+            cpst.company.company_used_storage-=total_file_size
+            cpst.company.save()
+            
+            # check company file sizes
+            cfs = CompanyFileSizes.objects.filter(company=cpst.company).first()
+            cfs.size-=total_file_size
+            cfs.save()
         cpst.delete()
 
     cp = CompanyPosts.objects.filter(company=cpst.company).order_by('-pk')
@@ -5593,7 +5605,6 @@ def uploadPost(request):
         f_size=0
         for g in gallery_items:
             f_size+=g['file_size']
-        print('aggregate file size in bytes',f_size)
 
         if avl <= f_size:
             for g in gallery_items:
@@ -5759,9 +5770,16 @@ def uploadPost(request):
                         allocated=alct
                         )
                 cfs.save()
+                # company used storage
+                cp.company_used_storage+=f_size
+                cp.save()
+                
             else:
                 cfs.size+=f_size
                 cfs.save()
+                cp.company_used_storage+=f_size
+                cp.save()
+
             
         if instagramSelected:
             cigp = CompanyInstagramPosts(
