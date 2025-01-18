@@ -587,113 +587,117 @@ def classify_intent(query):
 
 def chatbot_widget(request,company_id):
     cp_id=Company.objects.filter(company_id=company_id).first()
-    if cp_id:
-        context={'company_id':company_id}
-        is_insightlyze=False
-        if company_id=='1d5b2929-60df-47ac-888a-8ce97d4aa771':
-            is_insightlyze=True
-            
-        if request.method == 'POST':
-            if not is_insightlyze:
-                if not cp_id.company_enable_ai:
-                    return JsonResponse({'response': 'Chatbot has been disabled by the owner'})
+    try:
+        if cp_id:
+            context={'company_id':company_id}
+            is_insightlyze=False
+            if company_id=='1d5b2929-60df-47ac-888a-8ce97d4aa771':
+                is_insightlyze=True
+                
+            if request.method == 'POST':
+                if not is_insightlyze:
+                    if not cp_id.company_enable_ai:
+                        return JsonResponse({'response': 'Chatbot has been disabled by the owner'})
 
-                session_id = request.session.session_key
-                total_tkns=0
-                
-                ctkns=cp_id.company_ai_tokens
-                if ctkns <=0:
-                    return JsonResponse({'response': 'Request not sent. Tokens quota reached'})
-                if not cp_id.company_active_subscription:
-                    return JsonResponse({'response': 'Request not sent.Subscription inactive'})
+                    session_id = request.session.session_key
+                    total_tkns=0
+                    
+                    ctkns=cp_id.company_ai_tokens
+                    if ctkns <=0:
+                        return JsonResponse({'response': 'Request not sent. Tokens quota reached'})
+                    if not cp_id.company_active_subscription:
+                        return JsonResponse({'response': 'Request not sent.Subscription inactive'})
 
-            query = request.POST.get('message', '')
-            # Ensure session data is saved to get the session key
-            if not session_id:
-                request.session.save()
-                session_id = request.session.session_key
-                            
-            cbc=CompanyBotChats(
-                company=cp_id,
-                sender='CUSTOMER',
-                message=query,
-                conversation_id=session_id
-            )
-            cbc.save()
-            # # Query the knowledge base
-            results = query_knowledge_base(query,company_id)
-            
-            # Format the retrieved results for GPT
-            if results:
-                retrieved_info = "\n".join([f"{i+1}. {text}" for i, (text, _) in enumerate(results)])
-                prompt = f"""
-                The user asked: "{query}"
-                Here are some relevant pieces of information retrieved from the knowledge base:
-                {retrieved_info}
-                Based on this information, respond naturally as a helpful assistant to the user's query.
-                """
-            else:
-                # check if intent is small talk
-                res = classify_intent(query)
-                intent=res['response']
-                tkns=res['tokens']
-                total_tkns+=tkns
-                
-                if intent == "greeting":
-                    # Handle greeting
-                    prompt = f"""
-                    The user said: "{query}"
-                    Respond naturally as a helpful assistant to this greeting or conversational message.
-                    """
-                elif intent == "small_talk":
-                    # Handle small talk
-                    prompt = f"""
-                    The user said: "{query}"
-                    Engage in friendly small talk as a helpful assistant. Be casual and engaging.
-                    """                
-                else:    
-                    prompt = f"""
-                        The user asked: "{query}"
-                        Unfortunately, no relevant information was found in the knowledge base. 
-                        Respond naturally to the user's query, letting them know that no information is available and ask whether they would like to chat with a human agent.
-                        """
-
-            # Use OpenAI's GPT model to generate a response
-            try:
-                response = oai_client.chat.completions.create(
-                    model="gpt-3.5-turbo",
-                    messages=[
-                        {"role": "system", "content": "You are a helpful assistant."},
-                        {"role": "user", "content": prompt}
-                    ]
-                ) 
-                bot_response = response.choices[0].message.content
-                # Extracting token usage information
-                total_tokens = response.usage.total_tokens
-                total_tkns+=total_tokens
-                
-                # subtract from the database
-                cp_id.company_ai_tokens-=total_tkns
-                cp_id.save()
-                
+                query = request.POST.get('message', '')
+                # Ensure session data is saved to get the session key
+                if not session_id:
+                    request.session.save()
+                    session_id = request.session.session_key
+                                
                 cbc=CompanyBotChats(
                     company=cp_id,
-                    sender='BOT',
-                    message=bot_response,
+                    sender='CUSTOMER',
+                    message=query,
                     conversation_id=session_id
                 )
                 cbc.save()
-                bot_response=f'{bot_response}'      
+                # # Query the knowledge base
+                results = query_knowledge_base(query,company_id)
+                
+                # Format the retrieved results for GPT
+                if results:
+                    retrieved_info = "\n".join([f"{i+1}. {text}" for i, (text, _) in enumerate(results)])
+                    prompt = f"""
+                    The user asked: "{query}"
+                    Here are some relevant pieces of information retrieved from the knowledge base:
+                    {retrieved_info}
+                    Based on this information, respond naturally as a helpful assistant to the user's query.
+                    """
+                else:
+                    # check if intent is small talk
+                    res = classify_intent(query)
+                    intent=res['response']
+                    tkns=res['tokens']
+                    total_tkns+=tkns
+                    
+                    if intent == "greeting":
+                        # Handle greeting
+                        prompt = f"""
+                        The user said: "{query}"
+                        Respond naturally as a helpful assistant to this greeting or conversational message.
+                        """
+                    elif intent == "small_talk":
+                        # Handle small talk
+                        prompt = f"""
+                        The user said: "{query}"
+                        Engage in friendly small talk as a helpful assistant. Be casual and engaging.
+                        """                
+                    else:    
+                        prompt = f"""
+                            The user asked: "{query}"
+                            Unfortunately, no relevant information was found in the knowledge base. 
+                            Respond naturally to the user's query, letting them know that no information is available and ask whether they would like to chat with a human agent.
+                            """
 
-            except Exception as e:
-                # Handle API errors
-                bot_response= "Sorry, there was an error generating a response. Please try again later."
+                # Use OpenAI's GPT model to generate a response
+                try:
+                    response = oai_client.chat.completions.create(
+                        model="gpt-3.5-turbo",
+                        messages=[
+                            {"role": "system", "content": "You are a helpful assistant."},
+                            {"role": "user", "content": prompt}
+                        ]
+                    ) 
+                    bot_response = response.choices[0].message.content
+                    # Extracting token usage information
+                    total_tokens = response.usage.total_tokens
+                    total_tkns+=total_tokens
+                    
+                    # subtract from the database
+                    cp_id.company_ai_tokens-=total_tkns
+                    cp_id.save()
+                    
+                    cbc=CompanyBotChats(
+                        company=cp_id,
+                        sender='BOT',
+                        message=bot_response,
+                        conversation_id=session_id
+                    )
+                    cbc.save()
+                    bot_response=f'{bot_response}'      
 
-            return JsonResponse({'response': bot_response})
-        # Render the chatbot HTML for GET requests
-        return render(request, 'chatbot_template.html',context=context)
-    else:
-        return render(request, '404error.html')
+                except Exception as e:
+                    # Handle API errors
+                    bot_response= "Sorry, there was an error generating a response. Please try again later."
+
+                return JsonResponse({'response': bot_response})
+            # Render the chatbot HTML for GET requests
+            return render(request, 'chatbot_template.html',context=context)
+        else:
+            return render(request, '404error.html')
+    except:
+        print(traceback.format_exc())
+    
 
 @api_view(['POST'])
 def settingProfile(request):

@@ -77,69 +77,23 @@ Past transactions are also displayed here. If you have a dispute with any transa
 
 If you would like to upgrade your plan, click the Upgrade button, and you will be directed to a pricing page. Choose the plan and complete the subsequent prompts. Please allow up to 30 minutes for the successful subscription to update your account before raising a dispute.
 
-
-Frequently Asked Questions
-I already manage comments and DMs manually. What makes Insightlyze worth adopting?
-Managing comments and DMs manually works, but it’s time-consuming and hard to scale. Insightlyze centralizes everything into one dashboard, saving you time, improving organization, and allowing you to share tasks with your team. It also provides valuable insights and statistics to help you make data-driven decisions and grow your business efficiently.
-
-Do I need technical skills or a developer to integrate the platform and AI assistant into my business?
-No, you don’t need technical skills to get started. Simply upload your business documents, such as FAQs, and the platform handles the rest. If you choose to integrate the AI assistant into your website, minimal technical skills are needed, but we provide a step-by-step guide to make the process simple and smooth.
-
-Can I test the chatbot's performance before making it live?
-Yes, before going live, you can test your chatbot through a dedicated interface. The testing phase does not consume the allocated tokens in your subscription plan, ensuring you can fine-tune its performance worry-free.
-
-Are only positive comments collected, or can I curate and filter them?
-The reviews collected can be positive, negative, or neutral. Before they appear on your dedicated page, you have full control to review, curate, and decide which ones to publish. This allows you to showcase the best feedback while using critical insights to improve your business.
-
-What exactly are AI "tokens," and how do they work?
-Tokens represent the number of words or interactions between your users and the chatbot. For context, 1,000 tokens roughly equal 750 words. You can easily monitor your remaining tokens directly from the dashboard.
-
-What happens when the chatbot cannot answer a question?
-If the chatbot cannot answer a question, it will escalate the query to a human team member based on your configured settings, ensuring seamless customer support.
-
-I'd like to test the service before committing. What options do you provide?
-We offer a 5-day free trial upon registration—no credit card required. The trial period begins immediately and will expire after 5 days, whether or not you use it. Once it ends, you can choose a plan and continue right where you left off.
-
-
-Turn Customer Feedback Into Your Best Marketing Tool
-Easily collect reviews, queries, and insights from your social media to build trust, boost credibility, and grow your business—all from one platform.
-
-Key Features:
-Centralized Customer Interaction:
-Manage all customer interactions—comments, reviews, and messages—through a single dashboard to save time and enhance organization.
-
-Automated Social Proof Collection:
-Automatically gather and curate reviews, testimonials, and feedback from social media to showcase authentic customer experiences and build credibility.
-
-Custom AI Assistant:
-Train an AI assistant using your business details, documents, and FAQs. It answers customer queries accurately, provides 24/7 support, and frees up your time.
-
-Team Collaboration:
-Assign roles, manage content, and invite freelancers with restricted access. Approve content before it goes live, ensuring smooth team collaboration.
-
-Integrated Platform:
-Schedule content, manage engagement, and integrate an AI assistant into your website—all in one platform. Enjoy seamless functionality and customizable solutions tailored to your business needs.
-
-Plans & Pricing:
-Starter ($29/month): Ideal for personal use. Includes 1 seat, up to 5 days of scheduled content, 1GB disk space, and 10,000 AI chatbot tokens.
-Company ($49/month): Best for small teams. Includes 20 seats, up to 15 days of scheduled content, 10GB disk space, and 50,000 AI chatbot tokens.
-Enterprise ($99/month): Designed for large-scale use. Includes unlimited seats, up to 30 days of scheduled content, 100GB disk space, and 200,000 AI chatbot tokens.
-Why Choose Insightlyze?
-Quick and easy setup with a user-friendly interface.
-Seamless integration with existing tools.
-24/7 customer support.
-Customizable solutions for your unique business needs.
-FAQs:
-Why use Insightlyze? Save time, stay organized, and scale your customer engagement efforts with centralized tools and actionable insights.
-Do I need technical skills? No, the platform is easy to use and comes with step-by-step guides for integration.
-Can I test the chatbot? Yes, you can test its performance before going live without using your subscription tokens.
-Are reviews curated? Yes, you can curate and filter reviews before publishing them.
-Is there a content calendar? Yes, you can schedule posts across multiple platforms using the content calendar.
-What are AI tokens? Tokens represent the words or interactions between your chatbot and users.
-What if the chatbot can’t answer a question? The query will be escalated to a human team member for resolution.
-Can I test the service? A 5-day free trial is available with no credit card required.
-Contact Us:
-For help or inquiries, visit our Help Center or contact us via email, Twitter, or Facebook.
-
-Insightlyze © 2024
-All Rights Reserved.
+HOW TO INTEGRATE CHATBOT
+Open your Insightlyze Dashboard and scroll to the AI Chatbot section.
+Select the company files that contain the information your chatbot will use to provide answers.
+Click the 'Upload and Train' button to process the selected files.
+Add the following lines to the <head> tag of your webpage where you want the chatbot to appear:
+<link rel="stylesheet" href="https://d2w11b8kfh947x.cloudfront.net/chatbot.css">
+<script src="https://d2w11b8kfh947x.cloudfront.net/chatbot.js" defer></script>
+Add the following code inside the <body> tag of your HTML:
+    <iframe id="chatbot-iframe"
+    src="https://insightlyze.com/chatbot/1d5b2929-60df-47ac-888a-8ce97d4aa771"
+    style="display:none;position: fixed; bottom: 20px; right: 20px; width: 360px; height: 600px; z-index: 9000;"
+    frameborder="0">></iframe>
+    <div class="form-group " onclick="toggleIframe()"
+    style="text-align:center;font-size:20px;align-items:center;margin-top:10px;margin-bottom:20px">
+    <img src="https://img.icons8.com/ios-filled/50/ffffff/chat.png" alt="Chat">
+        ></div>
+Once you’ve integrated the chatbot into your website, go back to your Insightlyze Dashboard and click 'Enable' to activate the chatbot.
+To monitor token usage, click 'Manage' in the left panel of the dashboard.
+To review customer-chatbot interactions, navigate to PM (Private Messages) and click on 'Chatbot'.
+If you need further assistance, feel free to contact us at infopack254@gmail.com.
