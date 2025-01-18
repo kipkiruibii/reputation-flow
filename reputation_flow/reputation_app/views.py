@@ -5523,18 +5523,30 @@ def uploadPost(request):
     files = request.FILES  # Access uploaded files
     gallery_items = []
     for field_name, file in files.items():
-        with tempfile.NamedTemporaryFile(delete=False) as temp_file:
-            for chunk in file.chunks():
-                temp_file.write(chunk)
-            
-            temp_file_path = temp_file.name  # Absolute path to the temp file
-            
-        # Add details to gallery_items
-        gallery_items.append({
-            "image_path": temp_file_path,  # Local path to the file
-            "content_type": file.content_type,
-            "file_size": file.size,
-        })     
+    # Extract the original file extension
+    original_extension = os.path.splitext(file.name)[1]  # Includes the dot (e.g., ".jpg", ".mp4")
+    if not original_extension:  # Fallback if no extension is present
+        content_type_to_extension = {
+            'image/jpeg': '.jpg',
+            'image/png': '.png',
+            'video/mp4': '.mp4',
+            # Add other MIME types as needed
+        }
+        original_extension = content_type_to_extension.get(file.content_type, '')
+
+    # Create a temporary file with the correct extension
+    with tempfile.NamedTemporaryFile(suffix=original_extension, delete=False) as temp_file:
+        for chunk in file.chunks():
+            temp_file.write(chunk)
+        
+        temp_file_path = temp_file.name  # Absolute path to the temp file
+        
+    # Add details to gallery_items
+    gallery_items.append({
+        "image_path": temp_file_path,  # Local path to the file with correct extension
+        "content_type": file.content_type,
+        "file_size": file.size,
+    })
     print('gallery',gallery_items)   
     utc_datetime = timezone.now()
 
