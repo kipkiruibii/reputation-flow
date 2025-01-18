@@ -5209,241 +5209,237 @@ def postReddit(title, description, subs, hasMedia, files, nsfw_tag, spoiler_tag,
 
 @api_view(['POST'])
 def deletePostComment(request):
-    try:
-        post_id = request.POST.get('post_id', None)
-        comment_id = request.POST.get('comment_id', None)
-        action_type = request.POST.get('action_type', None)
-        if not all([post_id, action_type]):
-            return Response({'error': 'Bad request'})
-        cpst = CompanyPosts.objects.filter(post_id=post_id).first()
-        if not cpst:
-            return Response({'error': 'Post unavailable or already deleted'})
-
-        pltfrms = cpst.platforms
-        
-        # check if already uploaded
-        for platform in pltfrms:
-            if 'reddit' in platform.lower():
-                # deleting reddit post /comment
-                print('isreddit')
-                cr = CompanyReddit.objects.filter(company=cpst.company).first()
-                if not cr:
-                    continue
-                try:
-                    reddit = praw.Reddit(
-                        client_id=settings.REDDIT_CLIENT_ID,
-                        client_secret=settings.REDDIT_CLIENT_SECRET,
-                        user_agent=settings.REDDIT_USER_AGENT,
-                        refresh_token=cr.refresh_token,
-                    )
-                    if action_type == 'post':
-                        print('deleting post',post_id)
-                        crp = CompanyRedditPosts.objects.filter(post_id=post_id).first()
-                        if crp:
-                            if cpst.is_published:
-                                sbs = crp.subs
-                                for sb in sbs:
-                                    try:
-                                        sb_id = sb['id']
-                                        submission = reddit.submission(id=sb_id)
-                                        submission.delete()
-                                        print('deleted from ', sb['sub_name'])
-                                    except:
-                                        print('unable to delete')
-                                        print(traceback.format_exc())
-                                        continue
-                            crp.delete()
-                        else:
-                            print('No post')  
-                except:
-                    pass
-            if 'facebook' in platform.lower():
-                cfbp = CompanyFacebook.objects.filter(company=cpst.company).first()
-                if not cfbp:
-                    continue
-                if action_type == 'post':
-                    cfp = CompanyFacebookPosts.objects.filter(post_id=post_id).first()
-                    if cfp:
-                        if cpst.is_published:
-                            if cfp.content_id:
-                                url = f"https://graph.facebook.com/v21.0//{cfp.content_id}"
-                                payload = {
-                                    "access_token": cfbp.page_access_token,
-                                }
-                                response = requests.delete(url, data=payload)
-                                if response.status_code == 200:
-                                    print("Post deleted successfully:", response.json())
-                                    cfp.delete()
-                                else:
-                                    print("Error deleting post:", response.json())
-            # if 'instagram' in platform.lower():
-            #     cig = CompanyInstagram.objects.filter(company=cpst.company).first()
-            #     if not cig:
-            #         continue
-            # if 'tiktok' in platform.lower():
-            #     pass
-        
-        # delete uploaded media from s3 if present
-        if action_type == 'post':
-            upm=UploadedMedia.objects.filter(post=cpst)
-            total_file_size=0
-            for up in upm:
-                # free up spaces
-                try:
-                    file_size=up.media.size
-                    print('total file size',file_size)
-                    total_file_size+=file_size
-                    delete_file_from_s3(file_key=up.media.name)
-                    up.delete()
-                except:
-                    pass
-            
-            # check if its scheduled
-            if cpst.is_scheduled:
-                print('reducing file size')
-                # free total spac
-                try:
-                    cpst.company.company_used_storage-=total_file_size
-                    cpst.company.save()
-                    
-                    # check company file sizes
-                    
-                    cfs = CompanyFileSizes.objects.filter(company=cpst.company).first()
-                    cfs.size-=total_file_size
-                    cfs.save()
-                except:
-                    pass
-            cpst.delete()
-
-        cp = CompanyPosts.objects.filter(company=cpst.company).order_by('-pk')
-        all_posts = []
-        if not cp:
-            for p in cp:
-                um = UploadedMedia.objects.filter(post=p)
-                med = []
-                for m in um:
-                    med.append({
-                        'media_url': m.media.url,
-                        'is_video': False
-                    })
-                reds = []
-                cover_image_link = ''
-
-                if 'reddit' in p.platforms:
-                    cr = CompanyRedditPosts.objects.filter(post_id=p.post_id)
-                    if cr:
-                        for c in cr:
-                            t_en = 0
-                            t_com = 0
-                            for k in c.subs:
-                                if k['published']:
-                                    p_id = k['id']
-                                    submission = reddit.submission(id=p_id)
-                                    k['upvote_ratio'] = submission.upvote_ratio * 100
-                                    k['upvotes'] = submission.score
-                                    k['comments'] = submission.num_comments
-                                    k['crossposts'] = submission.num_crossposts
-                                    reds.append(k)
-
-                                    vlx = submission.score + submission.num_comments + submission.num_crossposts
-                                    t_en += vlx
-                                    t_com += submission.num_comments
-                            p.comment_count = t_com
-                            p.engagement_count = t_en
-                            p.save()
-                            c.save()
-
-                eng_cnt = p.engagement_count
-                if eng_cnt > 1000000:
-                    eng_cnt = round(eng_cnt / 1000000, 1)
-                elif eng_cnt > 1000:
-                    eng_cnt = round(eng_cnt / 1000, 1)
-                cmt_cnt = p.comment_count
-                if cmt_cnt > 1000:
-                    cmt_cnt = round(cmt_cnt / 1000, 1)
-                elif cmt_cnt > 1000:
-                    cmt_cnt = round(cmt_cnt / 1000, 1)
-                all_posts.append({
-                    'platforms': [pl.capitalize() for pl in p.platforms],
-                    'title': p.title,
-                    'content': p.description,
-                    'is_uploaded': p.is_published,
-                    'is_scheduled': p.is_scheduled,
-                    'comment_count': cmt_cnt,
-                    'engagement_count': eng_cnt,
-                    'tags': p.tags,
-                    'has_media': p.has_media,
-                    'cover_image_link': p.media_thumbnail,
-                    'media': None if not p.has_media else UploadedMedia.objects.filter(post=p).first(),
-                    'date_uploaded': p.date_uploaded,
-                    'date_scheduled': p.date_scheduled,
-                    'media': med,
-                    'post_id': p.post_id,
-                    'has_all': len(p.platforms) == 4,
-                    'has_reddit': 'reddit' in p.platforms,
-                    'has_tiktok': 'tiktok' in p.platforms,
-                    'has_facebook': 'facebook' in p.platforms,
-                    'has_instagram': 'instagram' in p.platforms,
-
-                })
-        else:
-            for p in cp:
-                um = UploadedMedia.objects.filter(post=p)
-                med = []
-                for m in um:
-                    med.append({
-                        'media_url': m.media.url,
-                        'is_video': False
-                    })
-                reds = []
-                cover_image_link = ''
-
-                if 'reddit' in p.platforms:
-                    cr = CompanyRedditPosts.objects.filter(post_id=p.post_id).first()
-
-                eng_cnt = p.engagement_count
-                if eng_cnt > 1000000:
-                    eng_cnt = round(eng_cnt / 1000000, 1)
-                elif eng_cnt > 1000:
-                    eng_cnt = round(eng_cnt / 1000, 1)
-                cmt_cnt = p.comment_count
-                if cmt_cnt > 1000:
-                    cmt_cnt = round(cmt_cnt / 1000, 1)
-                elif cmt_cnt > 1000:
-                    cmt_cnt = round(cmt_cnt / 1000, 1)
-                all_posts.append({
-                    'platforms': [pl.capitalize() for pl in p.platforms],
-                    'title': p.title,
-                    'content': p.description,
-                    'is_uploaded': p.is_published,
-                    'is_scheduled': p.is_scheduled,
-                    'is_published': p.is_published,
-                    'has_failed': p.has_failed,
-                    'comment_count': cmt_cnt,
-                    'engagement_count': eng_cnt,
-                    'tags': p.tags,
-                    'has_media': p.has_media,
-                    'cover_image_link': p.media_thumbnail,
-                    'media': None if not p.has_media else UploadedMedia.objects.filter(post=p).first(),
-                    'date_uploaded': p.date_uploaded,
-                    'date_scheduled': p.date_scheduled,
-                    'media': med,
-                    'post_id': p.post_id,
-                    'has_all': len(p.platforms) == 4,
-                    'has_reddit': 'reddit' in p.platforms,
-                    'has_tiktok': 'tiktok' in p.platforms,
-                    'has_facebook': 'facebook' in p.platforms,
-                    'has_instagram': 'instagram' in p.platforms,
-
-                })
-            # upd_pst=threading.Thread(target=updatePosts,daemon=True, kwargs={
-            #         'company_id':company_id,
-            #     })
-            # upd_pst.start()
-    except:
-        print(traceback.format_exc())
-        print('error')
+    # try:
+    post_id = request.POST.get('post_id', None)
+    comment_id = request.POST.get('comment_id', None)
+    action_type = request.POST.get('action_type', None)
+    if not all([post_id, action_type]):
+        return Response({'error': 'Bad request'})
+    cpst = CompanyPosts.objects.filter(post_id=post_id).first()
+    if not cpst:
         return Response({'error': 'Post unavailable or already deleted'})
+
+    pltfrms = cpst.platforms
+    
+    # check if already uploaded
+    for platform in pltfrms:
+        if 'reddit' in platform.lower():
+            # deleting reddit post /comment
+            print('isreddit')
+            cr = CompanyReddit.objects.filter(company=cpst.company).first()
+            if not cr:
+                continue
+            try:
+                reddit = praw.Reddit(
+                    client_id=settings.REDDIT_CLIENT_ID,
+                    client_secret=settings.REDDIT_CLIENT_SECRET,
+                    user_agent=settings.REDDIT_USER_AGENT,
+                    refresh_token=cr.refresh_token,
+                )
+                if action_type == 'post':
+                    print('deleting post',post_id)
+                    crp = CompanyRedditPosts.objects.filter(post_id=post_id).first()
+                    if crp:
+                        if cpst.is_published:
+                            sbs = crp.subs
+                            for sb in sbs:
+                                try:
+                                    sb_id = sb['id']
+                                    submission = reddit.submission(id=sb_id)
+                                    submission.delete()
+                                    print('deleted from ', sb['sub_name'])
+                                except:
+                                    print('unable to delete')
+                                    print(traceback.format_exc())
+                                    continue
+                        crp.delete()
+                    else:
+                        print('No post')  
+            except:
+                pass
+        if 'facebook' in platform.lower():
+            cfbp = CompanyFacebook.objects.filter(company=cpst.company).first()
+            if not cfbp:
+                continue
+            if action_type == 'post':
+                cfp = CompanyFacebookPosts.objects.filter(post_id=post_id).first()
+                if cfp:
+                    if cpst.is_published:
+                        if cfp.content_id:
+                            url = f"https://graph.facebook.com/v21.0//{cfp.content_id}"
+                            payload = {
+                                "access_token": cfbp.page_access_token,
+                            }
+                            response = requests.delete(url, data=payload)
+                            if response.status_code == 200:
+                                print("Post deleted successfully:", response.json())
+                                cfp.delete()
+                            else:
+                                print("Error deleting post:", response.json())
+        # if 'instagram' in platform.lower():
+        #     cig = CompanyInstagram.objects.filter(company=cpst.company).first()
+        #     if not cig:
+        #         continue
+        # if 'tiktok' in platform.lower():
+        #     pass
+    
+    # delete uploaded media from s3 if present
+    if action_type == 'post':
+        upm=UploadedMedia.objects.filter(post=cpst)
+        total_file_size=0
+        for up in upm:
+            # free up spaces
+            try:
+                file_size=up.media.size
+                print('total file size',file_size)
+                total_file_size+=file_size
+                delete_file_from_s3(file_key=up.media.name)
+                up.delete()
+            except:
+                pass
+        
+        # check if its scheduled
+        if cpst.is_scheduled:
+            print('reducing file size')
+            # free total spac
+            try:
+                cpst.company.company_used_storage-=total_file_size
+                cpst.company.save()
+                
+                # check company file sizes
+                
+                cfs = CompanyFileSizes.objects.filter(company=cpst.company).first()
+                cfs.size-=total_file_size
+                cfs.save()
+            except:
+                pass
+        cpst.delete()
+
+    cp = CompanyPosts.objects.filter(company=cpst.company).order_by('-pk')
+    all_posts = []
+    if not cp:
+        for p in cp:
+            um = UploadedMedia.objects.filter(post=p)
+            med = []
+            for m in um:
+                med.append({
+                    'media_url': m.media.url,
+                    'is_video': False
+                })
+            reds = []
+            cover_image_link = ''
+
+            if 'reddit' in p.platforms:
+                cr = CompanyRedditPosts.objects.filter(post_id=p.post_id)
+                if cr:
+                    for c in cr:
+                        t_en = 0
+                        t_com = 0
+                        for k in c.subs:
+                            if k['published']:
+                                p_id = k['id']
+                                submission = reddit.submission(id=p_id)
+                                k['upvote_ratio'] = submission.upvote_ratio * 100
+                                k['upvotes'] = submission.score
+                                k['comments'] = submission.num_comments
+                                k['crossposts'] = submission.num_crossposts
+                                reds.append(k)
+
+                                vlx = submission.score + submission.num_comments + submission.num_crossposts
+                                t_en += vlx
+                                t_com += submission.num_comments
+                        p.comment_count = t_com
+                        p.engagement_count = t_en
+                        p.save()
+                        c.save()
+
+            eng_cnt = p.engagement_count
+            if eng_cnt > 1000000:
+                eng_cnt = round(eng_cnt / 1000000, 1)
+            elif eng_cnt > 1000:
+                eng_cnt = round(eng_cnt / 1000, 1)
+            cmt_cnt = p.comment_count
+            if cmt_cnt > 1000:
+                cmt_cnt = round(cmt_cnt / 1000, 1)
+            elif cmt_cnt > 1000:
+                cmt_cnt = round(cmt_cnt / 1000, 1)
+            all_posts.append({
+                'platforms': [pl.capitalize() for pl in p.platforms],
+                'title': p.title,
+                'content': p.description,
+                'is_uploaded': p.is_published,
+                'is_scheduled': p.is_scheduled,
+                'comment_count': cmt_cnt,
+                'engagement_count': eng_cnt,
+                'tags': p.tags,
+                'has_media': p.has_media,
+                'cover_image_link': p.media_thumbnail,
+                'media': None if not p.has_media else UploadedMedia.objects.filter(post=p).first(),
+                'date_uploaded': p.date_uploaded,
+                'date_scheduled': p.date_scheduled,
+                'media': med,
+                'post_id': p.post_id,
+                'has_all': len(p.platforms) == 4,
+                'has_reddit': 'reddit' in p.platforms,
+                'has_tiktok': 'tiktok' in p.platforms,
+                'has_facebook': 'facebook' in p.platforms,
+                'has_instagram': 'instagram' in p.platforms,
+
+            })
+    else:
+        for p in cp:
+            um = UploadedMedia.objects.filter(post=p)
+            med = []
+            for m in um:
+                med.append({
+                    'media_url': m.media.url,
+                    'is_video': False
+                })
+            reds = []
+            cover_image_link = ''
+
+            if 'reddit' in p.platforms:
+                cr = CompanyRedditPosts.objects.filter(post_id=p.post_id).first()
+
+            eng_cnt = p.engagement_count
+            if eng_cnt > 1000000:
+                eng_cnt = round(eng_cnt / 1000000, 1)
+            elif eng_cnt > 1000:
+                eng_cnt = round(eng_cnt / 1000, 1)
+            cmt_cnt = p.comment_count
+            if cmt_cnt > 1000:
+                cmt_cnt = round(cmt_cnt / 1000, 1)
+            elif cmt_cnt > 1000:
+                cmt_cnt = round(cmt_cnt / 1000, 1)
+            all_posts.append({
+                'platforms': [pl.capitalize() for pl in p.platforms],
+                'title': p.title,
+                'content': p.description,
+                'is_uploaded': p.is_published,
+                'is_scheduled': p.is_scheduled,
+                'is_published': p.is_published,
+                'has_failed': p.has_failed,
+                'comment_count': cmt_cnt,
+                'engagement_count': eng_cnt,
+                'tags': p.tags,
+                'has_media': p.has_media,
+                'cover_image_link': p.media_thumbnail,
+                'media': None if not p.has_media else UploadedMedia.objects.filter(post=p).first(),
+                'date_uploaded': p.date_uploaded,
+                'date_scheduled': p.date_scheduled,
+                'media': med,
+                'post_id': p.post_id,
+                'has_all': len(p.platforms) == 4,
+                'has_reddit': 'reddit' in p.platforms,
+                'has_tiktok': 'tiktok' in p.platforms,
+                'has_facebook': 'facebook' in p.platforms,
+                'has_instagram': 'instagram' in p.platforms,
+
+            })
+        # upd_pst=threading.Thread(target=updatePosts,daemon=True, kwargs={
+        #         'company_id':company_id,
+        #     })
+        # upd_pst.start()
     context = {
         'posts': all_posts,
     }
