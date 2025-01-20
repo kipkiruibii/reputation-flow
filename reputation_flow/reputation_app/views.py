@@ -6077,6 +6077,7 @@ def get_facebook_ig_page_id(page_access_token):
     params = {"access_token": page_access_token}
     response = requests.get(page_url, params=params)
     page_data = response.json()
+    print(page_data)
     page_id = page_data['data'][0]['id']
     return page_id
 
