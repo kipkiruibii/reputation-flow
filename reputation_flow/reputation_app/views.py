@@ -1391,8 +1391,7 @@ def dashboard(request, company_id):
     """
     Dashboard displaying the referrals and FAQs
     """
-    usr = request.user
-
+    usr = request.user        
     company_id = company_id
     if not company_id:
         return render(request, '404error.html')
@@ -1702,6 +1701,10 @@ def dashboard(request, company_id):
             
         }
     }
+    error_message = request.session.pop('link_error', None)
+    if error_message:
+        context[error_message['type']]=error_message['error']
+
     if request.user_agent.is_pc:
         return render(request, 'dashboard.html', context=context)
     else:
@@ -6037,7 +6040,8 @@ def instagram_callback(request):
     pg_id = get_facebook_ig_page_id(access_token)
     try:
         if not pg_id:
-            return redirect('dashboard', company_id=company_id,context={'instagram_link_error':'Kindly link Instagram account to a Facebook page'})
+            request.session['link_error'] = {'type':'instagram_link_error','error':'Kindly link Instagram account to a Facebook page'}
+            return redirect('dashboard', company_id=company_id)
         ci = CompanyInstagram.objects.filter(company=cm).first()
         inst_id = get_instagram_account_id(access_token, pg_id)
         insgts = get_instagram_account_insights(access_token, inst_id)
@@ -6073,7 +6077,8 @@ def instagram_callback(request):
 
         return redirect('dashboard', company_id=company_id)
     except:
-        return redirect('dashboard', company_id=company_id,context={'instagram_link_error':'Failed to link. Try again'})
+        request.session['link_error'] = {'type':'instagram_link_error','error':'Failed to link. Try again'}
+        return redirect('dashboard', company_id=company_id)
 
 
 def get_facebook_ig_page_id(page_access_token):
@@ -6333,6 +6338,7 @@ def facebook_callback(request):
     access_token = data.get('access_token')
     cm = Company.objects.filter(company_id=company_id).first()
     if not cm:
+        request.session['link_error'] = {'type':'facebook_link_error','error':'Failed to link. Try again'}
         return redirect('dashboard', company_id=company_id)
     try:
         pg_id = get_facebook_ig_page_id(access_token)
@@ -6344,7 +6350,8 @@ def facebook_callback(request):
         pages_response = requests.get(pages_url, headers=headers)
         pages_data = pages_response.json()
         if 'data' not in pages_data:
-            return
+            request.session['link_error'] = {'type':'facebook_link_error','error':'Failed to link. Try again'}
+            return redirect('dashboard', company_id=company_id)
 
             # Extract Page ID and Page Access Token for the first Page
         page = pages_data['data'][0]
@@ -6390,7 +6397,8 @@ def facebook_callback(request):
 
         return redirect('dashboard', company_id=company_id)
     except:
-        return redirect('dashboard', company_id=company_id,context={'facebook_link_error':'Failed to link. Try again'})
+        request.session['link_error'] = {'type':'facebook_link_error','error':'Failed to link. Try again'}
+        return redirect('dashboard', company_id=company_id)
 
 def tiktok_auth_link(company_id):
     client_id = settings.TIKTOK_CLIENT_ID  # Replace with your TikTok app's client ID
@@ -6430,51 +6438,55 @@ def tiktok_callback(request):
     }
     response = requests.post(token_url, data=data)
     # access_token = data['data']['access_token']
-    # business_id = data['data']['business_id']    
-    access_token = response.json().get("access_token")
-    refresh_token = response.json().get("refresh_token")
+    # business_id = data['data']['business_id']  
+    try:  
+        access_token = response.json().get("access_token")
+        refresh_token = response.json().get("refresh_token")
 
-    print(f"Access Token: {access_token}")
-    # print(f"Business ID: {business_id}")
-    if not access_token:
+        print(f"Access Token: {access_token}")
+        # print(f"Business ID: {business_id}")
+        if not access_token:
+            return redirect('dashboard', company_id=company_id)
+        cm = Company.objects.filter(company_id=company_id).first()
+        if not cm:
+            return redirect('dashboard', company_id=company_id)
+
+        # Store access token in session or database for later use
+        ctk = CompanyTiktok.objects.filter(company=cm).first()
+        data = tiktok_profile_stat(access_token)
+        if not ctk:
+            ctk = CompanyTiktok(
+                company=cm,
+                active=True,
+                linked=True,
+                access_token=access_token,
+                refresh_token=refresh_token,
+                account_name=data['disp_name'],
+                account_username=data['u_name'],
+                profile_url=data['ppic'],
+                account_id=data['user_id'],
+            )
+            ctk.followers_count.append(data['f_count'])
+            ctk.likes_count.append(data['l_count'])
+            ctk.save()
+        else:
+            ctk.company = cm
+            ctk.active = True
+            ctk.linked = True
+            ctk.access_token = access_token
+            ctk.refresh_token = refresh_token
+            ctk.account_name = data['disp_name']
+            ctk.account_username = data['u_name']
+            ctk.profile_url = data['ppic']
+            ctk.account_id = data['user_id']
+            ctk.followers_count.append(data['f_count'])
+            ctk.likes_count.append(data['l_count'])
+            ctk.save()
+
         return redirect('dashboard', company_id=company_id)
-    cm = Company.objects.filter(company_id=company_id).first()
-    if not cm:
+    except:
+        request.session['link_error'] = {'type':'tiktok_link_error','error':'Failed to link. Try again'}
         return redirect('dashboard', company_id=company_id)
-
-    # Store access token in session or database for later use
-    ctk = CompanyTiktok.objects.filter(company=cm).first()
-    data = tiktok_profile_stat(access_token)
-    if not ctk:
-        ctk = CompanyTiktok(
-            company=cm,
-            active=True,
-            linked=True,
-            access_token=access_token,
-            refresh_token=refresh_token,
-            account_name=data['disp_name'],
-            account_username=data['u_name'],
-            profile_url=data['ppic'],
-            account_id=data['user_id'],
-        )
-        ctk.followers_count.append(data['f_count'])
-        ctk.likes_count.append(data['l_count'])
-        ctk.save()
-    else:
-        ctk.company = cm
-        ctk.active = True
-        ctk.linked = True
-        ctk.access_token = access_token
-        ctk.refresh_token = refresh_token
-        ctk.account_name = data['disp_name']
-        ctk.account_username = data['u_name']
-        ctk.profile_url = data['ppic']
-        ctk.account_id = data['user_id']
-        ctk.followers_count.append(data['f_count'])
-        ctk.likes_count.append(data['l_count'])
-        ctk.save()
-
-    return redirect('dashboard', company_id=company_id)
 
 
 def tiktok_profile_stat(access_token):
