@@ -2293,6 +2293,7 @@
                                                     {% endif %}
 
                                                 </div>
+                                                <p style="color:red;font-size: 12px;">{{ instagram_link_error }}</p>
                                                 <div style="height:40px;display: flex;justify-content: space-between;">
 
                                                     {% if instagram.linked %}
@@ -2303,7 +2304,6 @@
                                                         </span>
                                                     </div>
                                                     {% if user_permissions.can_link_unlink_account %}
-                                                    <p style="color:red">{{ instagram_link_error }}</p>
 
                                                     <a style="margin-right: 10px;"
                                                         href="{{ instagram.link_url }}"><button type="button"
@@ -2397,6 +2397,7 @@
                                                     {% endif %}
 
                                                 </div>
+                                                <p style="color:red;font-size: 12px;">{{ facebook_link_error }}</p>
                                                 <div style="height:30px;display: flex;justify-content: space-between;">
 
                                                     {% if facebook.linked %}
@@ -2407,7 +2408,6 @@
                                                         </span>
                                                     </div>
                                                     {% if user_permissions.can_link_unlink_account %}
-                                                    <p style="color:red">{{ facebook_link_error }}</p>
 
                                                     <a style="margin-right: 10px;"
                                                         href="{{ facebook.link_url }}"><button type="button"
@@ -2493,6 +2493,8 @@
                                                     {% endif %}
 
                                                 </div>
+                                                <p style="color:red;font-size: 12px;">{{ tiktok_link_error }}</p>
+
                                                 <div style="height:30px;display: flex;justify-content: space-between;">
 
                                                     {% if tiktok.linked %}
@@ -2503,7 +2505,6 @@
                                                         </span>
                                                     </div>
                                                     {% if user_permissions.can_link_unlink_account %}
-                                                    <p style="color:red">{{ tiktok_link_error }}</p>
                                                     <a style="margin-right: 10px;" href="{{ tiktok.link_url }}"><button
                                                             type="button" class="btn btn-primary"
                                                             style="font-size: 12px;">Change</button></a>
@@ -2575,6 +2576,7 @@
                                                     {% endif %}
 
                                                 </div>
+                                                <p style="color:red;font-size: 12px;">{{ reddit_link_error }}</p>
                                                 <div style="height:30px;display: flex;justify-content: space-between;">
 
                                                     {% if reddit.linked %}
@@ -2585,7 +2587,6 @@
                                                         </span>
                                                     </div>
                                                     {% if user_permissions.can_link_unlink_account %}
-                                                    <p style="color:red">{{ reddit_link_error }}</p>
                                                     <a style="margin-right: 10px;" href="{{ reddit.link_url }}"><button
                                                             type="button" class="btn btn-primary"
                                                             style="font-size: 12px;">Change</button></a>
