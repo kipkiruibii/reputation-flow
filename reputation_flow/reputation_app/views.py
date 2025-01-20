@@ -6035,40 +6035,45 @@ def instagram_callback(request):
         return redirect('dashboard', company_id=company_id)
 
     pg_id = get_facebook_ig_page_id(access_token)
-    ci = CompanyInstagram.objects.filter(company=cm).first()
-    inst_id = get_instagram_account_id(access_token, pg_id)
-    insgts = get_instagram_account_insights(access_token, inst_id)
-    l_lived_token = get_long_lived_token(access_token)
-    if ci:
-        ci.short_lived_token = access_token
-        ci.account_id = inst_id
-        ci.long_lived_token = l_lived_token
-        ci.linked = True
-        ci.active = True
-        ci.account_name = insgts['username']
-        ci.profile_url = insgts['profile_picture_url']
-        ci.followers_trend.append(insgts['followers_count'])
-        ci.impressions.append(insgts['impressions'])
-        ci.reach.append(insgts['reach'])
-        ci.save()
+    try:
+        if not pg_id:
+            return redirect('dashboard', company_id=company_id,context={'instagram_link_error':'Kindly link Instagram account to a Facebook page'})
+        ci = CompanyInstagram.objects.filter(company=cm).first()
+        inst_id = get_instagram_account_id(access_token, pg_id)
+        insgts = get_instagram_account_insights(access_token, inst_id)
+        l_lived_token = get_long_lived_token(access_token)
+        if ci:
+            ci.short_lived_token = access_token
+            ci.account_id = inst_id
+            ci.long_lived_token = l_lived_token
+            ci.linked = True
+            ci.active = True
+            ci.account_name = insgts['username']
+            ci.profile_url = insgts['profile_picture_url']
+            ci.followers_trend.append(insgts['followers_count'])
+            ci.impressions.append(insgts['impressions'])
+            ci.reach.append(insgts['reach'])
+            ci.save()
 
-    else:
-        ci = CompanyInstagram(
-            company=cm,
-            short_lived_token=access_token,
-            account_id=inst_id,
-            long_lived_token=l_lived_token,
-            linked=True,
-            active=True,
-            account_name=insgts['username'],
-            profile_url=insgts['profile_picture_url']
-        )
-        ci.followers_trend.append(insgts['followers_count'])
-        ci.impressions.append(insgts['impressions'])
-        ci.reach.append(insgts['reach'])
-        ci.save()
+        else:
+            ci = CompanyInstagram(
+                company=cm,
+                short_lived_token=access_token,
+                account_id=inst_id,
+                long_lived_token=l_lived_token,
+                linked=True,
+                active=True,
+                account_name=insgts['username'],
+                profile_url=insgts['profile_picture_url']
+            )
+            ci.followers_trend.append(insgts['followers_count'])
+            ci.impressions.append(insgts['impressions'])
+            ci.reach.append(insgts['reach'])
+            ci.save()
 
-    return redirect('dashboard', company_id=company_id)
+        return redirect('dashboard', company_id=company_id)
+    except:
+        return redirect('dashboard', company_id=company_id,context={'instagram_link_error':'Failed to link. Try again'})
 
 
 def get_facebook_ig_page_id(page_access_token):
@@ -6077,8 +6082,10 @@ def get_facebook_ig_page_id(page_access_token):
     params = {"access_token": page_access_token}
     response = requests.get(page_url, params=params)
     page_data = response.json()
-    print(page_data)
-    page_id = page_data['data'][0]['id']
+    try:
+        page_id = page_data['data'][0]['id']
+    except:
+        page_id=0
     return page_id
 
 
@@ -6327,61 +6334,63 @@ def facebook_callback(request):
     cm = Company.objects.filter(company_id=company_id).first()
     if not cm:
         return redirect('dashboard', company_id=company_id)
-    pg_id = get_facebook_ig_page_id(access_token)
-    l_lived_token = get_long_lived_token(access_token)
-    cf = CompanyFacebook.objects.filter(company=cm).first()
+    try:
+        pg_id = get_facebook_ig_page_id(access_token)
+        l_lived_token = get_long_lived_token(access_token)
+        cf = CompanyFacebook.objects.filter(company=cm).first()
 
-    pages_url = f"https://graph.facebook.com/v21.0/me/accounts"
-    headers = {"Authorization": f"Bearer {access_token}"}
-    pages_response = requests.get(pages_url, headers=headers)
-    pages_data = pages_response.json()
-    if 'data' not in pages_data:
-        return
+        pages_url = f"https://graph.facebook.com/v21.0/me/accounts"
+        headers = {"Authorization": f"Bearer {access_token}"}
+        pages_response = requests.get(pages_url, headers=headers)
+        pages_data = pages_response.json()
+        if 'data' not in pages_data:
+            return
 
-        # Extract Page ID and Page Access Token for the first Page
-    page = pages_data['data'][0]
-    page_id = page.get('id')
-    page_access_token = page.get('access_token')
-    insgts = get_facebook_page_insights(page_access_token, pg_id)
+            # Extract Page ID and Page Access Token for the first Page
+        page = pages_data['data'][0]
+        page_id = page.get('id')
+        page_access_token = page.get('access_token')
+        insgts = get_facebook_page_insights(page_access_token, pg_id)
 
-    if cf:
-        cf.short_lived_token = access_token
-        cf.account_id = pg_id
-        cf.long_lived_token = l_lived_token
-        cf.linked = True
-        cf.active = True
-        cf.page_access_token = page_access_token
-        cf.page_id = page_id
-        cf.account_name = insgts['page_name']
-        cf.profile_url = insgts['p_picture']
-        cf.followers_trend.append(insgts['fan_count'])
-        cf.impressions.append(insgts['page_impressions'])
-        cf.profile_views.append(insgts['page_views_total'])
-        cf.page_fans.append(insgts['page_fans'])
-        cf.save()
-    else:
-        cf = CompanyFacebook(
-            company=cm,
-            short_lived_token=access_token,
-            account_id=pg_id,
-            long_lived_token=l_lived_token,
-            page_access_token=page_access_token,
-            linked=True,
-            active=True,
-            page_id=page_id,
-            account_name=insgts['page_name'],
-            profile_url=insgts['p_picture'],
-        )
-        cf.followers_trend.append(insgts['fan_count'])
-        cf.impressions.append(insgts['page_impressions'])
-        # cf.page_negative_feedback.append(insgts['page_negative_feedback'])
-        cf.profile_views.append(insgts['page_views_total'])
-        # cf.page_engaged_users.append(insgts['page_engaged_users'])
-        cf.page_fans.append(insgts['page_fans'])
-        cf.save()
+        if cf:
+            cf.short_lived_token = access_token
+            cf.account_id = pg_id
+            cf.long_lived_token = l_lived_token
+            cf.linked = True
+            cf.active = True
+            cf.page_access_token = page_access_token
+            cf.page_id = page_id
+            cf.account_name = insgts['page_name']
+            cf.profile_url = insgts['p_picture']
+            cf.followers_trend.append(insgts['fan_count'])
+            cf.impressions.append(insgts['page_impressions'])
+            cf.profile_views.append(insgts['page_views_total'])
+            cf.page_fans.append(insgts['page_fans'])
+            cf.save()
+        else:
+            cf = CompanyFacebook(
+                company=cm,
+                short_lived_token=access_token,
+                account_id=pg_id,
+                long_lived_token=l_lived_token,
+                page_access_token=page_access_token,
+                linked=True,
+                active=True,
+                page_id=page_id,
+                account_name=insgts['page_name'],
+                profile_url=insgts['p_picture'],
+            )
+            cf.followers_trend.append(insgts['fan_count'])
+            cf.impressions.append(insgts['page_impressions'])
+            # cf.page_negative_feedback.append(insgts['page_negative_feedback'])
+            cf.profile_views.append(insgts['page_views_total'])
+            # cf.page_engaged_users.append(insgts['page_engaged_users'])
+            cf.page_fans.append(insgts['page_fans'])
+            cf.save()
 
-    return redirect('dashboard', company_id=company_id)
-
+        return redirect('dashboard', company_id=company_id)
+    except:
+        return redirect('dashboard', company_id=company_id,context={'facebook_link_error':'Failed to link. Try again'})
 
 def tiktok_auth_link(company_id):
     client_id = settings.TIKTOK_CLIENT_ID  # Replace with your TikTok app's client ID

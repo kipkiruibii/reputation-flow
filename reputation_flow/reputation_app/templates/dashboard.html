@@ -2303,6 +2303,8 @@
                                                         </span>
                                                     </div>
                                                     {% if user_permissions.can_link_unlink_account %}
+                                                    <p style="color:red">{{ instagram_link_error }}</p>
+
                                                     <a style="margin-right: 10px;"
                                                         href="{{ instagram.link_url }}"><button type="button"
                                                             class="btn btn-primary"
@@ -2323,6 +2325,8 @@
                                                         </span>
                                                     </div>
                                                     {% if user_permissions.can_link_unlink_account %}
+                                                    <p style="color:red">{{ instagram_link_error }}</p>
+
                                                     <a style="margin-right: 10px;"
                                                         href="{{ instagram.link_url }}"><button type="button"
                                                             class="btn btn-primary"
@@ -2403,6 +2407,8 @@
                                                         </span>
                                                     </div>
                                                     {% if user_permissions.can_link_unlink_account %}
+                                                    <p style="color:red">{{ facebook_link_error }}</p>
+
                                                     <a style="margin-right: 10px;"
                                                         href="{{ facebook.link_url }}"><button type="button"
                                                             class="btn btn-primary"
@@ -2421,6 +2427,7 @@
                                                         </span>
                                                     </div>
                                                     {% if user_permissions.can_link_unlink_account %}
+                                                    <p style="color:red">{{ facebook_link_error }}</p>
                                                     <a style="margin-right: 10px;"
                                                         href="{{ facebook.link_url }}"><button type="button"
                                                             class="btn btn-primary"
@@ -2496,6 +2503,7 @@
                                                         </span>
                                                     </div>
                                                     {% if user_permissions.can_link_unlink_account %}
+                                                    <p style="color:red">{{ tiktok_link_error }}</p>
                                                     <a style="margin-right: 10px;" href="{{ tiktok.link_url }}"><button
                                                             type="button" class="btn btn-primary"
                                                             style="font-size: 12px;">Change</button></a>
@@ -2513,6 +2521,7 @@
                                                         </span>
                                                     </div>
                                                     {% if user_permissions.can_link_unlink_account %}
+                                                    <p style="color:red">{{ tiktok_link_error }}</p>
                                                     <a style="margin-right: 10px;" href="{{ tiktok.link_url }}"><button
                                                             type="button" class="btn btn-primary"
                                                             style="font-size: 12px;">Link</button></a>
@@ -2576,6 +2585,7 @@
                                                         </span>
                                                     </div>
                                                     {% if user_permissions.can_link_unlink_account %}
+                                                    <p style="color:red">{{ reddit_link_error }}</p>
                                                     <a style="margin-right: 10px;" href="{{ reddit.link_url }}"><button
                                                             type="button" class="btn btn-primary"
                                                             style="font-size: 12px;">Change</button></a>
@@ -2594,6 +2604,7 @@
                                                         </span>
                                                     </div>
                                                     {% if user_permissions.can_link_unlink_account %}
+                                                    <p style="color:red">{{ reddit_link_error }}</p>
                                                     <a style="margin-right: 10px;" href="{{ reddit.link_url }}"><button
                                                             type="button" class="btn btn-primary"
                                                             style="font-size: 12px;">Link</button></a>
