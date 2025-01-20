@@ -14,6 +14,7 @@ urlpatterns=[
     path('logout/',views.logoutUser,name='logout'),
     path('privacy/',views.privacy,name='privacy'),
     path('terms/',views.terms,name='terms'),
+    path('delete-account/',views.deleteAccount,name='delete-account'),
     path("robots.txt", views.robots_txt, name="robots_txt"),
     path('sitemap.xml', sitemap, {'sitemaps': sitemaps}, name='sitemap'),
     

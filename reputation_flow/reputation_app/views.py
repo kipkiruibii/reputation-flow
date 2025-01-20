@@ -215,6 +215,10 @@ def failed_payment(request):
 
 def privacy(request):
     return render(request, 'privacy.html')
+
+def deleteAccount(request):
+    return render(request, 'delete-account.html')
+
 def terms(request):
     return render(request, 'terms.html')
 
