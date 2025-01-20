@@ -2234,6 +2234,19 @@
                                 <div class="business-info" style="display: block;">
                                     <div class="linked-accounts">
                                         <h6>Social Channels</h6>
+                                        {% if instagram_link_error %}
+                                        <p style="color:red;font-size: 10px;">{{ instagram_link_error }}</p>
+                                        {% endif %}
+                                        {% if facebook_link_error %}
+                                        <p style="color:red;font-size: 10px;">{{ facebook_link_error }}</p>
+                                        {% endif %}
+                                        {% if tiktok_link_error %}
+                                        <p style="color:red;font-size: 10px;">{{ tiktok_link_error }}</p>
+                                        {% endif %}
+                                        {% if reddit_link_error %}
+                                        <p style="color:red;font-size: 10px;">{{ reddit_link_error }}</p>
+                                        {% endif %}
+
                                         <div class="grid-container">
                                             <!-- INSTAGRAM -->
                                             <div class="grid-item">
@@ -2293,7 +2306,6 @@
                                                     {% endif %}
 
                                                 </div>
-                                                <p style="color:red;font-size: 12px;">{{ instagram_link_error }}</p>
                                                 <div style="height:40px;display: flex;justify-content: space-between;">
 
                                                     {% if instagram.linked %}
@@ -2397,7 +2409,6 @@
                                                     {% endif %}
 
                                                 </div>
-                                                <p style="color:red;font-size: 12px;">{{ facebook_link_error }}</p>
                                                 <div style="height:30px;display: flex;justify-content: space-between;">
 
                                                     {% if facebook.linked %}
@@ -2493,7 +2504,6 @@
                                                     {% endif %}
 
                                                 </div>
-                                                <p style="color:red;font-size: 12px;">{{ tiktok_link_error }}</p>
 
                                                 <div style="height:30px;display: flex;justify-content: space-between;">
 
@@ -2576,7 +2586,6 @@
                                                     {% endif %}
 
                                                 </div>
-                                                <p style="color:red;font-size: 12px;">{{ reddit_link_error }}</p>
                                                 <div style="height:30px;display: flex;justify-content: space-between;">
 
                                                     {% if reddit.linked %}
