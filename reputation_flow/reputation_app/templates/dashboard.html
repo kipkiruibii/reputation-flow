@@ -2339,10 +2339,9 @@
                                                     {% if user_permissions.can_link_unlink_account %}
                                                     <p style="color:red">{{ instagram_link_error }}</p>
 
-                                                    <a style="margin-right: 10px;"
-                                                        href="{{ instagram.link_url }}"><button type="button"
+                                                    <a style="margin-right: 10px;" href="#"><button type="button"
                                                             class="btn btn-primary"
-                                                            style="font-size: 12px;">Link</button></a>
+                                                            style="font-size: 12px;cursor: not-allowed; background-color: #aeb0b1;">Link</button></a>
                                                     {% else %}
                                                     <button type="button" class="btn btn-primary"
                                                         tooltip="Forbidden. Contact admin" flow="down"
@@ -2439,10 +2438,9 @@
                                                     </div>
                                                     {% if user_permissions.can_link_unlink_account %}
                                                     <p style="color:red">{{ facebook_link_error }}</p>
-                                                    <a style="margin-right: 10px;"
-                                                        href="{{ facebook.link_url }}"><button type="button"
+                                                    <a style="margin-right: 10px;" href="#"><button type="button"
                                                             class="btn btn-primary"
-                                                            style="font-size: 12px;">Link</button></a>
+                                                            style="font-size: 12px;cursor: not-allowed; background-color: #aeb0b1;">Link</button></a>
                                                     {% else %}
                                                     <button type="button" class="btn btn-primary"
                                                         tooltip="Forbidden. Contact admin" flow="down"
@@ -2533,9 +2531,9 @@
                                                     </div>
                                                     {% if user_permissions.can_link_unlink_account %}
                                                     <p style="color:red">{{ tiktok_link_error }}</p>
-                                                    <a style="margin-right: 10px;" href="{{ tiktok.link_url }}"><button
-                                                            type="button" class="btn btn-primary"
-                                                            style="font-size: 12px;">Link</button></a>
+                                                    <a style="margin-right: 10px;" href="#"><button type="button"
+                                                            class="btn btn-primary"
+                                                            style="font-size: 12px;cursor: not-allowed; background-color: #aeb0b1;">Link</button></a>
                                                     {% else %}
                                                     <button type="button" class="btn btn-primary"
                                                         tooltip="Forbidden. Contact admin" flow="down"

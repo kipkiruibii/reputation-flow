@@ -72,6 +72,9 @@ def robots_txt(request):
     ]
     return HttpResponse("\n".join(lines), content_type="text/plain")
 
+def custom_404_view(request, exception):
+    return render(request, '404error.html', {}, status=404)
+
 def get_client_ip(request):
     """Extract client IP address from request."""
     x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')

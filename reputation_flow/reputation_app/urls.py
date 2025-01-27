@@ -1,6 +1,7 @@
 from django.urls import path, include
 from . import views
 from django.conf import settings
+from django.conf.urls import handler404,handler500
 from django.conf.urls.static import static
 from django.contrib.sitemaps.views import sitemap
 from . import sitemaps   # Import your sitemaps
@@ -8,6 +9,9 @@ from . import sitemaps   # Import your sitemaps
 sitemaps = {
     'static': sitemaps.StaticViewSitemap,
 }
+handler404 = views.custom_404_view
+handler500 = views.custom_404_view
+
 urlpatterns=[
     path('',views.index,name='landing'),
     path('login/',views.loginUser,name='login'),
