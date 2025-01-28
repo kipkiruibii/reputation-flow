@@ -5775,8 +5775,6 @@ def uploadPost(request):
         
         if is_video:
             output_image_path = f'{cpst.post_id}_thumbnail.jpg'
-            if os.path.exists(output_image_path):
-                os.remove(output_image_path)
             video_file_path = gallery_items[0]['image_path']
             print('extracting from')
             try:
@@ -5796,8 +5794,11 @@ def uploadPost(request):
                 up.save()
                 if os.path.exists(output_image_path):
                     os.remove(output_image_path)
+                print('extracted and saved')
             except Exception as e:
                 print(f"Error extracting frame: {traceback.format_exc()}")
+            if os.path.exists(output_image_path):
+                os.remove(output_image_path)
 
         for f in gallery_items:
             # use threads
@@ -5855,7 +5856,6 @@ def uploadPost(request):
         else:
             for itm in UploadedMedia.objects.filter(post=cpst):
                 mime_type, _ = mimetypes.guess_type(itm.media.name)
-                print(mime_type)
                 if mime_type and mime_type.startswith("image"):
                     cpst.media_thumbnail=itm.media.url
                     cpst.save()
