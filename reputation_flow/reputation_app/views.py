@@ -5775,7 +5775,11 @@ def uploadPost(request):
         
         if is_video:
             output_image_path = f'{cpst.post_id}_thumbnail.jpg'
-            video_file_path = gallery_items[0]['image_path']
+            fles=[]
+            for field_name, file in files.items():
+                fles.append(file)
+
+            video_file_path = fles[0]['image_path']
             print('extracting from')
             try:
                 # Extract the first frame (frame at 0 seconds)
