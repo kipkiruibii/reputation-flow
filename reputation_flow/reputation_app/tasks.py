@@ -1598,14 +1598,8 @@ def removes3Media():
 def post_scheduled_content(post_id):
     # Fetch the post from the database
     post = CompanyPosts.objects.get(post_id=post_id)
+    postContent(post)
     
-    # # Simulate posting (replace this with actual logic to post on Reddit)
-    # print(f"Posting content: {post.content} to subreddit: {post.subreddit}")
-
-    # Mark post as completed
-    post.is_published = True
-    post.save()
-
     return f"Posted content successful "
 @shared_task
 def update_access_tokens_task():
