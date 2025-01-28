@@ -1599,7 +1599,6 @@ def post_scheduled_content(post_id):
     # Fetch the post from the database
     post = CompanyPosts.objects.get(post_id=post_id)
     postContent(post)
-    
     return f"Posted content successful "
 @shared_task
 def update_access_tokens_task():
@@ -1629,15 +1628,5 @@ def check_scheduled_posts():
     for post in posts_to_post:
         post_scheduled_content.apply_async(args=[post.post_id])
         
-    # sps=CompanyPosts.objects.filter(is_scheduled=True)
-    # for sp in sps:
-    #     tnw=timezone.now()
-    #     tt=sp.date_scheduled
-        
-    #     # should be within a minute
-    #     tdiff=(tt-tnw).total_seconds()/60 
-    #     if tdiff <= 0:
-    #         post_scheduled_content.apply_async(args=[post.post_id])
-
 
     return f"Checked and scheduled {len(posts_to_post)} posts"

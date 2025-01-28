@@ -5782,6 +5782,8 @@ def uploadPost(request):
             fles=[]
             for field_name, file in files.items():
                 fles.append(file)
+            
+            # check if its video we extract the thumbnail and save
             for file in fles:
                 up=UploadedMedia(
                     post=cpst,
@@ -5818,7 +5820,12 @@ def uploadPost(request):
                 cfs.save()
                 cp.company_used_storage+=f_size
                 cp.save()
-
+        
+        if not is_video:
+            cp_med=UploadedMedia.objects.filter(post=cpst).first()
+            img_path=cp_med.media.url
+            cpst.media_thumbnail=img_path
+            cpst.save()
             
         if instagramSelected:
             cigp = CompanyInstagramPosts(
