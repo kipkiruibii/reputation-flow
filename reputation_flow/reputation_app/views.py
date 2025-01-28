@@ -5853,13 +5853,14 @@ def uploadPost(request):
             cpst.media_thumbnail=img_path
             cpst.save()
         else:
-            for itm in UploadedMedia.objects.filter(post=cpst):
-                mime_type, _ = mimetypes.guess_type(itm.media.name)
-                print(mime_type)
-                if mime_type and mime_type.startswith("image"):
-                    cpst.media_thumbnail=itm.media.url
-                    cpst.save()
-                    break
+            pass
+            # for itm in UploadedMedia.objects.filter(post=cpst):
+            #     mime_type, _ = mimetypes.guess_type(itm.media.name)
+            #     print(mime_type)
+            #     if mime_type and mime_type.startswith("image"):
+            #         cpst.media_thumbnail=itm.media.url
+            #         cpst.save()
+            #         break
 
             
         if instagramSelected:
