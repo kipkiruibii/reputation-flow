@@ -1599,8 +1599,8 @@ def post_scheduled_content(post_id):
     # Fetch the post from the database
     post = CompanyPosts.objects.get(post_id=post_id)
     
-    # Simulate posting (replace this with actual logic to post on Reddit)
-    print(f"Posting content: {post.content} to subreddit: {post.subreddit}")
+    # # Simulate posting (replace this with actual logic to post on Reddit)
+    # print(f"Posting content: {post.content} to subreddit: {post.subreddit}")
 
     # Mark post as completed
     post.is_published = True
