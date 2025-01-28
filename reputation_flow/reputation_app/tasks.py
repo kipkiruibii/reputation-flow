@@ -1624,16 +1624,16 @@ def check_scheduled_posts():
     print('scheduled content')
     # Get posts that need to be posted
     # check customers expiry run as threads
-    update_access_tokens_task.delay()
-    check_users_subscription_task.delay()
-    remove_s3_media_task.delay()
+    # update_access_tokens_task.delay()
+    # check_users_subscription_task.delay()
+    # remove_s3_media_task.delay()
     
-    tnw=timezone.now()
-    posts_to_post = CompanyPosts.objects.filter(date_scheduled__lte=tnw,is_scheduled=True)
+    # tnw=timezone.now()
+    # posts_to_post = CompanyPosts.objects.filter(date_scheduled__lte=tnw,is_scheduled=True)
 
-    # For each post that is due, call the post_scheduled_content task
-    for post in posts_to_post:
-        post_scheduled_content.apply_async(args=[post.post_id])
+    # # For each post that is due, call the post_scheduled_content task
+    # for post in posts_to_post:
+    #     post_scheduled_content.apply_async(args=[post.post_id])
         
     # sps=CompanyPosts.objects.filter(is_scheduled=True)
     # for sp in sps:
@@ -1646,4 +1646,4 @@ def check_scheduled_posts():
     #         post_scheduled_content.apply_async(args=[post.post_id])
 
 
-    return f"Checked and scheduled {len(posts_to_post)} posts"
+    # return f"Checked and scheduled {len(posts_to_post)} posts"
