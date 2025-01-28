@@ -10,7 +10,6 @@ sitemaps = {
     'static': sitemaps.StaticViewSitemap,
 }
 handler404 = views.custom_404_view
-handler500 = views.custom_404_view
 
 urlpatterns=[
     path('',views.index,name='landing'),
