@@ -66,7 +66,7 @@ CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_BACKEND = 'django-db'
 CELERY_BEAT_SCHEDULE = {
     'check_scheduled_posts': {
-        'task': 'reputation_app.tasks.manage_app',  # Path to your task
+        'task': 'reputation_app.tasks.check_scheduled_posts',  # Path to your task
         'schedule': crontab(minute='*/1'),  # Runs every minute
     },
 }

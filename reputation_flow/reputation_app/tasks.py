@@ -1549,7 +1549,6 @@ def updateAccessTokens(self):
 #             tts= threading.Thread(target=postContent,daemon=True,kwargs={'post':sp})
 #             tts.start()
     
-
 def checkUsersSubscription(self):
     ''' updates users subscription status'''
     for cp in Company.objects.all():
@@ -1576,7 +1575,6 @@ def checkUsersSubscription(self):
 def updatePostEngagement(self):
     ''' every 10 minutes, update the engagement in background, comments,likes notifications'''
     pass
-
 
 def removes3Media(self):
     for cp in CompanyPosts.objects.filter(is_published=True):
@@ -1609,15 +1607,26 @@ def post_scheduled_content(post_id):
     post.save()
 
     return f"Posted content successful "
+@shared_task
+def update_access_tokens_task():
+    updateAccessTokens()
 
+@shared_task
+def check_users_subscription_task():
+    checkUsersSubscription()
+
+@shared_task
+def remove_s3_media_task():
+    removes3Media()
+    
 @shared_task
 def check_scheduled_posts():
     print('scheduled content')
     # Get posts that need to be posted
     # check customers expiry run as threads
-    threading.Thread(target=updateAccessTokens(),daemon=True)
-    threading.Thread(target=checkUsersSubscription(),daemon=True)
-    threading.Thread(target=removes3Media(),daemon=True)
+    update_access_tokens_task.delay()
+    check_users_subscription_task.delay()
+    remove_s3_media_task.delay()
     
     tnw=timezone.now()
     posts_to_post = CompanyPosts.objects.filter(date_scheduled__lte=tnw,is_scheduled=True)
