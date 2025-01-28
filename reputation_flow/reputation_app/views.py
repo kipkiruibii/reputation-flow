@@ -5779,7 +5779,7 @@ def uploadPost(request):
             for field_name, file in files.items():
                 fles.append(file)
 
-            video_file_path = fles[0]['image_path']
+            video_file_path = fles[0]
             print('extracting from')
             try:
                 # Extract the first frame (frame at 0 seconds)
