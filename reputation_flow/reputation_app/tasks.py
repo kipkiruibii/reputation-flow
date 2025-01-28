@@ -1514,7 +1514,7 @@ def delete_file_from_s3(file_key):
     # import magic 
 
 # updating the access tokens for every account
-def updateAccessTokens(self):
+def updateAccessTokens():
     '''Update facebook, instagram and tiktok access tokens '''
     for c in CompanyFacebook.objects.all():
         access_token=c.page_access_token
@@ -1536,7 +1536,7 @@ def updateAccessTokens(self):
             tv.start()
         
 
-# def uploadScheduledContent(self):
+# def uploadScheduledContent():
 #     '''check and upload scheduled content'''
 #     sps=CompanyPosts.objects.filter(is_scheduled=True)
 #     for sp in sps:
@@ -1549,7 +1549,7 @@ def updateAccessTokens(self):
 #             tts= threading.Thread(target=postContent,daemon=True,kwargs={'post':sp})
 #             tts.start()
     
-def checkUsersSubscription(self):
+def checkUsersSubscription():
     ''' updates users subscription status'''
     for cp in Company.objects.all():
         if cp.company_active_subscription:
@@ -1572,11 +1572,11 @@ def checkUsersSubscription(self):
                 cp.company_free_trial=False
                 cp.save()
             
-def updatePostEngagement(self):
+def updatePostEngagement():
     ''' every 10 minutes, update the engagement in background, comments,likes notifications'''
     pass
 
-def removes3Media(self):
+def removes3Media():
     for cp in CompanyPosts.objects.filter(is_published=True):
         for upl in UploadedMedia.objects.filter(post=cp):
             delThead=threading.Thread(target=delete_file_from_s3,kwargs={'file_key':upl.media.name},daemon=True)
