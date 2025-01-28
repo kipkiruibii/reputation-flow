@@ -5859,6 +5859,7 @@ def uploadPost(request):
                 if mime_type and mime_type.startswith("image"):
                     cpst.media_thumbnail=itm.media.url
                     cpst.save()
+                    print(f'fThumbnail saved {itm.media.url}')
                     break
 
             
