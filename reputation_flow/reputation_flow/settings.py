@@ -54,7 +54,7 @@ INSTALLED_APPS = [
     'paypal.standard.ipn',
     'rest_framework',
     'django.contrib.sitemaps',
-    'django_celery_results'
+    'django_celery_results',
     'django_celery_beat'
 ]
 
