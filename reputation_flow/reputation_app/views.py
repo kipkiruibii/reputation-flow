@@ -5773,36 +5773,36 @@ def uploadPost(request):
     else:
         # delete temporarily stored files
         
-        if is_video:
-            output_image_path = f'{cpst.post_id}_thumbnail.jpg'
-            fles=[]
-            for field_name, file in files.items():
-                fles.append(file)
+        # if is_video:
+            # output_image_path = f'{cpst.post_id}_thumbnail.jpg'
+            # fles=[]
+            # for field_name, file in files.items():
+            #     fles.append(file)
 
-            video_file_path = fles[0]
-            print('extracting from')
-            try:
-                # Extract the first frame (frame at 0 seconds)
-                process = (
-                    ffmpeg
-                    .input(video_file_path, ss=0)  # Start at 0 seconds
-                    .output(output_image_path, vframes=1)
-                    .run_async(pipe_stdout=True, pipe_stderr=True)
-                )
-                process.communicate()  # Ensure the process completes
-                process.wait()
-                up=UploadedMedia(
-                    post=cpst,
-                    media=output_image_path
-                )
-                up.save()
-                if os.path.exists(output_image_path):
-                    os.remove(output_image_path)
-                print('extracted and saved')
-            except Exception as e:
-                print(f"Error extracting frame: {traceback.format_exc()}")
-            if os.path.exists(output_image_path):
-                os.remove(output_image_path)
+            # video_file_path = fles[0]
+            # print('extracting from')
+            # try:
+            #     # Extract the first frame (frame at 0 seconds)
+            #     process = (
+            #         ffmpeg
+            #         .input(video_file_path, ss=0)  # Start at 0 seconds
+            #         .output(output_image_path, vframes=1)
+            #         .run_async(pipe_stdout=True, pipe_stderr=True)
+            #     )
+            #     process.communicate()  # Ensure the process completes
+            #     process.wait()
+            #     up=UploadedMedia(
+            #         post=cpst,
+            #         media=output_image_path
+            #     )
+            #     up.save()
+            #     if os.path.exists(output_image_path):
+            #         os.remove(output_image_path)
+            #     print('extracted and saved')
+            # except Exception as e:
+            #     print(f"Error extracting frame: {traceback.format_exc()}")
+            # if os.path.exists(output_image_path):
+            #     os.remove(output_image_path)
 
         for f in gallery_items:
             # use threads
