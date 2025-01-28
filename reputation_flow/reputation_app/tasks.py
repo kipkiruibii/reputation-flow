@@ -1454,6 +1454,7 @@ def postContent(post):
     if not post.is_scheduled:
         return
     post.is_scheduled=False
+    post.media_thumbnail=''
     post.save()
 
     for pltfrm in pltforms:
