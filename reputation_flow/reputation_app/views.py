@@ -5772,6 +5772,33 @@ def uploadPost(request):
             igThread.start()
     else:
         # delete temporarily stored files
+        
+        if is_video:
+            output_image_path = f'{cpst.post_id}_thumbnail.jpg'
+            if os.path.exists(output_image_path):
+                os.remove(output_image_path)
+            video_file_path = fles[0]['image_path']
+            print('extracting from')
+            try:
+                # Extract the first frame (frame at 0 seconds)
+                process = (
+                    ffmpeg
+                    .input(video_file_path, ss=0)  # Start at 0 seconds
+                    .output(output_image_path, vframes=1)
+                    .run_async(pipe_stdout=True, pipe_stderr=True)
+                )
+                process.communicate()  # Ensure the process completes
+                process.wait()
+                up=UploadedMedia(
+                    post=cpst,
+                    media=output_image_path
+                )
+                up.save()
+                if os.path.exists(output_image_path):
+                    os.remove(output_image_path)
+            except Exception as e:
+                print(f"Error extracting frame: {traceback.format_exc()}")
+
         for f in gallery_items:
             # use threads
             delThread=threading.Thread(target=delete_temp_files,kwargs={'file_path':f['image_path']},daemon=True)
@@ -5782,7 +5809,6 @@ def uploadPost(request):
             fles=[]
             for field_name, file in files.items():
                 fles.append(file)
-            
             # check if its video we extract the thumbnail and save
             for file in fles:
                 up=UploadedMedia(
@@ -5826,6 +5852,15 @@ def uploadPost(request):
             img_path=cp_med.media.url
             cpst.media_thumbnail=img_path
             cpst.save()
+        else:
+            for itm in UploadedMedia.objects.filter(post=cpst):
+                mime_type, _ = mimetypes.guess_type(itm.media.name)
+                print(mime_type)
+                if mime_type and mime_type.startswith("image"):
+                    cpst.media_thumbnail=itm.media.url
+                    cpst.save()
+                    break
+
             
         if instagramSelected:
             cigp = CompanyInstagramPosts(
