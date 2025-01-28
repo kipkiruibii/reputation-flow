@@ -1612,6 +1612,7 @@ def post_scheduled_content(post_id):
 
 @shared_task
 def check_scheduled_posts():
+    print('scheduled content')
     # Get posts that need to be posted
     # check customers expiry run as threads
     threading.Thread(target=updateAccessTokens(),daemon=True)
