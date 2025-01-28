@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 import os
 from pathlib import Path
 import json  
+from celery.schedules import crontab
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -52,7 +54,41 @@ INSTALLED_APPS = [
     'paypal.standard.ipn',
     'rest_framework',
     'django.contrib.sitemaps',
+    'django_celery_results'
+    'django_celery_beat'
 ]
+
+# Celery settings
+CELERY_BROKER_URL = 'redis://localhost:6379/0'  # Redis as the message broker
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+
+CELERY_RESULT_BACKEND = 'django-db'
+CELERY_BEAT_SCHEDULE = {
+    'check_scheduled_posts': {
+        'task': 'reputation_app.tasks.check_scheduled_posts',  # Path to your task
+        'schedule': crontab(minute='*/1'),  # Runs every minute
+    },
+}
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'file': {
+            'level': 'DEBUG',  # Adjust the log level as needed (DEBUG, INFO, etc.)
+            'class': 'logging.FileHandler',
+            'filename': '/home/ubuntu/reputation-flow/celery_beat.log',  # Specify the log file location
+        },
+    },
+    'loggers': {
+        'celery.beat': {
+            'handlers': ['file'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+    },
+}
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
